@@ -1,0 +1,79 @@
+http.enabled: true
+http.host: 0.0.0.0
+http.port: 5067
+
+metricbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+metricbeat.modules:
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
+    hosts: ["http://gateway-service:8080"]
+    metrics_path: /metrics
+    fields:
+      service: gateway-service
+    fields_under_root: true
+
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
+    hosts: ["http://identity-service:8080"]
+    metrics_path: /metrics
+    fields:
+      service: identity-service
+    fields_under_root: true
+
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
+    hosts: ["http://catalog-service:8080"]
+    metrics_path: /metrics
+    fields:
+      service: catalog-service
+    fields_under_root: true
+
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
+    hosts: ["http://order-service:8080"]
+    metrics_path: /metrics
+    fields:
+      service: order-service
+    fields_under_root: true
+
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
+    hosts: ["http://shipment-service:8080"]
+    metrics_path: /metrics
+    fields:
+      service: shipment-service
+    fields_under_root: true
+
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
+    hosts: ["http://notification-service:8080"]
+    metrics_path: /metrics
+    fields:
+      service: notification-service
+    fields_under_root: true
+
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
+    hosts: ["http://payment-service:8080"]
+    metrics_path: /actuator/prometheus
+    fields:
+      service: payment-service
+    fields_under_root: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+setup.ilm.enabled: false
+setup.template.enabled: false
+
+logging.level: info

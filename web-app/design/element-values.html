@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ElementAPI - Değer Ekranı</title>
+  <link rel="stylesheet" href="assets/element-api.css" />
+</head>
+<body data-page="values">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="ElementAPI ana sayfa">
+      <span class="brand-mark">El</span>
+      <span>ElementAPI</span>
+    </a>
+    <nav class="nav" aria-label="Ana gezinme">
+      <a href="periodic-table.html" data-nav="periodic" data-symbol-link>Periyodik tablo</a>
+      <a href="element-values.html" data-nav="values" data-symbol-link>Değerler</a>
+      <a href="element-trading.html" data-nav="trading" data-symbol-link>Elemental mağaza</a>
+    </nav>
+    <div class="top-actions">
+      <span class="pill"><span class="status-dot"></span> Model fiyat aktif</span>
+      <a class="btn primary" href="element-trading.html" data-symbol-link>Elemental'da satın al</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero compact" data-od-id="values-hero">
+      <div>
+        <p class="eyebrow">Bankacılık görünümü</p>
+        <h1>Element değerleri ayrı bir finans ekranında okunur.</h1>
+        <p class="lead">Bu sayfa gerçek piyasa fiyatı iddia etmez; elementleri oyun ekonomisi, eğitim simülasyonu veya veri ürünü içinde varlık gibi modelleyen API değerlerini gösterir.</p>
+      </div>
+      <div class="field selector-field">
+        <label for="elementSelect">Değerlenecek element</label>
+        <select id="elementSelect"></select>
+      </div>
+    </section>
+
+    <section class="market-grid" data-od-id="valuation-workspace">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Değer paneli</p>
+            <h2>Model fiyat, likidite ve teminat</h2>
+            <p>Atom numarası, kategori ve kullanım profiline göre tutarlı bir değer modeli hesaplanır.</p>
+          </div>
+          <div class="chips" aria-label="Grafik aralığı">
+            <button class="range-button active" type="button" data-range="12">12 dönem</button>
+            <button class="range-button" type="button" data-range="24">24 dönem</button>
+            <button class="range-button" type="button" data-range="36">36 dönem</button>
+          </div>
+        </div>
+
+        <div class="metric-strip">
+          <div class="metric-card"><span>Model fiyat</span><strong id="valuePrice">184,20 ELX</strong><em id="valueChange">+2,6% bugün</em></div>
+          <div class="metric-card"><span>Değer endeksi</span><strong id="valueIndex">74/100</strong><em>nadirlik + kullanım</em></div>
+          <div class="metric-card"><span>Likidite</span><strong id="valueLiquidity">Yüksek</strong><em>işlem derinliği</em></div>
+          <div class="metric-card"><span>Teminat oranı</span><strong id="valueCollateral">62%</strong><em>portföy kredisi</em></div>
+        </div>
+
+        <div class="mini-chart" id="marketChart" aria-label="Seçili elementin değer geçmişi"></div>
+
+        <div class="panel-body">
+          <div class="bank-list">
+            <div class="bank-row"><div><span>Dolaşımdaki arz</span><strong id="valueSupply">48.000 birim</strong></div><div class="change" id="valueSupplyChange">+1,2%</div></div>
+            <div class="bank-row"><div><span>Kullanım alanı</span><strong id="valueUse">Organik bileşikler</strong></div><div class="change" id="valueUseScore">88</div></div>
+            <div class="bank-row"><div><span>Risk profili</span><strong id="valueRisk">Dengeli</strong></div><div class="change" id="valueVolatility">Düşük</div></div>
+          </div>
+          <p class="valuation-note">Model; atomik konum, kategori sınıfı ve kullanım türünü birleştirir. Gerçek emtia fiyatı veya yatırım tavsiyesi değildir.</p>
+        </div>
+      </div>
+
+      <aside class="side-stack">
+        <section class="panel detail-card" aria-live="polite" data-od-id="valued-asset">
+          <div class="element-large">
+            <div class="element-badge" id="valueBadge">
+              <span class="atomic-number" id="valueNumber">6</span>
+              <span class="big-symbol" id="valueSymbol">C</span>
+              <span class="element-name" id="valueShortName">Karbon</span>
+            </div>
+            <div>
+              <p class="eyebrow">Değerlenen varlık</p>
+              <h3 id="valueName">Karbon</h3>
+              <div class="category-line" id="valueAssetCategory">Ametal portföy sınıfı</div>
+            </div>
+          </div>
+          <p class="summary" id="valueSummary">Karbon, geniş kullanım alanı nedeniyle model portföylerde temel varlık gibi davranır.</p>
+          <div class="inline-actions detail-actions">
+            <a class="btn" href="periodic-table.html" data-symbol-link>Tablodaki konumu</a>
+            <a class="btn primary" href="element-trading.html" data-symbol-link>Satın al</a>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Karşılaştırma</p>
+              <h3>Kategori içi değerler</h3>
+            </div>
+          </div>
+          <div class="playground">
+            <div class="bank-list" id="marketList"></div>
+          </div>
+        </section>
+
+        <section class="panel" data-od-id="valuation-api">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">API yanıtı</p>
+              <h3>GET /valuation</h3>
+            </div>
+            <button class="mini-btn" type="button" data-copy-target="valuationJson">Kopyala</button>
+          </div>
+          <div class="playground">
+            <div class="inline-code"><pre id="valuationJson"></pre></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">Değer ekranı ayrı sayfa olarak çalışır; seçilen element bağlantılarla diğer ekranlara taşınır.</footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="assets/element-api.js"></script>
+</body>
+</html>

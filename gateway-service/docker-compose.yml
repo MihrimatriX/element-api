@@ -1,0 +1,36 @@
+# Sadece gateway-service + Redis
+# Diğer API'ler host'ta veya kök compose ile çalışıyor olmalı (varsayılan portlar).
+# docker compose up -d --build
+
+name: gateway-service-stack
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6381:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  app:
+    build:
+      context: ..
+      dockerfile: gateway-service/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RedisConnection: redis:6379
+      IdentityServiceInternalUrl: ${IDENTITY_URL:-http://host.docker.internal:5001}
+      ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address: ${IDENTITY_URL:-http://host.docker.internal:5001}
+      ReverseProxy__Clusters__element-cluster__Destinations__destination1__Address: ${CATALOG_URL:-http://host.docker.internal:5002}
+      ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address: ${ORDER_URL:-http://host.docker.internal:5003}
+      ReverseProxy__Clusters__notification-cluster__Destinations__destination1__Address: ${NOTIFICATION_URL:-http://host.docker.internal:5006}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      redis:
+        condition: service_healthy

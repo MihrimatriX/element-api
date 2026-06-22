@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipment-service
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: shipment-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipment-service
+spec:
+  selector:
+    matchLabels:
+      app: shipment-service
+  template:
+    metadata:
+      labels:
+        app: shipment-service
+    spec:
+      containers:
+      - name: shipment-service
+        image: element-shipment-service:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ASPNETCORE_URLS
+          value: "http://+:8080"
+        - name: RabbitMQ__Host
+          value: "rabbitmq"
+        - name: ConnectionStrings__DefaultConnection
+          value: "Host=element-postgres;Port=5432;Database=element_shipment_db;Username=postgres;Password=mysecretpassword"
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10

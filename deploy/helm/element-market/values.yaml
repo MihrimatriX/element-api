@@ -1,0 +1,56 @@
+global:
+  imagePullPolicy: IfNotPresent
+  postgres:
+    host: element-market-postgres
+    port: 5432
+    user: postgres
+    password: mysecretpassword
+  rabbitmq:
+    host: element-market-rabbitmq
+  redis: element-market-redis:6379
+
+infrastructure:
+  postgres:
+    image: postgres:16-alpine
+  redis:
+    image: redis:7-alpine
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+
+notification:
+  corsOrigins: "http://localhost:3000"
+
+ingress:
+  enabled: true
+  host: element.local
+  className: nginx
+
+services:
+  gateway:
+    image: element-gateway:latest
+    port: 8080
+  identity:
+    image: element-identity-service:latest
+    port: 8080
+    database: element_identity_db
+  element:
+    image: element-service:latest
+    port: 8080
+    database: element_market_db
+  order:
+    image: element-order-service:latest
+    port: 8080
+    database: element_order_db
+  payment:
+    image: element-payment-service:latest
+    port: 8080
+  notification:
+    image: element-notification-service:latest
+    port: 8080
+  shipment:
+    image: element-shipment-service:latest
+    port: 8080
+    database: element_shipment_db
+
+secrets:
+  jwtSecret: "REPLACE_ME"

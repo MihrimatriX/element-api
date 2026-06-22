@@ -1,0 +1,17 @@
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\bin\Debug\net9.0\Element.Services.Shipment.Infrastructure.deps.json
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\bin\Debug\net9.0\Element.Services.Shipment.Infrastructure.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\bin\Debug\net9.0\Element.Services.Shipment.Infrastructure.pdb
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\bin\Debug\net9.0\Element.Services.Shipment.Core.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\bin\Debug\net9.0\Element.Shared.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\bin\Debug\net9.0\Element.Services.Shipment.Core.pdb
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\bin\Debug\net9.0\Element.Shared.pdb
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element.Services.Shipment.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element.Services.Shipment.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element.Services.Shipment.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element.Services.Shipment.Infrastructure.AssemblyInfo.cs
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element.Services.Shipment.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element..6F533609.Up2Date
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element.Services.Shipment.Infrastructure.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\refint\Element.Services.Shipment.Infrastructure.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\Element.Services.Shipment.Infrastructure.pdb
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Infrastructure\obj\Debug\net9.0\ref\Element.Services.Shipment.Infrastructure.dll

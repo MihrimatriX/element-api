@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Elemental - Element Mağazası</title>
+  <link rel="stylesheet" href="assets/element-api.css" />
+</head>
+<body data-page="trading">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="Elemental ana sayfa">
+      <span class="brand-mark">El</span>
+      <span>Elemental</span>
+    </a>
+    <nav class="nav" aria-label="Ana gezinme">
+      <a href="periodic-table.html" data-nav="periodic" data-symbol-link>Periyodik tablo</a>
+      <a href="element-values.html" data-nav="values" data-symbol-link>Değerler</a>
+      <a href="element-trading.html" data-nav="trading" data-symbol-link>Elemental mağaza</a>
+    </nav>
+    <div class="top-actions">
+      <span class="pill"><span class="status-dot"></span> Elemental teslimat aktif</span>
+      <a class="btn primary" href="#cartSummary">Sepete git</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="hero commerce-hero" data-od-id="elemental-hero">
+      <div>
+        <p class="eyebrow">Elemental mağaza</p>
+        <h1>Elementleri ara, karşılaştır, sepete ekle.</h1>
+        <p class="lead">Karbon, neon, demir ve nadir element paketlerini tek mağazada keşfet. Sepetin oluşurken sipariş API gövdesi de canlı hazırlanır.</p>
+        <form class="commerce-search" role="search">
+          <label class="sr-only" for="shopSearchInput">Elemental mağazada ara</label>
+          <input id="shopSearchInput" type="search" placeholder="Element, sembol veya kategori ara..." autocomplete="off" />
+          <button class="btn primary" type="submit">Ürün ara</button>
+        </form>
+      </div>
+      <aside class="commerce-promo" aria-label="Elemental kampanya">
+        <span>Sepet kampanyası</span>
+        <strong>1200 ELX üzeri teslimat bizden</strong>
+        <a class="btn" href="#productGrid">Ürünlere bak</a>
+      </aside>
+    </section>
+
+    <section class="service-strip" aria-label="Elemental hizmetleri">
+      <article class="service-card">
+        <strong>Hızlı ürün bulma</strong>
+        <span>Sembol, kategori veya element adıyla mağaza içinde ara.</span>
+      </article>
+      <article class="service-card">
+        <strong>API ile aynı fiyat</strong>
+        <span>Ürün fiyatı ElementAPI değer modelinden hesaplanır.</span>
+      </article>
+      <article class="service-card">
+        <strong>Sepetten JSON'a</strong>
+        <span>Sipariş oluşturunca endpoint gövdesi hazır olur.</span>
+      </article>
+    </section>
+
+    <section class="commerce-shell" data-od-id="elemental-marketplace">
+      <div class="panel">
+        <div class="market-toolbar">
+          <div class="chips" aria-label="Mağaza kategorileri">
+            <button class="chip active" type="button" data-shop-category="all">Tüm ürünler</button>
+            <button class="chip" type="button" data-shop-category="transition" style="--chip-color: var(--cat-transition)">Sanayi metalleri</button>
+            <button class="chip" type="button" data-shop-category="nonmetal" style="--chip-color: var(--cat-nonmetal)">Ametaller</button>
+            <button class="chip" type="button" data-shop-category="noble" style="--chip-color: var(--cat-noble)">Soy gazlar</button>
+            <button class="chip" type="button" data-shop-category="lanthanide" style="--chip-color: var(--cat-lanthanide)">Nadir elementler</button>
+            <button class="chip" type="button" data-shop-category="actinide" style="--chip-color: var(--cat-actinide)">Kontrollü sınıf</button>
+          </div>
+          <div class="field sort-field">
+            <label for="shopSort">Sıralama</label>
+            <select id="shopSort">
+              <option value="featured">Öne çıkanlar</option>
+              <option value="price-asc">Fiyat artan</option>
+              <option value="price-desc">Fiyat azalan</option>
+              <option value="rating">Puanı yüksek</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div class="field selector-field">
+            <label for="shopElementSelect">Öne çıkarılacak element</label>
+            <select id="shopElementSelect"></select>
+          </div>
+        </div>
+
+        <div class="product-grid" id="productGrid" aria-live="polite"></div>
+      </div>
+
+      <aside class="side-stack">
+        <section class="panel detail-card" aria-live="polite" data-od-id="selected-product">
+          <div class="element-large">
+            <div class="element-badge" id="shopBadge">
+              <span class="atomic-number" id="shopNumber">6</span>
+              <span class="big-symbol" id="shopSymbol">C</span>
+              <span class="element-name" id="shopShortName">Karbon</span>
+            </div>
+            <div>
+              <p class="eyebrow">Bugünün ürünü</p>
+              <h3 id="shopName">Karbon</h3>
+              <div class="category-line" id="shopCategory">Ametal - 2. periyot, 14. grup</div>
+            </div>
+          </div>
+          <p class="summary" id="shopSummary">Karbon, organik bileşiklerin temel omurgasını oluşturan ve API örneklerinde sık kullanılan bir ametaldir.</p>
+          <div class="inline-actions detail-actions">
+            <button class="btn primary" type="button" id="addFeaturedToCart">Sepete ekle</button>
+            <a class="btn" href="element-values.html" data-symbol-link>Değerini gör</a>
+          </div>
+        </section>
+
+        <section class="panel cart-card" id="cartSummary" data-od-id="elemental-cart">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Güvenli sepet</p>
+              <h3>Sipariş özeti</h3>
+            </div>
+            <button class="mini-btn" type="button" id="clearCart">Temizle</button>
+          </div>
+          <div class="panel-body">
+            <div class="cart-items" id="cartItems"></div>
+            <div class="cart-totals">
+              <div><span>Ara toplam</span><strong id="cartSubtotal">0 ELX</strong></div>
+              <div><span>Hizmet bedeli</span><strong id="cartFee">0 ELX</strong></div>
+              <div><span>Teslimat</span><strong id="cartDelivery">0 ELX</strong></div>
+              <div class="grand"><span>Toplam</span><strong id="cartTotal">0 ELX</strong></div>
+            </div>
+            <button class="btn primary submit-order" type="button" id="checkoutButton">Sepet boş</button>
+            <div class="checkout-status" id="checkoutStatus" aria-live="polite">
+              Sepete ürün eklediğinde sipariş özeti burada hazırlanır.
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-od-id="elemental-api">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Checkout API</p>
+              <h3>POST /elemental/orders</h3>
+            </div>
+            <button class="mini-btn" type="button" data-copy-target="cartJson">Kopyala</button>
+          </div>
+          <div class="playground">
+            <div class="inline-code"><pre id="cartJson"></pre></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer">Elemental mağaza: element arama, sepet, sipariş özeti ve API gövdesi aynı akışta çalışır.</footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="assets/element-api.js"></script>
+</body>
+</html>

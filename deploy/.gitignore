@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/target/
+**/TestResults/
+.env
+*.user
+.vs/

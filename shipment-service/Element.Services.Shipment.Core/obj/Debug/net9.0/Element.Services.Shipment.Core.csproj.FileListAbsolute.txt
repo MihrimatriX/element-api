@@ -1,0 +1,15 @@
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\bin\Debug\net9.0\Element.Services.Shipment.Core.deps.json
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\bin\Debug\net9.0\Element.Services.Shipment.Core.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\bin\Debug\net9.0\Element.Services.Shipment.Core.pdb
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\bin\Debug\net9.0\Element.Shared.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\bin\Debug\net9.0\Element.Shared.pdb
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element.Services.Shipment.Core.csproj.AssemblyReference.cache
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element.Services.Shipment.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element.Services.Shipment.Core.AssemblyInfoInputs.cache
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element.Services.Shipment.Core.AssemblyInfo.cs
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element.Services.Shipment.Core.csproj.CoreCompileInputs.cache
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element..BB443405.Up2Date
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element.Services.Shipment.Core.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\refint\Element.Services.Shipment.Core.dll
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\Element.Services.Shipment.Core.pdb
+C:\Users\AFU\Desktop\DEV\element-api\shipment-service\Element.Services.Shipment.Core\obj\Debug\net9.0\ref\Element.Services.Shipment.Core.dll

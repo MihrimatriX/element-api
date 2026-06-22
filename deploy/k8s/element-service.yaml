@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: element-service
+spec:
+  ports:
+    - port: 8080
+  selector:
+    app: element-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: element-service
+spec:
+  selector:
+    matchLabels:
+      app: element-service
+  template:
+    metadata:
+      labels:
+        app: element-service
+    spec:
+      containers:
+      - name: element-service
+        image: element-service:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "Production"
+        - name: ConnectionStrings__DefaultConnection
+          value: "Host=element-postgres;Port=5432;Database=element_market_db;Username=postgres;Password=mysecretpassword"
+        - name: RedisConnection
+          value: "redis:6379"
+        - name: RabbitMQ__Host
+          value: "rabbitmq"
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10

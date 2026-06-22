@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: Element Market
+    orgId: 1
+    folder: Element Market
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

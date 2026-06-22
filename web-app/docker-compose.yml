@@ -1,0 +1,12 @@
+# Sadece web arayüzü (API için gateway host'ta: http://localhost:5000)
+# docker compose up -d --build
+
+name: web-app-stack
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"

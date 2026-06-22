@@ -1,0 +1,99 @@
+# catalog-service
+
+Periyodik tablo element kataloğu — arama, filtreleme, karşılaştırma, fiyat geçmişi, stok saga (.NET 9).
+
+| | |
+|--|--|
+| **Port** | `5002` |
+| **Discovery** | `GET /api/v1` |
+| **Swagger** | [localhost:5002/swagger](http://localhost:5002/swagger) |
+| **Info** | `GET /info` |
+
+---
+
+## Sorumluluklar
+
+- 118 element kataloğu (fiyat, stok, periyodik tablo metadata)
+- Gelişmiş **arama ve filtreleme**
+- Saga: `OrderSubmittedEvent` → stok ayırma
+- gRPC fiyat sorgusu (internal)
+- Redis fiyat önbelleği
+
+---
+
+## API endpoint'leri
+
+### Keşif
+
+| Method | Path | Açıklama |
+|--------|------|----------|
+| GET | `/api/v1` | Tüm kaynak linkleri |
+
+### Elementler
+
+| Method | Path | Açıklama |
+|--------|------|----------|
+| GET | `/api/v1/elements` | Liste — filtre: `category`, `block`, `phase`, `group`, `period`, `minPrice`, `maxPrice`, `inStock`, `sort`, `order`, `page`, `pageSize` |
+| GET | `/api/v1/elements/search?q=` | **Arama** — ad, Türkçe ad, sembol, atom numarası |
+| GET | `/api/v1/elements/random` | Rastgele element |
+| GET | `/api/v1/elements/compare?symbols=au,ag` | Yan yana karşılaştırma (2–6 sembol) |
+| GET | `/api/v1/elements/{symbol}` | Tek element |
+| GET | `/api/v1/elements/{symbol}/neighbors` | Periyodik tablo komşuları |
+| GET | `/api/v1/elements/{symbol}/related` | Aynı kategori, yakın atom numarası |
+| GET | `/api/v1/elements/{symbol}/history` | Fiyat geçmişi (gateway'de API key) |
+
+### Kategoriler & istatistik
+
+| Method | Path | Açıklama |
+|--------|------|----------|
+| GET | `/api/v1/categories` | Kategori listesi |
+| GET | `/api/v1/categories/{slug}` | Kategori detay |
+| GET | `/api/v1/categories/{slug}/elements` | Kategorideki elementler |
+| GET | `/api/v1/statistics` | Genel istatistikler |
+| GET | `/api/v1/statistics/category/{name}` | Kategori bazlı |
+
+### Ops
+
+| Path | Açıklama |
+|------|----------|
+| `/info`, `/health`, `/health/live`, `/health/ready` | Standart ops |
+| `/metrics` | Prometheus |
+| `/swagger` | OpenAPI (her zaman açık) |
+
+---
+
+## Arama örnekleri
+
+```bash
+# İsimle ara
+curl "http://localhost:5002/api/v1/elements/search?q=altin"
+
+# Fiyat aralığı + stokta olanlar
+curl "http://localhost:5002/api/v1/elements?minPrice=10&inStock=true&sort=price&order=desc"
+
+# Karşılaştır
+curl "http://localhost:5002/api/v1/elements/compare?symbols=au,ag,cu"
+```
+
+---
+
+## Bağımlılıklar
+
+| Kaynak | Açıklama |
+|--------|----------|
+| PostgreSQL `element_market_db` | Element + stok |
+| Redis | Fiyat cache |
+| RabbitMQ | Saga event'leri |
+
+---
+
+## Çalıştırma
+
+```bash
+cd catalog-service && docker compose up -d --build
+dotnet run --project Element.Services.Element.API/Element.Services.Element.API.csproj
+```
+
+---
+
+[← Ana README](../README.md)
