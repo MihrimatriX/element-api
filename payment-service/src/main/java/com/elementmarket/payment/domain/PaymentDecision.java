@@ -1,7 +1,6 @@
 package com.elementmarket.payment.domain;
 
 import java.math.BigDecimal;
-import java.util.concurrent.ThreadLocalRandom;
 
 public final class PaymentDecision {
 
@@ -11,21 +10,13 @@ public final class PaymentDecision {
 
     public enum Outcome {
         SUCCESS,
-        CREDIT_LIMIT_EXCEEDED,
-        BANK_DECLINED
+        CREDIT_LIMIT_EXCEEDED
     }
 
-    public static Outcome evaluate(BigDecimal amount, int rollOneToTen) {
+    public static Outcome evaluate(BigDecimal amount) {
         if (amount.compareTo(CREDIT_LIMIT) > 0) {
             return Outcome.CREDIT_LIMIT_EXCEEDED;
         }
-        if (rollOneToTen == 1) {
-            return Outcome.BANK_DECLINED;
-        }
         return Outcome.SUCCESS;
-    }
-
-    public static int roll(boolean deterministic) {
-        return deterministic ? 5 : ThreadLocalRandom.current().nextInt(1, 11);
     }
 }

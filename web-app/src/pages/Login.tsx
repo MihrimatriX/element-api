@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { authService, apiKeyService } from '../services/api';
+import { authService, apiKeyService, apiError } from '../services/api';
 import { useSelectedElement } from '../App';
+import Seo from '../components/Seo';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,20 +21,13 @@ export default function Login() {
     try {
       const response = await authService.login({ email, password });
       if (response.token) {
+        await apiKeyService.ensureDashboardKey();
         setIsAuthenticated(true);
-        // Fetch or Generate API Key upon login for seamless experience
-        try {
-           const apiKeyRes = await apiKeyService.generate('Web Dashboard Key', 10);
-           localStorage.setItem('apiKey', apiKeyRes.apiKey);
-        } catch (keyErr) {
-           console.warn('Could not generate API Key automatically, user will need to do it manually.', keyErr);
-        }
-        
         const returnTo = searchParams.get('returnTo');
-        navigate(returnTo || `/trading?symbol=${selectedSymbol}`);
+        navigate(returnTo?.startsWith('/') && !returnTo.startsWith('//') ? returnTo : `/shop?symbol=${selectedSymbol}`);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || err.response?.data || 'Giriş bilgileri geçersiz.');
+    } catch (err: unknown) {
+      setError(apiError(err, 'Giriş bilgileri geçersiz.'));
     } finally {
       setLoading(false);
     }
@@ -41,11 +35,16 @@ export default function Login() {
 
   return (
     <div className="auth-container">
+      <Seo
+        title="Giriş · ElementAPI"
+        description="Hesabına giriş. Cüzdan ve API anahtarı."
+        path="/login"
+      />
       <div className="panel auth-panel">
         <div className="panel-header" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '6px' }}>
           <p className="kicker">Hesap</p>
           <h2 style={{ margin: 0 }}>Giriş yap</h2>
-          <p style={{ margin: 0, fontSize: '14px', color: 'var(--muted)' }}>Mağaza ve sipariş takibi için geliştirici hesabı</p>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--muted)' }}>Cüzdan ve API anahtarı</p>
         </div>
         
         <div className="panel-body">

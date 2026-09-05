@@ -22,6 +22,7 @@ public class ElementDbContext : DbContext
         modelBuilder.Entity<ChemicalElement>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.HasQueryFilter(e => e.AtomicNumber >= 1 && e.AtomicNumber <= 118);
             entity.HasIndex(e => e.Symbol).IsUnique();
             entity.Property(e => e.Symbol).IsRequired().HasMaxLength(10);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(100);

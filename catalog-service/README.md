@@ -38,6 +38,9 @@ Periyodik tablo element kataloğu — arama, filtreleme, karşılaştırma, fiya
 | GET | `/api/v1/elements/random` | Rastgele element |
 | GET | `/api/v1/elements/compare?symbols=au,ag` | Yan yana karşılaştırma (2–6 sembol) |
 | GET | `/api/v1/elements/{symbol}` | Tek element |
+| GET | `/api/v1/elements/{symbol}/ticker` | Public last/bid/ask, sparkline, 24s Δ (yoksa null) |
+| GET | `/api/v1/market/movers` | En büyük \|Δ\| |
+| GET | `/api/v1/market/board` | Tüm semboller — heatmap |
 | GET | `/api/v1/elements/{symbol}/neighbors` | Periyodik tablo komşuları |
 | GET | `/api/v1/elements/{symbol}/related` | Aynı kategori, yakın atom numarası |
 | GET | `/api/v1/elements/{symbol}/history` | Fiyat geçmişi (gateway'de API key) |
@@ -70,9 +73,6 @@ curl "http://localhost:5002/api/v1/elements/search?q=altin"
 
 # Fiyat aralığı + stokta olanlar
 curl "http://localhost:5002/api/v1/elements?minPrice=10&inStock=true&sort=price&order=desc"
-
-# Karşılaştır
-curl "http://localhost:5002/api/v1/elements/compare?symbols=au,ag,cu"
 ```
 
 ---

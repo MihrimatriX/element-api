@@ -68,8 +68,8 @@ export const STATIC_ELEMENTS: ElementItem[] = rawElements.split("|").map((item) 
     symbol,
     name,
     category,
-    period: Number(period),
-    group: Number(group),
+    period: Number(period) > 7 ? Number(period) - 2 : Number(period),
+    group: Number(period) > 7 ? 3 : Number(group),
     row: Number(period),
     col: Number(group)
   };
@@ -155,7 +155,16 @@ export function valuationFor(element: ElementItem, range = 12) {
   };
 }
 
-export function mergeElementData(dbElements: any[], staticElements: ElementItem[]): ElementItem[] {
+interface ApiElement extends Partial<ElementItem> {
+  symbol: string;
+  atomicMass?: number;
+  market?: { pricePerGram?: number; availableStock?: number };
+  detail?: Partial<ElementItem> & { nameTr?: string };
+  media?: { imageUrl?: string };
+  commerce?: Partial<ElementItem>;
+}
+
+export function mergeElementData(dbElements: ApiElement[], staticElements: ElementItem[]): ElementItem[] {
   return staticElements.map((st) => {
     const db = dbElements.find((item) => item.symbol.toLowerCase() === st.symbol.toLowerCase());
     
@@ -168,9 +177,8 @@ export function mergeElementData(dbElements: any[], staticElements: ElementItem[
     const detail = enriched[st.symbol] || {};
     
     // Resolve price: Use DB price if available, otherwise calculate model price
-    const modelVal = valuationFor({ ...st, category });
-    const resolvedPrice = db?.market?.pricePerGram ?? db?.pricePerGram ?? modelVal.price;
-    const resolvedStock = db?.market?.availableStock ?? db?.availableStock ?? modelVal.supply;
+    const resolvedPrice = db?.market?.pricePerGram ?? db?.pricePerGram;
+    const resolvedStock = db?.market?.availableStock ?? db?.availableStock ?? 0;
 
     return {
       ...st,
@@ -178,7 +186,7 @@ export function mergeElementData(dbElements: any[], staticElements: ElementItem[
       name: db?.detail?.nameTr ?? st.name,
       nameEn: db?.name,
       mass: db?.atomicMass?.toString() ?? detail.mass ?? "N/A",
-      phase: db?.phase?.toLowerCase() ?? detail.phase ?? "katı",
+      phase: ({ Solid: 'katı', Liquid: 'sıvı', Gas: 'gaz' } as Record<string, string>)[db?.phase ?? ''] ?? detail.phase ?? "—",
       summary: db?.detail?.summary ?? detail.summary ?? genericSummaries[category] ?? "Açıklama bulunmuyor.",
       appearance: db?.detail?.appearance,
       uses: db?.detail?.uses,
@@ -190,9 +198,9 @@ export function mergeElementData(dbElements: any[], staticElements: ElementItem[
       reviewCount: db?.commerce?.reviewCount,
       badge: db?.commerce?.badge,
       deliveryNote: db?.commerce?.deliveryNote,
-      currentPrice: Number(resolvedPrice),
-      availableStock: Math.round(resolvedStock),
-      pricePerGram: Number(resolvedPrice),
+      currentPrice: resolvedPrice == null ? undefined : Number(resolvedPrice),
+      availableStock: Number(resolvedStock),
+      pricePerGram: resolvedPrice == null ? undefined : Number(resolvedPrice),
       density: db?.density ? Number(db.density) : undefined,
       meltingPoint: db?.meltingPoint ? Number(db.meltingPoint) : undefined,
       boilingPoint: db?.boilingPoint ? Number(db.boilingPoint) : undefined,

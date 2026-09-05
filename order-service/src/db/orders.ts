@@ -11,6 +11,10 @@ export interface OrderRow {
   quantity: string;
   total_price: string;
   status: string;
+  tracking_number: string | null;
+  compound_slug: string | null;
+  compound_formula: string | null;
+  product_label: string | null;
   created_at: Date;
 }
 
@@ -41,15 +45,29 @@ export async function createOrderWithSaga(row: {
   elementSymbol: string;
   quantity: number;
   totalPrice: number;
-}): Promise<void> {
+  compoundSlug?: string | null;
+  compoundFormula?: string | null;
+  productLabel?: string | null;
+}): Promise<boolean> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await client.query(
-      `INSERT INTO orders (id, customer_id, element_symbol, quantity, total_price, status)
-       VALUES ($1, $2, $3, $4, $5, 'Submitted')`,
-      [row.id, row.customerId, row.elementSymbol, row.quantity, row.totalPrice]
+    const inserted = await client.query(
+      `INSERT INTO orders (id, customer_id, element_symbol, quantity, total_price, status, compound_slug, compound_formula, product_label)
+       VALUES ($1, $2, $3, $4, $5, 'Submitted', $6, $7, $8)
+       ON CONFLICT (id) DO NOTHING RETURNING id`,
+      [
+        row.id,
+        row.customerId,
+        row.elementSymbol,
+        row.quantity,
+        row.totalPrice,
+        row.compoundSlug ?? null,
+        row.compoundFormula ?? null,
+        row.productLabel ?? null,
+      ]
     );
+    if (!inserted.rowCount) { await client.query('ROLLBACK'); return false; }
     const deadline = deadlineForState('Submitted');
     await client.query(
       `INSERT INTO saga_state (order_id, customer_id, element_symbol, quantity, total_price, current_state, deadline_at, updated_at)
@@ -58,7 +76,7 @@ export async function createOrderWithSaga(row: {
     );
     await enqueueOutbox(client, {
       messageType: 'UpdateOrderStatusEvent',
-      payload: { orderId: row.id, status: 'Submitted', errorMessage: null },
+      payload: { orderId: row.id, customerId: row.customerId, status: 'Submitted', errorMessage: null },
       route: 'exchange',
       routeTarget: exchangeName('UpdateOrderStatusEvent'),
     });
@@ -75,6 +93,7 @@ export async function createOrderWithSaga(row: {
       routeTarget: exchangeName('OrderSubmittedEvent'),
     });
     await client.query('COMMIT');
+    return true;
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -85,6 +104,14 @@ export async function createOrderWithSaga(row: {
 
 export async function updateOrderStatus(orderId: string, status: string): Promise<void> {
   await pool.query(`UPDATE orders SET status = $2 WHERE id = $1`, [orderId, status]);
+}
+
+export async function setTrackingNumber(
+  client: pg.PoolClient,
+  orderId: string,
+  trackingNumber: string
+): Promise<void> {
+  await client.query(`UPDATE orders SET tracking_number = $2 WHERE id = $1`, [orderId, trackingNumber]);
 }
 
 export async function getOrderById(id: string): Promise<OrderRow | null> {
@@ -165,7 +192,8 @@ export async function transitionSaga(
     totalPrice: number;
   },
   status: string,
-  error?: string
+  error?: string,
+  trackingNumber?: string | null
 ): Promise<void> {
   const deadline = deadlineForState(status);
   await client.query(`UPDATE orders SET status = $2 WHERE id = $1`, [ctx.orderId, status]);
@@ -176,7 +204,13 @@ export async function transitionSaga(
   );
   await enqueueOutbox(client, {
     messageType: 'UpdateOrderStatusEvent',
-    payload: { orderId: ctx.orderId, status, errorMessage: error ?? null },
+    payload: {
+      orderId: ctx.orderId,
+      customerId: ctx.customerId,
+      status,
+      errorMessage: error ?? null,
+      trackingNumber: trackingNumber ?? null,
+    },
     route: 'exchange',
     routeTarget: exchangeName('UpdateOrderStatusEvent'),
   });

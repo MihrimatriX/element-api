@@ -60,6 +60,7 @@ services:
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
       CATALOG_SERVICE_URL: ${CATALOG_SERVICE_URL:-http://host.docker.internal:5002}
+      COMPOUND_SERVICE_URL: ${COMPOUND_SERVICE_URL:-http://host.docker.internal:5007}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

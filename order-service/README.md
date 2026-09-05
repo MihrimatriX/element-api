@@ -8,7 +8,7 @@ Sipariş REST API ve dağıtık saga orkestrasyonu (Node.js 22 + TypeScript + Ex
 | **Discovery** | `GET /api/v1` |
 | **Info** | `GET /info` |
 
-Gateway üzerinden erişim: `localhost:5000/api/v1/orders` (API key gerekli).
+Gateway üzerinden erişim: `localhost:5000/api/v1/orders` (API key). `POST /orders` `X-User-Id` zorunlu, fiyat **ask**, bakiye yetmezse **402**.
 
 ---
 
@@ -30,7 +30,12 @@ Gateway üzerinden erişim: `localhost:5000/api/v1/orders` (API key gerekli).
 | GET | `/api/v1/orders` | `X-User-Id` | Müşteri siparişleri |
 | GET | `/api/v1/orders/search` | `X-User-Id` | **Filtreli arama** |
 | GET | `/api/v1/orders/stats` | `X-User-Id` | İstatistik özeti |
-| GET | `/api/v1/orders/{id}` | — | Tek sipariş |
+| GET | `/api/v1/orders/{id}` | `X-User-Id` | Tek sipariş (başkasınınki 404) |
+| GET | `/api/v1/me/wallet` | `X-User-Id` | Cüzdan; ilk çağrı 10_000 ELX grant |
+| GET | `/api/v1/me/holdings` | `X-User-Id` | Gram pozisyonları |
+| POST | `/api/v1/desk/sell` | `X-User-Id` | Bid’den sat `{ symbol, grams }` |
+| POST | `/internal/wallet/debit` | `INTERNAL_API_KEY` | Sipariş debit (idempotent `order_id`) |
+| POST | `/internal/wallet/credit` \| `/refund` | `INTERNAL_API_KEY` | Debit olduysa iade |
 
 ### Arama parametreleri (`/orders/search`)
 
@@ -73,10 +78,11 @@ Detay: [contracts/README.md](../contracts/README.md)
 
 | Kaynak | Açıklama |
 |--------|----------|
-| PostgreSQL `element_order_db` | orders, saga_state |
+| PostgreSQL `element_order_db` | orders, saga_state, wallets, holdings, ledger |
 | Redis | Katalog fiyat cache |
 | RabbitMQ | Saga kuyrukları |
 | catalog-service | Canlı fiyat HTTP |
+| compound-service | SKU `priceMult` HTTP (`COMPOUND_SERVICE_URL`) |
 
 ---
 
@@ -100,6 +106,7 @@ Tam saga için kök `docker compose` kullanın.
 | `REDIS_URL` | Redis |
 | `RABBITMQ_HOST` | RabbitMQ |
 | `CATALOG_SERVICE_URL` | `http://catalog-service:8080` |
+| `COMPOUND_SERVICE_URL` | `http://localhost:5007` |
 | `LOGSTASH_HTTP_URL` | Log shipping |
 
 ---

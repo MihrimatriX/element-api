@@ -1,2 +1,0 @@
-obj\Release\net9.0\Protos/Element.cs \
-obj\Release\net9.0\Protos/ElementGrpc.cs: Protos/element.proto

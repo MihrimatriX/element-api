@@ -60,7 +60,9 @@ public class RateLimitCheckHandler : ApiKeyValidationHandler
         }
         catch (Exception)
         {
-            // If Redis is down, fail open (allow request)
+            validationContext.ErrorMessage = "Rate limiter unavailable.";
+            validationContext.StatusCode = StatusCodes.Status429TooManyRequests;
+            return false;
         }
 
         if (NextHandler != null)

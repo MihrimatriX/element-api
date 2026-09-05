@@ -113,4 +113,25 @@ public class GatewayHandlerTests
         result.Should().BeFalse();
         validationContext.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
     }
+
+    [Fact]
+    public async Task RateLimitCheckHandler_Returns429_WhenRedisThrows()
+    {
+        var redisDb = new Mock<IDatabase>();
+        redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
+            .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.UnableToConnect, "down"));
+
+        var multiplexer = new Mock<IConnectionMultiplexer>();
+        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
+
+        var handler = new RateLimitCheckHandler(multiplexer.Object);
+        var context = new DefaultHttpContext();
+        context.Items["HashedApiKey"] = "abc123";
+        var validationContext = new ApiKeyValidationContext { RateLimitTps = 10 };
+
+        var result = await handler.HandleAsync(context, "ele_live_12345678901234567890123456789012", validationContext);
+
+        result.Should().BeFalse();
+        validationContext.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
+    }
 }

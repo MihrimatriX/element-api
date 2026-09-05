@@ -1,7 +1,6 @@
 using Element.Shared.Events;
-using Element.Services.Notification.API.Hubs;
+using Element.Services.Notification.API.Webhooks;
 using MassTransit;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
@@ -9,12 +8,14 @@ namespace Element.Services.Notification.API.Consumers;
 
 public class UpdateOrderStatusConsumer : IConsumer<UpdateOrderStatusEvent>
 {
-    private readonly IHubContext<NotificationHub> _hubContext;
+    private readonly WebhookFanout _webhooks;
     private readonly ILogger<UpdateOrderStatusConsumer> _logger;
 
-    public UpdateOrderStatusConsumer(IHubContext<NotificationHub> hubContext, ILogger<UpdateOrderStatusConsumer> logger)
+    public UpdateOrderStatusConsumer(
+        WebhookFanout webhooks,
+        ILogger<UpdateOrderStatusConsumer> logger)
     {
-        _hubContext = hubContext;
+        _webhooks = webhooks;
         _logger = logger;
     }
 
@@ -23,13 +24,15 @@ public class UpdateOrderStatusConsumer : IConsumer<UpdateOrderStatusEvent>
         var message = context.Message;
         _logger.LogInformation("Received order status update for Order {OrderId}: {Status}", message.OrderId, message.Status);
 
-        // In a real system, you'd send this to the specific user. 
-        // Here we broadcast for simplicity, or we can use groups (e.g. Group(userId))
-        await _hubContext.Clients.All.SendAsync("OrderStatusUpdated", new
+        var payload = new
         {
             OrderId = message.OrderId,
             Status = message.Status,
-            ErrorMessage = message.ErrorMessage
-        });
+            ErrorMessage = message.ErrorMessage,
+            TrackingNumber = message.TrackingNumber
+        };
+        // Order details are private. The web app polls its authenticated order endpoint.
+        if (message.CustomerId is { } customerId && customerId != System.Guid.Empty)
+            await _webhooks.PublishAsync("order.updated", payload, context.CancellationToken, customerId);
     }
 }

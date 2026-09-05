@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Element.Services.Element.Core.Entities;
+using Element.Services.Element.Infrastructure.Persistence;
 
 namespace Element.Services.Element.API.DTOs;
 
@@ -9,6 +10,7 @@ public static class ElementDtoMapper
     public static ElementResponseDto ToDto(ChemicalElement element, string baseUrl)
     {
         var slug = element.Symbol.ToLowerInvariant();
+        var reference = ElementPropertyCatalog.Get(element.Symbol);
         var catSlug = element.Category.ToLowerInvariant().Replace(" ", "-").Replace(",", "");
 
         return new ElementResponseDto
@@ -17,16 +19,16 @@ public static class ElementDtoMapper
             Symbol = element.Symbol,
             Name = element.Name,
             AtomicNumber = element.AtomicNumber,
-            AtomicMass = element.AtomicMass,
+            AtomicMass = reference?.AtomicMass ?? element.AtomicMass,
             Category = element.Category,
             Phase = element.Phase,
             Color = element.Color,
-            Density = element.Density,
-            MeltingPoint = element.MeltingPoint,
-            BoilingPoint = element.BoilingPoint,
+            Density = reference?.Density,
+            MeltingPoint = reference?.MeltingPoint,
+            BoilingPoint = reference?.BoilingPoint,
             DiscoveredBy = element.DiscoveredBy,
-            YearDiscovered = element.YearDiscovered,
-            ElectronConfiguration = element.ElectronConfiguration,
+            YearDiscovered = reference?.YearDiscovered,
+            ElectronConfiguration = reference?.ElectronConfiguration,
             Period = element.Period,
             Group = element.Group,
             Detail = new ElementDetailInfo
@@ -35,8 +37,8 @@ public static class ElementDtoMapper
                 Summary = element.Summary,
                 Appearance = element.Appearance,
                 Uses = element.Uses,
-                Block = element.Block,
-                Electronegativity = element.Electronegativity
+                Block = ElementDetailSeeder.ResolveBlock(element),
+                Electronegativity = reference?.Electronegativity
             },
             Media = new ElementMediaInfo
             {
@@ -49,9 +51,7 @@ public static class ElementDtoMapper
                 Rating = element.Rating,
                 ReviewCount = element.ReviewCount,
                 Badge = element.Badge,
-                DeliveryNote = element.Category.Contains("actinide", StringComparison.OrdinalIgnoreCase)
-                    ? "Kontrollü teslimat"
-                    : "Yarın kapında",
+                DeliveryNote = "Deneme siparişi; gerçek gönderim yapılmaz.",
                 FreeShippingEligible = element.PricePerGram * 10 >= 120
             },
             Market = new ElementMarketInfo
@@ -64,7 +64,10 @@ public static class ElementDtoMapper
             {
                 { "self", $"{baseUrl}/api/v1/elements/{slug}" },
                 { "history", $"{baseUrl}/api/v1/elements/{slug}/history" },
-                { "category", $"{baseUrl}/api/v1/categories/{catSlug}" }
+                { "ticker", $"{baseUrl}/api/v1/elements/{slug}/ticker" },
+                { "compounds", $"{baseUrl}/api/v1/compounds?element={slug}" },
+                { "category", $"{baseUrl}/api/v1/categories/{catSlug}" },
+                { "scientificSource", $"https://pubchem.ncbi.nlm.nih.gov/element/{element.AtomicNumber}" }
             }
         };
     }

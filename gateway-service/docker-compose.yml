@@ -27,8 +27,10 @@ services:
       IdentityServiceInternalUrl: ${IDENTITY_URL:-http://host.docker.internal:5001}
       ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address: ${IDENTITY_URL:-http://host.docker.internal:5001}
       ReverseProxy__Clusters__element-cluster__Destinations__destination1__Address: ${CATALOG_URL:-http://host.docker.internal:5002}
+      ReverseProxy__Clusters__compound-cluster__Destinations__destination1__Address: ${COMPOUND_URL:-http://host.docker.internal:5007}
       ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address: ${ORDER_URL:-http://host.docker.internal:5003}
       ReverseProxy__Clusters__notification-cluster__Destinations__destination1__Address: ${NOTIFICATION_URL:-http://host.docker.internal:5006}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:-http://localhost:3000}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

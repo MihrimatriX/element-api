@@ -17,10 +17,11 @@ public class RabbitConfig {
 
     @Bean
     public PaymentSettings paymentSettings(
-            @Value("${payment.deterministic:false}") boolean deterministic,
-            @Value("${payment.simulate-delay-seconds:0}") int simulateDelaySeconds) {
-        return new PaymentSettings(deterministic, simulateDelaySeconds);
+            @Value("${payment.simulate-delay-seconds:0}") int simulateDelaySeconds,
+            @Value("${order-service.url:http://localhost:5003}") String orderServiceUrl,
+            @Value("${internal.api-key:element-internal-dev-key}") String internalApiKey) {
+        return new PaymentSettings(simulateDelaySeconds, orderServiceUrl, internalApiKey);
     }
 
-    public record PaymentSettings(boolean deterministic, int simulateDelaySeconds) {}
+    public record PaymentSettings(int simulateDelaySeconds, String orderServiceUrl, String internalApiKey) {}
 }

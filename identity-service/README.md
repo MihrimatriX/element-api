@@ -16,7 +16,8 @@ Kimlik doğrulama, JWT oturumları ve API anahtarı yönetimi (.NET 9).
 - Kullanıcı kaydı ve giriş
 - JWT token üretimi
 - API anahtarı CRUD (`ele_live_` + 32 karakter)
-- Gateway için internal anahtar doğrulama
+- Webhook abonelikleri (`POST/GET/DELETE /api/v1/webhooks`)
+- Gateway için internal anahtar doğrulama (`INTERNAL_API_KEY`)
 
 ---
 
@@ -30,7 +31,11 @@ Kimlik doğrulama, JWT oturumları ve API anahtarı yönetimi (.NET 9).
 | POST | `/api/v1/api-keys/generate` | JWT | API key üret |
 | GET | `/api/v1/api-keys` | JWT | Anahtarları listele |
 | DELETE | `/api/v1/api-keys/{id}` | JWT | Anahtar sil |
+| POST | `/api/v1/webhooks` | JWT | HTTPS webhook (price.updated, order.updated) |
+| GET | `/api/v1/webhooks` | JWT | Aktif webhook’lar |
+| DELETE | `/api/v1/webhooks/{id}` | JWT | Soft-delete |
 | POST | `/api/v1/internal/api-keys/validate` | Internal | Gateway doğrulama |
+| GET | `/api/v1/internal/webhooks?event=` | Internal | Notification fan-out |
 
 ### Ops
 

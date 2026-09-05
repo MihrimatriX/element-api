@@ -13,6 +13,7 @@ public class IdentityAppDbContext : IdentityDbContext<ApplicationUser, IdentityR
     }
 
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+    public DbSet<WebhookSubscription> WebhookSubscriptions => Set<WebhookSubscription>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -27,6 +28,19 @@ public class IdentityAppDbContext : IdentityDbContext<ApplicationUser, IdentityR
             
             entity.HasIndex(e => e.KeyHash).IsUnique();
             
+            entity.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WebhookSubscription>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Url).IsRequired().HasMaxLength(2048);
+            entity.Property(e => e.Secret).IsRequired().HasMaxLength(256);
+            entity.Property(e => e.Events).IsRequired().HasMaxLength(256);
+            entity.HasIndex(e => e.UserId);
             entity.HasOne<ApplicationUser>()
                 .WithMany()
                 .HasForeignKey(e => e.UserId)

@@ -1,6 +1,12 @@
-# Element Market
+# ElementAPI
 
-> Polyglot mikroservis platformu — periyodik tablo element ticareti, dağıtık saga, API gateway ve tam observability stack.
+**Bilimsel katalog v2:** Referans periyodik tablo ana sayfası, ayrıntılı element ve bileşik kayıtları, kaynaklar, `view/include/fields`, ETag ve açık CORS. Uygulanan plan, servis sorumlulukları, veri kapsamı ve örnekler: [Bilimsel katalog](deploy/scientific-catalog.md). Başlangıç: `GET /api/v2/elements/fe`, `GET /api/v2/compounds/aspirin`.
+
+118 elementin ve 50 bileşiğin kaynaklı bilimsel özellikleri için halka açık API; yanında fiyat tablosu, ürün mağazası ve kişisel kasa. **Kredi** uygulamanın sanal para birimidir. Piyasa fiyatları, stoklar, ödeme ve kargo simülasyondur; gerçek borsa verisi, tahsilat veya fiziksel teslimat yoktur.
+
+Yerel geliştirme: **[localhost:5173](http://localhost:5173)** · API: **[localhost:5000/api/v1](http://localhost:5000/api/v1)**. Docker web sürümü 3000 portunu kullanır.
+
+MIT lisansı: [LICENSE](./LICENSE).
 
 [![Stack](https://img.shields.io/badge/stack-.NET%20%7C%20Node%20%7C%20Java%20%7C%20React-blue)](#servis-kataloğu)
 [![Gateway](https://img.shields.io/badge/gateway-YARP%20%2B%20GraphQL-512BD4)](#api-gateway)
@@ -10,18 +16,73 @@
 
 ## Hızlı başlangıç
 
+### Günlük geliştirme (hafif)
+
+Docker'da yalnız PostgreSQL, Redis ve RabbitMQ; uygulamalar bilgisayarda çalışır. Her değişiklikte Docker imajlarını yeniden derlemek gerekmez. Node.js 22+, .NET 9 ASP.NET Core runtime ve uyumlu SDK, Java 21 ve Maven gerekir. Bu bilgisayardaki taşınabilir araçlar varsa `artifacts/` içinden otomatik bulunur.
+
+```powershell
+# İlk kurulum: docker/.env.example dosyasını docker/.env olarak kopyala; mevcut .env dosyasını koru.
+docker compose --env-file docker/.env up -d postgres redis rabbitmq
+npm --prefix order-service ci
+npm --prefix web-app ci
+./deploy/scripts/start-local.ps1 -IncludePayment
+npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
+```
+
+Kod güncellendikten sonra `start-local.ps1 -Restart -IncludePayment`; yalnız derlenmiş servisleri açmak için `-NoBuild`. Script başka projelerin dolu portlarındaki işlemlerini durdurmaz. Loglar `artifacts/local/` içindedir. Bu bilgisayarda PostgreSQL portu **5434**, web portu **5173** seçilmiştir. İzleme araçları günlük geliştirme için gerekli değildir.
+
+### Kontrol
+
+Tüm yerel derleme, birim testi ve npm güvenlik kontrolleri için `./deploy/scripts/test-all.ps1`.
+Docker üzerinde ayrı test konteynerleriyle entegrasyon için `-Integration`; çalışan yerel servislere karşı bilimsel API, alışveriş ve smoke kontrolleri için `-Live` ekleyin. Örneğin `./deploy/scripts/test-all.ps1 -Integration -Live`. Script Docker imajlarını yeniden derlemez; Java 21/Maven ve npm bağımlılıkları kurulu olmalıdır.
+
+```powershell
+./deploy/scripts/test-unit.ps1
+npm --prefix order-service run check
+./deploy/scripts/test-saga.ps1
+node deploy/scripts/test-e2e.mjs
+./deploy/scripts/test-smoke.ps1
+npm --prefix web-app run build
+npm --prefix web-app run lint
+```
+
+`test-saga.ps1`, gerçek PostgreSQL üzerinde geçici ve ayrı bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar; sonunda kendi şemasını kaldırır. `test-e2e.mjs` ve smoke testi çalışan yerel servislere bağlanır, ayrı deneme hesapları açar. Docker web sürümünü denemek için smoke testine `-WebBase http://localhost:3000` ver.
+
+### Bilimsel veri ve alışveriş sözleşmesi
+
+- Elementlerin kütle, yoğunluk, sıcaklık, elektron dizilimi ve elektronegatiflik verisi [PubChem periyodik tablosundan](https://pubchem.ncbi.nlm.nih.gov/periodic-table/) alınan sürümlenmiş dosyadan gelir. Yanıtlarda `sourceUrl`, `retrievedAt` ve `units` bulunur; kaynaktaki bilinmeyen değerler `null` kalır. Atom numarası 119 gibi varsayımsal kayıtlar yayımlanmaz.
+- 50 bileşikte molekül formülü, molar kütle (`g/mol`), IUPAC adı, InChIKey ve PubChem bağlantısı bulunur. Allotrop ve preparatlar saf bir bileşik kaydı gibi sunulmaz. Mağaza 118 saf elementi ve mevcut bileşik/preparat ürünlerini listeler.
+- Veriyi bilinçli yenilemek için `node deploy/scripts/refresh-element-properties.mjs` ve `node deploy/scripts/refresh-compound-properties.mjs --force`; API çalışırken dış kaynağa bağımlı değildir.
+- Siparişe gram cinsinden sayısal `quantity` gönderilir (en fazla dört ondalık). `Idempotency-Key` olarak aynı UUID ile tekrar gönderilen aynı sipariş yalnız bir kez ücretlendirilir; farklı içerik `409` döner.
+- Kasadaki her ürün `symbol + compoundSlug` ile ayrılır. NaCl, saf Na gibi satılamaz. Satışta aynı `compoundSlug` gönderilir; alış ve satış fiyatı sunucuda hesaplanır. Başarısız/zaman aşımına uğramış siparişte ayrılan stok serbest bırakılır, tahsil edilmiş Kredi bir kez iade edilir.
+- Para birimi kodu `KREDI`, fiyat kaynağı `simulation`dır. Eski istemcilerin çalışması için `balanceElx`, `avgCostElx`, `proceedsElx` alan adları korunur; bu alanların değerleri Kredi'dir.
+- Cüzdan ve siparişler ortak yanıt önbelleğine girmez. Özel sipariş durumları herkese açık SignalR kanalında yayımlanmaz; istemci kendi siparişlerini kimlik doğrulayarak sorgular. İç servis çağrıları ayrıca paylaşılan servis anahtarı ister.
+
+### Tam Docker ortamı
+
+**Lab** (tüm portlar açık: postgres host `${POSTGRES_HOST_PORT:-5432}`, redis `:6380`, rabbit, servisler, grafana). Host’ta 5432 doluysa `docker/.env` içinde `POSTGRES_HOST_PORT=5434`.
+
 ```bash
 cp docker/.env.example docker/.env
 docker compose --env-file docker/.env up -d --build
 ```
 
+**Public demo** (host’ta yalnızca web `:3000` ve gateway `:5000`):
+
+```bash
+cp docker/.env.example docker/.env
+docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
+```
+
 | Adres | Ne için? |
 |-------|----------|
-| **[localhost:8888](http://localhost:8888)** | Kontrol paneli — tüm UI bağlantıları |
-| [localhost:3000](http://localhost:3000) | Web mağaza arayüzü |
-| [localhost:5000](http://localhost:5000) | API Gateway (REST) |
-| [localhost:5000/health-ui](http://localhost:5000/health-ui) | Tüm servislerin sağlık paneli |
-| [localhost:5002/swagger](http://localhost:5002/swagger) | Catalog OpenAPI |
+| **[localhost:3000](http://localhost:3000)** | Tablo · Piyasa · Mağaza · API · **Altyapı** (`/stack`) |
+| [localhost:5000](http://localhost:5000) | API Gateway |
+| [localhost:5000/swagger](http://localhost:5000/swagger) | Catalog OpenAPI (proxy) |
+| [localhost:5000/health-ui](http://localhost:5000/health-ui) | Sağlık UI (gateway; public’te :5000 açıksa) |
+| [localhost:8888](http://localhost:8888) | Observability hub — **yalnız lab compose** |
+
+Kayıt → `GET /api/v1/me/wallet` 10.000 kredi grant → mağazadan Au (ask) → kasa → masadan sat (bid).
 
 Durdurma: `docker compose down` · Verileri sil: `docker compose down -v`
 
@@ -41,6 +102,7 @@ flowchart TB
     subgraph public [Gateway üzerinden erişilebilir]
         ID[identity :5001]
         CAT[catalog :5002]
+        CMP[compound :5007]
         ORD[order :5003]
         NOT[notification :5006]
     end
@@ -65,10 +127,10 @@ flowchart TB
 
     Web --> GW
     API --> GW
-    GW --> ID & CAT & ORD & NOT
+    GW --> ID & CAT & CMP & ORD & NOT
     ORD -->|saga events| MQ
     MQ --> PAY & SHP & CAT & NOT
-    ID & CAT & ORD & SHP --> PG
+    ID & CAT & CMP & ORD & SHP --> PG
     CAT & GW --> RD
     GW -.-> HUB
 ```
@@ -94,11 +156,12 @@ Her servisin kendi README'si endpoint tabloları, ortam değişkenleri ve tek ba
 | **gateway-service** | 5000 | .NET YARP + GraphQL | Tek giriş, API key, rate limit | [README](./gateway-service/README.md) |
 | **identity-service** | 5001 | .NET 9 | Auth, JWT, API anahtarları | [README](./identity-service/README.md) |
 | **catalog-service** | 5002 | .NET 9 | Element kataloğu, arama, stok | [README](./catalog-service/README.md) |
+| **compound-service** | 5007 | .NET 9 | Bileşik / allotrop / preparat | [README](./compound-service/README.md) |
 | **order-service** | 5003 | Node.js 22 | Sipariş + saga orkestrasyonu | [README](./order-service/README.md) |
 | **shipment-service** | 5004 | .NET 9 | Kargo worker + sorgu API | [README](./shipment-service/README.md) |
 | **payment-service** | 5005 | Java 21 | Ödeme worker | [README](./payment-service/README.md) |
 | **notification-service** | 5006 | .NET 9 | SignalR push bildirimleri | [README](./notification-service/README.md) |
-| **web-app** | 3000 | React + Vite | Mağaza UI | [README](./web-app/README.md) |
+| **web-app** | 3000 | React + Vite | Mağaza · masa · API · `/stack` | [README](./web-app/README.md) |
 | **shared-lib** | — | .NET lib | Ortak event, logging, ops | [README](./shared-lib/README.md) |
 | **contracts** | — | JSON şemalar | Polyglot mesaj sözleşmeleri | [README](./contracts/README.md) |
 
@@ -111,12 +174,13 @@ Gateway üzerinden (`localhost:5000`) erişilen rotalar:
 | Rota | Hedef | Auth |
 |------|-------|------|
 | `GET /api/v1` | Catalog discovery | — |
-| `GET /api/v1/elements/**` | Catalog | History için API key |
-| `GET /api/v1/elements/search?q=` | Catalog arama | — |
-| `GET /api/v1/categories/**` | Catalog | — |
-| `GET /api/v1/statistics/**` | Catalog istatistik | — |
+| `GET /api/v1/elements/**` | Catalog | History API key; **ticker public** |
+| `GET /api/v1/compounds/**` | Compound | Public |
+| `GET /api/v1/market/**` | Catalog | Public (movers, board) |
 | `POST /api/v1/auth/register\|login` | Identity | — |
 | `* /api/v1/api-keys/**` | Identity | JWT |
+| `* /api/v1/webhooks/**` | Identity | JWT |
+| `* /api/v1/me/**`, `/desk/**` | Order | API key |
 | `* /api/v1/orders/**` | Order | API key (`X-API-Key`) |
 | `WS /hub/notifications` | Notification SignalR | — |
 | `POST /graphql` | Gateway BFF | — |
@@ -156,7 +220,7 @@ Platform `docker compose up` ile izleme stack'ini birlikte başlatır.
 | Jaeger | 16686 | ✅ | Distributed tracing |
 | Seq | 5341 | ✅ | .NET yapılandırılmış loglar |
 | Prometheus | 9090 | ✅ | Metrik sorguları |
-| RabbitMQ | 15672 | ✅ | Kuyruk yönetimi (`guest/guest`) |
+| RabbitMQ | 15672 | ✅ | Kuyruk yönetimi (`docker/.env`: `RABBITMQ_DEFAULT_USER` / `RABBITMQ_DEFAULT_PASS`) |
 | Elasticsearch | 9200 | ❌ JSON | Depolama → Kibana kullan |
 | Loki | 3100 | ❌ | Depolama → Grafana Explore |
 
@@ -181,6 +245,7 @@ Tek Postgres instance, ayrı veritabanları:
 |----|--------|
 | `element_identity_db` | identity-service |
 | `element_market_db` | catalog-service |
+| `element_compound_db` | compound-service |
 | `element_order_db` | order-service |
 | `element_shipment_db` | shipment-service |
 
@@ -195,6 +260,55 @@ Tek Postgres instance, ayrı veritabanları:
 ```
 
 Tek servis: ilgili klasörde `docker compose up -d --build` (kendi README'sine bakın).
+
+`deploy/helm` ve `deploy/k8s` taslak — production-ready değil. Çalışan yol: docker compose.
+
+---
+
+## Public / subdomain
+
+Kâğıt kredi **para değildir**. Ev piyasa yapıcısı; emir defteri ve eşleştirme yok. MIT: [LICENSE](./LICENSE).
+
+**Public overlay** (host’ta yalnızca `:3000` + `:5000`; observability ve DB portları kapalı):
+
+```bash
+cp docker/.env.example docker/.env   # sırları değiştir
+docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
+```
+
+TLS compose’da yok — önüne Caddy / nginx / Cloudflare koy.
+
+| Env | Ne işe yarar |
+|-----|----------------|
+| `VITE_PUBLIC_SITE_URL` | Canonical, Open Graph, sitemap. **Build arg** — değişince web-app rebuild. |
+| `VITE_API_BASE_URL` | Tarayıcının çağırdığı **public gateway** (`…/api/v1`). Rebuild. |
+| `PUBLIC_WEB_ORIGIN` | Gateway + notification CORS (SignalR dahil). Runtime. |
+| `PUBLIC_API_BASE` | Catalog HATEOAS (`X-Forwarded-Host` gelmezse). Gateway origin, `/api/v1` yok. |
+| `PUBLIC_SITE_URL` | Container start’ta `robots.txt` / `sitemap.xml` `__SITE_URL__` yerini doldurur (compose bunu `VITE_PUBLIC_SITE_URL` ile set eder). |
+
+JWT `localStorage`’da; origin-scoped. Cookie auth yok.
+
+**Tek host** (`https://market.example.com` → UI `/`, API `/api` + `/hub`):
+
+```
+PUBLIC_WEB_ORIGIN=https://market.example.com
+VITE_PUBLIC_SITE_URL=https://market.example.com
+VITE_API_BASE_URL=https://market.example.com/api/v1
+PUBLIC_API_BASE=https://market.example.com
+```
+
+**İki subdomain** (`app` + `api`):
+
+```
+PUBLIC_WEB_ORIGIN=https://app.example.com
+VITE_PUBLIC_SITE_URL=https://app.example.com
+VITE_API_BASE_URL=https://api.example.com/api/v1
+PUBLIC_API_BASE=https://api.example.com
+```
+
+Reverse-proxy `X-Forwarded-Host` / `X-Forwarded-Proto` geçirmeli; yoksa `PUBLIC_API_BASE` linkleri düzeltir.
+
+SPA: `index.html` varsayılan meta taşır; rota başlıkları istemcide `Seo` ile yazılır. `robots.txt` + `sitemap.xml` (`/stack` + 118 `/element/{symbol}`) nginx’ten statik.
 
 ---
 

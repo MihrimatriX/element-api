@@ -1,2 +1,0 @@
-obj\Debug\net9.0\Protos/Element.cs \
-obj\Debug\net9.0\Protos/ElementGrpc.cs: Protos/element.proto

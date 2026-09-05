@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.UI" Version="9.0.0" />
+    <!-- HealthChecks.UI's transitive version predates the TLS validation fix. -->
+    <PackageReference Include="KubernetesClient" Version="17.0.14" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="9.0.0" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="16.0.11" />

@@ -1,4 +1,6 @@
 using System;
+using Element.Services.Element.API;
+using Element.Services.Element.API.Controllers;
 using Element.Services.Element.Core.Abstractions;
 using Element.Services.Element.Infrastructure.Messaging.Consumers;
 using Element.Services.Element.Infrastructure.Persistence;
@@ -32,6 +34,7 @@ var redisConn = builder.Configuration.GetValue<string>("RedisConnection") ?? "lo
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConn));
 
 // Domain ports
+builder.Services.Configure<MarketOptions>(builder.Configuration.GetSection(MarketOptions.SectionName));
 builder.Services.AddScoped<IElementRepository, EfElementRepository>();
 
 // Configure MassTransit with RabbitMQ
@@ -40,6 +43,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<OrderSubmittedConsumer>();
     x.AddConsumer<OrderStockReleaseConsumer>();
     x.AddConsumer<OrderCompletedConsumer>();
+    x.AddConsumer<ElementSoldConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -88,7 +92,8 @@ var app = builder.Build();
 
 await app.ApplyDatabaseAsync<ElementDbContext>("element_market_db");
 
-var gatewayGraphql = app.Configuration["GatewayPublicUrl"] ?? "http://localhost:5000/graphql";
+var gatewayGraphql = app.Configuration["GatewayPublicUrl"]
+    ?? $"{(app.Configuration["PUBLIC_API_BASE"] ?? "http://localhost:5000").Trim().TrimEnd('/')}/graphql";
 
 // Swagger is always available for this open public API
 app.UseSwagger();

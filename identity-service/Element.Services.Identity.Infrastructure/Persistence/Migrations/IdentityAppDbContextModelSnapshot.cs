@@ -65,6 +65,43 @@ namespace Element.Services.Identity.Infrastructure.Persistence.Migrations
                     b.ToTable("ApiKeys");
                 });
 
+            modelBuilder.Entity("Element.Services.Identity.Core.Entities.WebhookSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Events")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("WebhookSubscriptions");
+                });
+
             modelBuilder.Entity("Element.Services.Identity.Core.Entities.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -272,6 +309,15 @@ namespace Element.Services.Identity.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Element.Services.Identity.Core.Entities.ApiKey", b =>
+                {
+                    b.HasOne("Element.Services.Identity.Core.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Element.Services.Identity.Core.Entities.WebhookSubscription", b =>
                 {
                     b.HasOne("Element.Services.Identity.Core.Entities.ApplicationUser", null)
                         .WithMany()

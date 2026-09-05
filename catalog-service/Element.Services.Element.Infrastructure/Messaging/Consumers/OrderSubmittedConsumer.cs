@@ -23,12 +23,15 @@ public class OrderSubmittedConsumer : IConsumer<OrderSubmittedEvent>
     public async Task Consume(ConsumeContext<OrderSubmittedEvent> context)
     {
         var message = context.Message;
+        if (message.Quantity <= 0) { await context.Publish(new StockReservationFailedEvent(message.OrderId, "Quantity must be positive.")); return; }
+        await using var transaction = await StockTransaction.BeginAsync(_context, message.ElementSymbol);
         _logger.LogInformation("Processing stock reservation for Order: {OrderId}, Element: {Element}, Qty: {Quantity}",
             message.OrderId, message.ElementSymbol, message.Quantity);
 
         var existing = await _context.StockReservations.FindAsync(message.OrderId);
         if (existing is not null)
         {
+            if (transaction != null) await transaction.CommitAsync();
             if (existing.Status == "Reserved")
             {
                 _logger.LogInformation("Idempotent replay for Order {OrderId} — republishing StockReservedEvent", message.OrderId);
@@ -42,6 +45,7 @@ public class OrderSubmittedConsumer : IConsumer<OrderSubmittedEvent>
 
         if (element == null)
         {
+            if (transaction != null) await transaction.CommitAsync();
             _logger.LogWarning("Element {Symbol} not found. Stock reservation failed.", message.ElementSymbol);
             await context.Publish(new StockReservationFailedEvent(message.OrderId, $"Element '{message.ElementSymbol}' not found."));
             return;
@@ -49,6 +53,7 @@ public class OrderSubmittedConsumer : IConsumer<OrderSubmittedEvent>
 
         if (element.AvailableStock < message.Quantity)
         {
+            if (transaction != null) await transaction.CommitAsync();
             _logger.LogWarning("Insufficient stock for {Symbol}. Available: {Avail}, Requested: {Req}",
                 message.ElementSymbol, element.AvailableStock, message.Quantity);
             await context.Publish(new StockReservationFailedEvent(message.OrderId, $"Insufficient stock. Available: {element.AvailableStock}g."));
@@ -65,6 +70,7 @@ public class OrderSubmittedConsumer : IConsumer<OrderSubmittedEvent>
             CreatedAt = DateTime.UtcNow
         });
         await _context.SaveChangesAsync();
+        if (transaction != null) await transaction.CommitAsync();
 
         _logger.LogInformation("Stock reserved successfully for Order: {OrderId}", message.OrderId);
         await context.Publish(new StockReservedEvent(message.OrderId));

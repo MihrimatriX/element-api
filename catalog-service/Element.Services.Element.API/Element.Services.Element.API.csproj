@@ -32,6 +32,8 @@
 
   <ItemGroup>
     <Protobuf Include="Protos\element.proto" GrpcServices="Server" />
+    <Content Include="..\Element.Services.Element.Infrastructure\Data\element-properties.json" Link="Data\element-properties.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\Element.Services.Element.Infrastructure\Data\scientific-elements.json" Link="Data\scientific-elements.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

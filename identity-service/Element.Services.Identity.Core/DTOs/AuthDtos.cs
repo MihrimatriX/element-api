@@ -38,3 +38,16 @@ public record ApiKeyResponseDto(
 public record ValidateKeyRequest(
     string RawKey
 );
+
+public record CreateWebhookRequest(
+    string Url,
+    string[] Events,
+    string Secret
+);
+
+public record WebhookResponseDto(
+    Guid Id,
+    string Url,
+    string[] Events,
+    DateTime CreatedAt
+);

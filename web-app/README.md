@@ -12,10 +12,8 @@ Element Market mağaza arayüzü — React 19 + Vite + TypeScript + nginx.
 
 ## Sorumluluklar
 
-- Element fiyat dashboard'u
-- Sipariş oluşturma akışı
-- API anahtarı yönetimi (Identity)
-- SignalR canlı bildirimler
+- Piyasa masası (`/market`), mağaza (`/shop`), hesap, API dokümantasyonu, altyapı (`/stack`)
+- Kâğıt kredi cüzdan, gram sepet, SignalR fiyat (login gerekmez)
 
 Statik SPA — tüm veri gateway API'den gelir.
 
@@ -57,11 +55,18 @@ npm ci
 npm run dev    # http://localhost:5173
 ```
 
-Build arg (Docker):
+Build arg (Docker) — subdomain / HTTPS için public origin yaz, sonra rebuild:
 
 ```yaml
-VITE_API_BASE_URL: http://localhost:5000/api/v1
+VITE_API_BASE_URL: https://api.example.com/api/v1
+VITE_PUBLIC_SITE_URL: https://app.example.com
 ```
+
+Runtime (`PUBLIC_SITE_URL`): `robots.txt` ve `sitemap.xml` içindeki `__SITE_URL__` yerini doldurur.
+
+OG görseli: `/og.png` (1200×630). Favicon: `/favicon.svg`.
+
+Ayrıntı: kök README **Public / subdomain**.
 
 ---
 

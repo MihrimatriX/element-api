@@ -43,6 +43,10 @@ public class ApiKeyValidationMiddleware
             return;
         }
 
+        // API-key authentication does not populate HttpContext.User. Shared response
+        // caches therefore cannot safely infer that wallet/order data is private.
+        context.Response.Headers.CacheControl = "private, no-store";
+
         // Get API Key from header
         context.Request.Headers.TryGetValue("X-API-Key", out var apiKeyValues);
         var apiKey = apiKeyValues.ToString();
@@ -84,6 +88,7 @@ public class ApiKeyValidationMiddleware
 
         // Forward authenticated User ID to downstream services
         context.Request.Headers["X-User-Id"] = validationContext.UserId.ToString();
+        context.Request.Headers["INTERNAL_API_KEY"] = _configuration["INTERNAL_API_KEY"];
 
         await _next(context);
     }

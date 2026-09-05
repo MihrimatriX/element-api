@@ -1,0 +1,55 @@
+# Public overlay: host ports only for the web UI and API gateway.
+# Set PUBLIC_WEB_ORIGIN / VITE_PUBLIC_SITE_URL / VITE_API_BASE_URL / PUBLIC_API_BASE in docker/.env
+# Usage: docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
+
+services:
+  postgres:
+    ports: !override []
+  redis:
+    ports: !override []
+  rabbitmq:
+    ports: !override []
+  prometheus:
+    ports: !override []
+  grafana:
+    ports: !override []
+  loki:
+    ports: !override []
+  promtail:
+    ports: !override []
+  jaeger:
+    ports: !override []
+  observability-hub:
+    ports: !override []
+  seq:
+    ports: !override []
+  elasticsearch:
+    ports: !override []
+  logstash:
+    ports: !override []
+  kibana:
+    ports: !override []
+  filebeat:
+    ports: !override []
+  metricbeat:
+    ports: !override []
+  identity-service:
+    ports: !override []
+  catalog-service:
+    ports: !override []
+  compound-service:
+    ports: !override []
+  order-service:
+    ports: !override []
+  payment-service:
+    ports: !override []
+  shipment-service:
+    ports: !override []
+  notification-service:
+    ports: !override []
+  gateway-service:
+    ports: !override
+      - "5000:8080"
+  web-app:
+    ports: !override
+      - "3000:80"

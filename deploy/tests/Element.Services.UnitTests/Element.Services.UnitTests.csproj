@@ -20,12 +20,15 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+    <Content Include="..\..\..\catalog-service\Element.Services.Element.Infrastructure\Data\scientific-elements.json" Link="Data\scientific-elements.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\compound-service\Element.Services.Compound.Infrastructure\Data\scientific-compounds.json" Link="Data\scientific-compounds.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\catalog-service\Element.Services.Element.Infrastructure\Element.Services.Element.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\identity-service\Element.Services.Identity.Infrastructure\Element.Services.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\shipment-service\Element.Services.Shipment.Infrastructure\Element.Services.Shipment.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\notification-service\Element.Services.Notification.API\Element.Services.Notification.API.csproj" />
   </ItemGroup>
 
 </Project>

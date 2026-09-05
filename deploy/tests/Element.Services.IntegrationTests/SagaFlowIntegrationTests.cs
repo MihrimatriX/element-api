@@ -8,7 +8,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace Element.Services.IntegrationTests;
 
 /// <summary>
-/// End-to-end saga orchestration: Node order → Element (stock) → Payment → Shipment → Completed.
+/// Real Node, catalog and shipment services; payment events are supplied by the test.
+/// The Java worker and wallet debit are covered by deploy/scripts/test-e2e.mjs.
 /// </summary>
 [Trait("Category", "Integration")]
 [Collection("SagaFlow")]
@@ -36,17 +37,14 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
     {
         await using var elementApp = CreateElementFactory();
         var elementClient = elementApp.CreateClient();
-        var elementBase = elementClient.BaseAddress!.ToString().TrimEnd('/');
+        await using var elementBridge = await TestHttpBridge.StartAsync(elementClient);
 
         (await elementClient.GetAsync("/api/v1/elements/Au")).EnsureSuccessStatusCode();
 
         await using var shipmentApp = CreateShipmentFactory();
+        using var shipmentClient = shipmentApp.CreateClient();
         await using var orderHost = new OrderNodeTestHost();
-        await orderHost.StartAsync(_containers, elementBase);
-
-        await Task.Delay(TimeSpan.FromSeconds(3));
-
-        await IntegrationTestSettings.SeedElementPriceCacheAsync(_containers, "Au", 75.25m);
+        await orderHost.StartAsync(_containers, elementBridge.BaseUrl);
 
         var orderClient = orderHost.CreateClient();
         var customerId = Guid.NewGuid();
@@ -98,14 +96,8 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
     {
         switch (status)
         {
-            case "Submitted":
-                await SagaEventPublisher.PublishStockReservedAsync(_containers, orderId);
-                break;
             case "StockReserved":
                 await SagaEventPublisher.PublishPaymentProcessedAsync(_containers, orderId);
-                break;
-            case "Shipping":
-                await SagaEventPublisher.PublishShipmentDispatchedAsync(_containers, orderId);
                 break;
         }
     }

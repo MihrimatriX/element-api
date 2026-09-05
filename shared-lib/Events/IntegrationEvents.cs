@@ -76,7 +76,9 @@ public record OrderCompletedEvent(
 public record UpdateOrderStatusEvent(
     Guid OrderId,
     string Status,
-    string? ErrorMessage = null
+    string? ErrorMessage = null,
+    string? TrackingNumber = null,
+    Guid? CustomerId = null
 );
 
 /// <summary>
@@ -84,5 +86,15 @@ public record UpdateOrderStatusEvent(
 /// </summary>
 public record ProcessPaymentCommand(
     Guid OrderId,
-    decimal Amount
+    decimal Amount,
+    Guid CustomerId
+);
+
+/// <summary>
+/// Desk satışı: kasa düşer, katalog stok iade eder, last aşağı iter.
+/// </summary>
+public record ElementSoldEvent(
+    string ElementSymbol,
+    decimal Grams,
+    Guid CustomerId
 );

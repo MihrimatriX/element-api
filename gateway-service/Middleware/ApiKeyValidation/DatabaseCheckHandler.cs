@@ -11,11 +11,13 @@ namespace Element.Gateway.Middleware.ApiKeyValidation;
 public class DatabaseCheckHandler : ApiKeyValidationHandler
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
     private readonly string _identityServiceUrl;
 
     public DatabaseCheckHandler(IHttpClientFactory httpClientFactory, IConfiguration configuration)
     {
         _httpClientFactory = httpClientFactory;
+        _configuration = configuration;
         _identityServiceUrl = configuration["IdentityServiceInternalUrl"] ?? "http://localhost:5001";
     }
 
@@ -34,7 +36,13 @@ public class DatabaseCheckHandler : ApiKeyValidationHandler
         try
         {
             var client = _httpClientFactory.CreateClient();
-            var response = await client.PostAsJsonAsync($"{_identityServiceUrl}/api/v1/internal/api-keys/validate", new { RawKey = apiKey });
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"{_identityServiceUrl}/api/v1/internal/api-keys/validate");
+            req.Content = JsonContent.Create(new { RawKey = apiKey });
+            var internalKey = _configuration["INTERNAL_API_KEY"];
+            if (!string.IsNullOrEmpty(internalKey))
+                req.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", internalKey);
+
+            var response = await client.SendAsync(req);
 
             if (response.IsSuccessStatusCode)
             {

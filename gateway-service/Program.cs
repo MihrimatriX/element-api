@@ -29,15 +29,9 @@ builder.Services.AddHttpClient("ElementService", client =>
 
 // Add Redis
 var redisConn = builder.Configuration.GetValue<string>("RedisConnection") ?? "localhost:6379";
-try
-{
-    builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConn));
-    Log.Information("Connected to Redis successfully.");
-}
-catch (Exception ex)
-{
-    Log.Error(ex, "Failed to connect to Redis.");
-}
+var redisOptions = ConfigurationOptions.Parse(redisConn);
+redisOptions.AbortOnConnectFail = false;
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisOptions));
 
 // Add YARP
 builder.Services.AddReverseProxy()
@@ -51,12 +45,17 @@ builder.Services.AddHealthChecksUI(setup =>
 {
     setup.SetEvaluationTimeInSeconds(15);
     setup.MaximumHistoryEntriesPerEndpoint(60);
-    setup.AddHealthCheckEndpoint("Identity API", "http://identity-service:8080/health");
-    setup.AddHealthCheckEndpoint("Element Market API", "http://catalog-service:8080/health");
-    setup.AddHealthCheckEndpoint("Order API", "http://order-service:8080/health");
-    setup.AddHealthCheckEndpoint("Payment API", "http://payment-service:8080/health");
-    setup.AddHealthCheckEndpoint("Shipment API", "http://shipment-service:8080/health");
-    setup.AddHealthCheckEndpoint("Notification API", "http://notification-service:8080/health");
+    foreach (var (name, cluster) in new[] {
+        ("Identity API", "identity-cluster"), ("Element Market API", "element-cluster"),
+        ("Compound API", "compound-cluster"), ("Order API", "order-cluster"),
+        ("Shipment API", "shipment-cluster"), ("Notification API", "notification-cluster")
+    }) {
+        var address = builder.Configuration[$"ReverseProxy:Clusters:{cluster}:Destinations:destination1:Address"];
+        if (!string.IsNullOrEmpty(address)) setup.AddHealthCheckEndpoint(name, address.TrimEnd('/') + "/health");
+    }
+    var paymentAddress = builder.Configuration["PaymentServiceInternalUrl"]
+        ?? (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true" ? "http://payment-service:8080" : "http://localhost:5005");
+    setup.AddHealthCheckEndpoint("Payment API", paymentAddress.TrimEnd('/') + "/health");
 }).AddInMemoryStorage();
 
 // Add Rate Limiting
@@ -95,22 +94,24 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-// Add Output Caching
-builder.Services.AddOutputCache(options =>
-{
-    options.AddBasePolicy(builder => builder.Expire(TimeSpan.FromSeconds(5)));
-    options.AddPolicy("ElementsCache", builder => builder.Expire(TimeSpan.FromSeconds(15)));
-});
-
 // Add CORS
-var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000"];
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()?.ToList()
+    ?? ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"];
+var publicOrigin = builder.Configuration["PUBLIC_WEB_ORIGIN"]
+    ?? Environment.GetEnvironmentVariable("PUBLIC_WEB_ORIGIN");
+if (!string.IsNullOrWhiteSpace(publicOrigin))
+{
+    var origin = publicOrigin.Trim().TrimEnd('/');
+    if (!corsOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+        corsOrigins.Add(origin);
+}
 builder.Services.AddCors(options =>
 {
+    options.AddPolicy("PublicScience", policy => policy.AllowAnyOrigin().WithMethods("GET", "OPTIONS").AllowAnyHeader().WithExposedHeaders("ETag"));
     options.AddPolicy("ElementCors",
         policy =>
         {
-            policy.WithOrigins(corsOrigins)
+            policy.WithOrigins(corsOrigins.ToArray())
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -123,21 +124,20 @@ builder.Services
     .AddGraphQLServer()
     .AddQueryType<Element.Gateway.GraphQL.Query>();
 
+builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
 var app = builder.Build();
 
 app.UseEnterpriseLogging();
 app.UseGlobalExceptionHandling();
 
+app.UseRouting();
 app.UseCors("ElementCors");
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/v2"), branch => branch.UseResponseCompression());
 
 app.UseRateLimiter();
 
-app.UseRouting();
-
 // Add API Key validation before YARP proxies requests
 app.UseMiddleware<ApiKeyValidationMiddleware>();
-
-app.UseOutputCache();
 
 app.MapReverseProxy();
 app.MapGraphQL("/graphql");

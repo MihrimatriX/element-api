@@ -84,6 +84,15 @@ public class ShipmentsController : ControllerBase
     {
         var shipment = await _db.Shipments.AsNoTracking()
             .FirstOrDefaultAsync(s => s.TrackingNumber == trackingNumber, ct);
-        return shipment == null ? NotFound() : Ok(shipment);
+        if (shipment == null) return NotFound();
+
+        var userId = Request.Headers["X-User-Id"].ToString();
+        if (string.IsNullOrEmpty(userId) ||
+            !string.Equals(shipment.CustomerId, userId, StringComparison.OrdinalIgnoreCase))
+        {
+            return NotFound();
+        }
+
+        return Ok(shipment);
     }
 }

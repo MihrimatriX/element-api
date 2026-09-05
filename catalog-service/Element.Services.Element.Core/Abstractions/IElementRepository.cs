@@ -15,4 +15,8 @@ public interface IElementRepository
     Task<ChemicalElement?> GetBySymbolAsync(string symbol, CancellationToken ct = default);
     Task<IReadOnlyList<ChemicalElement>> GetBySymbolsAsync(IEnumerable<string> symbols, CancellationToken ct = default);
     Task<IReadOnlyList<ElementPriceHistory>> GetPriceHistoryAsync(string symbol, int limit, CancellationToken ct = default);
+    Task<IReadOnlyList<ElementPriceHistory>> GetPriceHistorySinceAsync(string symbol, DateTime sinceUtc, CancellationToken ct = default);
+    Task<decimal> GetFulfilledVolumeSinceAsync(string symbol, DateTime sinceUtc, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<string, decimal>> GetOldestPriceSinceAsync(DateTime sinceUtc, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<string, decimal>> GetFulfilledVolumeBySymbolSinceAsync(DateTime sinceUtc, CancellationToken ct = default);
 }

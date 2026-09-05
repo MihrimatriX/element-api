@@ -4,10 +4,14 @@
   "private": true,
   "description": "Element Market — order orchestration microservice (Node.js)",
   "type": "module",
+  "overrides": {
+    "qs": "6.16.0"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "check": "tsx src/ledger.check.ts && tsx src/compoundPrice.check.ts && tsx src/http.check.ts"
   },
   "dependencies": {
     "amqplib": "^0.10.5",

@@ -11,8 +11,13 @@ spring:
     password: ${RABBITMQ_PASSWORD:guest}
 
 payment:
-  deterministic: ${PAYMENT_DETERMINISTIC:false}
   simulate-delay-seconds: ${PAYMENT_SIMULATE_DELAY_SECONDS:0}
+
+order-service:
+  url: ${ORDER_SERVICE_URL:http://localhost:5003}
+
+internal:
+  api-key: ${INTERNAL_API_KEY:element-internal-dev-key}
 
 info:
   app:

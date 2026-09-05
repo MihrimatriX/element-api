@@ -19,6 +19,7 @@ public class ApiInfoController : ControllerBase
         ["auth_register"] = $"{BaseUrl()}/api/v1/auth/register",
         ["auth_login"] = $"{BaseUrl()}/api/v1/auth/login",
         ["api_keys"] = $"{BaseUrl()}/api/v1/api-keys",
+        ["webhooks"] = $"{BaseUrl()}/api/v1/webhooks",
         ["swagger"] = $"{BaseUrl()}/swagger",
         ["health"] = $"{BaseUrl()}/health",
         ["info"] = $"{BaseUrl()}/info"

@@ -42,11 +42,12 @@ public class ApiKeyServiceTests
         var (service, db, _) = CreateSut();
         var userId = Guid.NewGuid();
 
-        var (rawKey, record) = await service.GenerateKeyAsync(userId, "integration test");
+        var (rawKey, record) = await service.GenerateKeyAsync(userId, "integration test", 50);
 
         rawKey.Should().StartWith("ele_live_").And.HaveLength(41);
         record.UserId.Should().Be(userId);
         record.IsActive.Should().BeTrue();
+        record.RateLimitTps.Should().Be(10);
         (await db.ApiKeys.CountAsync()).Should().Be(1);
     }
 

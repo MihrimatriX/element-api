@@ -45,7 +45,7 @@ public sealed class ElementDetailSeeder : IHostedService
 
             el.NameTr = nameTr;
             el.Block = block;
-            el.Electronegativity = Math.Round(0.7m + (el.AtomicNumber % 34) * 0.1m, 2);
+            el.Electronegativity = ElementPropertyCatalog.Get(el.Symbol)?.Electronegativity;
             el.Appearance = appearance;
             el.Uses = uses;
             el.Summary = $"{nameTr} ({el.Symbol}), {el.Category} sınıfında atom numarası {el.AtomicNumber} olan bir elementtir. {uses} alanlarında kullanılır.";
@@ -75,16 +75,13 @@ public sealed class ElementDetailSeeder : IHostedService
     private static string ColorOrCategory(ChemicalElement el) =>
         string.IsNullOrWhiteSpace(el.Color) ? el.Category : el.Color;
 
-    private static string ResolveBlock(ChemicalElement el)
+    public static string ResolveBlock(ChemicalElement el)
     {
+        if (el.AtomicNumber <= 2 || el.Group <= 2) return "s";
         if (el.Category.Contains("lanthanide", StringComparison.OrdinalIgnoreCase) ||
             el.Category.Contains("actinide", StringComparison.OrdinalIgnoreCase))
             return "f";
-        if (el.Category.Contains("transition", StringComparison.OrdinalIgnoreCase))
-            return "d";
-        if (el.Group >= 13 || el.Category.Contains("nonmetal", StringComparison.OrdinalIgnoreCase))
-            return "p";
-        return "s";
+        return el.Group >= 13 ? "p" : "d";
     }
 
     private static string CategoryUses(string category)

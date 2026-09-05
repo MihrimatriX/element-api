@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -16,13 +15,6 @@ public class ApiInfoController : ControllerBase
 
     public ApiInfoController(IConfiguration configuration) => _configuration = configuration;
 
-    private string GetBaseUrl()
-    {
-        var proto = Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? Request.Scheme;
-        var host = Request.Headers["X-Forwarded-Host"].FirstOrDefault() ?? Request.Host.ToString();
-        return $"{proto}://{host}";
-    }
-
     /// <summary>
     /// Discovery endpoint listing all available sub-resources.
     /// </summary>
@@ -30,10 +22,15 @@ public class ApiInfoController : ControllerBase
     [ProducesResponseType(typeof(Dictionary<string, string>), 200)]
     public IActionResult GetApiInfo()
     {
-        var baseUrl = GetBaseUrl();
-        var gateway = _configuration["GatewayPublicUrl"] ?? "http://localhost:5000";
+        var baseUrl = PublicBaseUrl.Resolve(Request, _configuration);
+        var gateway = _configuration["PUBLIC_API_BASE"]
+            ?? _configuration["GatewayPublicUrl"]
+            ?? "http://localhost:5000";
+        gateway = gateway.Trim().TrimEnd('/');
         var resources = new Dictionary<string, string>
         {
+            { "scientific_elements", $"{baseUrl}/api/v2/elements" },
+            { "scientific_compounds", $"{baseUrl}/api/v2/compounds" },
             { "elements", $"{baseUrl}/api/v1/elements" },
             { "elements_search", $"{baseUrl}/api/v1/elements/search?q=gold" },
             { "elements_random", $"{baseUrl}/api/v1/elements/random" },
@@ -42,6 +39,10 @@ public class ApiInfoController : ControllerBase
             { "element_related", $"{baseUrl}/api/v1/elements/au/related" },
             { "categories", $"{baseUrl}/api/v1/categories" },
             { "statistics", $"{baseUrl}/api/v1/statistics" },
+            { "ticker", $"{baseUrl}/api/v1/elements/au/ticker" },
+            { "compounds", $"{baseUrl}/api/v1/compounds" },
+            { "market_movers", $"{baseUrl}/api/v1/market/movers" },
+            { "market_board", $"{baseUrl}/api/v1/market/board" },
             { "graphql", $"{gateway}/graphql" },
             { "swagger", $"{baseUrl}/swagger" },
             { "health", $"{baseUrl}/health" },

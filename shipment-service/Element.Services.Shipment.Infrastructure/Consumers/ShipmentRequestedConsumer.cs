@@ -23,7 +23,7 @@ public class ShipmentRequestedConsumer : IConsumer<ShipmentRequestedEvent>
     {
         _context = context;
         _logger = logger;
-        _failQuantityGte = configuration.GetValue("Shipment:FailQuantityGte", 100m);
+        _failQuantityGte = configuration.GetValue("Shipment:FailQuantityGte", 0m);
     }
 
     public async Task Consume(ConsumeContext<ShipmentRequestedEvent> context)
@@ -46,7 +46,7 @@ public class ShipmentRequestedConsumer : IConsumer<ShipmentRequestedEvent>
             return;
         }
 
-        if (msg.Quantity >= _failQuantityGte)
+        if (_failQuantityGte > 0 && msg.Quantity >= _failQuantityGte)
         {
             var reason = $"Shipment rejected: quantity {msg.Quantity}g exceeds carrier limit ({_failQuantityGte}g).";
             _context.Shipments.Add(new Core.Entities.Shipment

@@ -8,7 +8,8 @@ public class ElementMarketInfo
     public decimal PricePerGram { get; set; }
     public decimal StockWeightGrams { get; set; }
     public decimal AvailableStock { get; set; }
-    public string Currency { get; set; } = "ELX";
+    public string Currency { get; set; } = "KREDI";
+    public string PriceSource { get; set; } = "simulation";
 }
 
 public class ElementMediaInfo
@@ -23,7 +24,8 @@ public class ElementCommerceInfo
     public decimal Rating { get; set; }
     public int ReviewCount { get; set; }
     public string? Badge { get; set; }
-    public string DeliveryNote { get; set; } = "Yarın kapında";
+    public string DeliveryNote { get; set; } = "Deneme siparişi; gerçek gönderim yapılmaz.";
+    public bool IsSimulated { get; set; } = true;
     public bool FreeShippingEligible { get; set; }
 }
 
@@ -47,6 +49,12 @@ public class ElementResponseDto
     public string Category { get; set; } = string.Empty;
     public string Phase { get; set; } = string.Empty;
     public string? Color { get; set; }
+    public Dictionary<string, string> Units { get; set; } = new() {
+        ["atomicMass"] = "u", ["density"] = "g/cm3", ["meltingPoint"] = "K", ["boilingPoint"] = "K", ["quantity"] = "g", ["electronegativity"] = "Pauling"
+    };
+    public string DataNote { get; set; } = "Reference data; some superheavy-element values are predictions. Market prices and stock are simulated.";
+    public string SourceUrl { get; set; } = Infrastructure.Persistence.ElementPropertyCatalog.Reference.SourceUrl;
+    public string RetrievedAt { get; set; } = Infrastructure.Persistence.ElementPropertyCatalog.Reference.RetrievedAt;
     public decimal? Density { get; set; }
     public decimal? MeltingPoint { get; set; }
     public decimal? BoilingPoint { get; set; }

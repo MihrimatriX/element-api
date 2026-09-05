@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authService, apiKeyService } from '../services/api';
+import { authService, apiKeyService, apiError } from '../services/api';
+import { useSelectedElement } from '../App';
+import Seo from '../components/Seo';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { setIsAuthenticated, selectedSymbol } = useSelectedElement();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -39,17 +42,18 @@ export default function Register() {
       try {
         const login = await authService.login({ email: formData.email, password: formData.password });
         if (login.token) {
-          const apiKeyRes = await apiKeyService.generate('Web Dashboard Key', 10);
-          localStorage.setItem('apiKey', apiKeyRes.apiKey);
+          await apiKeyService.ensureDashboardKey();
+          setIsAuthenticated(true);
+          navigate(`/shop?symbol=${selectedSymbol}`);
+          return;
         }
       } catch (keyErr) {
-        console.warn('Could not generate API Key automatically after registration.', keyErr);
+        console.warn('Could not sign in after registration.', keyErr);
       }
-      setSuccess('Hesabınız oluşturuldu! Giriş yapmaya yönlendiriliyorsunuz...');
-      setTimeout(() => navigate('/login'), 2000);
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Hesap oluşturulamadı.';
-      setError(message);
+      setSuccess('Hesap oluştu. Giriş sayfasına…');
+      setTimeout(() => navigate('/login'), 1200);
+    } catch (err: unknown) {
+      setError(apiError(err, 'Hesap oluşturulamadı.'));
     } finally {
       setLoading(false);
     }
@@ -57,11 +61,16 @@ export default function Register() {
 
   return (
     <div className="auth-container">
+      <Seo
+        title="Kayıt · ElementAPI"
+        description="Kayıt olunca hesabına 10.000 kredi yüklenir."
+        path="/register"
+      />
       <div className="panel auth-panel">
         <div className="panel-header" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '6px' }}>
           <p className="kicker">Kayıt</p>
           <h2 style={{ margin: 0 }}>Kayıt Ol</h2>
-          <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>Dağıtık sistemin bir parçası olun</p>
+          <p style={{ margin: 0, fontSize: '13px', color: 'var(--muted)' }}>Kayıt olunca hesabına 10.000 kredi yüklenir.</p>
         </div>
         
         <div className="panel-body">

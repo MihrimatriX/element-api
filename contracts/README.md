@@ -18,6 +18,7 @@ Diller arası entegrasyon sözleşmeleri (RabbitMQ + MassTransit uyumlu JSON).
 | UpdateOrderStatusEvent | `urn:message:Element.Shared.Events:UpdateOrderStatusEvent` |
 | OrderStockReleaseEvent | `urn:message:Element.Shared.Events:OrderStockReleaseEvent` |
 | OrderCompletedEvent | `urn:message:Element.Shared.Events:OrderCompletedEvent` |
+| ElementSoldEvent | `urn:message:Element.Shared.Events:ElementSoldEvent` |
 
 ## Exchange (fanout)
 
@@ -37,7 +38,7 @@ Diller arası entegrasyon sözleşmeleri (RabbitMQ + MassTransit uyumlu JSON).
   "messageId": "uuid",
   "conversationId": "uuid",
   "messageType": ["urn:message:Element.Shared.Events:ProcessPaymentCommand"],
-  "message": { "orderId": "...", "amount": 100.5 }
+  "message": { "orderId": "...", "amount": 100.5, "customerId": "..." }
 }
 ```
 
@@ -58,6 +59,7 @@ Diller arası entegrasyon sözleşmeleri (RabbitMQ + MassTransit uyumlu JSON).
 | `shipment-dispatched-event.json` | ShipmentDispatchedEvent |
 | `shipment-failed-event.json` | ShipmentFailedEvent |
 | `element-price-changed-event.json` | ElementPriceChangedIntegrationEvent |
+| `element-sold-event.json` | ElementSoldEvent |
 
 ## .NET kaynak tipleri
 

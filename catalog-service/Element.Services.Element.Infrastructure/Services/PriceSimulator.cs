@@ -54,14 +54,13 @@ public class PriceSimulator : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ElementDbContext>();
         var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
-        var redisDb = _redisMultiplexer.GetDatabase();
 
         var elements = await context.ChemicalElements.ToListAsync(stoppingToken);
 
         foreach (var element in elements)
         {
-            // Calculate a random change between -1.5% and +1.5%
-            var percentageChange = (decimal)(_random.NextDouble() * 3.0 - 1.5) / 100m;
+            // ±0.4% jitter so house trades stay visible; do not disable
+            var percentageChange = (decimal)(_random.NextDouble() * 0.8 - 0.4) / 100m;
             var priceDifference = element.PricePerGram * percentageChange;
             var oldPrice = element.PricePerGram;
             var newPrice = Math.Round(element.PricePerGram + priceDifference, 4);
@@ -82,10 +81,7 @@ public class PriceSimulator : BackgroundService
             _logger.LogInformation("Market change: {Name} ({Symbol}) price changed from ${Old} to ${New} ({Change:P2})",
                 element.Name, element.Symbol, oldPrice, newPrice, percentageChange);
 
-            // Evict Redis Cache
-            // Cache keys used: "element:Au", "elements:list"
-            await redisDb.KeyDeleteAsync($"element:{element.Symbol.ToLower()}");
-            await redisDb.KeyDeleteAsync("elements:list");
+            await CatalogCache.EvictElementAsync(_redisMultiplexer, element.Symbol);
 
             // Publish Integration Event for Order Service or other consumers
             await publishEndpoint.Publish(new ElementPriceChangedIntegrationEvent(

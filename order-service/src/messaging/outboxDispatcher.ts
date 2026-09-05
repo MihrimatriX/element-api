@@ -29,6 +29,7 @@ export async function dispatchOutboxBatch(): Promise<number> {
       });
     }
 
+    await channel.waitForConfirms();
     await markOutboxPublished(row.id);
   }
 
@@ -36,7 +37,10 @@ export async function dispatchOutboxBatch(): Promise<number> {
 }
 
 export function startOutboxDispatcher(): NodeJS.Timeout {
+  let running = false;
   return setInterval(() => {
-    dispatchOutboxBatch().catch((err) => console.error('Outbox dispatch error', err));
+    if (running) return;
+    running = true;
+    dispatchOutboxBatch().catch((err) => console.error('Outbox dispatch error', err)).finally(() => { running = false; });
   }, config.outboxPollMs);
 }

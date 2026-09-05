@@ -8,7 +8,9 @@ using Element.Services.Element.API.DTOs;
 using Element.Services.Element.Core.Abstractions;
 using Element.Services.Element.Core.Domain;
 using Element.Services.Element.Core.Entities;
+using Element.Services.Element.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace Element.Services.Element.API.Controllers;
@@ -26,19 +28,19 @@ public class ElementsController : ControllerBase
 
     private readonly IElementRepository _repository;
     private readonly IDatabase _redisDb;
+    private readonly MarketOptions _market;
 
-    public ElementsController(IElementRepository repository, IConnectionMultiplexer redisMultiplexer)
+    public ElementsController(
+        IElementRepository repository,
+        IConnectionMultiplexer redisMultiplexer,
+        IOptions<MarketOptions> market)
     {
         _repository = repository;
         _redisDb = redisMultiplexer.GetDatabase();
+        _market = market.Value;
     }
 
-    private string GetBaseUrl()
-    {
-        var proto = Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? Request.Scheme;
-        var host = Request.Headers["X-Forwarded-Host"].FirstOrDefault() ?? Request.Host.ToString();
-        return $"{proto}://{host}";
-    }
+    private string GetBaseUrl() => PublicBaseUrl.Resolve(Request);
 
     private ElementResponseDto MapToDto(ChemicalElement element) => ElementDtoMapper.ToDto(element, GetBaseUrl());
 
@@ -55,7 +57,11 @@ public class ElementsController : ControllerBase
 
     private async Task SetCacheAsync<T>(string key, T value)
     {
-        try { await _redisDb.StringSetAsync(key, JsonSerializer.Serialize(value), CacheTtl); }
+        try
+        {
+            await _redisDb.StringSetAsync(key, JsonSerializer.Serialize(value), CacheTtl);
+            await CatalogCache.TrackListKeyAsync(_redisDb, key);
+        }
         catch { /* cache is best-effort */ }
     }
 
@@ -253,5 +259,53 @@ public class ElementsController : ControllerBase
 
         var history = await _repository.GetPriceHistoryAsync(symbol, limit, ct);
         return Ok(history);
+    }
+
+    /// <summary>Public ticker: last / bid / ask derived from house spread. No API key at the gateway.</summary>
+    [HttpGet("{symbol}/ticker")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(404)]
+    public async Task<IActionResult> GetTicker(string symbol, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(symbol)) return BadRequest("Symbol is required.");
+
+        var element = await _repository.GetBySymbolAsync(symbol, ct);
+        if (element == null) return NotFound($"Chemical element with symbol '{symbol}' was not found.");
+
+        var spread = _market.SpreadPct > 0 ? _market.SpreadPct : MarketMaker.DefaultSpreadPct;
+        var last = element.PricePerGram;
+        var (bid, ask) = MarketMaker.Quotes(last, spread);
+        var cutoff = DateTime.UtcNow.AddHours(-24);
+        var since = await _repository.GetPriceHistorySinceAsync(symbol, cutoff, ct);
+        var spark = (await _repository.GetPriceHistoryAsync(symbol, 24, ct))
+            .Reverse()
+            .Select(h => new { t = h.Timestamp, price = h.Price })
+            .ToList();
+
+        decimal? first24 = since.Count > 0 ? since[0].Price : null;
+        var high = since.Count > 0 ? since.Max(h => h.Price) : last;
+        var low = since.Count > 0 ? since.Min(h => h.Price) : last;
+        if (last > high) high = last;
+        if (last < low) low = last;
+
+        var volume = await _repository.GetFulfilledVolumeSinceAsync(symbol, cutoff, ct);
+
+        return Ok(new
+        {
+            symbol = element.Symbol,
+            last,
+            bid,
+            ask,
+            spreadPct = spread,
+            change24hPct = MarketMaker.ChangePct(last, first24),
+            high24h = high,
+            low24h = low,
+            volume24hGrams = volume,
+            sparkline = spark,
+            availableStock = element.AvailableStock,
+            currency = "KREDI",
+            priceSource = "simulation",
+            updatedAt = DateTime.UtcNow
+        });
     }
 }

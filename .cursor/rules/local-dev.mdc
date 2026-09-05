@@ -1,0 +1,26 @@
+---
+description: Prefer host builds; never full docker compose --build to verify work
+alwaysApply: true
+---
+
+# Local verify — no full Docker rebuild
+
+Do not `docker compose up --build` the whole platform to check UI or a single service. That overheats the machine and is not the default loop.
+
+Prefer the host:
+
+- Web: `cd web-app && npm run dev` or `npm run build`
+- Catalog / .NET: `dotnet build` or `dotnet run` in the service project
+- Order / Node: `npx tsc` / `npm run check` in `order-service`
+
+If the gateway is already at `localhost:5000`, curl that. Do not rebuild images to hit an endpoint.
+
+Docker is only for infra that is **not already running**, and **without `--build`**:
+
+```bash
+docker compose --env-file docker/.env up -d postgres redis rabbitmq
+```
+
+Never rebuild ELK, Grafana, or every microservice as a verify step.
+
+Full `docker compose up --build` is a **user-requested one-shot demo**, not how you confirm a landing, market, or shop change.

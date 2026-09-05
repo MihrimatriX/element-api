@@ -14,8 +14,10 @@ Gateway'den proxy edilmez — yalnızca mesaj tabanlı iş mantığı.
 ## Sorumluluklar
 
 - `ProcessPaymentCommand` kuyruğunu dinler (`payment-processing`)
+- Order-service `POST /internal/wallet/debit` ile ELX çeker
 - Başarı → `PaymentProcessedEvent`
-- Hata → `PaymentFailedEvent` (limit, banka red simülasyonu)
+- Yetersiz bakiye → `PaymentFailedEvent` (`INSUFFICIENT_ELX`)
+- Tek sipariş tavanı 50_000 ELX
 
 Kalıcı veritabanı yok.
 
@@ -38,8 +40,8 @@ Kalıcı veritabanı yok.
 
 | Kural | Sonuç |
 |-------|-------|
-| Tutar > 50.000 USD | Red |
-| Rastgele banka red | `PAYMENT_DETERMINISTIC=true` ile sabit |
+| Tutar > 50.000 ELX | Red |
+| Cüzdan yetersiz | `INSUFFICIENT_ELX` |
 
 ---
 
@@ -67,8 +69,8 @@ Docker healthcheck: `GET /health`
 | Değişken | Açıklama |
 |----------|----------|
 | `RABBITMQ_HOST` | RabbitMQ host |
-| `PAYMENT_DETERMINISTIC` | Test modu |
-| `LOGSTASH_TCP_HOST` | Log shipping |
+| `ORDER_SERVICE_URL` | order-service (wallet debit) |
+| `INTERNAL_API_KEY` | Internal debit header |
 
 ---
 

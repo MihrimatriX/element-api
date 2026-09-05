@@ -13,6 +13,30 @@ public class Query
         var client = clientFactory.CreateClient("ElementService");
         try
         {
+            var ticker = await client.GetAsync($"/api/v1/elements/{symbol}/ticker");
+            if (ticker.IsSuccessStatusCode)
+            {
+                var doc = await ticker.Content.ReadFromJsonAsync<JsonElement>();
+                if (doc.ValueKind == JsonValueKind.Object)
+                {
+                    var last = ReadDecimal(doc, "last")
+                        ?? ReadDecimal(doc, "pricePerGram");
+                    if (last is null && TryReadPricePerGram(doc, out var nested))
+                        last = nested;
+                    if (last is not null)
+                    {
+                        return new ElementPriceType
+                        {
+                            Symbol = symbol,
+                            PricePerGram = last.Value,
+                            Last = last.Value,
+                            Bid = ReadDecimal(doc, "bid") ?? 0,
+                            Ask = ReadDecimal(doc, "ask") ?? 0
+                        };
+                    }
+                }
+            }
+
             var response = await client.GetAsync($"/api/v1/elements/{symbol}");
             if (response.IsSuccessStatusCode)
             {
@@ -22,7 +46,8 @@ public class Query
                     return new ElementPriceType
                     {
                         Symbol = symbol,
-                        PricePerGram = price
+                        PricePerGram = price,
+                        Last = price
                     };
                 }
             }
@@ -33,6 +58,12 @@ public class Query
         }
 
         return new ElementPriceType { Symbol = symbol, PricePerGram = 0 };
+    }
+
+    private static decimal? ReadDecimal(JsonElement doc, string name)
+    {
+        if (doc.TryGetProperty(name, out var v) && v.TryGetDecimal(out var d)) return d;
+        return null;
     }
 
     private static bool TryReadPricePerGram(JsonElement doc, out decimal price)
@@ -62,4 +93,7 @@ public class ElementPriceType
 {
     public string Symbol { get; set; } = string.Empty;
     public decimal PricePerGram { get; set; }
+    public decimal Last { get; set; }
+    public decimal Bid { get; set; }
+    public decimal Ask { get; set; }
 }

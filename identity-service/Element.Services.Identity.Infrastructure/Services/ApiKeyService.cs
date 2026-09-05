@@ -25,6 +25,7 @@ public class ApiKeyService : IApiKeyService
 
     public async Task<(string RawKey, ApiKey ApiKeyRecord)> GenerateKeyAsync(Guid userId, string description, int rateLimitTps = 10)
     {
+        rateLimitTps = Math.Clamp(rateLimitTps, 1, 10);
         // 1. Generate unique raw key: ele_live_ + 32 random characters
         var randomBytes = new byte[24];
         using (var rng = RandomNumberGenerator.Create())

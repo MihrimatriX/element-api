@@ -7,8 +7,10 @@ import { startOutboxDispatcher } from './messaging/outboxDispatcher.js';
 import { startTimeoutSweeper } from './saga/timeoutSweeper.js';
 import { ordersRouter } from './routes/orders.js';
 import { apiInfoRouter } from './routes/apiInfo.js';
+import { deskRouter, internalWalletRouter, meRouter } from './routes/wallet.js';
 import { getMetrics, logger, metricsMiddleware, requestLogger } from './observability.js';
 import { registerOpsEndpoints } from './ops.js';
+import { httpErrorHandler } from './http.js';
 
 async function checkHealth(): Promise<{ ok: boolean; checks: { name: string; ok: boolean; durationMs: number; description?: string }[] }> {
   const checks: { name: string; ok: boolean; durationMs: number; description?: string }[] = [];
@@ -55,9 +57,20 @@ async function main() {
     if (!msg) return;
     handleSagaMessage(msg.content)
       .then(() => ch.ack(msg))
-      .catch((err) => {
+      .catch(async (err) => {
         logger.error({ err }, 'Saga handler error');
-        ch.nack(msg, false, false);
+        const attempts = Number(msg.properties.headers?.['x-retry-count'] || 0);
+        // Preserve failed events for inspection; never acknowledge before the retry is durable.
+        try {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          ch.sendToQueue(attempts < 4 ? config.sagaQueue : `${config.sagaQueue}_failed`, msg.content, {
+            ...msg.properties,
+            persistent: true,
+            headers: { ...msg.properties.headers, 'x-retry-count': attempts + 1 },
+          });
+          await ch.waitForConfirms();
+          ch.ack(msg);
+        } catch { ch.nack(msg, false, true); }
       });
   });
 
@@ -65,7 +78,7 @@ async function main() {
   startTimeoutSweeper();
 
   const app = express();
-  app.use(express.json());
+  app.use(express.json({ limit: '32kb' }));
   app.use(requestLogger);
   app.use(metricsMiddleware);
   registerOpsEndpoints(app, checkHealth);
@@ -74,7 +87,11 @@ async function main() {
     res.send(await getMetrics());
   });
   app.use('/api/v1', apiInfoRouter);
+  app.use('/api/v1/me', meRouter);
+  app.use('/api/v1/desk', deskRouter);
+  app.use('/internal/wallet', internalWalletRouter);
   app.use('/api/v1/orders', ordersRouter);
+  app.use(httpErrorHandler);
 
   app.listen(config.port, () => {
     logger.info({ port: config.port }, 'order-service listening');

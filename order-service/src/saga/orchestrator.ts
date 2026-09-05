@@ -1,9 +1,11 @@
+import { v5 as uuidv5 } from 'uuid';
 import { pool } from '../db/pool.js';
 import * as orders from '../db/orders.js';
-import { enqueueOutbox, tryMarkMessageProcessed } from '../db/outbox.js';
-import { parseMessage, MessageType } from '../messaging/massTransit.js';
-import { exchangeName } from '../messaging/massTransit.js';
+import * as ledger from '../db/ledger.js';
+import { enqueueOutbox } from '../db/outbox.js';
+import { parseMessage, exchangeName, type MessageType } from '../messaging/massTransit.js';
 import { config } from '../config.js';
+import { isUuid } from '../http.js';
 
 interface SagaContext {
   orderId: string;
@@ -13,172 +15,85 @@ interface SagaContext {
   totalPrice: number;
 }
 
-async function withOutboxTransition(
-  ctx: SagaContext,
-  status: string,
-  outboxEntries: Parameters<typeof enqueueOutbox>[1][],
-  error?: string
-): Promise<void> {
+export async function startSaga(ctx: SagaContext): Promise<void> {
+  await orders.createOrderWithSaga({ id: ctx.orderId, ...ctx });
+}
+
+/** Order state, deduplication, balance/holdings and outgoing messages commit together. */
+export async function handleSagaMessage(body: Buffer): Promise<void> {
+  let type: MessageType;
+  let messageId: string;
+  let msg: { orderId: string; reason?: string; trackingNumber?: string; TrackingNumber?: string };
+  try {
+    const raw = JSON.parse(body.toString('utf8'));
+    type = raw.messageType?.[0]?.split(':').pop();
+    msg = parseMessage(body);
+    if (!type || !isUuid(msg.orderId)) return;
+    messageId = isUuid(raw.messageId) ? raw.messageId : uuidv5(`${type}:${msg.orderId}`, uuidv5.URL);
+  } catch { return; }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    await orders.transitionSaga(client, ctx, status, error);
-    for (const entry of outboxEntries) {
-      await enqueueOutbox(client, entry);
+    const result = await client.query<orders.OrderRow>(`SELECT * FROM orders WHERE id = $1 FOR UPDATE`, [msg.orderId]);
+    const row = result.rows[0];
+    if (!row) { await client.query('ROLLBACK'); return; }
+    const inserted = await client.query(
+      `INSERT INTO processed_messages (message_id, event_type, order_id) VALUES ($1,$2,$3)
+       ON CONFLICT DO NOTHING RETURNING message_id`, [messageId, type, row.id]);
+    if (!inserted.rowCount) { await client.query('COMMIT'); return; }
+
+    const ctx: SagaContext = { orderId: row.id, customerId: row.customer_id,
+      elementSymbol: row.element_symbol, quantity: Number(row.quantity), totalPrice: Number(row.total_price) };
+    const emit = (messageType: MessageType, payload: object, queue?: string) => enqueueOutbox(client, {
+      messageType, payload, route: queue ? 'queue' : 'exchange', routeTarget: queue ?? exchangeName(messageType),
+    });
+    const release = () => emit('OrderStockReleaseEvent', {
+      orderId: row.id, elementSymbol: row.element_symbol, quantity: ctx.quantity,
+    });
+    const fail = async () => {
+      await orders.transitionSaga(client, ctx, 'Failed', msg.reason);
+      await release();
+      await ledger.refundIfDebited(client, { userId: row.customer_id, orderId: row.id,
+        amount: ctx.totalPrice, symbol: row.element_symbol, grams: ctx.quantity });
+    };
+    switch (type) {
+      case 'StockReservedEvent':
+        if (row.status === 'Submitted') {
+          await orders.transitionSaga(client, ctx, 'StockReserved');
+          await emit('ProcessPaymentCommand', { orderId: row.id, amount: ctx.totalPrice, customerId: row.customer_id }, config.paymentQueue);
+        } else if (row.status === 'Failed') await release();
+        break;
+      case 'StockReservationFailedEvent':
+        if (row.status === 'Submitted') await fail();
+        break;
+      case 'PaymentProcessedEvent':
+        if (row.status === 'StockReserved') {
+          await orders.transitionSaga(client, ctx, 'Shipping');
+          await emit('ShipmentRequestedEvent', { orderId: row.id, customerId: row.customer_id,
+            elementSymbol: row.element_symbol, quantity: ctx.quantity });
+        }
+        break;
+      case 'PaymentFailedEvent':
+        if (row.status === 'StockReserved') await fail();
+        break;
+      case 'ShipmentFailedEvent':
+        if (row.status === 'Shipping') await fail();
+        break;
+      case 'ShipmentDispatchedEvent':
+        if (row.status === 'Shipping') {
+          const tracking = msg.trackingNumber || msg.TrackingNumber;
+          if (tracking) await orders.setTrackingNumber(client, row.id, tracking);
+          await orders.transitionSaga(client, ctx, 'Completed', undefined, tracking);
+          await ledger.addHolding(client, row.customer_id, row.element_symbol, ctx.quantity,
+            ctx.totalPrice / ctx.quantity, row.compound_slug ?? 'elemental', row.product_label);
+          await emit('OrderCompletedEvent', { orderId: row.id, elementSymbol: row.element_symbol, quantity: ctx.quantity });
+        }
+        break;
     }
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
-  } finally {
-    client.release();
-  }
-}
-
-export async function startSaga(ctx: SagaContext): Promise<void> {
-  // ponytail: createOrderWithSaga in routes handles transactional start
-  await orders.createOrderWithSaga({
-    id: ctx.orderId,
-    customerId: ctx.customerId,
-    elementSymbol: ctx.elementSymbol,
-    quantity: ctx.quantity,
-    totalPrice: ctx.totalPrice,
-  });
-}
-
-export async function handleSagaMessage(body: Buffer): Promise<void> {
-  let type: string | undefined;
-  let messageId: string | undefined;
-  try {
-    const raw = JSON.parse(body.toString('utf8'));
-    const mt = raw.messageType?.[0] as string | undefined;
-    if (mt) type = mt.split(':').pop();
-    messageId = raw.messageId as string | undefined;
-  } catch {
-    return;
-  }
-
-  if (!type) return;
-
-  const dedupeKey = messageId ?? `${type}:${parseMessage<{ orderId: string }>(body).orderId}`;
-  const isNew = await tryMarkMessageProcessed(dedupeKey, type, parseMessage<{ orderId: string }>(body).orderId);
-  if (!isNew) {
-    console.info(`Skipping duplicate saga message ${type} (${dedupeKey})`);
-    return;
-  }
-
-  switch (type as MessageType) {
-    case 'StockReservedEvent': {
-      const msg = parseMessage<{ orderId: string }>(body);
-      const saga = await loadSaga(msg.orderId);
-      if (!saga || saga.current_state !== 'Submitted') return;
-      await withOutboxTransition(saga.ctx, 'StockReserved', [
-        {
-          messageType: 'ProcessPaymentCommand',
-          payload: { orderId: msg.orderId, amount: saga.ctx.totalPrice },
-          route: 'queue',
-          routeTarget: config.paymentQueue,
-        },
-      ]);
-      break;
-    }
-    case 'StockReservationFailedEvent': {
-      const msg = parseMessage<{ orderId: string; reason: string }>(body);
-      const saga = await loadSaga(msg.orderId);
-      if (!saga) return;
-      await withOutboxTransition(saga.ctx, 'Failed', [], msg.reason);
-      break;
-    }
-    case 'PaymentProcessedEvent': {
-      const msg = parseMessage<{ orderId: string }>(body);
-      const saga = await loadSaga(msg.orderId);
-      if (!saga || saga.current_state !== 'StockReserved') return;
-      await withOutboxTransition(saga.ctx, 'Shipping', [
-        {
-          messageType: 'ShipmentRequestedEvent',
-          payload: {
-            orderId: msg.orderId,
-            customerId: saga.ctx.customerId,
-            elementSymbol: saga.ctx.elementSymbol,
-            quantity: saga.ctx.quantity,
-          },
-          route: 'exchange',
-          routeTarget: exchangeName('ShipmentRequestedEvent'),
-        },
-      ]);
-      break;
-    }
-    case 'PaymentFailedEvent': {
-      const msg = parseMessage<{ orderId: string; reason: string }>(body);
-      const saga = await loadSaga(msg.orderId);
-      if (!saga) return;
-      await withOutboxTransition(saga.ctx, 'Failed', [
-        {
-          messageType: 'OrderStockReleaseEvent',
-          payload: {
-            orderId: msg.orderId,
-            elementSymbol: saga.ctx.elementSymbol,
-            quantity: saga.ctx.quantity,
-          },
-          route: 'exchange',
-          routeTarget: exchangeName('OrderStockReleaseEvent'),
-        },
-      ], msg.reason);
-      break;
-    }
-    case 'ShipmentDispatchedEvent': {
-      const msg = parseMessage<{ orderId: string }>(body);
-      const saga = await loadSaga(msg.orderId);
-      if (!saga || saga.current_state !== 'Shipping') return;
-      await withOutboxTransition(saga.ctx, 'Completed', [
-        {
-          messageType: 'OrderCompletedEvent',
-          payload: {
-            orderId: msg.orderId,
-            elementSymbol: saga.ctx.elementSymbol,
-            quantity: saga.ctx.quantity,
-          },
-          route: 'exchange',
-          routeTarget: exchangeName('OrderCompletedEvent'),
-        },
-      ]);
-      break;
-    }
-    case 'ShipmentFailedEvent': {
-      const msg = parseMessage<{ orderId: string; reason: string }>(body);
-      const saga = await loadSaga(msg.orderId);
-      if (!saga || saga.current_state !== 'Shipping') return;
-      await withOutboxTransition(saga.ctx, 'Failed', [
-        {
-          messageType: 'OrderStockReleaseEvent',
-          payload: {
-            orderId: msg.orderId,
-            elementSymbol: saga.ctx.elementSymbol,
-            quantity: saga.ctx.quantity,
-          },
-          route: 'exchange',
-          routeTarget: exchangeName('OrderStockReleaseEvent'),
-        },
-      ], msg.reason);
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-async function loadSaga(orderId: string) {
-  const row = await orders.getOrderById(orderId);
-  const state = await orders.getSagaState(orderId);
-  if (!row || !state) return null;
-  return {
-    current_state: state.current_state,
-    ctx: {
-      orderId: row.id,
-      customerId: row.customer_id,
-      elementSymbol: row.element_symbol,
-      quantity: Number(row.quantity),
-      totalPrice: Number(row.total_price),
-    },
-  };
+  } finally { client.release(); }
 }

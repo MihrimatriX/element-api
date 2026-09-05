@@ -10,3 +10,8 @@
 **/build
 **/TestResults
 **/.env
+**/.env.*
+**/artifacts
+**/target
+**/coverage
+**/.cursor

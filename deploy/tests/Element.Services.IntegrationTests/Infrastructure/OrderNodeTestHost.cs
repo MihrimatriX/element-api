@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using Npgsql;
@@ -12,6 +13,7 @@ namespace Element.Services.IntegrationTests.Infrastructure;
 public sealed class OrderNodeTestHost : IAsyncDisposable
 {
     private Process? _process;
+    private readonly ConcurrentQueue<string> _output = new();
     public string BaseUrl { get; private set; } = "";
 
     public async Task StartAsync(IntegrationTestContainers containers, string catalogBaseUrl)
@@ -40,16 +42,27 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
             CreateNoWindow = true
         };
         psi.Environment["PORT"] = port.ToString();
-        psi.Environment["DATABASE_URL"] = db.ConnectionString;
-        psi.Environment["REDIS_URL"] = containers.RedisConnection;
+        psi.Environment["DATABASE_URL"] = $"postgres://{Uri.EscapeDataString(db.Username!)}:{Uri.EscapeDataString(db.Password!)}@{db.Host}:{db.Port}/{db.Database}";
+        psi.Environment["REDIS_URL"] = $"redis://127.0.0.1:{containers.Redis.GetMappedPublicPort(6379)}";
         psi.Environment["RABBITMQ_HOST"] = containers.RabbitHost;
         psi.Environment["RABBITMQ_PORT"] = containers.RabbitPort.ToString();
         psi.Environment["RABBITMQ_USERNAME"] = "guest";
         psi.Environment["RABBITMQ_PASSWORD"] = "guest";
         psi.Environment["CATALOG_SERVICE_URL"] = catalogBaseUrl.TrimEnd('/');
+        psi.Environment["INTERNAL_API_KEY"] = "test-internal-key";
 
         _process = Process.Start(psi)
             ?? throw new InvalidOperationException("Failed to start order-service node process.");
+        void Capture(object sender, DataReceivedEventArgs args)
+        {
+            if (args.Data == null) return;
+            _output.Enqueue(args.Data);
+            while (_output.Count > 100) _output.TryDequeue(out _);
+        }
+        _process.OutputDataReceived += Capture;
+        _process.ErrorDataReceived += Capture;
+        _process.BeginOutputReadLine();
+        _process.BeginErrorReadLine();
 
         BaseUrl = $"http://127.0.0.1:{port}";
         await WaitForHealthyAsync();
@@ -59,7 +72,9 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
     {
         if (string.IsNullOrEmpty(BaseUrl))
             throw new InvalidOperationException("OrderNodeTestHost not started.");
-        return new HttpClient { BaseAddress = new Uri(BaseUrl + "/") };
+        var client = new HttpClient { BaseAddress = new Uri(BaseUrl + "/"), Timeout = TimeSpan.FromSeconds(15) };
+        client.DefaultRequestHeaders.Add("INTERNAL_API_KEY", "test-internal-key");
+        return client;
     }
 
     private async Task WaitForHealthyAsync()
@@ -81,7 +96,7 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
 
             if (_process?.HasExited == true)
             {
-                var err = await _process.StandardError.ReadToEndAsync();
+                var err = string.Join(Environment.NewLine, _output);
                 throw new InvalidOperationException($"order-service exited early: {err}");
             }
 

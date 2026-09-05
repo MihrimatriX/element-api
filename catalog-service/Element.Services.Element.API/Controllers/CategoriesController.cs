@@ -24,12 +24,7 @@ public class CategoriesController : ControllerBase
         _context = context;
     }
 
-    private string GetBaseUrl()
-    {
-        var proto = Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? Request.Scheme;
-        var host = Request.Headers["X-Forwarded-Host"].FirstOrDefault() ?? Request.Host.ToString();
-        return $"{proto}://{host}";
-    }
+    private string GetBaseUrl() => PublicBaseUrl.Resolve(Request);
 
     private CategoryResponseDto MapToDto(ElementCategory cat)
     {

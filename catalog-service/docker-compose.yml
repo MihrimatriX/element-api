@@ -53,6 +53,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_market_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:5000}
       RedisConnection: redis:6379
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Port: "5672"

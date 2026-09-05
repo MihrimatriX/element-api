@@ -12,8 +12,8 @@ Gerçek zamanlı bildirimler — SignalR hub + RabbitMQ event tüketicisi (.NET 
 ## Sorumluluklar
 
 - Fiyat değişimi ve sipariş durumu event'lerini dinler
-- Bağlı istemcilere SignalR push
-- Gateway WebSocket proxy
+- Bağlı istemcilere SignalR push (`PriceUpdated` herkese; login gerekmez)
+- Identity'deki webhook listesine HTTPS POST (`X-Element-Signature`)
 
 ---
 
@@ -26,9 +26,7 @@ Gerçek zamanlı bildirimler — SignalR hub + RabbitMQ event tüketicisi (.NET 
 
 ### Hub metodları
 
-| Metod | Açıklama |
-|-------|----------|
-| `SendMessage(user, message)` | → `ReceiveMessage` broadcast |
+İstemci broadcast yok. Sunucu `PriceUpdated` ve `OrderStatusUpdated` yollar.
 
 ### Ops
 

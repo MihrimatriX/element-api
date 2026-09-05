@@ -26,6 +26,7 @@ public class IdentityServiceIntegrationTests : IClassFixture<IntegrationTestCont
                 builder.UseSetting("ConnectionStrings:DefaultConnection", BuildConnectionString("element_identity_db"));
                 builder.UseSetting("RedisConnection", _containers.RedisConnection);
                 builder.UseSetting("JwtSettings:Secret", "IntegrationTestSecretKey_Minimum32Chars!");
+                builder.UseSetting("INTERNAL_API_KEY", "test-internal-key");
             });
 
     [Fact]
@@ -55,13 +56,37 @@ public class IdentityServiceIntegrationTests : IClassFixture<IntegrationTestCont
         Assert.StartsWith("ele_live_", rawKey);
         Assert.Equal(41, rawKey!.Length);
 
-        var validate = await client.PostAsJsonAsync("/api/v1/internal/api-keys/validate",
-            new ValidateKeyRequest(rawKey));
-        validate.EnsureSuccessStatusCode();
-        var dto = await validate.Content.ReadFromJsonAsync<ApiKeyResponseDto>();
+        var validate = new HttpRequestMessage(HttpMethod.Post, "/api/v1/internal/api-keys/validate");
+        validate.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", "test-internal-key");
+        validate.Content = JsonContent.Create(new ValidateKeyRequest(rawKey));
+        var validateResponse = await client.SendAsync(validate);
+        validateResponse.EnsureSuccessStatusCode();
+        var dto = await validateResponse.Content.ReadFromJsonAsync<ApiKeyResponseDto>();
         Assert.NotNull(dto);
         Assert.True(dto!.IsActive);
         Assert.NotEqual(Guid.Empty, dto.UserId);
+        Assert.Equal(10, dto.RateLimitTps);
+
+        // Run CRUD against the migrated PostgreSQL schema, not an in-memory model.
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", auth.Token);
+        var emptyHooks = await client.GetAsync("/api/v1/webhooks");
+        emptyHooks.EnsureSuccessStatusCode();
+        Assert.Empty((await emptyHooks.Content.ReadFromJsonAsync<JsonElement>()).EnumerateArray());
+        var createHook = await client.PostAsJsonAsync("/api/v1/webhooks", new
+        {
+            url = "https://example.test/element-webhook",
+            events = new[] { "price.updated", "order.updated" },
+            secret = "integration-webhook-secret"
+        });
+        createHook.EnsureSuccessStatusCode();
+        var hook = await createHook.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.False(hook.TryGetProperty("secret", out _));
+        var hookId = hook.GetProperty("id").GetGuid();
+        var hooks = await client.GetFromJsonAsync<JsonElement>("/api/v1/webhooks");
+        Assert.Single(hooks.EnumerateArray());
+        (await client.DeleteAsync($"/api/v1/webhooks/{hookId}")).EnsureSuccessStatusCode();
+        hooks = await client.GetFromJsonAsync<JsonElement>("/api/v1/webhooks");
+        Assert.Empty(hooks.EnumerateArray());
     }
 
     private string BuildConnectionString(string database)

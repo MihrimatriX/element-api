@@ -14,7 +14,8 @@ export type MessageType =
   | 'ShipmentFailedEvent'
   | 'UpdateOrderStatusEvent'
   | 'OrderStockReleaseEvent'
-  | 'OrderCompletedEvent';
+  | 'OrderCompletedEvent'
+  | 'ElementSoldEvent';
 
 export function exchangeName(type: MessageType): string {
   return `${NS}${type}`;

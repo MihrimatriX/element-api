@@ -20,9 +20,25 @@ public final class MassTransitMessage {
     public static ProcessPaymentCommand parseCommand(byte[] body, ObjectMapper mapper) throws Exception {
         JsonNode root = mapper.readTree(body);
         JsonNode msg = root.has("message") ? root.get("message") : root;
-        String orderId = msg.get("orderId").asText();
-        double amount = msg.get("amount").asDouble();
-        return new ProcessPaymentCommand(UUID.fromString(orderId), amount);
+        String orderId = text(msg, "orderId", "OrderId");
+        double amount = number(msg, "amount", "Amount");
+        String customerId = text(msg, "customerId", "CustomerId");
+        if (orderId == null || customerId == null) {
+            throw new IllegalArgumentException("ProcessPaymentCommand requires orderId and customerId");
+        }
+        return new ProcessPaymentCommand(UUID.fromString(orderId), amount, UUID.fromString(customerId));
+    }
+
+    private static String text(JsonNode msg, String camel, String pascal) {
+        if (msg.has(camel) && !msg.get(camel).isNull()) return msg.get(camel).asText();
+        if (msg.has(pascal) && !msg.get(pascal).isNull()) return msg.get(pascal).asText();
+        return null;
+    }
+
+    private static double number(JsonNode msg, String camel, String pascal) {
+        if (msg.has(camel) && !msg.get(camel).isNull()) return msg.get(camel).asDouble();
+        if (msg.has(pascal) && !msg.get(pascal).isNull()) return msg.get(pascal).asDouble();
+        return 0;
     }
 
     public static byte[] publishBody(ObjectMapper mapper, String typeName, ObjectNode payload) throws Exception {
@@ -41,5 +57,5 @@ public final class MassTransitMessage {
         );
     }
 
-    public record ProcessPaymentCommand(UUID orderId, double amount) {}
+    public record ProcessPaymentCommand(UUID orderId, double amount, UUID customerId) {}
 }

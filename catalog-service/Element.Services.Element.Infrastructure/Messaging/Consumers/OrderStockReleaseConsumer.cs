@@ -22,17 +22,24 @@ public class OrderStockReleaseConsumer : IConsumer<OrderStockReleaseEvent>
     public async Task Consume(ConsumeContext<OrderStockReleaseEvent> context)
     {
         var message = context.Message;
+        await using var transaction = await StockTransaction.BeginAsync(_context, message.ElementSymbol);
         _logger.LogInformation("Releasing reserved stock for Order: {OrderId}, Element: {Element}, Qty: {Quantity}",
             message.OrderId, message.ElementSymbol, message.Quantity);
 
         var reservation = await _context.StockReservations.FindAsync(message.OrderId);
         if (reservation is null)
         {
-            _logger.LogWarning("No reservation found for Order {OrderId} — nothing to release.", message.OrderId);
+            // A release can arrive before a delayed reservation. Keep a cancellation marker.
+            _context.StockReservations.Add(new Core.Entities.StockReservation {
+                OrderId = message.OrderId, ElementSymbol = message.ElementSymbol,
+                Quantity = message.Quantity, Status = "Released", CreatedAt = DateTime.UtcNow
+            });
+            await _context.SaveChangesAsync();
+            if (transaction != null) await transaction.CommitAsync();
             return;
         }
 
-        if (reservation.Status == "Released")
+        if (reservation.Status != "Reserved")
         {
             _logger.LogInformation("Idempotent stock release for Order {OrderId}", message.OrderId);
             return;
@@ -44,7 +51,6 @@ public class OrderStockReleaseConsumer : IConsumer<OrderStockReleaseEvent>
         if (element != null)
         {
             element.ReservedWeightGrams = Math.Max(0, element.ReservedWeightGrams - message.Quantity);
-            await _context.SaveChangesAsync();
             _logger.LogInformation("Stock released successfully for Order: {OrderId}", message.OrderId);
         }
         else
@@ -54,5 +60,6 @@ public class OrderStockReleaseConsumer : IConsumer<OrderStockReleaseEvent>
 
         reservation.Status = "Released";
         await _context.SaveChangesAsync();
+        if (transaction != null) await transaction.CommitAsync();
     }
 }

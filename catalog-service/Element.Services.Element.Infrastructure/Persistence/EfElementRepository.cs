@@ -42,4 +42,48 @@ public sealed class EfElementRepository : IElementRepository
             .Take(limit)
             .ToListAsync(ct);
     }
+
+    public async Task<IReadOnlyList<ElementPriceHistory>> GetPriceHistorySinceAsync(string symbol, DateTime sinceUtc, CancellationToken ct = default)
+    {
+        var s = symbol.Trim().ToLower();
+        return await _context.PriceHistories.AsNoTracking()
+            .Where(h => h.ElementSymbol.ToLower() == s && h.Timestamp >= sinceUtc)
+            .OrderBy(h => h.Timestamp)
+            .ToListAsync(ct);
+    }
+
+    public async Task<decimal> GetFulfilledVolumeSinceAsync(string symbol, DateTime sinceUtc, CancellationToken ct = default)
+    {
+        var s = symbol.Trim().ToLower();
+        // ponytail: CreatedAt is reservation time, not fulfill time
+        return await _context.StockReservations.AsNoTracking()
+            .Where(r => r.ElementSymbol.ToLower() == s && r.Status == "Fulfilled" && r.CreatedAt >= sinceUtc)
+            .SumAsync(r => (decimal?)r.Quantity, ct) ?? 0m;
+    }
+
+    public async Task<IReadOnlyDictionary<string, decimal>> GetOldestPriceSinceAsync(DateTime sinceUtc, CancellationToken ct = default)
+    {
+        var rows = await _context.PriceHistories.AsNoTracking()
+            .Where(h => h.Timestamp >= sinceUtc)
+            .Select(h => new { h.ElementSymbol, h.Price, h.Timestamp })
+            .ToListAsync(ct);
+
+        return rows
+            .GroupBy(h => h.ElementSymbol, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderBy(x => x.Timestamp).First().Price,
+                StringComparer.OrdinalIgnoreCase);
+    }
+
+    public async Task<IReadOnlyDictionary<string, decimal>> GetFulfilledVolumeBySymbolSinceAsync(DateTime sinceUtc, CancellationToken ct = default)
+    {
+        // ponytail: CreatedAt is reservation time, not fulfill time
+        var rows = await _context.StockReservations.AsNoTracking()
+            .Where(r => r.Status == "Fulfilled" && r.CreatedAt >= sinceUtc)
+            .GroupBy(r => r.ElementSymbol)
+            .Select(g => new { Symbol = g.Key, Qty = g.Sum(x => x.Quantity) })
+            .ToListAsync(ct);
+        return rows.ToDictionary(x => x.Symbol, x => x.Qty, StringComparer.OrdinalIgnoreCase);
+    }
 }

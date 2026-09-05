@@ -1,10 +1,10 @@
-# Smoke test — Docker stack public endpoints
-# Usage: docker compose --env-file docker/.env up -d --build
-#        ./deploy/scripts/test-smoke.ps1
+param([string]$WebBase = "http://localhost:5173", [string]$ApiBase = "http://localhost:5000")
+# Smoke test against already running local services or the Docker demo.
+# Local setup: ./deploy/scripts/start-local.ps1 -IncludePayment
 
 $ErrorActionPreference = "Stop"
-$base = "http://localhost:5000"
-$web = "http://localhost:3000"
+$base = $ApiBase
+$web = $WebBase
 $passed = 0
 $failed = 0
 
@@ -54,10 +54,10 @@ Assert-Status "Element list" "$base/api/v1/elements?pageSize=5" @(200)
 Assert-Status "Element detail" "$base/api/v1/elements/au" @(200)
 Assert-Status "Element search" "$base/api/v1/elements/search?q=gold" @(200)
 Assert-Status "Element random" "$base/api/v1/elements/random" @(200)
+Assert-Status "Ticker public" "$base/api/v1/elements/au/ticker" @(200)
+Assert-Status "Market movers" "$base/api/v1/market/movers" @(200)
 Assert-Status "Categories" "$base/api/v1/categories" @(200)
 Assert-Status "Gateway health" "$base/health" @(200)
-Assert-Status "Order service health" "http://localhost:5003/health" @(200)
-Assert-Status "Catalog health" "http://localhost:5002/health" @(200)
 Assert-Status "History without key" "$base/api/v1/elements/au/history" @(401)
 Assert-Status "Orders without key" "$base/api/v1/orders" @(401)
 Assert-Status "Web UI" "$web/" @(200)
@@ -76,6 +76,20 @@ try {
     Write-Host "[OK]   Register + login + API key" -ForegroundColor Green
     $script:passed++
 
+    try {
+        $wallet = Invoke-RestMethod -Uri "$base/api/v1/me/wallet" -Headers @{ "X-API-Key" = $apiKey } -TimeoutSec 15
+        if ([decimal]$wallet.balanceElx -eq 10000) {
+            Write-Host "[OK]   Wallet grant 10000 Kredi" -ForegroundColor Green
+            $script:passed++
+        } else {
+            Write-Host "[FAIL] Wallet grant - got $($wallet.balanceElx)" -ForegroundColor Red
+            $script:failed++
+        }
+    } catch {
+        Write-Host "[FAIL] Wallet - $($_.Exception.Message)" -ForegroundColor Red
+        $script:failed++
+    }
+
     Assert-Status "History with key" "$base/api/v1/elements/au/history?limit=5" @(200) @{ "X-API-Key" = $apiKey }
 
     $orderBody = @{ elementSymbol = "Au"; quantity = 1 } | ConvertTo-Json
@@ -91,6 +105,39 @@ try {
             if ($finalStatus -eq "Completed") {
                 Write-Host "[OK]   Saga completed ($finalStatus)" -ForegroundColor Green
                 $script:passed++
+
+                try {
+                    $holdingsRaw = Invoke-RestMethod -Uri "$base/api/v1/me/holdings" `
+                        -Headers @{ "X-API-Key" = $apiKey } -TimeoutSec 15
+                    $au = @($holdingsRaw) | Where-Object { $_.symbol -ieq "Au" } | Select-Object -First 1
+                    if ($au -and [decimal]$au.grams -ge 1) {
+                        Write-Host "[OK]   Holdings after complete (Au $($au.grams)g)" -ForegroundColor Green
+                        $script:passed++
+                    } else {
+                        Write-Host "[FAIL] Holdings after complete - no Au grams" -ForegroundColor Red
+                        $script:failed++
+                    }
+                } catch {
+                    Write-Host "[FAIL] Holdings - $($_.Exception.Message)" -ForegroundColor Red
+                    $script:failed++
+                }
+
+                try {
+                    $sell = Invoke-RestMethod -Uri "$base/api/v1/desk/sell" -Method POST `
+                        -Headers @{ "X-API-Key" = $apiKey } `
+                        -Body (@{ symbol = "Au"; grams = 1 } | ConvertTo-Json) `
+                        -ContentType "application/json"
+                    if ($sell.proceedsElx -gt 0) {
+                        Write-Host "[OK]   Desk sell Au 1g (proceeds=$($sell.proceedsElx))" -ForegroundColor Green
+                        $script:passed++
+                    } else {
+                        Write-Host "[FAIL] Desk sell - no proceeds" -ForegroundColor Red
+                        $script:failed++
+                    }
+                } catch {
+                    Write-Host "[FAIL] Desk sell - $($_.Exception.Message)" -ForegroundColor Red
+                    $script:failed++
+                }
             } else {
                 Write-Host "[FAIL] Saga did not complete - last status: $finalStatus" -ForegroundColor Red
                 $script:failed++
