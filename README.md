@@ -48,6 +48,8 @@ npm --prefix web-app run lint
 
 `test-saga.ps1`, gerçek PostgreSQL üzerinde geçici ve ayrı bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar; sonunda kendi şemasını kaldırır. `test-e2e.mjs` ve smoke testi çalışan yerel servislere bağlanır, ayrı deneme hesapları açar. Docker web sürümünü denemek için smoke testine `-WebBase http://localhost:3000` ver.
 
+Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs --observability`, sekiz backend servisinin sağlık ve metrik uçlarını, derlenmiş web sayfalarını, GraphQL fiyat sorgusunu ve gateway üzerinden gerçek SignalR fiyat olayını doğrular. Ayrıca tüm Prometheus hedeflerini, Grafana'yı ve Loki/Jaeger/ELK'ye veri ulaşmasını kontrol eder. İzleme araçları olmadan uygulama kontrolleri için `--observability` seçeneğini çıkarın. Varsayılan web adresi `http://localhost:3000`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
+
 ### Bilimsel veri ve alışveriş sözleşmesi
 
 - Elementlerin kütle, yoğunluk, sıcaklık, elektron dizilimi ve elektronegatiflik verisi [PubChem periyodik tablosundan](https://pubchem.ncbi.nlm.nih.gov/periodic-table/) alınan sürümlenmiş dosyadan gelir. Yanıtlarda `sourceUrl`, `retrievedAt` ve `units` bulunur; kaynaktaki bilinmeyen değerler `null` kalır. Atom numarası 119 gibi varsayımsal kayıtlar yayımlanmaz.

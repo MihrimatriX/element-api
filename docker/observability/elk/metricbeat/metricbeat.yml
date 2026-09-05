@@ -37,6 +37,15 @@ metricbeat.modules:
   - module: prometheus
     metricsets: ["collector"]
     period: 15s
+    hosts: ["http://compound-service:8080"]
+    metrics_path: /metrics
+    fields:
+      service: compound-service
+    fields_under_root: true
+
+  - module: prometheus
+    metricsets: ["collector"]
+    period: 15s
     hosts: ["http://order-service:8080"]
     metrics_path: /metrics
     fields:

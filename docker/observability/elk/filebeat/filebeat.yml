@@ -9,8 +9,13 @@ filebeat.autodiscover:
       hints.enabled: false
       templates:
         - condition:
-            regexp:
-              docker.container.name: "^element-.*"
+            and:
+              - regexp:
+                  docker.container.name: "^element-.*"
+              # Do not ingest the collectors' own failures back into the pipeline.
+              - not:
+                  regexp:
+                    docker.container.name: "^element-(logstash|filebeat|metricbeat|promtail)$"
           config:
             - type: filestream
               id: "docker-${data.docker.container.id}"
