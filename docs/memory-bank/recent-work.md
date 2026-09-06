@@ -24,11 +24,21 @@ Timeline context: conversation [Resume Atlas Lab work](288cf6e9-1d7b-4dc0-9110-6
 | web-app tests 5/5 + production build | Verified |
 | catalog / gateway / compound `dotnet build` | Verified |
 
+## Local stack re-verify (2026-09-07)
+
+| Item | Status |
+|------|--------|
+| Fix `start-local.ps1` `.env` parse (TR locale dropped `RABBITMQ_*`) | Done |
+| Order `:5003` + payment `:5005` + Rabbit `element` user | Up |
+| `test-smoke.ps1` buy saga + desk sell | **20/20** |
+| Fe atlas via gateway after refreshing Release `Data/` JSON | `media.photo` FAL `/media/atlas/fe.jpg` |
+| `/`, `/lab`, `/piyasa`, `/magaza`, compounds, auth | Verified |
+
 ## Intentionally incomplete (not blockers for this track)
 
 - Only **~40 / 118** elements have specimen photos (strict Commons filters). Rest stay `photo: null` with schema/Bohr fallback in UI.
-- Full commerce saga (order `:5003` + payment `:5005`) may be down locally — see `open-risks.md`. Science/Atlas/Lab track does not depend on them.
 - Large uncommitted working tree (JSON blobs, media, compose/docs) — **not committed** unless user asks.
+- After atlas JSON edits, avoid relying on stale Release bin Data with `-NoBuild` (see `open-risks.md`).
 
 ## Key new / touched files
 

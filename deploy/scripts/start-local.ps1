@@ -8,8 +8,13 @@ New-Item -ItemType Directory -Force -Path $logs | Out-Null
 $settings = @{}
 $envFile = Join-Path $root 'docker/.env'
 if (Test-Path -LiteralPath $envFile) {
+    # ponytail: Split('=',2) — avoid PowerShell -match [A-Za-z] under Turkish locale (letter I drops out of the range, so RABBITMQ_* never loads → guest ACCESS-REFUSED).
     foreach ($line in Get-Content -LiteralPath $envFile) {
-        if ($line -match '^([A-Za-z_][A-Za-z_0-9]*)=(.*)$') { $settings[$Matches[1]] = $Matches[2].Trim().Trim('"').Trim("'") }
+        $trim = $line.Trim()
+        if (!$trim -or $trim.StartsWith('#')) { continue }
+        $eq = $trim.IndexOf('=')
+        if ($eq -lt 1) { continue }
+        $settings[$trim.Substring(0, $eq)] = $trim.Substring($eq + 1).Trim().Trim('"').Trim("'")
     }
 }
 function Setting($name, $fallback) { if ($settings.ContainsKey($name)) { return $settings[$name] }; return $fallback }
