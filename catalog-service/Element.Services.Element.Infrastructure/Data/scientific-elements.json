@@ -228,8 +228,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "En hafif element olan hidrojen, suyun ve organik moleküllerin yapısında bulunur. Serbest hâlinde iki atomlu bir gazdır.",
+      "uses": [
+        "Amonyak üretimi",
+        "Yakıt hücreleri",
+        "Petrol arıtımı"
+      ],
+      "story": "Lavoisier'nin verdiği adı, su oluşturmasına gönderme yapar.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/1/hydrogen"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Hidrojen",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Hydrogen"
     }
   },
   {
@@ -452,8 +481,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Helyum, kimyasal tepkimelere çok az katılan hafif bir soy gazdır. Çok düşük sıcaklıklarda bile sıvı kalabilmesi onu özel kılar.",
+      "uses": [
+        "Kriyojenik soğutma",
+        "Kaçak tespiti",
+        "Koruyucu gaz"
+      ],
+      "story": "Önce Güneş'in tayfında gözlendi; adı Güneş anlamındaki Helios'tan gelir.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/2/helium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Helyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Helium"
     }
   },
   {
@@ -677,8 +735,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Lityum en hafif metaldir. İyonlarının elektrotlar arasında hareket edebilmesi, yeniden şarj edilen pillerin temelidir.",
+      "uses": [
+        "Şarj edilebilir piller",
+        "Isıya dayanıklı cam",
+        "Seramik"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/3/lithium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/li.png",
+        "caption": "Lityum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Purified_lithium_in_an_ampoule_under_argon,_dark_background.png",
+        "creator": "AdvancedTinkering",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Lityum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Lithium"
     }
   },
   {
@@ -894,8 +989,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Berilyum, düşük yoğunluğuna karşın sert bir metaldir. X ışınlarını görece kolay geçirmesi özel cihazlarda değerlendirilir.",
+      "uses": [
+        "X ışını pencereleri",
+        "Havacılık parçaları",
+        "Bakır alaşımları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/4/beryllium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Berilyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Beryllium"
     }
   },
   {
@@ -1121,8 +1245,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Bor, metal ile ametal arasında özellikler gösterir. Borat mineralleri ve bor içeren camlar günlük yaşamda saf elementten daha yaygındır.",
+      "uses": [
+        "Borosilikat cam",
+        "Cam elyafı",
+        "Sert seramikler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/5/boron"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/b.jpg",
+        "caption": "Bor · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Boron_R105.jpg",
+        "creator": "James L Marshall",
+        "license": "CC BY-SA 3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Bor",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Boron"
     }
   },
   {
@@ -1361,8 +1522,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Karbon; grafit, elmas ve grafen gibi çok farklı yapılarda bulunabilir. Aynı atomların bağlanma düzeni, yumuşak bir kalem ucuyla sert bir elmas arasındaki farkı yaratır.",
+      "uses": [
+        "Çelik üretimi",
+        "Elektrotlar",
+        "Karbon elyafı"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/6/carbon"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Karbon",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Carbon"
     }
   },
   {
@@ -1597,8 +1787,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Azot, atmosferin büyük bölümünü oluşturan iki atomlu gazdır. Proteinler ve DNA gibi biyolojik moleküllerde de yer alır.",
+      "uses": [
+        "Amonyak ve gübre üretimi",
+        "Koruyucu atmosfer",
+        "Sıvı azotla soğutma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/7/nitrogen"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Azot",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Nitrogen"
     }
   },
   {
@@ -1837,8 +2056,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Oksijen, havada iki atomlu moleküller hâlinde bulunur. Solunum ve çok sayıda yanma tepkimesinde rol alır; su ve oksitlerin de bileşenidir.",
+      "uses": [
+        "Çelik üretimi",
+        "Tıbbi oksijen",
+        "Kaynak işlemleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/8/oxygen"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/o.jpg",
+        "caption": "Oksijen · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Liquid_oxygen_in_a_beaker_(cropped_and_retouched).jpg",
+        "creator": "Staff Sgt. Nika Glover, U.S. Air Force",
+        "license": "Public domain",
+        "license_url": null,
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Oksijen",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Oxygen"
     }
   },
   {
@@ -2058,8 +2314,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Flor, elektronları güçlü biçimde çeken, çok reaktif bir halojendir. Florür tuzları ve florlu polimerlerin özellikleri elementel gazdan farklıdır.",
+      "uses": [
+        "Florlu polimerler",
+        "Özel kimyasallar",
+        "Florür bileşiklerinin üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/9/fluorine"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Flor",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Fluorine"
     }
   },
   {
@@ -2299,8 +2584,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Neon, elektrik boşalması altında kırmızımsı turuncu ışık veren bir soy gazdır. Her renkli ışıklı tabela neon içermez.",
+      "uses": [
+        "Işıklı tabelalar",
+        "Gösterge lambaları",
+        "Lazer karışımları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/10/neon"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Neon",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Neon"
     }
   },
   {
@@ -2521,8 +2835,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Sodyum, yumuşak ve reaktif bir alkali metaldir. Sofra tuzundaki sodyum iyonu, saf sodyum metalinden farklı bir kimyasal türdür.",
+      "uses": [
+        "Kimyasal sentez",
+        "Isı aktarımı",
+        "Sodyum bileşikleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/11/sodium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/na.jpg",
+        "caption": "Sodyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Na_(Sodium).jpg",
+        "creator": "The original uploader was Dnn87 at English Wikipedia.",
+        "license": "CC BY-SA 3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Sodyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Sodium"
     }
   },
   {
@@ -2762,8 +3113,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Magnezyum hafif bir metaldir; alaşımları ağırlığın önemli olduğu ürünlerde kullanılır. Klorofil molekülünün merkezinde magnezyum iyonu bulunur.",
+      "uses": [
+        "Hafif alaşımlar",
+        "Metal üretimi",
+        "Parlak ışık kaynakları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/12/magnesium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/mg.jpg",
+        "caption": "Magnezyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:CSIRO_ScienceImage_2893_Crystalised_magnesium.jpg",
+        "creator": "Mark Fergus, CSIRO",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Magnezyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Magnesium"
     }
   },
   {
@@ -2984,8 +3372,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Alüminyum, yüzeyindeki ince oksit tabakası sayesinde korozyona direnç gösteren hafif bir metaldir.",
+      "uses": [
+        "Ambalaj",
+        "Ulaşım araçları",
+        "Elektrik iletimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/13/aluminium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Al%C3%BCminyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Aluminum"
     }
   },
   {
@@ -3227,8 +3644,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Silisyum, kum ve silikat minerallerinin temel bileşenlerindendir. Saflaştırılmış kristalleri elektronik devrelerde yarı iletken olarak çalışır.",
+      "uses": [
+        "Bilgisayar yongaları",
+        "Güneş hücreleri",
+        "Silikon polimerler için hammadde"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/14/silicon"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Silisyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Silicon"
     }
   },
   {
@@ -3451,8 +3897,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Fosforun beyaz, kırmızı ve siyah gibi farklı yapısal biçimleri vardır. Fosfatlar DNA, kemik ve enerji aktarımında kullanılan moleküllerde bulunur.",
+      "uses": [
+        "Fosfatlı gübreler",
+        "Kibrit üretimi",
+        "Kimya sanayisi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/15/phosphorus"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Fosfor",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Phosphorus"
     }
   },
   {
@@ -3704,8 +4179,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kükürt, sarı katısıyla tanınan bir ametaldir. Sülfürler ve sülfatlar biçiminde çok sayıda mineralde bulunur.",
+      "uses": [
+        "Sülfürik asit üretimi",
+        "Kauçuğun vulkanizasyonu",
+        "Tarımsal ürünler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/16/sulfur"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/s.jpg",
+        "caption": "Kükürt · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Sulfur_-_El_Desierto_mine,_San_Pablo_de_Napa,_Daniel_Campos_Province,_Potos%C3%AD,_Bolivia.jpg",
+        "creator": "Ivar Leidus",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/K%C3%BCk%C3%BCrt",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Sulfur"
     }
   },
   {
@@ -3938,8 +4450,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Klor, sarımsı yeşil renkli, reaktif bir halojendir. Klorür iyonu ile klor gazının özellikleri birbirinden farklıdır.",
+      "uses": [
+        "Su arıtımı",
+        "PVC üretimi",
+        "Kimyasal ara ürünler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/17/chlorine"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/cl.jpg",
+        "caption": "Klor · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Chlorine_in_bottle.jpg",
+        "creator": "W. Oelen",
+        "license": "CC BY-SA 3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Klor",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Chlorine"
     }
   },
   {
@@ -4180,8 +4729,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Argon, havada bulunan bir soy gazdır. Düşük tepkime eğilimi, hassas işlemlerde koruyucu bir ortam sağlamasına yardımcı olur.",
+      "uses": [
+        "Kaynakta koruyucu gaz",
+        "Ampuller",
+        "Metal üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/18/argon"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Argon",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Argon"
     }
   },
   {
@@ -4423,8 +5001,44 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Potasyum, yumuşak ve reaktif bir alkali metaldir. Potasyum iyonları canlı hücrelerde elektriksel dengeye katkıda bulunur.",
+      "uses": [
+        "Gübrelerde potasyum tuzları",
+        "Kimyasal üretim"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/19/potassium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/k.jpg",
+        "caption": "Potasyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Potassium-2.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Potasyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Potassium"
     }
   },
   {
@@ -4696,8 +5310,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kalsiyum; kireç taşı, alçı ve kemik gibi yapılarda bileşikleriyle bulunur. Saf metal, bu minerallerden oldukça farklı davranır.",
+      "uses": [
+        "Metalürji",
+        "Kalsiyum bileşikleri",
+        "Alaşım üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/20/calcium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ca.jpg",
+        "caption": "Kalsiyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Calcium_unter_Argon_Schutzgasatmosph%C3%A4re.jpg",
+        "creator": "Matthias Zepper",
+        "license": "Public domain",
+        "license_url": null,
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kalsiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Calcium"
     }
   },
   {
@@ -4919,8 +5570,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Skandiyum, hafif bir geçiş metalidir. Az miktarda eklendiğinde bazı alüminyum alaşımlarının özelliklerini iyileştirebilir.",
+      "uses": [
+        "Alüminyum alaşımları",
+        "Yüksek yoğunluklu lambalar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/21/scandium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Skandiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Scandium"
     }
   },
   {
@@ -5184,8 +5863,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Titanyum, dayanımı ve korozyon direnciyle tanınır. Yüzeyindeki oksit tabakası metalin çevresiyle etkileşimini sınırlar.",
+      "uses": [
+        "Havacılık",
+        "İmplant malzemeleri",
+        "Kimyasal tesis ekipmanı"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/22/titanium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Titanyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Titanium"
     }
   },
   {
@@ -5420,8 +6128,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Vanadyum farklı yükseltgenme basamaklarında renkli bileşikler oluşturabilir. Çeliğe küçük eklemeler malzemenin dayanımını değiştirebilir.",
+      "uses": [
+        "Takım çelikleri",
+        "Katalizörler",
+        "Akış bataryaları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/23/vanadium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Vanadyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Vanadium"
     }
   },
   {
@@ -5675,8 +6412,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Krom, paslanmaz çelikte koruyucu yüzey tabakasının oluşmasına katkı sağlar. Farklı krom bileşiklerinin özellikleri ve riskleri aynı değildir.",
+      "uses": [
+        "Paslanmaz çelik",
+        "Yüzey kaplama",
+        "Pigmentler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/24/chromium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Krom",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Chromium"
     }
   },
   {
@@ -5901,8 +6667,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Manganez, çelik üretiminde önemli bir yardımcı metaldir. Oksitleri farklı yükseltgenme basamakları sayesinde çeşitli kimyasal işlevler görür.",
+      "uses": [
+        "Çelik üretimi",
+        "Pil malzemeleri",
+        "Pigmentler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/25/manganese"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Manganez",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Manganese"
     }
   },
   {
@@ -6155,8 +6950,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Demir, çeliğin ana bileşenidir. Oksijen ve nemle etkileşimi paslanmaya yol açarken, alaşım ve yüzey işlemleri kullanım ömrünü değiştirir.",
+      "uses": [
+        "Yapılar ve köprüler",
+        "Makine parçaları",
+        "Elektrik motorları"
+      ],
+      "story": "Demir işleme tekniklerinin yayılması, insanlık tarihinde Demir Çağı olarak anılan döneme adını verdi.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/26/iron"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/fe.jpg",
+        "caption": "Demir · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Iron_electrolytic_and_1cm3_cube.jpg",
+        "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+        "license": "FAL",
+        "license_url": "http://artlibre.org/licence/lal/en",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Demir",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Iron"
     }
   },
   {
@@ -6379,8 +7211,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kobalt, yüksek sıcaklıkta çalışabilen alaşımlarda ve bazı pil katotlarında yer alır. Kobalt bileşikleri camlara karakteristik mavi renk verebilir.",
+      "uses": [
+        "Pil katotları",
+        "Süperalaşımlar",
+        "Mavi pigmentler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/27/cobalt"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kobalt",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Cobalt"
     }
   },
   {
@@ -6643,8 +7504,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Nikel, alaşımlara korozyon direnci kazandıran bir metaldir. Pek çok paslanmaz çelik türünde demir ve kromla birlikte bulunur.",
+      "uses": [
+        "Paslanmaz çelik",
+        "Şarj edilebilir piller",
+        "Katalizörler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/28/nickel"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Nikel",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Nickel"
     }
   },
   {
@@ -6877,8 +7767,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Bakır, elektrik ve ısıyı iyi ileten kırmızımsı bir metaldir. Yüzeyinde zamanla gelişen patina, çevresine bağlı farklı bakır bileşikleri içerir.",
+      "uses": [
+        "Elektrik kabloları",
+        "Isı eşanjörleri",
+        "Pirinç ve bronz"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/29/copper"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/cu.jpg",
+        "caption": "Bakır · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:NatCopper.jpg",
+        "creator": "Native_Copper_Macro_Digon3.jpg: “Jonathan Zander (Digon3)\"\nderivative work: Materialscientist (talk)",
+        "license": "CC BY-SA 3.0",
+        "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Bak%C4%B1r",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Copper"
     }
   },
   {
@@ -7140,8 +8067,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Çinko, çeliği korozyondan korumak için kaplama olarak kullanılır. Bakırla oluşturduğu pirinç, saf metallerden farklı özelliklere sahiptir.",
+      "uses": [
+        "Galvanizleme",
+        "Pirinç üretimi",
+        "Pil elektrotları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/30/zinc"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/%C3%87inko",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Zinc"
     }
   },
   {
@@ -7373,8 +8329,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Galyum, oda sıcaklığına yakın bir sıcaklıkta eriyen bir metaldir. Arsenit ve nitrür bileşikleri optoelektronikte önem taşır.",
+      "uses": [
+        "LED bileşenleri",
+        "Yarı iletkenler",
+        "Özel alaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/31/gallium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ga.png",
+        "caption": "Galyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Gallium_bar_cracked_open_to_show_crystal_structure_with_scale_1.png",
+        "creator": "Arònel123",
+        "license": "CC BY 4.0",
+        "license_url": "https://creativecommons.org/licenses/by/4.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Galyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Gallium"
     }
   },
   {
@@ -7634,8 +8627,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Germanyum, yarı iletken davranış gösteren bir yarı metaldir. Kızılötesi ışıkla etkileşimi optik uygulamalarda değerlendirilir.",
+      "uses": [
+        "Kızılötesi optikler",
+        "Fiber optik",
+        "Yarı iletkenler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/32/germanium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ge.jpg",
+        "caption": "Germanyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Polycrystalline-germanium.jpg",
+        "creator": "Jurii",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Germanyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Germanium"
     }
   },
   {
@@ -7857,8 +8887,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Arsenik farklı yapısal biçimleri bulunan bir yarı metaldir. Bazı bileşikleri yarı iletkenlerde kullanılır; toksikolojik özellikler kimyasal türe bağlıdır.",
+      "uses": [
+        "Galyum arsenit yarı iletkenleri",
+        "Özel alaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/33/arsenic"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Arsenik",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Arsenic"
     }
   },
   {
@@ -8131,8 +9189,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Selenyum, ışığa bağlı elektriksel özellikleriyle tanınır. Canlılardaki rolü ve etkileri miktarına ve kimyasal biçimine bağlıdır.",
+      "uses": [
+        "Cam üretimi",
+        "Elektronik malzemeler",
+        "Pigmentler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/34/selenium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Selenyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Selenium"
     }
   },
   {
@@ -8365,8 +9452,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Brom, oda sıcaklığında sıvı olan az sayıdaki elementten biridir. Kırmızımsı kahverengi sıvısı kolayca buharlaşır.",
+      "uses": [
+        "Bromlu kimyasallar",
+        "Fotoğrafçılıkta bromürler",
+        "Özel sanayi bileşikleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/35/bromine"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/br.jpg",
+        "caption": "Brom · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Bromine_vial_in_acrylic_cube.jpg",
+        "creator": "Alchemist-hp (pse-mendelejew.de)",
+        "license": "CC BY-SA 3.0 de",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Brom",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Bromine"
     }
   },
   {
@@ -8638,8 +9762,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kripton, havada çok az miktarda bulunan bir soy gazdır. Elektrik boşalması altında ışık yayabilir.",
+      "uses": [
+        "Özel aydınlatma",
+        "Lazerler",
+        "Yalıtımlı camlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/36/krypton"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kripton",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Krypton"
     }
   },
   {
@@ -8872,8 +10025,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Rubidyum, çok reaktif bir alkali metaldir. Atomlarının belirli geçiş frekansları hassas zaman ölçümünde kullanılır.",
+      "uses": [
+        "Atom saatleri",
+        "Araştırma",
+        "Özel camlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/37/rubidium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Rubidyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Rubidium"
     }
   },
   {
@@ -9126,8 +10308,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Stronsiyum bileşikleri aleve kırmızı renk verebilir. Kararlı stronsiyum ile radyoaktif izotoplarının kullanım alanları ayrıdır.",
+      "uses": [
+        "Kırmızı işaret fişekleri",
+        "Ferrit mıknatıslar",
+        "Özel seramikler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/38/strontium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Stronsiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Strontium"
     }
   },
   {
@@ -9350,8 +10561,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "İtriyum, nadir toprak elementleriyle birlikte bulunan bir metaldir. Oksit ve kristalleri optik malzemelerde kullanılır.",
+      "uses": [
+        "Lazer kristalleri",
+        "Fosfor malzemeleri",
+        "Seramikler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/39/yttrium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/%C4%B0triyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Yttrium"
     }
   },
   {
@@ -9611,8 +10851,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Zirkonyum, korozyona dirençli bir metaldir. Nötronları görece az soğurması, uygun saflıktaki alaşımlarını nükleer uygulamalarda önemli kılar.",
+      "uses": [
+        "Reaktör kaplamaları",
+        "Kimyasal ekipman",
+        "Zirkonya seramikleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/40/zirconium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Zirkonyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Zirconium"
     }
   },
   {
@@ -9835,8 +11104,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Niyobyum, çelik alaşımlarında ve süperiletken malzemelerde kullanılır. Oksit yüzeyi bazı elektrokimyasal uygulamalarda işlev görür.",
+      "uses": [
+        "Yüksek dayanımlı çelik",
+        "Süperiletken mıknatıslar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/41/niobium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Niyobyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Niobium"
     }
   },
   {
@@ -10119,8 +11416,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Molibden, yüksek sıcaklıkta özelliklerini koruyabilen alaşımlara katkı sağlar. Sülfürü katmanlı yapısıyla yağlayıcı olarak kullanılabilir.",
+      "uses": [
+        "Alaşım çelikleri",
+        "Katalizörler",
+        "Yağlayıcı bileşikler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/42/molybdenum"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Molibden",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Molybdenum"
     }
   },
   {
@@ -10359,8 +11685,44 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Teknesyumun kararlı izotopu yoktur. Bazı izotoplarının yaydığı ışınım tıbbi görüntülemede değerlendirilir.",
+      "uses": [
+        "Nükleer tıp izleyicileri",
+        "Nükleer araştırma"
+      ],
+      "story": "Yapay olarak elde edilen ilk element olarak kimya tarihinde özel bir yere sahiptir.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/43/technetium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/tc.jpg",
+        "caption": "Teknesyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Technetium-sample-cropped.jpg",
+        "creator": "Marco Cardin",
+        "license": "CC BY-SA 4.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Teknesyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Technetium"
     }
   },
   {
@@ -10638,8 +12000,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Rutenyum, platin grubu metallerindendir. Az miktarda kullanıldığı alaşımlarda aşınma ve kimyasal dayanımı etkileyebilir.",
+      "uses": [
+        "Elektrik kontakları",
+        "Katalizörler",
+        "Özel alaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/44/ruthenium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Rutenyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Ruthenium"
     }
   },
   {
@@ -10857,8 +12248,44 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Rodyum, parlak yüzeyli bir platin grubu metalidir. Katalitik özellikleri egzoz gazı dönüşümünde değerlendirilir.",
+      "uses": [
+        "Otomotiv katalizörleri",
+        "Yansıtıcı kaplamalar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/45/rhodium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/rh.jpg",
+        "caption": "Rodyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Rhodium_powder_pressed_melted.jpg",
+        "creator": "Alchemist-hp (talk) www.pse-mendelejew.de\nderivative work: Purpy Pupple (talk)",
+        "license": "CC BY-SA 3.0 de",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Rodyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Rhodium"
     }
   },
   {
@@ -11127,8 +12554,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Paladyum, hidrojenle etkileşimi ve katalitik etkinliğiyle tanınır. Çok sayıda organik dönüşümde paladyum içeren katalizörler kullanılır.",
+      "uses": [
+        "Katalitik konvertörler",
+        "Kimyasal sentez",
+        "Elektronik"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/46/palladium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/pd.jpg",
+        "caption": "Paladyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Palladium_(46_Pd).jpg",
+        "creator": "Hi-Res Images of\n\nChemical Elements",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Paladyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Palladium"
     }
   },
   {
@@ -11356,8 +12820,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Gümüş, elektrik ve ısıyı çok iyi iletir. Işığa duyarlı gümüş halojenürler klasik fotoğrafçılığın temel malzemelerindendir.",
+      "uses": [
+        "Elektrik kontakları",
+        "Takı",
+        "Fotoğrafçılık"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/47/silver"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ag.jpg",
+        "caption": "Gümüş · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Silver_crystal.jpg",
+        "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+        "license": "CC BY-SA 3.0 de",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/G%C3%BCm%C3%BC%C5%9F",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Silver"
     }
   },
   {
@@ -11645,8 +13146,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kadmiyum, çinko cevherleriyle birlikte elde edilebilen bir metaldir. Kullanım alanları toksisitesi nedeniyle sınırlamalara konu olur.",
+      "uses": [
+        "Özel piller",
+        "Yarı iletken bileşikler",
+        "Araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/48/cadmium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kadmiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Cadmium"
     }
   },
   {
@@ -11875,8 +13405,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "İndiyum, yumuşak bir metaldir. İndiyum kalay oksit, şeffafken elektrik iletebilmesiyle ekran teknolojisinde kullanılır.",
+      "uses": [
+        "Şeffaf iletken kaplamalar",
+        "Lehimler",
+        "Yarı iletkenler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/49/indium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/in.jpg",
+        "caption": "İndiyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Indium.jpg",
+        "creator": "Nerdtalker",
+        "license": "CC BY-SA 3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/%C4%B0ndiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Indium"
     }
   },
   {
@@ -12187,8 +13754,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kalay, kaplama ve alaşım üretiminde uzun süredir kullanılır. Bakırla birleştiğinde bronzu oluşturan temel bileşenlerden biridir.",
+      "uses": [
+        "Lehim",
+        "Teneke kaplama",
+        "Bronz"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/50/tin"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kalay",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Tin"
     }
   },
   {
@@ -12421,8 +14017,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Antimon, kırılgan bir yarı metaldir. Alaşımlarda sertliği etkiler; oksitleri bazı alev geciktirici sistemlerde kullanılır.",
+      "uses": [
+        "Kurşun alaşımları",
+        "Alev geciktirici katkılar",
+        "Yarı iletkenler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/51/antimony"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/sb.jpg",
+        "caption": "Antimon · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Antimony-4.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Antimon",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Antimony"
     }
   },
   {
@@ -12716,8 +14349,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Tellür, yarı iletken özellikler gösteren bir yarı metaldir. Tellürür bileşikleri ışık ve ısıdan elektrik üretiminde kullanılabilir.",
+      "uses": [
+        "Güneş hücreleri",
+        "Termoelektrik malzemeler",
+        "Alaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/52/tellurium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/te.jpg",
+        "caption": "Tellür · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Tellurium2.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Tell%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Tellurium"
     }
   },
   {
@@ -12938,8 +14608,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "İyot, koyu renkli kristaller ve mor buharıyla tanınan bir halojendir. İyodür iyonları biyolojik ve endüstriyel süreçlerde bulunur.",
+      "uses": [
+        "İyot bileşikleri",
+        "Fotoğrafçılık",
+        "Özel kimyasallar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/53/iodine"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/i.jpg",
+        "caption": "İyot · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Sample_of_iodine.jpg",
+        "creator": "LHcheM",
+        "license": "CC BY-SA 3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/%C4%B0yot",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Iodine"
     }
   },
   {
@@ -13237,8 +14944,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Ksenon bir soy gazdır, ancak uygun koşullarda bazı bileşikler oluşturabilir. Elektrik boşalması altında güçlü ışık yayar.",
+      "uses": [
+        "Flaş lambaları",
+        "İyon iticiler",
+        "Özel aydınlatma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/54/xenon"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Ksenon",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Xenon"
     }
   },
   {
@@ -13456,8 +15192,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Sezyum, çok reaktif ve düşük erime noktalı bir alkali metaldir. Sezyum-133 atomunun geçişi, saniyenin tanımında kullanılır.",
+      "uses": [
+        "Atom saatleri",
+        "Araştırma",
+        "Özel akışkan bileşikleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/55/caesium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/cs.jpg",
+        "caption": "Sezyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Cesium.jpg",
+        "creator": "Dnn87 Contact email: Dnn87yahoo.dk",
+        "license": "CC BY-SA 3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Sezyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Cesium"
     }
   },
   {
@@ -13735,8 +15508,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Baryum reaktif bir metaldir; doğada bileşikler hâlinde bulunur. Baryum sülfatın düşük çözünürlüğü, diğer baryum bileşiklerinden farklı kullanım alanları sağlar.",
+      "uses": [
+        "Sondaj akışkanları için barit",
+        "Vakum tüpleri",
+        "Özel camlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/56/barium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ba.jpg",
+        "caption": "Baryum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Barium_unter_Argon_Schutzgas_Atmosph%C3%A4re.jpg",
+        "creator": "Matthias Zepper",
+        "license": "Public domain",
+        "license_url": null,
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Baryum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Barium"
     }
   },
   {
@@ -13967,8 +15777,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Lantan, lantanit serisine adını veren metaldir. Bileşikleri optik camların özelliklerini değiştirebilir.",
+      "uses": [
+        "Optik cam",
+        "Pil alaşımları",
+        "Katalizörler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/57/lanthanum"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/la.jpg",
+        "caption": "Lantan · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Lanthanum-2.jpg",
+        "creator": "Jurii (Original uploader was Lanthanum-138 at en.wikipedia",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Lantan",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Lanthanum"
     }
   },
   {
@@ -14221,8 +16068,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Seryum, farklı yükseltgenme basamaklarına geçebilen bir lantanit metalidir. Oksidi parlatma ve kataliz uygulamalarında kullanılır.",
+      "uses": [
+        "Cam parlatma",
+        "Egzoz katalizörleri",
+        "Çakmak alaşımları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/58/cerium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ce.jpg",
+        "caption": "Seryum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Cerium2.jpg",
+        "creator": "Jurii",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Seryum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Cerium"
     }
   },
   {
@@ -14443,8 +16327,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Praseodim, alaşımlarda ve renkli camlarda kullanılan bir lantanit elementidir. Bileşikleri sarı-yeşil renkler verebilir.",
+      "uses": [
+        "Mıknatıs alaşımları",
+        "Cam renklendirme",
+        "Havacılık alaşımları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/59/praseodymium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/pr.jpg",
+        "caption": "Praseodim · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Praseodymium.jpg",
+        "creator": "Jurii",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Praseodim",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Praseodymium"
     }
   },
   {
@@ -14724,8 +16645,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Neodim, güçlü kalıcı mıknatısların önemli bileşenidir. Mıknatıslar saf neodimden değil, demir ve bor içeren alaşımlardan yapılır.",
+      "uses": [
+        "Elektrik motorları",
+        "Hoparlörler",
+        "Lazer kristalleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/60/neodymium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/nd.jpg",
+        "caption": "Neodim · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Neodymium2.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Neodimyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Neodymium"
     }
   },
   {
@@ -14954,8 +16912,44 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Prometyumun kararlı izotopu yoktur. Sınırlı miktarlarda elde edildiği için kullanımı özel nükleer uygulamalarla sınırlıdır.",
+      "uses": [
+        "Radyoizotop güç kaynakları",
+        "Araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/61/promethium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/pm.jpg",
+        "caption": "Prometyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Promethium-147_solution.jpg",
+        "creator": "Oak Ridge National Laboratory",
+        "license": "Public domain",
+        "license_url": null,
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Prometyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Promethium"
     }
   },
   {
@@ -15236,8 +17230,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Samaryum, kobaltla birlikte güçlü mıknatıslar oluşturabilir. Bazı izotopları nötronları etkili biçimde soğurur.",
+      "uses": [
+        "Yüksek sıcaklık mıknatısları",
+        "Nötron soğurma",
+        "Optik malzemeler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/62/samarium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/sm.jpg",
+        "caption": "Samaryum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Samarium-2.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Samaryum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Samarium"
     }
   },
   {
@@ -15468,8 +17499,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Evropiyum iyonları, farklı ortamlarda kırmızı veya mavi ışık verebilir. Bu özellik fosfor malzemelerinde kullanılır.",
+      "uses": [
+        "Ekran fosforları",
+        "Güvenlik işaretleri",
+        "Aydınlatma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/63/europium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/eu.jpg",
+        "caption": "Evropiyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Europium.jpg",
+        "creator": "Jurii",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Evropiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Europium"
     }
   },
   {
@@ -15749,8 +17817,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Gadolinyum, manyetik özellikleriyle öne çıkan bir lantanit elementidir. Uygulamalarında saf metal ile kompleks bileşikleri ayrılmalıdır.",
+      "uses": [
+        "Manyetik malzemeler",
+        "Özel görüntüleme bileşikleri",
+        "Nötron soğurma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/64/gadolinium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/gd.jpg",
+        "caption": "Gadolinyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Gadolinium-4.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Gadolinyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Gadolinium"
     }
   },
   {
@@ -15970,8 +18075,44 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Terbiyum bileşikleri yeşil ışık veren fosforlarda kullanılır. Bazı alaşımları manyetik alan altında boyut değiştirebilir.",
+      "uses": [
+        "Yeşil fosforlar",
+        "Manyetostriktif alaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/65/terbium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/tb.jpg",
+        "caption": "Terbiyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Terbium-2.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Terbiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Terbium"
     }
   },
   {
@@ -16251,8 +18392,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Disprosyum, yüksek sıcaklıkta mıknatıs performansını etkileyebilen bir lantanit elementidir.",
+      "uses": [
+        "Kalıcı mıknatıs katkıları",
+        "Nükleer kontrol malzemeleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/66/dysprosium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Disprozyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Dysprosium"
     }
   },
   {
@@ -16472,8 +18641,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Holmiyum, belirgin manyetik özelliklere sahip bir lantanit metalidir. İyonları bazı lazer kristallerinde ışık üretir.",
+      "uses": [
+        "Lazerler",
+        "Manyetik araştırma",
+        "Optik kalibrasyon"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/67/holmium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ho.jpg",
+        "caption": "Holmiyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Holmium2.jpg",
+        "creator": "Unknown authorUnknown author",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Holmiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Holmium"
     }
   },
   {
@@ -16743,8 +18949,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Erbiyum iyonları, fiber optik haberleşmede ışık sinyalini güçlendirebilir. Bazı camlara pembe renk verir.",
+      "uses": [
+        "Fiber optik yükselteçler",
+        "Lazerler",
+        "Cam renklendirme"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/68/erbium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/er.jpg",
+        "caption": "Erbiyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Erbium_(68_Er).jpg",
+        "creator": "Hi-Res Images of\n\nChemical Elements",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Erbiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Erbium"
     }
   },
   {
@@ -16964,8 +19207,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Tulyum, doğada az bulunan lantanitlerdendir. Belirli ışık geçişleri lazer uygulamalarında değerlendirilir.",
+      "uses": [
+        "Lazerler",
+        "Taşınabilir ışınım kaynakları",
+        "Araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/69/thulium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Tulyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Thulium"
     }
   },
   {
@@ -17246,8 +19518,44 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "İterbiyum, lazer ve hassas ölçüm çalışmalarında kullanılan bir lantanit elementidir. Atomları optik saat araştırmalarında incelenir.",
+      "uses": [
+        "Fiber lazerler",
+        "Atom saatleri araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/70/ytterbium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/yb.jpg",
+        "caption": "İterbiyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Ytterbium-3.jpg",
+        "creator": "Jurii",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/%C4%B0terbiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Ytterbium"
     }
   },
   {
@@ -17478,8 +19786,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Lütesyum, lantanit dizisinin sonundadır. Bileşikleri ışınım algılayan kristallerde kullanılabilir.",
+      "uses": [
+        "Sintilasyon dedektörleri",
+        "Katalizörler",
+        "Nükleer araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/71/lutetium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Lutesyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Lutetium"
     }
   },
   {
@@ -17749,8 +20086,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Hafniyum, zirkonyumla birlikte bulunur ancak nötron soğurması belirgin biçimde farklıdır. Oksidi mikroelektronikte yalıtkan olarak kullanılır.",
+      "uses": [
+        "Reaktör kontrolü",
+        "Yonga yalıtkanları",
+        "Süperalaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/72/hafnium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Hafniyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Hafnium"
     }
   },
   {
@@ -17977,8 +20343,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Tantal, korozyona dirençli bir metaldir. Yüzeyindeki oksit tabakası elektronik kapasitörlerde işlev görür.",
+      "uses": [
+        "Kapasitörler",
+        "Kimyasal ekipman",
+        "İmplant malzemeleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/73/tantalum"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Tantal",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Tantalum"
     }
   },
   {
@@ -18236,8 +20631,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Tungsten, çok yüksek erime noktasıyla tanınır. Karbür bileşikleri kesici takımlarda kullanılan sert malzemelerdir.",
+      "uses": [
+        "Kesici takımlar",
+        "Yüksek sıcaklık parçaları",
+        "Elektrotlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/74/tungsten"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Tungsten",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Tungsten"
     }
   },
   {
@@ -18466,8 +20890,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Renyum, yüksek sıcaklıkta çalışan bazı nikel alaşımlarına eklenir. Çok az miktarlar bile alaşımın davranışını değiştirebilir.",
+      "uses": [
+        "Jet motoru alaşımları",
+        "Petrol işleme katalizörleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/75/rhenium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Renyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Rhenium"
     }
   },
   {
@@ -18745,8 +21197,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Osmiyum, yoğunluğu çok yüksek bir platin grubu metalidir. Metal ile uçucu oksidinin özellikleri birbirinden farklıdır.",
+      "uses": [
+        "Özel sert alaşımlar",
+        "Kimyasal araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/76/osmium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Osmiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Osmium"
     }
   },
   {
@@ -18974,8 +21454,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "İridyum, yüksek sıcaklık ve korozyon direnciyle öne çıkar. Çok sert alaşımların ve özel elektrotların bileşenidir.",
+      "uses": [
+        "Ateşleme uçları",
+        "Yüksek sıcaklık kapları",
+        "Elektrotlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/77/iridium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/ir.jpg",
+        "caption": "İridyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Iridium_(77_Ir)_(cropped).jpg",
+        "creator": "Hi-Res Images of\n\nChemical Elements",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/%C4%B0ridyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Iridium"
     }
   },
   {
@@ -19244,8 +21761,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Platin, düşük tepkime eğilimi ile katalitik etkinliği bir arada sunar. Yüzeyi pek çok tepkimenin hızını değiştirebilir.",
+      "uses": [
+        "Katalizörler",
+        "Takı",
+        "Laboratuvar ekipmanı"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/78/platinum"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/pt.jpg",
+        "caption": "Platin · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Platinum_crystals.jpg",
+        "creator": "Periodictableru",
+        "license": "CC BY 3.0",
+        "license_url": "https://creativecommons.org/licenses/by/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Platin",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Platinum"
     }
   },
   {
@@ -19464,8 +22018,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Altın, sarı rengi ve kolay şekillendirilebilmesiyle tanınır. Korozyona direnci, küçük elektronik bağlantılarda da değerlendirilir.",
+      "uses": [
+        "Takı",
+        "Elektronik bağlantılar",
+        "Yüzey kaplama"
+      ],
+      "story": "İnsanların çok erken dönemlerden beri işlediği metallerden biridir; doğada metal hâlinde bulunabilir.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/79/gold"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/au.jpg",
+        "caption": "Altın · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Gold-crystals.jpg",
+        "creator": "Alchemist-hp (talk) www.pse-mendelejew.de",
+        "license": "CC BY-SA 3.0 de",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Alt%C4%B1n",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Gold"
     }
   },
   {
@@ -19745,8 +22336,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Cıva, oda sıcaklığında sıvı olan bir metaldir. Tarihsel ölçüm cihazlarında kullanılmış olsa da toksisitesi kullanımlarını sınırlar.",
+      "uses": [
+        "Özel ışık kaynakları",
+        "Bilimsel araştırma",
+        "Tarihsel ölçüm cihazları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/80/mercury"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Mercury",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Mercury"
     }
   },
   {
@@ -19975,8 +22595,45 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Talyum, yumuşak ve ağır bir metaldir. Bileşikleri özel optik ve elektronik uygulamalarda incelenir.",
+      "uses": [
+        "Özel camlar",
+        "Dedektör malzemeleri",
+        "Araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/81/thallium"
+        }
+      ]
+    },
+    "media": {
+      "photo": {
+        "url": "/media/atlas/tl.jpg",
+        "caption": "Talyum · madde fotoğrafı",
+        "source_url": "https://commons.wikimedia.org/wiki/File:Thallium_pieces_in_ampoule.jpg",
+        "creator": "W. Oelen",
+        "license": "CC BY-SA 3.0",
+        "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+        "retrieved_at": "2026-09-06"
+      },
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Talyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Thallium"
     }
   },
   {
@@ -20228,8 +22885,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kurşun, yoğun ve kolay şekillendirilen bir metaldir. Toksisitesi nedeniyle kullanım ve geri dönüşümünde özel önlemler gerekir.",
+      "uses": [
+        "Kurşun-asit aküler",
+        "Işınım zırhlama",
+        "Özel alaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/82/lead"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kur%C5%9Fun",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Lead"
     }
   },
   {
@@ -20452,8 +23138,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Bizmut, kırılgan ve kristal yüzeyleriyle dikkat çeken bir metaldir. Düşük erime sıcaklıklı alaşımlarda kullanılır.",
+      "uses": [
+        "Ergiyebilir alaşımlar",
+        "Pigmentler",
+        "Bizmut bileşikleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/83/bismuth"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Bizmut",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Bismuth"
     }
   },
   {
@@ -20680,8 +23395,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Polonyum, güçlü radyoaktivite gösteren bir elementtir. Çok küçük miktarları bile nükleer özellikleriyle önem taşır.",
+      "uses": [
+        "Nükleer araştırma",
+        "Tarihsel özel ışınım kaynakları"
+      ],
+      "story": "Marie ve Pierre Curie tarafından tanımlandı; adı Polonya'ya gönderme yapar.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/84/polonium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Polonyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Polonium"
     }
   },
   {
@@ -20910,8 +23653,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Astatin, doğada çok küçük miktarlarda bulunan radyoaktif bir halojendir. Kimyası çoğunlukla iz miktarlarla araştırılır.",
+      "uses": [
+        "Radyoizotop araştırmaları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/85/astatine"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Astatin",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Astatine"
     }
   },
   {
@@ -21147,8 +23917,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Radon, radyoaktif bozunma zincirlerinde oluşan bir soy gazdır. Gaz hâli nedeniyle oluştuğu mineralden çevresine geçebilir.",
+      "uses": [
+        "Yer bilimleri izleyicileri",
+        "Radyoaktivite araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/86/radon"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Radon",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Radon"
     }
   },
   {
@@ -21365,8 +24163,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Fransiyum, çok kısa ömürlü izotopları bulunan bir alkali metaldir. Toplu bir metal numunesinden çok, az sayıda atom üzerinden incelenir.",
+      "uses": [
+        "Atom fiziği araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/87/francium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Fransiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Francium"
     }
   },
   {
@@ -21614,8 +24439,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Radyum, radyoaktif bir toprak alkali metaldir. Geçmişte ışıldayan boyalarda kullanılması bilim ve sağlık tarihinde önemli izler bıraktı.",
+      "uses": [
+        "Nükleer araştırma",
+        "Tarihsel ışıldayan boyalar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/88/radium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Radyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Radium"
     }
   },
   {
@@ -21833,8 +24686,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Aktinyum, aktinit serisine adını veren radyoaktif elementtir. İzotoplarının üretimi ve kimyasal ayrılması araştırma konusudur.",
+      "uses": [
+        "Radyoizotop araştırmaları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/89/actinium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Aktinyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Actinium"
     }
   },
   {
@@ -22065,8 +24945,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Toryum, doğada bulunan radyoaktif bir aktinit metalidir. Nükleer yakıt çevrimleriyle ilişkisi nedeniyle araştırılır.",
+      "uses": [
+        "Nükleer yakıt araştırması",
+        "Özel alaşımlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/90/thorium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Toryum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Thorium"
     }
   },
   {
@@ -22285,8 +25193,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Protaktinyum, uranyum bozunma zincirlerinde çok az miktarda bulunur. Nadirliği ve radyoaktivitesi kullanımını sınırlar.",
+      "uses": [
+        "Nükleer kimya",
+        "Yer bilimleri araştırmaları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/91/protactinium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Protaktinyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Protactinium"
     }
   },
   {
@@ -22548,8 +25484,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Uranyum, doğada bulunan ağır ve radyoaktif bir metaldir. Nükleer davranışı izotop bileşimine bağlıdır.",
+      "uses": [
+        "Nükleer yakıt",
+        "Nükleer ve jeolojik araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/92/uranium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Uranyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Uranium"
     }
   },
   {
@@ -22779,8 +25743,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Neptünyum, uranyumun ötesindeki ilk elementtir. Nükleer tepkimelerle elde edilir ve aktinit kimyasının araştırılmasında kullanılır.",
+      "uses": [
+        "Nükleer kimya",
+        "İzotop üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/93/neptunium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Nept%C3%BCnyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Neptunium"
     }
   },
   {
@@ -23051,8 +26043,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Plütonyum, farklı yükseltgenme basamakları gösteren radyoaktif bir aktinittir. İzotopları farklı nükleer uygulamalara sahiptir.",
+      "uses": [
+        "Nükleer yakıt",
+        "Radyoizotop güç sistemleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/94/plutonium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Pl%C3%BCtonyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Plutonium"
     }
   },
   {
@@ -23282,8 +26302,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Amerikyum, yapay olarak üretilen bir aktinittir. Küçük, kapalı kaynaklar hâlinde bazı duman dedektörlerinde kullanılır.",
+      "uses": [
+        "İyonlaşmalı duman dedektörleri",
+        "Araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/95/americium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Amerikyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Americium"
     }
   },
   {
@@ -23550,8 +26598,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Küriyum, laboratuvarda üretilen radyoaktif bir elementtir. Bazı izotopları analitik cihazlarda alfa kaynağı olarak kullanılır.",
+      "uses": [
+        "Alfa parçacığı kaynakları",
+        "Aktinit araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/96/curium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/K%C3%BCriyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Curium"
     }
   },
   {
@@ -23779,8 +26855,36 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Berkelyum, ağır elementlerin sentezinde hedef malzeme olarak kullanılabilen yapay bir aktinittir.",
+      "uses": [
+        "Yeni element sentezi",
+        "Aktinit kimyası"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/97/berkelium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Berkelyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Berkelium"
     }
   },
   {
@@ -24028,8 +27132,37 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kaliforniyumun bazı izotopları nötron kaynağı olarak kullanılabilir. Üretimi özel nükleer tesisler gerektirir.",
+      "uses": [
+        "Nötron kaynakları",
+        "Malzeme analizi",
+        "Araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/98/californium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kaliforniyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Californium"
     }
   },
   {
@@ -24247,8 +27380,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Aynştaynyum, çok az miktarda üretilebilen bir aktinittir. Elektronik yapısı ağır element kimyasını anlamaya yardımcı olur.",
+      "uses": [
+        "Aktinit araştırması"
+      ],
+      "story": "Adı fizikçi Albert Einstein'ı anmak için seçildi.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/99/einsteinium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Ayn%C5%9Ftaynyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Einsteinium"
     }
   },
   {
@@ -24465,8 +27625,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Fermiyum, nükleer tepkimelerde oluşan yapay bir aktinittir. Kısa ömür ve üretim miktarı, kimyasal deneyleri sınırlar.",
+      "uses": [
+        "Ağır çekirdek araştırması"
+      ],
+      "story": "Adı Enrico Fermi'yi anmak için verildi.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/100/fermium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Fermiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Fermium"
     }
   },
   {
@@ -24694,8 +27881,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Mendelevyum atomları hızlandırıcı deneylerinde üretilir. Kimyasal davranışı çok küçük örneklerle incelenir.",
+      "uses": [
+        "Aktinit kimyası"
+      ],
+      "story": "Adı periyodik tablonun gelişimine katkı sağlayan Dmitri Mendeleyev'e gönderme yapar.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/101/mendelevium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Mendelevyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Mendelevium"
     }
   },
   {
@@ -24913,8 +28127,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Nobelyum, yapay olarak üretilen bir aktinittir. İki değerlikli kimyasal davranışı aktinitler içinde dikkat çeker.",
+      "uses": [
+        "Ağır element kimyası"
+      ],
+      "story": "Adı Alfred Nobel'i anmak için seçildi.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/102/nobelium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Nobelyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Nobelium"
     }
   },
   {
@@ -25131,8 +28372,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Lavrensiyum, aktinit dizisinin sonunda yer alır. Atomlarının elektronik yapısı periyodik sınıflandırma açısından araştırılır.",
+      "uses": [
+        "Atomik yapı ve aktinit araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/103/lawrencium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Lavrensiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Lawrencium"
     }
   },
   {
@@ -25349,8 +28617,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Rutherfordyum, dördüncü grupta yer alan süper ağır bir elementtir. Tek tek atomlarla yapılan deneylerde zirkonyum ve hafniyumla karşılaştırılır.",
+      "uses": [
+        "Süper ağır element kimyası"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/104/rutherfordium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Rutherfordyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Rutherfordium"
     }
   },
   {
@@ -25566,8 +28861,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Dubniyum, beşinci grubun süper ağır üyesidir. Kısa ömürlü atomlarının kimyasal ayrılması özel deneyler gerektirir.",
+      "uses": [
+        "Süper ağır element araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/105/dubnium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Dubniyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Dubnium"
     }
   },
   {
@@ -25785,8 +29107,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Seaborgiyum, altıncı grupta yer alan yapay bir elementtir. Çok az sayıdaki atomla yapılan deneyler grup benzerliklerini sınar.",
+      "uses": [
+        "Süper ağır element kimyası"
+      ],
+      "story": "Adı kimyager Glenn Seaborg'u anmak için verildi.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/106/seaborgium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Seaborgiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Seaborgium"
     }
   },
   {
@@ -26003,8 +29352,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Bohriyum, manganezin bulunduğu grubun süper ağır üyesidir. Kararlı bir numunesi bulunmaz.",
+      "uses": [
+        "Çekirdek ve tek atom kimyası"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/107/bohrium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Bohriyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Bohrium"
     }
   },
   {
@@ -26223,8 +29599,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Hassiyum, osmiyumla aynı grupta sınıflandırılır. Kısa ömürlü atomlarıyla ağır elementlerin kimyasal benzerlikleri incelenir.",
+      "uses": [
+        "Süper ağır element kimyası"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/108/hassium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Hassiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Hassium"
     }
   },
   {
@@ -26443,8 +29846,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Meitneriyum, parçacık hızlandırıcılarında sentezlenen bir elementtir. Makroskopik fiziksel özelliklerinin çoğu ölçülmemiştir.",
+      "uses": [
+        "Çekirdek fiziği"
+      ],
+      "story": "Adı fizikçi Lise Meitner'i anmak için seçildi.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/109/meitnerium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Meitneriyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Meitnerium"
     }
   },
   {
@@ -26662,8 +30092,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Darmstadtiyum, platin grubunun altında sınıflandırılan süper ağır elementtir. Bilinen atomları radyoaktif bozunmayla tanınır.",
+      "uses": [
+        "Süper ağır çekirdek araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/110/darmstadtium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Darmstadtiyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Darmstadtium"
     }
   },
   {
@@ -26880,8 +30337,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Röntgenyum, bakır ve altınla aynı sütunda yer alır. Bu konum, ölçülmemiş özelliklerinin doğrulanmış olduğu anlamına gelmez.",
+      "uses": [
+        "Süper ağır çekirdek araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/111/roentgenium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/R%C3%B6ntgenyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Roentgenium"
     }
   },
   {
@@ -27097,8 +30581,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Kopernikyum, on ikinci grubun süper ağır üyesidir. Çok az atom üzerinde yapılan çalışmalar ağır atom etkilerini araştırır.",
+      "uses": [
+        "Tek atom kimyası"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/112/copernicium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kopernikyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Copernicium"
     }
   },
   {
@@ -27310,8 +30821,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Nihonyum, on üçüncü grupta sınıflandırılan yapay elementtir. Kısa ömürlü çekirdeklerinin üretimi özel hızlandırıcılar gerektirir.",
+      "uses": [
+        "Süper ağır çekirdek araştırması"
+      ],
+      "story": "Adı Japonya için kullanılan Nihon sözcüğünden gelir.",
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/113/nihonium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Nihonyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Nihonium"
     }
   },
   {
@@ -27529,8 +31067,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Flerovyum, on dördüncü grubun süper ağır üyesidir. Atom çekirdeğinin kararlılığına ilişkin modelleri sınamak için incelenir.",
+      "uses": [
+        "Çekirdek kararlılığı araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/114/flerovium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Flerovyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Flerovium"
     }
   },
   {
@@ -27745,8 +31310,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Moskovyum, on beşinci grupta yer alan yapay elementtir. Üretim deneylerinde bozunma zincirleri izlenerek tanımlanır.",
+      "uses": [
+        "Nükleer yapı araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/115/moscovium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Moskovyum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Moscovium"
     }
   },
   {
@@ -27962,8 +31554,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Livermoryum, on altıncı grubun süper ağır üyesidir. Gündelik bir madde numunesi yerine tek tek üretilen atomlarla çalışılır.",
+      "uses": [
+        "Süper ağır çekirdek araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/116/livermorium"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Livermoryum",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Livermorium"
     }
   },
   {
@@ -28180,8 +31799,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Tennessin, halojenlerin altında sınıflandırılan süper ağır elementtir. Sınıflandırılması, klorla aynı ölçülmüş özelliklere sahip olduğu anlamına gelmez.",
+      "uses": [
+        "Çekirdek fiziği"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/117/tennessine"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Tennesin",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Tennessine"
     }
   },
   {
@@ -28400,8 +32046,35 @@
         "names.la",
         "names.de",
         "classification.category",
-        "layout"
+        "layout",
+        "editorial",
+        "media",
+        "external_links"
       ]
+    },
+    "editorial": {
+      "summary": "Oganesson, bilinen periyodik tablonun 118 numaralı elementidir. Soy gaz sütununda bulunsa da makroskopik hâli ve pek çok özelliği deneysel olarak bilinmez.",
+      "uses": [
+        "Süper ağır çekirdek araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "Royal Society of Chemistry",
+          "url": "https://periodic-table.rsc.org/element/118/oganesson"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": null
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Oganesson",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/element/Oganesson"
     }
   }
 ]

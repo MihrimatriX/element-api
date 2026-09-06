@@ -7,8 +7,7 @@ using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddEnterpriseLogging("Element.Notification");
-builder.AddEnterpriseTracing("Element.Notification");
+builder.AddConsoleLogging("Element.Notification");
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<WebhookFanout>();
 builder.Services.AddHttpClient("webhooks", c =>
@@ -65,13 +64,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseEnterpriseLogging();
+app.UseRequestLogging();
 app.UseCors("CorsPolicy");
-app.MapPrometheusScrapingEndpoint();
 app.MapStandardOpsEndpoints("Element.Notification", new Dictionary<string, string>
 {
     ["hub"] = "/hub/notifications",
-    ["metrics"] = "/metrics"
 });
 app.MapHub<NotificationHub>("/hub/notifications");
 

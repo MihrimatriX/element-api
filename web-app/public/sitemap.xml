@@ -1,12 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>__SITE_URL__/compound/h2o</loc></url>
+  <url><loc>__SITE_URL__/compound/licl</loc></url>
+  <url><loc>__SITE_URL__/compound/li2co3</loc></url>
+  <url><loc>__SITE_URL__/compound/b2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/co2</loc></url>
+  <url><loc>__SITE_URL__/compound/nh3</loc></url>
+  <url><loc>__SITE_URL__/compound/hf</loc></url>
+  <url><loc>__SITE_URL__/compound/nacl</loc></url>
+  <url><loc>__SITE_URL__/compound/naoh</loc></url>
+  <url><loc>__SITE_URL__/compound/mgo</loc></url>
+  <url><loc>__SITE_URL__/compound/al2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/sio2</loc></url>
+  <url><loc>__SITE_URL__/compound/h2so4</loc></url>
+  <url><loc>__SITE_URL__/compound/hcl</loc></url>
+  <url><loc>__SITE_URL__/compound/kcl</loc></url>
+  <url><loc>__SITE_URL__/compound/koh</loc></url>
+  <url><loc>__SITE_URL__/compound/caco3</loc></url>
+  <url><loc>__SITE_URL__/compound/cao</loc></url>
+  <url><loc>__SITE_URL__/compound/tio2</loc></url>
+  <url><loc>__SITE_URL__/compound/v2o5</loc></url>
+  <url><loc>__SITE_URL__/compound/cr2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/mno2</loc></url>
+  <url><loc>__SITE_URL__/compound/fe2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/fe3o4</loc></url>
+  <url><loc>__SITE_URL__/compound/cocl2</loc></url>
+  <url><loc>__SITE_URL__/compound/niso4</loc></url>
+  <url><loc>__SITE_URL__/compound/cuso4</loc></url>
+  <url><loc>__SITE_URL__/compound/cu2o</loc></url>
+  <url><loc>__SITE_URL__/compound/zno</loc></url>
+  <url><loc>__SITE_URL__/compound/geo2</loc></url>
+  <url><loc>__SITE_URL__/compound/as2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/mos2</loc></url>
+  <url><loc>__SITE_URL__/compound/pdcl2</loc></url>
+  <url><loc>__SITE_URL__/compound/agno3</loc></url>
+  <url><loc>__SITE_URL__/compound/agcl</loc></url>
+  <url><loc>__SITE_URL__/compound/cds</loc></url>
+  <url><loc>__SITE_URL__/compound/in2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/sno2</loc></url>
+  <url><loc>__SITE_URL__/compound/sb2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/teo2</loc></url>
+  <url><loc>__SITE_URL__/compound/cscl</loc></url>
+  <url><loc>__SITE_URL__/compound/baso4</loc></url>
+  <url><loc>__SITE_URL__/compound/wo3</loc></url>
+  <url><loc>__SITE_URL__/compound/wc</loc></url>
+  <url><loc>__SITE_URL__/compound/ptcl2</loc></url>
+  <url><loc>__SITE_URL__/compound/aucl3</loc></url>
+  <url><loc>__SITE_URL__/compound/hgs</loc></url>
+  <url><loc>__SITE_URL__/compound/pbo</loc></url>
+  <url><loc>__SITE_URL__/compound/bi2o3</loc></url>
+  <url><loc>__SITE_URL__/compound/uo2</loc></url>
+  <url><loc>__SITE_URL__/compound/aspirin</loc></url>
   <url><loc>__SITE_URL__/</loc></url>
   <url><loc>__SITE_URL__/periodic</loc></url>
   <url><loc>__SITE_URL__/compounds</loc></url>
   <url><loc>__SITE_URL__/market</loc></url>
   <url><loc>__SITE_URL__/shop</loc></url>
   <url><loc>__SITE_URL__/docs</loc></url>
-  <url><loc>__SITE_URL__/stack</loc></url>
+  <url><loc>__SITE_URL__/lab</loc></url>
   <url><loc>__SITE_URL__/hakkinda</loc></url>
   <url><loc>__SITE_URL__/nasil</loc></url>
   <url><loc>__SITE_URL__/sozluk</loc></url>

@@ -8,7 +8,7 @@ import { startTimeoutSweeper } from './saga/timeoutSweeper.js';
 import { ordersRouter } from './routes/orders.js';
 import { apiInfoRouter } from './routes/apiInfo.js';
 import { deskRouter, internalWalletRouter, meRouter } from './routes/wallet.js';
-import { getMetrics, logger, metricsMiddleware, requestLogger } from './observability.js';
+import { logger, requestLogger } from './observability.js';
 import { registerOpsEndpoints } from './ops.js';
 import { httpErrorHandler } from './http.js';
 
@@ -80,12 +80,7 @@ async function main() {
   const app = express();
   app.use(express.json({ limit: '32kb' }));
   app.use(requestLogger);
-  app.use(metricsMiddleware);
   registerOpsEndpoints(app, checkHealth);
-  app.get('/metrics', async (_req, res) => {
-    res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
-    res.send(await getMetrics());
-  });
   app.use('/api/v1', apiInfoRouter);
   app.use('/api/v1/me', meRouter);
   app.use('/api/v1/desk', deskRouter);

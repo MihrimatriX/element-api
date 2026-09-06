@@ -1,10 +1,10 @@
 # web-app
 
-Element Market mağaza arayüzü — React 19 + Vite + TypeScript + nginx.
+ElementAPI arayüzü — React 19 + Vite + TypeScript + nginx.
 
 | | |
 |--|--|
-| **Port** | `3000` |
+| **Port** | `3000` (Docker) · `5173` (dev) |
 | **Health** | `GET /health` |
 | **Info** | `GET /info` |
 
@@ -12,7 +12,8 @@ Element Market mağaza arayüzü — React 19 + Vite + TypeScript + nginx.
 
 ## Sorumluluklar
 
-- Piyasa masası (`/market`), mağaza (`/shop`), hesap, API dokümantasyonu, altyapı (`/stack`)
+- Periyodik tablo ve bileşik keşfi, bilimsel ayrıntı, laboratuvar (`/lab`)
+- Piyasa masası (`/market`), mağaza (`/shop`), hesap, API dokümantasyonu
 - Kâğıt kredi cüzdan, gram sepet, SignalR fiyat (login gerekmez)
 
 Statik SPA — tüm veri gateway API'den gelir.
@@ -41,19 +42,15 @@ Statik SPA — tüm veri gateway API'den gelir.
 ## Çalıştırma
 
 ```bash
-# Tüm platform
-docker compose --env-file docker/.env up -d --build
+# Geliştirme (tercih)
+npm ci
+npm run dev    # http://localhost:5173
 
-# Sadece web (gateway ayakta olmalı)
+# Docker web (gateway ayakta olmalı)
 cd web-app && docker compose up -d --build
 ```
 
-### Geliştirme
-
-```bash
-npm ci
-npm run dev    # http://localhost:5173
-```
+Test: `npm test` (laboratuvar keşif mantığı).
 
 Build arg (Docker) — subdomain / HTTPS için public origin yaz, sonra rebuild:
 

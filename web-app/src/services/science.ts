@@ -2,17 +2,26 @@ import { useEffect, useState } from 'react';
 import { API_ORIGIN } from '../config';
 export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 export type ScientificRecord = { [key: string]: JsonValue };
-export interface ScientificElement {
+export interface AtlasMedia { url: string; caption: string; source_url: string; creator: string; license: string; license_url: string | null; retrieved_at: string }
+export interface AtlasFields {
+  editorial: { summary: string; uses: string[]; story: string | null; sources: { name: string; url: string }[] };
+  media: { photo: AtlasMedia | null; structure: AtlasMedia | null };
+  external_links: { wikipedia: { url: string; language: string } | null; pubchem: string };
+}
+export interface ScientificElement extends AtlasFields {
   id: string; symbol: string; atomic_number: number; names: { tr: string; en: string };
   classification: { category: string; period: number; group: number | null; block: string; series: string };
   layout: { row: number; column: number };
-  atomic_properties: { atomic_mass: number | null; electron_configuration: { short: string | null }; electronegativity: { pauling: number | null } };
+  atomic_properties: { atomic_mass: number | null; electron_configuration: { short: string | null }; electrons_per_shell: number[]; electronegativity: { pauling: number | null } };
   thermodynamic_properties: { standard_state: string | null; melting_point: { k: number | null; c: number | null }; boiling_point: { k: number | null; c: number | null }; density_g_cm3: { reported: number | null } };
 }
-export interface ScientificCompound {
+export interface ScientificCompound extends AtlasFields {
   id: string; slug: string; names: { tr: string; en: string; iupac: string }; identifiers: { pubchem_cid: number };
   molecular_properties: { molecular_formula: string; molecular_weight_g_mol: number };
+  display_formula: string;
+  composition: {symbol: string; count: number}[];
 }
+export const displayFormula = (value: string) => value.replace(/\d/g, n => '₀₁₂₃₄₅₆₇₈₉'[Number(n)]);
 const cache = new Map<string, Promise<unknown>>();
 export const scienceUrl = (path: string) => `${API_ORIGIN}/api/v2/${path}`;
 async function get<T>(path: string): Promise<T> {

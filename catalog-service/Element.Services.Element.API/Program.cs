@@ -20,9 +20,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Enterprise Logging (Serilog + Seq)
-builder.AddEnterpriseLogging("Element.Service");
-builder.AddEnterpriseTracing("Element.Service");
+// Console logging
+builder.AddConsoleLogging("Element.Service");
 
 // Add DbContext
 builder.Services.AddDbContext<ElementDbContext>(options =>
@@ -103,17 +102,15 @@ app.UseSwaggerUI(c =>
     c.DocumentTitle = "Element API Documentation";
 });
 
-app.UseEnterpriseLogging();
+app.UseRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseAuthorization();
 app.MapControllers();
 app.MapGrpcService<Element.Services.Element.API.Grpc.ElementGrpcService>();
-app.MapPrometheusScrapingEndpoint();
 app.MapStandardOpsEndpoints("Element.Catalog", new Dictionary<string, string>
 {
     ["api"] = "/api/v1",
     ["swagger"] = "/swagger",
-    ["metrics"] = "/metrics",
     ["graphql"] = gatewayGraphql
 });
 

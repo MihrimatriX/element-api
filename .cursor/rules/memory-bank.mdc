@@ -1,0 +1,30 @@
+---
+description: Read docs/memory-bank before continuing ElementAPI work
+alwaysApply: true
+---
+
+# Memory bank first
+
+Before non-trivial work on this repo, read the memory bank (skim all; deep-read files that match the task):
+
+- `docs/memory-bank/project-overview.md`
+- `docs/memory-bank/architecture.md`
+- `docs/memory-bank/recent-work.md`
+- `docs/memory-bank/local-dev.md`
+- `docs/memory-bank/decisions.md`
+- `docs/memory-bank/open-risks.md`
+
+Turkish narrative of the Atlas/Lab/infra track: `docs/WHAT-WAS-DONE.md`.
+
+## Hard constraints (do not re-litigate)
+
+- Prefer host verify; never full `docker compose up --build` just to check UI/API (see `local-dev.mdc`).
+- Observability stack is intentionally gone; `/metrics` and `/health-ui` 404 is expected.
+- Product lab route is `/lab`; `/stack` is a legacy redirect only.
+- FAL is an allowed Commons license for atlas element photos.
+- Missing element photos (`media.photo: null`) are often intentional — do not “fix” by grabbing poorly licensed images.
+- Do not invent a second parallel memory system (extra skill/canvas) that duplicates this folder.
+
+## After finishing a meaningful track
+
+Update `docs/memory-bank/recent-work.md` and `open-risks.md` (and `WHAT-WAS-DONE.md` if user-facing narrative changed). Keep files short and factual.

@@ -1,16 +1,17 @@
 # ElementAPI
 
-**Bilimsel katalog v2:** Referans periyodik tablo ana sayfası, ayrıntılı element ve bileşik kayıtları, kaynaklar, `view/include/fields`, ETag ve açık CORS. Uygulanan plan, servis sorumlulukları, veri kapsamı ve örnekler: [Bilimsel katalog](deploy/scientific-catalog.md). Başlangıç: `GET /api/v2/elements/fe`, `GET /api/v2/compounds/aspirin`.
+**Bilimsel katalog v2:** Referans periyodik tablo, anlatımlı element/bileşik kayıtları, laboratuvar keşfi (`/lab`), `view/include/fields`, ETag ve açık CORS. Plan ve örnekler: [Bilimsel katalog](deploy/scientific-catalog.md). Başlangıç: `GET /api/v2/elements/fe`, `GET /api/v2/compounds/aspirin`.
 
-118 elementin ve 50 bileşiğin kaynaklı bilimsel özellikleri için halka açık API; yanında fiyat tablosu, ürün mağazası ve kişisel kasa. **Kredi** uygulamanın sanal para birimidir. Piyasa fiyatları, stoklar, ödeme ve kargo simülasyondur; gerçek borsa verisi, tahsilat veya fiziksel teslimat yoktur.
+118 elementin ve 51 bileşiğin kaynaklı bilimsel özellikleri için halka açık API; yanında fiyat tablosu, ürün mağazası ve kişisel kasa. **Kredi** uygulamanın sanal para birimidir. Piyasa fiyatları, stoklar, ödeme ve kargo simülasyondur; gerçek borsa verisi, tahsilat veya fiziksel teslimat yoktur.
 
 Yerel geliştirme: **[localhost:5173](http://localhost:5173)** · API: **[localhost:5000/api/v1](http://localhost:5000/api/v1)**. Docker web sürümü 3000 portunu kullanır.
 
 MIT lisansı: [LICENSE](./LICENSE).
 
+**Son iş paketi (Atlas / `/lab` / infra sadeleştirme):** ayrıntılı Türkçe anlatım → [docs/WHAT-WAS-DONE.md](./docs/WHAT-WAS-DONE.md) · agent bellek bankası → [docs/memory-bank/](./docs/memory-bank/).
+
 [![Stack](https://img.shields.io/badge/stack-.NET%20%7C%20Node%20%7C%20Java%20%7C%20React-blue)](#servis-kataloğu)
 [![Gateway](https://img.shields.io/badge/gateway-YARP%20%2B%20GraphQL-512BD4)](#api-gateway)
-[![Observability](https://img.shields.io/badge/observability-Prometheus%20%7C%20Grafana%20%7C%20ELK-orange)](#observability)
 
 ---
 
@@ -48,12 +49,13 @@ npm --prefix web-app run lint
 
 `test-saga.ps1`, gerçek PostgreSQL üzerinde geçici ve ayrı bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar; sonunda kendi şemasını kaldırır. `test-e2e.mjs` ve smoke testi çalışan yerel servislere bağlanır, ayrı deneme hesapları açar. Docker web sürümünü denemek için smoke testine `-WebBase http://localhost:3000` ver.
 
-Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs --observability`, sekiz backend servisinin sağlık ve metrik uçlarını, derlenmiş web sayfalarını, GraphQL fiyat sorgusunu ve gateway üzerinden gerçek SignalR fiyat olayını doğrular. Ayrıca tüm Prometheus hedeflerini, Grafana'yı ve Loki/Jaeger/ELK'ye veri ulaşmasını kontrol eder. İzleme araçları olmadan uygulama kontrolleri için `--observability` seçeneğini çıkarın. Varsayılan web adresi `http://localhost:3000`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
+Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, sekiz backend servisinin sağlık uçlarını, derlenmiş web sayfalarını (`/lab` dahil), GraphQL fiyat sorgusunu ve gateway üzerinden gerçek SignalR fiyat olayını doğrular. Varsayılan web adresi `http://localhost:3000`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
 
 ### Bilimsel veri ve alışveriş sözleşmesi
 
 - Elementlerin kütle, yoğunluk, sıcaklık, elektron dizilimi ve elektronegatiflik verisi [PubChem periyodik tablosundan](https://pubchem.ncbi.nlm.nih.gov/periodic-table/) alınan sürümlenmiş dosyadan gelir. Yanıtlarda `sourceUrl`, `retrievedAt` ve `units` bulunur; kaynaktaki bilinmeyen değerler `null` kalır. Atom numarası 119 gibi varsayımsal kayıtlar yayımlanmaz.
-- 50 bileşikte molekül formülü, molar kütle (`g/mol`), IUPAC adı, InChIKey ve PubChem bağlantısı bulunur. Allotrop ve preparatlar saf bir bileşik kaydı gibi sunulmaz. Mağaza 118 saf elementi ve mevcut bileşik/preparat ürünlerini listeler.
+- 51 bileşikte molekül formülü, molar kütle (`g/mol`), IUPAC adı, InChIKey ve PubChem bağlantısı bulunur. Allotrop ve preparatlar saf bir bileşik kaydı gibi sunulmaz. Mağaza 118 saf elementi ve mevcut bileşik/preparat ürünlerini listeler.
+- Atlas katmanı (Türkçe anlatım, görseller, Wikipedia/PubChem linkleri) `node deploy/scripts/refresh-atlas.mjs` ile yeniden uygulanır; bilimsel yenilemeden sonra otomatik çalışır. Medya indirme: `node deploy/scripts/refresh-atlas.mjs --fetch`.
 - Veriyi bilinçli yenilemek için `node deploy/scripts/refresh-element-properties.mjs` ve `node deploy/scripts/refresh-compound-properties.mjs --force`; API çalışırken dış kaynağa bağımlı değildir.
 - Siparişe gram cinsinden sayısal `quantity` gönderilir (en fazla dört ondalık). `Idempotency-Key` olarak aynı UUID ile tekrar gönderilen aynı sipariş yalnız bir kez ücretlendirilir; farklı içerik `409` döner.
 - Kasadaki her ürün `symbol + compoundSlug` ile ayrılır. NaCl, saf Na gibi satılamaz. Satışta aynı `compoundSlug` gönderilir; alış ve satış fiyatı sunucuda hesaplanır. Başarısız/zaman aşımına uğramış siparişte ayrılan stok serbest bırakılır, tahsil edilmiş Kredi bir kez iade edilir.
@@ -62,7 +64,7 @@ Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs --ob
 
 ### Tam Docker ortamı
 
-**Lab** (tüm portlar açık: postgres host `${POSTGRES_HOST_PORT:-5432}`, redis `:6380`, rabbit, servisler, grafana). Host’ta 5432 doluysa `docker/.env` içinde `POSTGRES_HOST_PORT=5434`.
+**Lab** (tüm portlar açık: postgres host `${POSTGRES_HOST_PORT:-5432}`, redis `:6380`, rabbit, servisler). Host’ta 5432 doluysa `docker/.env` içinde `POSTGRES_HOST_PORT=5434`.
 
 ```bash
 cp docker/.env.example docker/.env
@@ -78,11 +80,9 @@ docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.pu
 
 | Adres | Ne için? |
 |-------|----------|
-| **[localhost:3000](http://localhost:3000)** | Tablo · Piyasa · Mağaza · API · **Altyapı** (`/stack`) |
+| **[localhost:3000](http://localhost:3000)** | Tablo · Bileşikler · Laboratuvar (`/lab`) · Piyasa · Mağaza · API |
 | [localhost:5000](http://localhost:5000) | API Gateway |
 | [localhost:5000/swagger](http://localhost:5000/swagger) | Catalog OpenAPI (proxy) |
-| [localhost:5000/health-ui](http://localhost:5000/health-ui) | Sağlık UI (gateway; public’te :5000 açıksa) |
-| [localhost:8888](http://localhost:8888) | Observability hub — **yalnız lab compose** |
 
 Kayıt → `GET /api/v1/me/wallet` 10.000 kredi grant → mağazadan Au (ask) → kasa → masadan sat (bid).
 
@@ -120,13 +120,6 @@ flowchart TB
         MQ[RabbitMQ]
     end
 
-    subgraph obs [Observability]
-        HUB[hub :8888]
-        GRA[Grafana :3001]
-        KIB[Kibana :5601]
-        JAE[Jaeger :16686]
-    end
-
     Web --> GW
     API --> GW
     GW --> ID & CAT & CMP & ORD & NOT
@@ -134,7 +127,6 @@ flowchart TB
     MQ --> PAY & SHP & CAT & NOT
     ID & CAT & CMP & ORD & SHP --> PG
     CAT & GW --> RD
-    GW -.-> HUB
 ```
 
 ### Saga akışı
@@ -163,7 +155,7 @@ Her servisin kendi README'si endpoint tabloları, ortam değişkenleri ve tek ba
 | **shipment-service** | 5004 | .NET 9 | Kargo worker + sorgu API | [README](./shipment-service/README.md) |
 | **payment-service** | 5005 | Java 21 | Ödeme worker | [README](./payment-service/README.md) |
 | **notification-service** | 5006 | .NET 9 | SignalR push bildirimleri | [README](./notification-service/README.md) |
-| **web-app** | 3000 | React + Vite | Mağaza · masa · API · `/stack` | [README](./web-app/README.md) |
+| **web-app** | 3000 | React + Vite | Tablo · laboratuvar · mağaza · API | [README](./web-app/README.md) |
 | **shared-lib** | — | .NET lib | Ortak event, logging, ops | [README](./shared-lib/README.md) |
 | **contracts** | — | JSON şemalar | Polyglot mesaj sözleşmeleri | [README](./contracts/README.md) |
 
@@ -189,7 +181,7 @@ Gateway üzerinden (`localhost:5000`) erişilen rotalar:
 
 **Internal (gateway dışı):** payment, shipment saga worker'ları; identity `POST /api/v1/internal/api-keys/validate`.
 
-Keşif: `GET http://localhost:5000/info` · Sağlık UI: `/health-ui`
+Keşif: `GET http://localhost:5000/info` · RabbitMQ yönetim UI: `localhost:15672` (`docker/.env` kullanıcı/şifre)
 
 ---
 
@@ -203,39 +195,8 @@ Tüm backend servislerde tutarlı ops yüzeyi:
 | `GET /health` | Readiness (bağımlılıklar dahil) |
 | `GET /health/live` | Liveness (process ayakta mı) |
 | `GET /health/ready` | Readiness (DB, Redis, RabbitMQ…) |
-| `GET /metrics` | Prometheus scrape (.NET, Node) |
-| `GET /actuator/prometheus` | Prometheus (payment-service) |
 
 Payment ek olarak: `/actuator/health/liveness`, `/actuator/health/readiness`
-
----
-
-## Observability
-
-Platform `docker compose up` ile izleme stack'ini birlikte başlatır.
-
-| Araç | Port | UI? | Rol |
-|------|------|-----|-----|
-| **Kontrol paneli** | 8888 | ✅ | Tüm UI bağlantıları |
-| Grafana | 3001 | ✅ | Metrik + log dashboard (`admin/admin`) |
-| Kibana | 5601 | ✅ | ELK log arama |
-| Jaeger | 16686 | ✅ | Distributed tracing |
-| Seq | 5341 | ✅ | .NET yapılandırılmış loglar |
-| Prometheus | 9090 | ✅ | Metrik sorguları |
-| RabbitMQ | 15672 | ✅ | Kuyruk yönetimi (`docker/.env`: `RABBITMQ_DEFAULT_USER` / `RABBITMQ_DEFAULT_PASS`) |
-| Elasticsearch | 9200 | ❌ JSON | Depolama → Kibana kullan |
-| Loki | 3100 | ❌ | Depolama → Grafana Explore |
-
-Kibana index pattern'leri `kibana-setup` ile otomatik: `element-app-logs-*`, `element-logs-*`, `element-metrics-*`.
-
-```bash
-# docker/.env.example
-SEQ_URL=http://seq:80
-OTLP_ENDPOINT=http://jaeger:4317
-LOGSTASH_HTTP_URL=http://logstash:8080
-```
-
-Konfig: `docker/observability/`
 
 ---
 
@@ -263,7 +224,7 @@ Tek Postgres instance, ayrı veritabanları:
 
 Tek servis: ilgili klasörde `docker compose up -d --build` (kendi README'sine bakın).
 
-`deploy/helm` ve `deploy/k8s` taslak — production-ready değil. Çalışan yol: docker compose.
+Çalışan yol: docker compose (veya günlük geliştirmede host + yalnız postgres/redis/rabbitmq).
 
 ---
 
@@ -271,7 +232,7 @@ Tek servis: ilgili klasörde `docker compose up -d --build` (kendi README'sine b
 
 Kâğıt kredi **para değildir**. Ev piyasa yapıcısı; emir defteri ve eşleştirme yok. MIT: [LICENSE](./LICENSE).
 
-**Public overlay** (host’ta yalnızca `:3000` + `:5000`; observability ve DB portları kapalı):
+**Public overlay** (host’ta yalnızca `:3000` + `:5000`; DB portları kapalı):
 
 ```bash
 cp docker/.env.example docker/.env   # sırları değiştir
@@ -310,7 +271,7 @@ PUBLIC_API_BASE=https://api.example.com
 
 Reverse-proxy `X-Forwarded-Host` / `X-Forwarded-Proto` geçirmeli; yoksa `PUBLIC_API_BASE` linkleri düzeltir.
 
-SPA: `index.html` varsayılan meta taşır; rota başlıkları istemcide `Seo` ile yazılır. `robots.txt` + `sitemap.xml` (`/stack` + 118 `/element/{symbol}`) nginx’ten statik.
+SPA: `index.html` varsayılan meta taşır; rota başlıkları istemcide `Seo` ile yazılır. `robots.txt` + `sitemap.xml` (`/lab`, bileşikler, 118 `/element/{symbol}`) nginx’ten statik.
 
 ---
 

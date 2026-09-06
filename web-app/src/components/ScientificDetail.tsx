@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowUpRight, Download, FileJson, Search } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Download, FileJson, Search, FlaskConical } from 'lucide-react';
 import { scienceUrl, useScience, type JsonValue, type ScientificRecord } from '../services/science';
 import Seo from './Seo';
+import AtlasVisual from './AtlasVisual';
+import { categoryLabels, STATIC_ELEMENTS } from '../services/elementData';
+import { displayFormula, formatScience, phaseLabels, type AtlasFields, type ScientificElement, type ScientificCompound } from '../services/science';
 
 const labels: Record<string, string> = {
   precautionary_codes: 'Önlem kodları', signal_words: 'Uyarı sözcükleri',
@@ -30,33 +33,46 @@ function Value({ value, showMissing, context }: { value: JsonValue; showMissing:
   if (!entries.length) return <p className="science-missing">Bu bölüm için doğrulanmış veri henüz eklenmedi.</p>;
   return <dl className="science-properties">{entries.map(([key, v]) => <div key={key} className={v && typeof v === 'object' ? 'science-property-group' : ''}><dt>{context === 'lattice_parameters_pm' && key === 'c' ? 'c' : labels[key] ?? key.replace(/_/g, ' ')}</dt><dd><Value value={v} showMissing={showMissing} context={key} /></dd></div>)}</dl>;
 }
-export default function ScientificDetail({ kind }: { kind: 'elements' | 'compounds' }) {
-  const params = useParams();
-  const id = (params.symbol ?? params.slug ?? '').toLowerCase();
-  const { data, error, retry } = useScience<ScientificRecord>(kind, id);
-  const [missing, setMissing] = useState(false);
-  const [filter, setFilter] = useState('');
-  const back = kind === 'elements' ? '/periodic' : '/compounds';
-  if (!data) return <main className="science-detail"><Link to={back} className="science-text-link"><ArrowLeft size={16} /> Keşfe dön</Link><h1>{error ?? 'Bilimsel kayıt yükleniyor…'}</h1>{error && <button className="btn" onClick={retry}>Yeniden dene</button>}</main>;
-  const names = data.names as Record<string, string>;
-  const atom = data.atomic_properties as ScientificRecord | undefined;
-  const molecular = data.molecular_properties as ScientificRecord | undefined;
-  const provenance = data.provenance as ScientificRecord;
-  const sections = Object.entries(data).filter(([key]) => labels[key]);
-  const visible = sections.filter(([key]) => !filter || (labels[key] ?? key).toLocaleLowerCase('tr').includes(filter.toLocaleLowerCase('tr')));
-  const mark = String(data.symbol ?? molecular?.molecular_formula ?? '');
-  const download = () => { const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); const a = document.createElement('a'); a.href = url; a.download = `${data.id}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
-  return <main className="science-detail">
-    <Seo title={`${names.tr} (${mark}) · ElementAPI`} description={`${names.tr}: kaynaklı bilimsel özellikler, ayrıntılı veriler ve açık JSON kaydı.`} path={`/${kind === 'elements' ? 'element' : 'compound'}/${id}`} />
-    <nav className="science-breadcrumb"><Link to={back}><ArrowLeft size={14} />{kind === 'elements' ? 'Periyodik tablo' : 'Bileşikler'}</Link><span>/</span><span>{names.tr}</span></nav>
-    <header className="science-detail-hero"><div className={`science-specimen ${kind === 'compounds' ? 'is-molecule' : ''}`}><small>{String(data.atomic_number ?? 'MOLEKÜL')}</small><strong>{mark}</strong><span>{String(atom?.atomic_mass ?? molecular?.molecular_weight_g_mol ?? '—')} {atom ? 'u' : 'g/mol'}</span></div><div><p className="science-eyebrow">BİLİMSEL KAYIT · {String(data.id)}</p><h1>{names.tr}</h1><p className="science-detail-subtitle">{names.en}{names.iupac && names.iupac !== names.en ? ` · ${names.iupac}` : ''}</p><p className="science-detail-intro">{kind === 'elements' ? 'Atomik yapıdan izotoplara, bu elementin özelliklerini kaynaklarıyla keşfet.' : 'Molekülün kimliğini, ölçülmüş özelliklerini ve güvenlik kaynaklarını incele.'}</p><div className="science-detail-actions"><button onClick={download}><Download size={15} /> JSON indir</button><a href={scienceUrl(`${kind}/${id}`)} target="_blank" rel="noreferrer"><FileJson size={15} /> API kaydı <ArrowUpRight size={14} /></a></div></div><div className="science-detail-stamp"><span>KAYNAKLI AÇIK VERİ</span><strong>{String(provenance.retrieved_at)}</strong><span>Veri alım tarihi</span></div></header>
-    <div className="science-detail-layout"><aside className="science-detail-nav"><p className="science-eyebrow">BU KAYITTA</p>{sections.map(([key, v]) => <a key={key} href={`#${key}`} onClick={() => setFilter('')}>{labels[key]}<span>{populated(v) ? '↗' : '—'}</span></a>)}<a href="#sources">Kaynaklar <ArrowUpRight size={13} /></a>{kind === 'elements' && <div className="science-market-links"><p>Simülasyonu keşfet</p><Link to={`/market?symbol=${mark}`}>Piyasa</Link><Link to={`/shop?symbol=${mark}`}>Mağaza</Link></div>}</aside>
-      <div className="science-detail-content"><div className="science-data-tools"><label><Search size={16} /><input type="search" placeholder="Bölüm ara…" value={filter} onChange={e => setFilter(e.target.value)} aria-label="Bilimsel bölüm ara" /></label><label><input type="checkbox" checked={missing} onChange={e => setMissing(e.target.checked)} /> Eksik alanları göster</label></div><p className="science-data-note">“Veri yok”, bu kaynak sürümünde doğrulanmış değer bulunmadığını belirtir. Sıfır anlamına gelmez. Ölçüm koşulları ve belirsizlikler korunur.</p>
-        {!visible.length && <p className="science-notice">Eşleşen bölüm bulunamadı.</p>}
-        {visible.map(([key, value], index) => <section className="science-section" id={key} key={key}><header><span>{String(index + 1).padStart(2, '0')}</span><h2>{labels[key]}</h2></header>{key === 'isotopes' && <p className="science-data-note">NIST referans izotop bileşimleri. Doğal bolluk, kararlılık veya yarı ömür anlamına gelmez. Parantezli sayılar kaynak belirsizliğini korur.</p>}{key === 'safety' && <p className="science-data-note">Farklı tedarikçi, derişim ve deney koşullarına ait raporlar birlikte bulunabilir. Uygulama öncesinde kaynağı ve güncel ürün güvenlik bilgi formunu inceleyin.</p>}{key === 'thermodynamic_properties' && <p className="science-data-note">Yoğunluk için kaynakta belirtilmeyen STP koşulu varsayılmaz. Sıcaklık dönüşümü: °C = K − 273,15.</p>}<Value value={value} showMissing={missing} /></section>)}
-        <section className="science-section" id="sources"><header><h2>Kaynaklar ve veri kapsamı</h2></header><p className="science-data-note">Veriler sürümlenmiş kaynak dosyalarından sunulur. Bilinmeyen alanlar tahminle doldurulmaz.</p><div className="science-source-cards">{(provenance.sources as ScientificRecord[]).map((s, i) => <a key={i} href={String(s.url)} target="_blank" rel="noreferrer"><strong>{String(s.name)} <ArrowUpRight size={15} /></strong><span>Alındı: {String(s.retrieved_at)}</span></a>)}</div></section>
-        <details className="science-json"><summary><FileJson size={17} /> JSON kaydını görüntüle</summary><pre>{JSON.stringify(data, null, 2)}</pre></details>
-      </div>
-    </div>
+function RelatedCompounds({symbol}: {symbol:string}) {
+  const {data}=useScience<ScientificCompound[]>('compounds');
+  const related=data?.filter(c=>c.composition?.some(p=>p.symbol===symbol))??[];
+  return <section className="atlas-related"><h2>Bu elementin bileşikleri</h2>{related.length?<div className="atlas-related-links">{related.map(c=><Link key={c.slug} to={`/compound/${c.slug}`}><strong>{displayFormula(c.display_formula)}</strong><span>{c.names.tr}</span><ArrowUpRight size={14}/></Link>)}</div>:<p>Bu katalogda henüz ilişkili bileşik bulunmuyor.</p>}</section>;
+}
+const labElements=['H','O','C','N','Na','Cl','Mg','Ca','K','Al','Si','Fe','Zn','Ti','Ag'];
+const labCompounds=['h2o','co2','nh3','hcl','nacl','naoh','mgo','cao','kcl','koh','caco3','al2o3','sio2','fe2o3','fe3o4','zno','tio2','agcl'];
+export default function ScientificDetail({kind}: {kind:'elements'|'compounds'}) {
+  const params=useParams();const id=(params.symbol??params.slug??'').toLowerCase();
+  const {data,error,retry}=useScience<ScientificRecord>(kind,id);
+  const [missing,setMissing]=useState(false);const [filter,setFilter]=useState('');
+  const back=kind==='elements'?'/periodic':'/compounds';
+  if(!data)return <main className="science-detail"><Link to={back} className="science-text-link"><ArrowLeft size={16}/> Keşfe dön</Link><h1>{error??'Bilimsel kayıt yükleniyor…'}</h1>{error&&<button className="btn" onClick={retry}>Yeniden dene</button>}</main>;
+  const names=data.names as Record<string,string>;const atlas=data as unknown as AtlasFields;
+  const element=kind==='elements'?data as unknown as ScientificElement:null;
+  const compound=kind==='compounds'?data as unknown as ScientificCompound:null;
+  const mark=element?.symbol??displayFormula(compound?.display_formula??compound?.molecular_properties.molecular_formula??'');
+  const provenance=data.provenance as ScientificRecord;
+  const sections=Object.entries(data).filter(([key])=>labels[key]);
+  const visible=sections.filter(([key])=>!filter||(labels[key]??key).toLocaleLowerCase('tr').includes(filter.toLocaleLowerCase('tr')));
+  const inLab=element?labElements.includes(mark):labCompounds.includes(compound!.slug);
+  const download=()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`${data.id}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+  const reveal=(key:string)=>{setFilter('');requestAnimationFrame(()=>{const section=document.getElementById(key);if(section instanceof HTMLDetailsElement)section.open=true;section?.scrollIntoView({block:'start'});});};
+  return <main className="science-detail atlas-detail">
+    <Seo title={`${names.tr} (${mark}) · ElementAPI`} description={atlas.editorial?.summary??`${names.tr}: kaynaklı bilimsel özellikler.`} path={`/${element?'element':'compound'}/${id}`}/>
+    <nav className="science-breadcrumb"><Link to={back}><ArrowLeft size={14}/>{element?'Elementler':'Bileşikler'}</Link><span>/</span><span>{names.tr}</span></nav>
+    <header className="atlas-detail-hero"><div className="atlas-detail-intro"><p className="science-eyebrow">{element?`${categoryLabels[element.classification.category]??'Element'} · ATOM NUMARASI ${element.atomic_number}`:`BİLEŞİK · PUBCHEM ${compound!.identifiers.pubchem_cid}`}</p><div className="atlas-detail-title"><h1>{names.tr}</h1><span>{mark}</span></div><p className="atlas-english">{names.en}</p><p className="atlas-lead">{atlas.editorial?.summary}</p><dl className="atlas-key-facts">{(element?[
+      ['Atom kütlesi',formatScience(element.atomic_properties.atomic_mass,'u')],['Fiziksel hâl',phaseLabels[element.thermodynamic_properties.standard_state??'unknown']??'Bilinmiyor'],['Elektronegatiflik',formatScience(element.atomic_properties.electronegativity.pauling)],['Elektron dizilimi',element.atomic_properties.electron_configuration.short??'—']
+    ]:[['Molar kütle',formatScience(compound!.molecular_properties.molecular_weight_g_mol,'g/mol')],['Gösterim formülü',mark],['PubChem CID',String(compound!.identifiers.pubchem_cid)],['Bileşen element',String(compound!.composition?.length??'—')]]).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl><div className="atlas-resource-links">{atlas.external_links?.wikipedia&&<a href={atlas.external_links.wikipedia.url} target="_blank" rel="noreferrer">Wikipedia {atlas.external_links.wikipedia.language==='en'?'(EN)':''} <ArrowUpRight size={14}/></a>}<a href={atlas.external_links?.pubchem} target="_blank" rel="noreferrer">PubChem <ArrowUpRight size={14}/></a>{inLab&&<Link to={`/lab?material=${encodeURIComponent(element?.symbol??compound!.slug)}`}><FlaskConical size={15}/> Laboratuvarda keşfet</Link>}</div></div><AtlasVisual key={id} symbol={element?.symbol} formula={mark} shells={element?.atomic_properties.electrons_per_shell} photo={atlas.media?.photo} structure={atlas.media?.structure}/></header>
+    <div className="science-detail-layout"><aside className="science-detail-nav"><p className="science-eyebrow">BU KAYITTA</p><a href="#overview">Nedir, nerede kullanılır? <ArrowUpRight size={13}/></a>{sections.map(([key])=><a key={key} href={`#${key}`} onClick={()=>reveal(key)}>{labels[key]}<span>↗</span></a>)}<a href="#sources">Kaynaklar <ArrowUpRight size={13}/></a><a href="#developer">API ve JSON <FileJson size={13}/></a>{element&&<div className="science-market-links"><p>Kredi simülasyonu</p><Link to={`/market?symbol=${mark}`}>Piyasa</Link><Link to={`/shop?symbol=${mark}`}>Mağaza</Link></div>}</aside>
+    <div className="science-detail-content">
+      <section className="atlas-overview" id="overview"><div><p className="science-eyebrow">GÜNLÜK YAŞAMDAN BİLİME</p><h2>Nerelerde kullanılır?</h2><ul className="atlas-uses">{atlas.editorial?.uses.map(use=><li key={use}>{use}</li>)}</ul><p className="atlas-copy-note">Kullanım alanları saf maddeyi, bileşiklerini veya özel malzeme biçimlerini kapsayabilir; ürünün kimyasal biçimi belirleyicidir.</p></div>{atlas.editorial?.story&&<div className="atlas-story"><h2>Kısa hikâyesi</h2><p>{atlas.editorial.story}</p></div>}</section>
+      {compound&&<section className="atlas-composition"><h2>İçindeki elementler</h2><div>{compound.composition?.map(part=><Link key={part.symbol} to={`/element/${part.symbol.toLowerCase()}`}><strong>{part.symbol}</strong><span>{STATIC_ELEMENTS.find(e=>e.symbol===part.symbol)?.name??part.symbol}</span><small>{part.count} atom / formül birimi</small></Link>)}</div><p>Formül bileşimi gösterilir. İyonik ve ağ yapılı katılarda bu oran, ayrı bir molekül anlamına gelmez.</p></section>}
+      <div className="atlas-data-heading"><p className="science-eyebrow">BİR KATMAN DAHA DERİNE</p><h2>Bilimsel özellikler</h2></div>
+      <div className="science-data-tools"><label><Search size={16}/><input type="search" placeholder="Bölüm ara…" value={filter} onChange={e=>setFilter(e.target.value)} aria-label="Bilimsel bölüm ara"/></label><label><input type="checkbox" checked={missing} onChange={e=>setMissing(e.target.checked)}/> Eksik alanları göster</label></div><p className="science-data-note">“Veri yok”, kaynak sürümünde doğrulanmış değer bulunmadığını belirtir. Sıfır anlamına gelmez; ölçüm koşulları ve belirsizlikler korunur.</p>
+      {!visible.length&&<p className="science-notice">Eşleşen bölüm bulunamadı.</p>}
+      {visible.map(([key,value])=><details className="science-section atlas-science-section" id={key} key={`${id}-${key}`} open={filter?true:undefined}><summary><h2>{labels[key]}</h2><span>{populated(value)?'İncele':'Veri yok'}</span></summary>{key==='isotopes'&&<p className="science-data-note">NIST referans izotop bileşimleri. Doğal bolluk, kararlılık veya yarı ömür anlamına gelmez. Parantezli sayılar kaynak belirsizliğini korur.</p>}{key==='safety'&&<p className="science-data-note">Farklı derişim ve deney koşullarına ait raporlar birlikte bulunabilir. Kaynak ve ürün güvenlik bilgi formundaki koşulları inceleyin.</p>}{key==='thermodynamic_properties'&&<p className="science-data-note">Kaynakta belirtilmeyen yoğunluk ölçüm koşulu varsayılmaz. °C = K − 273,15.</p>}<Value value={value} showMissing={missing}/></details>)}
+      {element&&<RelatedCompounds symbol={element.symbol}/>}
+      <section className="science-section" id="sources"><header><h2>Kaynaklar ve veri kapsamı</h2></header><p className="science-data-note">Bilimsel veri alım tarihi: {String(provenance.retrieved_at)}. Türkçe anlatım editöryeldir; sayısal verinin kaynakları aşağıdadır.</p><div className="science-source-cards">{[...(provenance.sources as ScientificRecord[]).map(s=>({name:String(s.name),url:String(s.url)})),...(atlas.editorial?.sources??[])].filter((s,i,all)=>all.findIndex(o=>o.url===s.url)===i).map(s=><a key={s.url} href={s.url} target="_blank" rel="noreferrer"><strong>{s.name}<ArrowUpRight size={15}/></strong><span>Kaynağı incele</span></a>)}</div></section>
+      <section id="developer" className="atlas-developer"><div><FileJson size={24}/><h2>Bu veriyi projende kullan</h2></div><p>Bilimsel kayıt herkese açık. Alan seçimi, özet yanıt ve önbellek desteğiyle.</p><div className="science-detail-actions"><button onClick={download}><Download size={15}/> JSON indir</button><a href={scienceUrl(`${kind}/${id}`)} target="_blank" rel="noreferrer">API kaydı <ArrowUpRight size={14}/></a><Link to="/docs">Dokümantasyon</Link></div><details className="science-json"><summary>JSON kaydını görüntüle</summary><pre>{JSON.stringify(data,null,2)}</pre></details></section>
+    </div></div>
   </main>;
 }

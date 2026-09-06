@@ -21,7 +21,6 @@ public class InfoController {
         links.put("health", "/health");
         links.put("health_live", "/actuator/health/liveness");
         links.put("health_ready", "/actuator/health/readiness");
-        links.put("metrics", "/actuator/prometheus");
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("name", appName);

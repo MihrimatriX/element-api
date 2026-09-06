@@ -10,8 +10,10 @@ if (!match) throw new Error('rawElements not found in elementData.ts');
 const symbols = match[1].split('|').map((row) => row.split(',')[1].toLowerCase());
 if (symbols.length !== 118) throw new Error(`expected 118 symbols, got ${symbols.length}`);
 
-const pages = ['/', '/periodic', '/compounds', '/market', '/shop', '/docs', '/stack', '/hakkinda', '/nasil', '/sozluk', '/login', '/register'];
+const pages = ['/', '/periodic', '/compounds', '/market', '/shop', '/docs', '/lab', '/hakkinda', '/nasil', '/sozluk', '/login', '/register'];
+const compounds = JSON.parse(readFileSync(join(root, '../compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json'), 'utf8'));
 const locs = [
+  ...compounds.map(c => `  <url><loc>__SITE_URL__/compound/${c.slug}</loc></url>`),
   ...pages.map((p) => `  <url><loc>__SITE_URL__${p}</loc></url>`),
   ...symbols.map((s) => `  <url><loc>__SITE_URL__/element/${s}</loc></url>`)
 ];

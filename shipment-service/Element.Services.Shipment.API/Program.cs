@@ -8,9 +8,8 @@ using Element.Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Enterprise Logging (Serilog + Seq)
-builder.AddEnterpriseLogging("Element.Shipment");
-builder.AddEnterpriseTracing("Element.Shipment");
+// Console logging
+builder.AddConsoleLogging("Element.Shipment");
 
 // Add DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
@@ -49,14 +48,12 @@ var app = builder.Build();
 
 await app.ApplyDatabaseAsync<ShipmentDbContext>("element_shipment_db");
 
-app.UseEnterpriseLogging();
+app.UseRequestLogging();
 app.UseGlobalExceptionHandling();
 app.MapControllers();
-app.MapPrometheusScrapingEndpoint();
 app.MapStandardOpsEndpoints("Element.Shipment", new Dictionary<string, string>
 {
     ["shipments"] = "/api/v1/shipments",
-    ["metrics"] = "/metrics"
 });
 
 app.MapGet("/", () => Results.Redirect("/info"));

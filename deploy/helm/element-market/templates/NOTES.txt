@@ -1,6 +1,0 @@
-Element Market deployed.
-
-Gateway: http://{{ .Values.ingress.host }}/
-Add to hosts file: 127.0.0.1 {{ .Values.ingress.host }}
-
-For raw Kubernetes manifests without Helm, use: kubectl apply -k k8s/

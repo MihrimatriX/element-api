@@ -1,4 +1,4 @@
-// Checks the running local platform, including cross-service routing and telemetry.
+// Checks the running local platform, including cross-service routing.
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
@@ -28,19 +28,17 @@ const json = async (url, options) => (await request(url, options)).json();
 
 for (const [index, name] of services.entries()) {
   const base = `http://localhost:${5000 + index}`;
-  await check(`${name}: readiness, liveness, info and metrics`, async () => {
+  await check(`${name}: readiness, liveness and info`, async () => {
     const ready = await json(`${base}/health`);
     assert.equal(ready.status, 'Healthy');
     const livePath = name === 'payment' ? '/actuator/health/liveness' : '/health/live';
     const live = await json(`${base}${livePath}`);
     assert.ok(['Healthy', 'UP'].includes(live.status));
     assert.ok(Object.keys(await json(`${base}/info`)).length > 0);
-    const metricsPath = name === 'payment' ? '/actuator/prometheus' : '/metrics';
-    assert.match(await (await request(`${base}${metricsPath}`)).text(), /^# (HELP|TYPE) /m);
   });
 }
 await check('web: SPA routes and static assets', async () => {
-  for (const path of ['/', '/element/fe', '/compound/aspirin', '/compounds', '/shop', '/account', '/stack']) {
+  for (const path of ['/', '/element/fe', '/compound/aspirin', '/compounds', '/shop', '/account', '/lab']) {
     const html = await (await request(web + path)).text();
     assert.match(html, /id="root"/);
     const assets = [...html.matchAll(/(?:src|href)="(\/assets\/[^" ]+\.(?:js|css))"/g)];
@@ -78,43 +76,7 @@ await check('SignalR receives a real price event through the gateway', async () 
   }
 });
 
-if (process.argv.includes('--observability')) {
-  await check('Prometheus scrapes all eight backend services', async () => {
-    const body = await json('http://localhost:9090/api/v1/targets');
-    for (const service of services) {
-      const target = body.data.activeTargets.find((item) => item.labels.job === `${service}-service`);
-      assert.ok(target, `${service}: target missing`);
-      assert.equal(target.health, 'up', `${service}: ${target.lastError}`);
-    }
-  });
-  await check('Grafana database is healthy', async () => {
-    assert.equal((await json('http://localhost:3001/api/health')).database, 'ok');
-  });
-  await check('Loki and Promtail are ready', async () => {
-    await request('http://localhost:3100/ready');
-    await request('http://localhost:9080/ready');
-    const labels = await json('http://localhost:3100/loki/api/v1/labels');
-    assert.ok(labels.data.length > 0, 'No container logs have reached Loki.');
-  });
-  await check('Jaeger receives application traces', async () => {
-    const body = await json('http://localhost:16686/api/services');
-    assert.ok(body.data.some((name) => /element/i.test(name)), 'No application trace service registered.');
-  });
-  await check('ELK receives application logs and metrics', async () => {
-    const cluster = await json('http://localhost:9200/_cluster/health');
-    assert.ok(['green', 'yellow'].includes(cluster.status));
-    for (const index of ['element-app-logs-*', 'element-metrics-*']) {
-      const body = await json(`http://localhost:9200/${index}/_count`);
-      assert.ok(body.count > 0, `${index}: no ingested documents`);
-    }
-    const kibana = await json('http://localhost:5601/api/status');
-    assert.equal(kibana.status.overall.level, 'available');
-  });
-  await check('observability hub and Seq are reachable', async () => {
-    await request('http://localhost:8888');
-    await request('http://localhost:5341');
-  });
-}
-const failed = results.filter((result) => !result.passed);
+
+const failed = results.filter(result => !result.passed);
 console.log(JSON.stringify({ passed: results.length - failed.length, failed: failed.length, results }, null, 2));
 if (failed.length) process.exitCode = 1;

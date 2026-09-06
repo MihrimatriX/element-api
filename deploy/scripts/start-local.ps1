@@ -108,7 +108,7 @@ if ($IncludePayment -and !(Listening 5005)) {
     if (!$NoBuild) {
         $maven = Join-Path $root 'artifacts/tools/apache-maven-3.9.9/bin/mvn.cmd'
         if (!(Test-Path -LiteralPath $maven)) { $maven = (Get-Command mvn -ErrorAction Stop).Source }
-        & $maven -f (Join-Path $root 'payment-service/pom.xml') -q package
+        & $maven -f (Join-Path $root 'payment-service/pom.xml') -q clean package
         if ($LASTEXITCODE -ne 0) { throw 'Payment build failed.' }
     }
     $env:RABBITMQ_HOST = 'localhost'

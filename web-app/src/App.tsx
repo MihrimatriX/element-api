@@ -1,23 +1,23 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import * as signalR from '@microsoft/signalr';
-import Landing from './pages/Landing';
-import PeriodicTable from './pages/PeriodicTable';
-import Market from './pages/Market';
-import Shop from './pages/Shop';
-import ApiDocs from './pages/ApiDocs';
-import ElementDetail from './pages/ElementDetail';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Account from './pages/Account';
-import Stack from './pages/Stack';
-import About from './pages/About';
-import Guide from './pages/Guide';
-import Glossary from './pages/Glossary';
-import Compounds from './pages/Compounds';
-import ScientificDetail from './components/ScientificDetail';
-import { elementService, walletService } from './services/api';
+const Landing = lazy(() => import('./pages/Landing'));
+const PeriodicTable = lazy(() => import('./pages/PeriodicTable'));
+const Market = lazy(() => import('./pages/Market'));
+const Shop = lazy(() => import('./pages/Shop'));
+const ApiDocs = lazy(() => import('./pages/ApiDocs'));
+const ElementDetail = lazy(() => import('./pages/ElementDetail'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Account = lazy(() => import('./pages/Account'));
+
+const About = lazy(() => import('./pages/About'));
+const Guide = lazy(() => import('./pages/Guide'));
+const Glossary = lazy(() => import('./pages/Glossary'));
+const Compounds = lazy(() => import('./pages/Compounds'));
+const ScientificDetail = lazy(() => import('./components/ScientificDetail'));
+const Laboratory = lazy(() => import('./pages/Laboratory'));
 import { HUB_URL } from './config';
+import { readLocal, writeLocal, removeLocal } from './services/storage';
 import { type ElementItem, STATIC_ELEMENTS, mergeElementData } from './services/elementData';
 
 interface SelectedElementContextType {
@@ -51,7 +51,7 @@ export function SelectedElementProvider({ children }: { children: React.ReactNod
   const [storedSymbol, setSelectedSymbolState] = useState<string>(() => {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = params.get('symbol');
-    const fromStore = localStorage.getItem('elementapi:selectedSymbol');
+    const fromStore = readLocal('elementapi:selectedSymbol');
     return (fromUrl || fromStore || 'Au').toUpperCase();
   });
   const candidate = (new URLSearchParams(location.search).get('symbol') || storedSymbol).toUpperCase();
@@ -60,13 +60,14 @@ export function SelectedElementProvider({ children }: { children: React.ReactNod
   const [elements, setElements] = useState<ElementItem[]>(() => mergeElementData([], STATIC_ELEMENTS));
   const [loading, setLoading] = useState(true);
   const [dataAvailable, setDataAvailable] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(!!readLocal('token'));
   const [walletElx, setWalletElx] = useState<number | null>(null);
 
   const refreshWallet = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    const wallet = await (token && localStorage.getItem('apiKey') ? walletService.get().catch(() => null) : Promise.resolve(null));
-    if (token === localStorage.getItem('token')) setWalletElx(wallet ? Number(wallet.balanceElx) : null);
+    const token = readLocal('token');
+    const { walletService } = await import('./services/api');
+    const wallet = await (token && readLocal('apiKey') ? walletService.get().catch(() => null) : Promise.resolve(null));
+    if (token === readLocal('token')) setWalletElx(wallet ? Number(wallet.balanceElx) : null);
   }, []);
 
   useEffect(() => {
@@ -75,6 +76,7 @@ export function SelectedElementProvider({ children }: { children: React.ReactNod
     async function loadElements() {
       try {
         setLoading(true);
+        const { elementService } = await import('./services/api');
         const results = await elementService.getAllElements();
         if (active) { setElements(mergeElementData(results, STATIC_ELEMENTS)); setDataAvailable(true); }
       } catch (err) {
@@ -90,9 +92,9 @@ export function SelectedElementProvider({ children }: { children: React.ReactNod
   }, [isAuthenticated, commerceActive]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !commerceActive) return;
     let active = true;
-    walletService.get().then((wallet) => { if (active) setWalletElx(Number(wallet.balanceElx)); })
+    import('./services/api').then(({walletService})=>walletService.get()).then((wallet) => { if (active) setWalletElx(Number(wallet.balanceElx)); })
       .catch(() => { if (active) setWalletElx(null); });
     return () => { active = false; };
   }, [isAuthenticated, commerceActive]);
@@ -100,7 +102,7 @@ export function SelectedElementProvider({ children }: { children: React.ReactNod
   const setSelectedSymbol = (symbol: string) => {
     const sym = symbol.toUpperCase();
     setSelectedSymbolState(sym);
-    localStorage.setItem('elementapi:selectedSymbol', sym);
+    writeLocal('elementapi:selectedSymbol', sym);
     const url = new URL(window.location.href);
     url.searchParams.set('symbol', sym);
     if (url.pathname + url.search !== window.location.pathname + window.location.search) navigate(url.pathname + url.search);
@@ -108,29 +110,19 @@ export function SelectedElementProvider({ children }: { children: React.ReactNod
 
   useEffect(() => {
     if (!commerceActive) return;
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL)
-      .withAutomaticReconnect()
-      .build();
-
-    connection.on('PriceUpdated', (data: { symbol?: string; price?: number }) => {
-      if (!data?.symbol || typeof data.price !== 'number' || !Number.isFinite(data.price) || data.price <= 0) return;
-      setElements((prev) => prev.map((e) =>
-        e.symbol.toLowerCase() === data.symbol!.toLowerCase()
-          ? { ...e, currentPrice: data.price, pricePerGram: data.price }
-          : e
-      ));
-    });
-
     let disposed = false;
-    const started = connection.start().catch((err) => {
-      if (!disposed) console.error('SignalR Connection Error: ', err);
-    });
-    return () => {
-      disposed = true;
-      // Finish negotiation before stopping, including React StrictMode cleanup.
-      void started.then(() => connection.stop());
-    };
+    let stop = () => {};
+    void import('@microsoft/signalr').then(signalR => {
+      if (disposed) return;
+      const connection = new signalR.HubConnectionBuilder().withUrl(HUB_URL).withAutomaticReconnect().build();
+      connection.on('PriceUpdated', (data: {symbol?:string;price?:number}) => {
+        if (!data?.symbol || typeof data.price !== 'number' || !Number.isFinite(data.price) || data.price <= 0) return;
+        setElements(prev => prev.map(e => e.symbol.toLowerCase() === data.symbol!.toLowerCase() ? {...e, currentPrice:data.price, pricePerGram:data.price} : e));
+      });
+      const started=connection.start().catch(err=>{if(!disposed)console.error('SignalR connection:',err);});
+      stop=()=>{void started.then(()=>connection.stop());};
+    }).catch(err=>{if(!disposed)console.error('Price connection unavailable:',err);});
+    return () => { disposed=true;stop(); };
   }, [commerceActive]);
 
   const selectedElement = elements.find((e) => e.symbol.toUpperCase() === selectedSymbol) || elements[78];
@@ -160,14 +152,14 @@ function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('apiKey');
+    removeLocal('token');
+    removeLocal('apiKey');
     setIsAuthenticated(false);
     navigate('/');
   };
 
   const page = location.pathname.replace('/', '').split('/')[0] || 'home';
-  const navPage = page === 'element' ? 'periodic' : page;
+  const navPage = page === 'element' || page === 'home' ? 'periodic' : page;
   const aboutOpen = page === 'hakkinda' || page === 'nasil' || page === 'sozluk';
   const aboutRef = useRef<HTMLDetailsElement>(null);
 
@@ -190,11 +182,12 @@ function Navbar() {
         </Link>
       </div>
       <nav className="nav" aria-label="Ana menü">
-        <Link to={`/periodic?symbol=${selectedSymbol}`} className={navPage === 'periodic' ? 'active' : ''}>Tablo</Link>
+        <Link to={`/periodic?symbol=${selectedSymbol}`} className={navPage === 'periodic' ? 'active' : ''}>Elementler</Link>
         <Link to="/compounds" className={page === 'compounds' || page === 'compound' ? 'active' : ''}>Bileşikler</Link>
+        <Link to="/lab" className={page === 'lab' ? 'active' : ''}>Laboratuvar</Link>
+        <Link to="/docs" className={page === 'docs' ? 'active' : ''}>API</Link>
         <Link to={`/market?symbol=${selectedSymbol}`} className={page === 'market' ? 'active' : ''}>Piyasa</Link>
         <Link to={`/shop?symbol=${selectedSymbol}`} className={page === 'shop' ? 'active' : ''}>Mağaza</Link>
-        <Link to={`/docs?symbol=${selectedSymbol}`} className={page === 'docs' ? 'active' : ''}>API</Link>
         <details ref={aboutRef} className={`nav-drop ${aboutOpen ? 'active' : ''}`}>
           <summary>Hakkında</summary>
           <div className="nav-drop-menu">
@@ -240,7 +233,7 @@ function SiteFooter() {
           <Link to="/sozluk">Sözlük</Link>
           <Link to="/compounds">Bileşikler</Link>
           <Link to="/docs">API</Link>
-          <Link to="/stack">Altyapı</Link>
+          <Link to="/lab">Laboratuvar</Link>
         </nav>
         <p className="footer-legal">Kredi, uygulamanın sanal para birimidir.</p>
       </div>
@@ -261,6 +254,7 @@ function AppContent() {
     <div className="app-shell">
       <Navbar />
       {commerceActive && !loading && !dataAvailable && <p className="service-notice" role="status">Bağlantı kurulamadı. Temel element bilgilerini inceleyebilirsiniz; güncel fiyat ve alışveriş geçici olarak kullanılamıyor.</p>}
+      <Suspense fallback={<main className="science-detail"><p role="status">Sayfa yükleniyor…</p></main>}>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/periodic" element={<PeriodicTable />} />
@@ -273,7 +267,8 @@ function AppContent() {
         <Route path="/compounds" element={<Compounds />} />
         <Route path="/compound/:slug" element={<ScientificDetail kind="compounds" />} />
         <Route path="/docs" element={<ApiDocs />} />
-        <Route path="/stack" element={<Stack />} />
+        <Route path="/lab" element={<Laboratory />} />
+        <Route path="/stack" element={<LegacyRedirect to="/hakkinda" />} />
         <Route path="/hakkinda" element={<About />} />
         <Route path="/nasil" element={<Guide />} />
         <Route path="/sozluk" element={<Glossary />} />
@@ -281,6 +276,7 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<main className="page"><h1>Sayfa bulunamadı</h1><p>Bu bağlantı artık geçerli olmayabilir.</p><Link className="btn primary" to="/">Ana sayfaya dön</Link></main>} />
       </Routes>
+      </Suspense>
       <SiteFooter />
       <div className="toast" id="toast" role="status" aria-live="polite" />
     </div>

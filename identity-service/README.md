@@ -43,7 +43,6 @@ Kimlik doğrulama, JWT oturumları ve API anahtarı yönetimi (.NET 9).
 |------|----------|
 | `/info` | Servis metadata |
 | `/health`, `/health/live`, `/health/ready` | PostgreSQL + Redis |
-| `/metrics` | Prometheus |
 | `/swagger` | OpenAPI UI |
 
 ---

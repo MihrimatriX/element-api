@@ -22,7 +22,7 @@ public sealed class ScientificCatalog
         if (_records.Length == 0) throw new InvalidDataException("Scientific snapshot is empty.");
         _summary = elements
             ? ["id", "atomic_number", "symbol", "names", "classification", "layout", "atomic_properties.atomic_mass", "atomic_properties.electron_configuration.short", "atomic_properties.electronegativity.pauling", "thermodynamic_properties.standard_state", "thermodynamic_properties.melting_point", "thermodynamic_properties.boiling_point", "thermodynamic_properties.density_g_cm3", "history.discovered_year"]
-            : ["id", "slug", "names", "identifiers.pubchem_cid", "molecular_properties.molecular_formula", "molecular_properties.molecular_weight_g_mol"];
+            : ["id", "slug", "names", "identifiers.pubchem_cid", "molecular_properties.molecular_formula", "molecular_properties.molecular_weight_g_mol", "display_formula", "composition", "editorial.summary", "media"];
     }
 
     public IActionResult Read(HttpRequest request, HttpResponse response, string? identifier = null)

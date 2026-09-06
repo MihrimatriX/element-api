@@ -34,7 +34,6 @@ Gateway'den proxy edilmez — doğrudan `:5004` veya internal DNS.
 |------|----------|
 | `/info` | Servis metadata + linkler |
 | `/health`, `/health/live`, `/health/ready` | PostgreSQL + RabbitMQ |
-| `/metrics` | Prometheus |
 
 ---
 
@@ -68,8 +67,6 @@ curl "http://localhost:5004/api/v1/shipments?q=AU&status=Dispatched"
 cd shipment-service && docker compose up -d --build
 dotnet run --project Element.Services.Shipment.API/Element.Services.Shipment.API.csproj
 ```
-
-Health UI'da izlenir: [localhost:5000/health-ui](http://localhost:5000/health-ui)
 
 ---
 

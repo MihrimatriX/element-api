@@ -9,30 +9,6 @@ services:
     ports: !override []
   rabbitmq:
     ports: !override []
-  prometheus:
-    ports: !override []
-  grafana:
-    ports: !override []
-  loki:
-    ports: !override []
-  promtail:
-    ports: !override []
-  jaeger:
-    ports: !override []
-  observability-hub:
-    ports: !override []
-  seq:
-    ports: !override []
-  elasticsearch:
-    ports: !override []
-  logstash:
-    ports: !override []
-  kibana:
-    ports: !override []
-  filebeat:
-    ports: !override []
-  metricbeat:
-    ports: !override []
   identity-service:
     ports: !override []
   catalog-service:

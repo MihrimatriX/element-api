@@ -3,17 +3,6 @@
 
 name: element-market
 
-x-observability-env: &observability-env
-  Seq__Url: ${SEQ_URL:-http://seq:80}
-  Otlp__Endpoint: ${OTLP_ENDPOINT:-http://jaeger:4317}
-  Logstash__Url: ${LOGSTASH_HTTP_URL:-http://logstash:8080}
-  Logstash__TcpHost: ${LOGSTASH_TCP_HOST:-logstash}
-  Logstash__TcpPort: ${LOGSTASH_TCP_PORT:-50000}
-
-x-observability-labels: &observability-labels
-  element.stack: observability
-  element.project: element-market
-
 services:
   postgres:
     build:
@@ -72,292 +61,6 @@ services:
       timeout: 5s
       retries: 10
 
-  # --- Observability stack ---
-  prometheus:
-    build:
-      context: ./docker/observability
-      dockerfile: prometheus.Dockerfile
-    image: element-prometheus
-    container_name: element-prometheus
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: prometheus
-      element.url: http://localhost:9090
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.retention.time=7d
-    ports:
-      - "9090:9090"
-    volumes:
-      - prometheus_data:/prometheus
-    networks:
-      - element-network
-
-  grafana:
-    build:
-      context: ./docker/observability
-      dockerfile: grafana.Dockerfile
-    image: element-grafana
-    container_name: element-grafana
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: grafana
-      element.url: http://localhost:3001
-    ports:
-      - "3001:3000"
-    environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
-      GF_USERS_ALLOW_SIGN_UP: "false"
-    volumes:
-      - grafana_data:/var/lib/grafana
-    depends_on:
-      - prometheus
-      - loki
-      - jaeger
-    networks:
-      - element-network
-
-  loki:
-    build:
-      context: ./docker/observability
-      dockerfile: loki.Dockerfile
-    image: element-loki
-    container_name: element-loki
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: loki
-      element.url: http://localhost:3100
-    command: -config.file=/etc/loki/local-config.yaml
-    ports:
-      - "3100:3100"
-    volumes:
-      - loki_data:/loki
-    networks:
-      - element-network
-
-  promtail:
-    build:
-      context: ./docker/observability/promtail
-      dockerfile: Dockerfile
-    image: element-promtail
-    container_name: element-promtail
-    restart: unless-stopped
-    user: root
-    labels:
-      <<: *observability-labels
-      element.service: promtail
-      element.url: http://localhost:9080/ready
-    ports:
-      - "9080:9080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    depends_on:
-      loki:
-        condition: service_started
-    networks:
-      - element-network
-
-  jaeger:
-    image: jaegertracing/all-in-one:1.64.0
-    container_name: element-jaeger
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: jaeger
-      element.url: http://localhost:16686
-    ports:
-      - "16686:16686"
-      - "4317:4317"
-      - "4318:4318"
-      - "14268:14268"
-    environment:
-      COLLECTOR_OTLP_ENABLED: "true"
-      COLLECTOR_ZIPKIN_HOST_PORT: ":9411"
-    networks:
-      - element-network
-
-  observability-hub:
-    build:
-      context: ./docker/observability/hub
-      dockerfile: Dockerfile
-    image: element-observability-hub
-    container_name: element-observability-hub
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: observability-hub
-      element.url: http://localhost:8888
-    ports:
-      - "8888:80"
-    networks:
-      - element-network
-
-  seq:
-    image: datalust/seq:2024.3
-    container_name: element-seq
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: seq
-      element.url: http://localhost:5341
-    ports:
-      - "5341:80"
-    environment:
-      ACCEPT_EULA: "Y"
-      SEQ_FIRSTRUN_NOAUTHENTICATION: "true"
-    volumes:
-      - seq_data:/data
-    networks:
-      - element-network
-
-  # --- ELK stack (log + metrik) ---
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
-    container_name: element-elasticsearch
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: elasticsearch
-      element.url: http://localhost:9200
-    environment:
-      discovery.type: single-node
-      xpack.security.enabled: "false"
-      ES_JAVA_OPTS: -Xms512m -Xmx512m
-    ports:
-      - "9200:9200"
-    volumes:
-      - elasticsearch_data:/usr/share/elasticsearch/data
-    networks:
-      - element-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health | grep -qE '\"status\":\"(green|yellow)\"'"]
-      interval: 10s
-      timeout: 5s
-      retries: 30
-      start_period: 60s
-
-  logstash:
-    build:
-      context: ./docker/observability/elk/logstash
-      dockerfile: Dockerfile
-    image: element-logstash
-    container_name: element-logstash
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: logstash
-      element.url: http://localhost:9600
-    environment:
-      LS_JAVA_OPTS: -Xms256m -Xmx512m
-    ports:
-      - "8080:8080"
-      - "50000:50000"
-      - "5044:5044"
-      - "9600:9600"
-    depends_on:
-      elasticsearch:
-        condition: service_started
-    networks:
-      - element-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:9600/ | grep -q '\"status\":\"green\"'"]
-      interval: 15s
-      timeout: 10s
-      retries: 15
-      start_period: 90s
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.17.0
-    container_name: element-kibana
-    restart: unless-stopped
-    labels:
-      <<: *observability-labels
-      element.service: kibana
-      element.url: http://localhost:5601
-    ports:
-      - "5601:5601"
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      xpack.security.enabled: "false"
-    depends_on:
-      elasticsearch:
-        condition: service_started
-    networks:
-      - element-network
-
-  kibana-setup:
-    build:
-      context: ./docker/observability/kibana
-      dockerfile: Dockerfile
-    image: element-kibana-setup
-    container_name: element-kibana-setup
-    depends_on:
-      kibana:
-        condition: service_started
-    networks:
-      - element-network
-    restart: "no"
-
-  filebeat:
-    build:
-      context: ./docker/observability/elk/filebeat
-      dockerfile: Dockerfile
-    image: element-filebeat
-    container_name: element-filebeat
-    restart: unless-stopped
-    user: root
-    labels:
-      <<: *observability-labels
-      element.service: filebeat
-      element.url: http://localhost:5066/stats
-    ports:
-      - "5066:5066"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    depends_on:
-      logstash:
-        condition: service_started
-    networks:
-      - element-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5066/stats | grep -q filebeat"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-
-  metricbeat:
-    build:
-      context: ./docker/observability/elk/metricbeat
-      dockerfile: Dockerfile
-    image: element-metricbeat
-    container_name: element-metricbeat
-    restart: unless-stopped
-    user: root
-    labels:
-      <<: *observability-labels
-      element.service: metricbeat
-      element.url: http://localhost:5067/stats
-    ports:
-      - "5067:5067"
-    depends_on:
-      logstash:
-        condition: service_started
-    networks:
-      - element-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:5067/stats | grep -q metricbeat"]
-      interval: 15s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-
   identity-service:
     image: element-identity-service
     build:
@@ -368,7 +71,6 @@ services:
       - "5001:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      <<: *observability-env
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_identity_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
       RedisConnection: redis:6379
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
@@ -397,7 +99,6 @@ services:
       - "5002:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      <<: *observability-env
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_market_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
       RedisConnection: redis:6379
       RabbitMQ__Host: rabbitmq
@@ -432,7 +133,6 @@ services:
       - "5007:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      <<: *observability-env
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_compound_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
       PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:5000}
     depends_on:
@@ -459,8 +159,6 @@ services:
     environment:
       PORT: "8080"
       LOG_LEVEL: info
-      LOGSTASH_HTTP_URL: ${LOGSTASH_HTTP_URL:-http://logstash:8080}
-      OTLP_ENDPOINT: ${OTLP_ENDPOINT:-http://jaeger:4317}
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-mysecretpassword}@postgres:5432/element_order_db
       REDIS_URL: redis://redis:6379
       RABBITMQ_HOST: rabbitmq
@@ -508,10 +206,7 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
       ORDER_SERVICE_URL: http://order-service:8080
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
-      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus
-      MANAGEMENT_OTLP_TRACING_ENDPOINT: ${OTLP_HTTP_ENDPOINT:-http://jaeger:4318/v1/traces}
-      LOGSTASH_TCP_HOST: ${LOGSTASH_TCP_HOST:-logstash}
-      LOGSTASH_TCP_PORT: ${LOGSTASH_TCP_PORT:-50000}
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -537,7 +232,6 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      <<: *observability-env
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_shipment_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Port: "5672"
@@ -568,7 +262,6 @@ services:
       - "5006:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      <<: *observability-env
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
@@ -600,7 +293,6 @@ services:
       - "5000:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      <<: *observability-env
       RedisConnection: redis:6379
       IdentityServiceInternalUrl: http://identity-service:8080
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
@@ -669,11 +361,6 @@ volumes:
   postgres_data:
   redis_data:
   rabbitmq_data:
-  prometheus_data:
-  grafana_data:
-  loki_data:
-  seq_data:
-  elasticsearch_data:
 
 networks:
   element-network:

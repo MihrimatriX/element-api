@@ -57,7 +57,6 @@ curl -H "X-User-Id: {customerId}" \
 |------|----------|
 | `/info` | Servis metadata |
 | `/health`, `/health/live`, `/health/ready` | PostgreSQL + RabbitMQ |
-| `/metrics` | Prometheus |
 
 ---
 

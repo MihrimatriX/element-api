@@ -14,7 +14,6 @@ apiInfoRouter.get('/', (_req, res) => {
     desk_sell: `${base}/api/v1/desk/sell`,
     health: `${base}/health`,
     info: `${base}/info`,
-    metrics: `${base}/metrics`,
     version: packageJson.version,
   });
 });

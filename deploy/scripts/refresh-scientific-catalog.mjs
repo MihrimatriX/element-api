@@ -165,3 +165,6 @@ if (aspirin?.bioactivity_and_pharmacology.mechanism_sources.length) {
 for (const compound of records) compound.provenance.retrieved_at = compound.provenance.sources.map(s => s.retrieved_at).sort().at(-1);
 await writeFile(new URL('compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json', root), JSON.stringify(records, null, 2) + '\n');
 console.log(`Saved ${records.length} scientific compounds.`);
+// Reapply the separately maintained atlas layer after every scientific refresh.
+const { refreshAtlas } = await import('./refresh-atlas.mjs');
+await refreshAtlas();

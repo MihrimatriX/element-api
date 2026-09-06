@@ -60,7 +60,6 @@ Periyodik tablo element kataloğu — arama, filtreleme, karşılaştırma, fiya
 | Path | Açıklama |
 |------|----------|
 | `/info`, `/health`, `/health/live`, `/health/ready` | Standart ops |
-| `/metrics` | Prometheus |
 | `/swagger` | OpenAPI (her zaman açık) |
 
 ---

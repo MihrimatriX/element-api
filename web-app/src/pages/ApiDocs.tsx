@@ -8,6 +8,8 @@ import Seo from '../components/Seo';
 type Language = 'curl' | 'javascript' | 'python';
 
 const ENDPOINTS = [
+  { path: '/api/v2/elements/fe?fields=symbol,names,editorial,media,external_links', auth: false, label: 'GET Demir · anlatım ve görseller' },
+  { path: '/api/v2/compounds/nacl?fields=display_formula,composition,editorial,media', auth: false, label: 'GET NaCl · formül ve element bileşimi' },
   { path: '/api/v2/elements/fe', auth: false, label: 'GET Demir · tam bilimsel kayıt' },
   { path: '/api/v2/elements?view=summary&pageSize=100', auth: false, label: 'GET Elementler · özet' },
   { path: '/api/v2/elements/fe?fields=symbol,names,atomic_properties.radii_pm', auth: false, label: 'GET Demir · alan seçimi' },
@@ -112,7 +114,7 @@ export default function ApiDocs() {
           <h1>API</h1>
           <p className="lead">
             Bilimsel katalog herkese açık; hesap veya API anahtarı gerekmez. Cüzdan, sipariş ve satış için <code>X-API-Key</code> gerekir.
-            Teknik ayrıntılar <Link to="/stack">Altyapı</Link> sayfasında.
+            Kaynaklar ve kullanım kapsamı <Link to="/hakkinda">Hakkında</Link> sayfasında.
           </p>
         </div>
       </section>

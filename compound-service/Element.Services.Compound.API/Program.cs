@@ -7,8 +7,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddEnterpriseLogging("Element.Compound");
-builder.AddEnterpriseTracing("Element.Compound");
+builder.AddConsoleLogging("Element.Compound");
 
 builder.Services.AddDbContext<CompoundDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -48,17 +47,15 @@ app.UseSwaggerUI(c =>
     c.DocumentTitle = "Element Compound API";
 });
 
-app.UseEnterpriseLogging();
+app.UseRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseAuthorization();
 app.MapControllers();
-app.MapPrometheusScrapingEndpoint();
 app.MapStandardOpsEndpoints("Element.Compound", new Dictionary<string, string>
 {
     ["api"] = "/api/v1",
     ["compounds"] = "/api/v1/compounds",
     ["swagger"] = "/swagger",
-    ["metrics"] = "/metrics"
 });
 
 try

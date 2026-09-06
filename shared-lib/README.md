@@ -9,12 +9,12 @@ Paylaşılan .NET 9 kütüphanesi — çalışan servis değildir.
 | Modül | İçerik |
 |-------|--------|
 | `Events/` | Entegrasyon event kayıtları |
-| `Extensions/LoggingExtensions` | Serilog JSON, Seq, Logstash |
-| `Extensions/OpenTelemetryExtensions` | OTLP trace + Prometheus `/metrics` |
+| `Extensions/LoggingExtensions` | Serilog JSON konsol log |
 | `Extensions/ServiceOpsExtensions` | **`/info`, `/health/live`, `/health/ready`** |
 | `Health/` | HealthChecks.UI JSON writer, RabbitMQ check |
 | `Middleware/` | Global exception handling |
 | `Messaging/` | `ConfigureRabbitMqHost` |
+| `Science/` | Bilimsel katalog yardımcıları |
 
 ---
 
@@ -25,8 +25,7 @@ Tüm .NET servislerde:
 ```csharp
 app.MapStandardOpsEndpoints("Element.MyService", new Dictionary<string, string>
 {
-    ["api"] = "/api/v1",
-    ["metrics"] = "/metrics"
+    ["api"] = "/api/v1"
 });
 ```
 

@@ -230,10 +230,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Su, iki hidrojen ile bir oksijen atomunun oluşturduğu moleküldür. Moleküller arası hidrojen bağları, sıvı suyun pek çok özelliğine katkı verir.",
+      "uses": [
+        "Çözücü",
+        "Soğutma ve ısı aktarımı",
+        "Biyolojik ortam"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/962"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/h2o-structure.png",
+        "caption": "Su · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/962",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Su",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/962"
+    },
+    "display_formula": "H2O",
+    "composition": [
+      {
+        "symbol": "H",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "licl",
@@ -519,10 +569,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Lityum klorür, lityum ve klorür iyonlarından oluşan bir tuzdur. Nemi güçlü biçimde çekebilmesi teknik uygulamalarda değerlendirilir.",
+      "uses": [
+        "Nem kontrolü",
+        "Kimyasal sentez"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/433294"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/licl-structure.png",
+        "caption": "Lityum klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/433294",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Lithium%20chloride",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/433294"
+    },
+    "display_formula": "LiCl",
+    "composition": [
+      {
+        "symbol": "Li",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "li2co3",
@@ -800,10 +899,63 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Lityum karbonat, lityum tuzlarının üretiminde kullanılan bir karbonattır. Seramik ve cam formülasyonlarında da yer alır.",
+      "uses": [
+        "Cam ve seramik",
+        "Lityum kimyasalları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/11125"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/li2co3-structure.png",
+        "caption": "Lityum karbonat · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/11125",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Lityum%20karbonat",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/11125"
+    },
+    "display_formula": "Li2CO3",
+    "composition": [
+      {
+        "symbol": "Li",
+        "count": 2
+      },
+      {
+        "symbol": "C",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "b2o3",
@@ -899,10 +1051,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Bor trioksit, cam oluşturan bir oksittir. Camın ısı ve kimyasal dayanımını değiştiren bileşenlerden biridir.",
+      "uses": [
+        "Borosilikat cam",
+        "Seramik sırları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/518682"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/b2o3-structure.png",
+        "caption": "Bor trioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/518682",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Boron%20trioxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/518682"
+    },
+    "display_formula": "B2O3",
+    "composition": [
+      {
+        "symbol": "B",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "co2",
@@ -1151,10 +1352,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Karbondioksit, bir karbon ile iki oksijen atomundan oluşur. Gaz hâli atmosferde bulunur; katı biçimi kuru buz olarak bilinir.",
+      "uses": [
+        "Gazlı içecekler",
+        "Soğutma",
+        "Koruyucu atmosfer"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/280"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/co2-structure.png",
+        "caption": "Karbondioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/280",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Karbondioksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/280"
+    },
+    "display_formula": "CO2",
+    "composition": [
+      {
+        "symbol": "C",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "nh3",
@@ -1486,10 +1737,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Amonyak, azot ve hidrojenden oluşan bir moleküldür. Suda çözünen gaz, çözeltide asit-baz dengelerine katılır.",
+      "uses": [
+        "Gübre hammaddesi",
+        "Endüstriyel soğutma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/222"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/nh3-structure.png",
+        "caption": "Amonyak · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/222",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Amonyak",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/222"
+    },
+    "display_formula": "NH3",
+    "composition": [
+      {
+        "symbol": "N",
+        "count": 1
+      },
+      {
+        "symbol": "H",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "hf",
@@ -1801,10 +2101,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Hidrojen florür, hidrojen ile florun bileşiğidir. Gaz ve sulu çözelti biçimleri, derişim ve koşullarıyla birlikte değerlendirilir.",
+      "uses": [
+        "Florlu kimyasallar",
+        "Cam ve yüzey işleme"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14917"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/hf-structure.png",
+        "caption": "Hidrojen florür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14917",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Hidrojen%20flor%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14917"
+    },
+    "display_formula": "HF",
+    "composition": [
+      {
+        "symbol": "H",
+        "count": 1
+      },
+      {
+        "symbol": "F",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "nacl",
@@ -2023,10 +2372,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Sodyum klorür, sofra tuzunun temel bileşenidir. Katı hâlde ayrı NaCl molekülleri yerine düzenli bir iyon örgüsü oluşturur.",
+      "uses": [
+        "Gıda işlemleri",
+        "Kimya sanayisi",
+        "Buzlanma kontrolü"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/5234"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/nacl-structure.png",
+        "caption": "Sodyum klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5234",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Sodyum%20klor%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/5234"
+    },
+    "display_formula": "NaCl",
+    "composition": [
+      {
+        "symbol": "Na",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "naoh",
@@ -2307,10 +2706,64 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Sodyum hidroksit, suda çözündüğünde kuvvetli bazik ortam oluşturan iyonik bir katıdır. Yaygın adı kostik sodadır.",
+      "uses": [
+        "Sabun üretimi",
+        "Kâğıt üretimi",
+        "Kimyasal işleme"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14798"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/naoh-structure.png",
+        "caption": "Sodyum hidroksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14798",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Sodyum%20hidroksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14798"
+    },
+    "display_formula": "NaOH",
+    "composition": [
+      {
+        "symbol": "Na",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      },
+      {
+        "symbol": "H",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "mgo",
@@ -2556,10 +3009,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Magnezyum oksit, yüksek sıcaklıklara dayanabilen iyonik bir oksittir. Doğada periklaz minerali olarak bulunur.",
+      "uses": [
+        "Fırın astarları",
+        "Refrakter seramikler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14792"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/mgo-structure.png",
+        "caption": "Magnezyum oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14792",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Magnesium%20oxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14792"
+    },
+    "display_formula": "MgO",
+    "composition": [
+      {
+        "symbol": "Mg",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "al2o3",
@@ -2813,10 +3315,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Alüminyum oksit, sert ve ısıya dayanıklı bir malzemedir. Korundumun kimyasal bileşimi budur; safsızlıklar yakut ve safire renk verir.",
+      "uses": [
+        "Aşındırıcılar",
+        "Teknik seramikler",
+        "Alüminyum üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/9989226"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/al2o3-structure.png",
+        "caption": "Alüminyum oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/9989226",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Al%C3%BCminyum%20oksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/9989226"
+    },
+    "display_formula": "Al2O3",
+    "composition": [
+      {
+        "symbol": "Al",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "sio2",
@@ -3107,10 +3659,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Silisyum dioksit, kuvars ve birçok kumun temel bileşenidir. Katı yapısında atomlar geniş bir bağ ağı oluşturur.",
+      "uses": [
+        "Cam",
+        "İnşaat malzemeleri",
+        "Silika ürünleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24261"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/sio2-structure.png",
+        "caption": "Silisyum dioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24261",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Silisyum%20dioksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24261"
+    },
+    "display_formula": "SiO2",
+    "composition": [
+      {
+        "symbol": "Si",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "h2so4",
@@ -3408,10 +4010,64 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Sülfürik asit, kükürt içeren temel sanayi kimyasallarındandır. Özellikleri sulu çözeltinin derişimine güçlü biçimde bağlıdır.",
+      "uses": [
+        "Gübre üretimi",
+        "Metal işleme",
+        "Kurşun-asit aküler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/1118"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/h2so4-structure.png",
+        "caption": "Sülfürik asit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1118",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/S%C3%BClf%C3%BCrik%20asit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/1118"
+    },
+    "display_formula": "H2SO4",
+    "composition": [
+      {
+        "symbol": "H",
+        "count": 2
+      },
+      {
+        "symbol": "S",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 4
+      }
+    ]
   },
   {
     "id": "hcl",
@@ -3702,10 +4358,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Hidrojen klorür, hidrojen ile klorun gaz bileşiğidir. Suda çözündüğünde oluşan çözelti hidroklorik asit olarak adlandırılır.",
+      "uses": [
+        "Kimyasal sentez",
+        "Metal yüzey işleme",
+        "Asitlik ayarı"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/313"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/hcl-structure.png",
+        "caption": "Hidrojen klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/313",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Hidrojen%20klor%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/313"
+    },
+    "display_formula": "HCl",
+    "composition": [
+      {
+        "symbol": "H",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "kcl",
@@ -3925,10 +4631,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Potasyum klorür, potasyum ve klorür iyonlarından oluşan bir tuzdur. Sylvit mineralinin kimyasal bileşimidir.",
+      "uses": [
+        "Gübre",
+        "Potasyum kimyasalları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/4873"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/kcl-structure.png",
+        "caption": "Potasyum klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/4873",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Potasyum%20klor%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/4873"
+    },
+    "display_formula": "KCl",
+    "composition": [
+      {
+        "symbol": "K",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "koh",
@@ -4209,10 +4964,63 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Potasyum hidroksit, kuvvetli baz oluşturan iyonik bir katıdır. Nem çekmesi ve çözünürken ısı açığa çıkarması önemli özellikleridir.",
+      "uses": [
+        "Yumuşak sabunlar",
+        "Alkali pil elektrolitleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14797"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/koh-structure.png",
+        "caption": "Potasyum hidroksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14797",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Potasyum%20hidroksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14797"
+    },
+    "display_formula": "KOH",
+    "composition": [
+      {
+        "symbol": "K",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      },
+      {
+        "symbol": "H",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "caco3",
@@ -4429,10 +5237,64 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Kalsiyum karbonat; kireç taşı, mermer ve tebeşirin temel bileşenidir. Aynı bileşim kalsit ve aragonit gibi farklı kristal yapılarda bulunabilir.",
+      "uses": [
+        "Yapı malzemeleri",
+        "Kâğıt dolgusu",
+        "Cam üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/10112"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/caco3-structure.png",
+        "caption": "Kalsiyum karbonat · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/10112",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kalsiyum%20karbonat",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/10112"
+    },
+    "display_formula": "CaCO3",
+    "composition": [
+      {
+        "symbol": "Ca",
+        "count": 1
+      },
+      {
+        "symbol": "C",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "cao",
@@ -4678,10 +5540,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Kalsiyum oksit, sönmemiş kireç olarak bilinir. Su ile kimyasal dönüşüme uğraması kireç teknolojisinin temelidir.",
+      "uses": [
+        "Çimento ve kireç",
+        "Çelik üretimi",
+        "Su işleme"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14778"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/cao-structure.png",
+        "caption": "Kalsiyum oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14778",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kalsiyum%20oksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14778"
+    },
+    "display_formula": "CaO",
+    "composition": [
+      {
+        "symbol": "Ca",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "tio2",
@@ -4959,10 +5871,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Titanyum dioksit, rutil ve anataz gibi farklı kristal yapılarda bulunur. Işığı güçlü saçması beyaz pigment olarak kullanılmasını sağlar.",
+      "uses": [
+        "Beyaz pigment",
+        "Kaplamalar",
+        "Fotokataliz araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/26042"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/tio2-structure.png",
+        "caption": "Titanyum dioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/26042",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Titanyum%20dioksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/26042"
+    },
+    "display_formula": "TiO2",
+    "composition": [
+      {
+        "symbol": "Ti",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "v2o5",
@@ -5272,10 +6234,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Vanadyum pentoksit, vanadyumun yüksek yükseltgenme basamağındaki oksididir. Yükseltgenme tepkimelerinde katalizör olarak kullanılır.",
+      "uses": [
+        "Kimya sanayisinde kataliz",
+        "Seramikler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14814"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/v2o5-structure.png",
+        "caption": "Vanadyum pentoksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14814",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Vanadyum%20pentoksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14814"
+    },
+    "display_formula": "V2O5",
+    "composition": [
+      {
+        "symbol": "V",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 5
+      }
+    ]
   },
   {
     "id": "cr2o3",
@@ -5501,10 +6512,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Krom(III) oksit, kararlı yeşil pigmentiyle tanınır. Kromun farklı yükseltgenme basamaklarındaki bileşikleriyle karıştırılmamalıdır.",
+      "uses": [
+        "Yeşil pigment",
+        "Parlatıcı",
+        "Refrakterler"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/517277"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/cr2o3-structure.png",
+        "caption": "Krom(III) oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/517277",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Chromium(III)%20oxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/517277"
+    },
+    "display_formula": "Cr2O3",
+    "composition": [
+      {
+        "symbol": "Cr",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "mno2",
@@ -5669,10 +6730,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Manganez dioksit, manganezin önemli oksitlerinden biridir. Elektron aktarımına katılabilmesi pil kimyasında değerlendirilir.",
+      "uses": [
+        "Pil katotları",
+        "Kataliz",
+        "Cam üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14801"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/mno2-structure.png",
+        "caption": "Manganez dioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14801",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Manganese%20dioxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14801"
+    },
+    "display_formula": "MnO2",
+    "composition": [
+      {
+        "symbol": "Mn",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "fe2o3",
@@ -5924,10 +7035,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Demir(III) oksit, hematit mineralinin bileşimidir. Kırmızımsı pigmentlerde bulunur; günlük pasın bileşimi ise daha karmaşıktır.",
+      "uses": [
+        "Demir üretimi",
+        "Kırmızı pigment",
+        "Parlatma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/518696"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/fe2o3-structure.png",
+        "caption": "Demir(III) oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/518696",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Demir(III)%20oksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/518696"
+    },
+    "display_formula": "Fe2O3",
+    "composition": [
+      {
+        "symbol": "Fe",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "fe3o4",
@@ -6084,10 +7245,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Manyetit, hem demir(II) hem demir(III) içeren bir demir oksittir. Manyetik özellikleriyle diğer yaygın demir oksitlerinden ayrılır.",
+      "uses": [
+        "Demir cevheri",
+        "Manyetik malzemeler",
+        "Pigment"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/16211978"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/fe3o4-structure.png",
+        "caption": "Manyetit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/16211978",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Manyetit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/16211978"
+    },
+    "display_formula": "Fe3O4",
+    "composition": [
+      {
+        "symbol": "Fe",
+        "count": 3
+      },
+      {
+        "symbol": "O",
+        "count": 4
+      }
+    ]
   },
   {
     "id": "cocl2",
@@ -6380,10 +7591,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Kobalt(II) klorürün rengi su içeriğine göre değişebilir. Susuz tuz ile hidratları aynı molar kütleye sahip değildir.",
+      "uses": [
+        "Kimyasal sentez",
+        "Nem göstergeleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3032536"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/cocl2-structure.png",
+        "caption": "Kobalt(II) klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3032536",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Cobalt(II)%20chloride",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/3032536"
+    },
+    "display_formula": "CoCl2",
+    "composition": [
+      {
+        "symbol": "Co",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "niso4",
@@ -6651,10 +7911,63 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Nikel(II) sülfat, nikel iyonları ile sülfat iyonlarını bir araya getirir. Uygulamalarda farklı hidrat biçimleriyle karşılaşılır.",
+      "uses": [
+        "Nikel kaplama",
+        "Pil malzemeleri üretimi"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24586"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/niso4-structure.png",
+        "caption": "Nikel sülfat · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24586",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Nikel(II)%20s%C3%BClfat",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24586"
+    },
+    "display_formula": "NiSO4",
+    "composition": [
+      {
+        "symbol": "Ni",
+        "count": 1
+      },
+      {
+        "symbol": "S",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 4
+      }
+    ]
   },
   {
     "id": "cuso4",
@@ -6922,10 +8235,64 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Bakır(II) sülfatın susuz biçimiyle mavi pentahidrat kristalleri farklı kayıtlardır. Buradaki formül susuz bileşiği gösterir.",
+      "uses": [
+        "Elektrokaplama",
+        "Kimyasal sentez",
+        "Analitik kimya"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24462"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/cuso4-structure.png",
+        "caption": "Bakır sülfat · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24462",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Copper%20sulfate",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24462"
+    },
+    "display_formula": "CuSO4",
+    "composition": [
+      {
+        "symbol": "Cu",
+        "count": 1
+      },
+      {
+        "symbol": "S",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 4
+      }
+    ]
   },
   {
     "id": "cu2o",
@@ -7143,10 +8510,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Bakır(I) oksit, kırmızımsı bir bakır oksididir. Siyah bakır(II) oksitten hem bileşimi hem elektronik özellikleriyle ayrılır.",
+      "uses": [
+        "Pigment",
+        "Yarı iletken araştırması",
+        "Kaplamalar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/18346908"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/cu2o-structure.png",
+        "caption": "Bakır(I) oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/18346908",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Bak%C4%B1r(I)%20oksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/18346908"
+    },
+    "display_formula": "Cu2O",
+    "composition": [
+      {
+        "symbol": "Cu",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "zno",
@@ -7410,10 +8827,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Çinko oksit, beyaz bir oksit ve yarı iletkendir. Optik ve yüzey özellikleri farklı endüstrilerde değerlendirilir.",
+      "uses": [
+        "Kauçuk üretimi",
+        "Seramik",
+        "Optoelektronik"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/3007857"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/zno-structure.png",
+        "caption": "Çinko oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3007857",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/%C3%87inko%20oksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/3007857"
+    },
+    "display_formula": "ZnO",
+    "composition": [
+      {
+        "symbol": "Zn",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "geo2",
@@ -7601,10 +9068,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Germanyum dioksit, germanyum içeren bir oksittir. Camın kırılma indisini değiştirmesi optik uygulamalarda önem taşır.",
+      "uses": [
+        "Fiber optik",
+        "Özel camlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/90478414"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/geo2-structure.png",
+        "caption": "Germanyum dioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/90478414",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Germanium%20dioxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/90478414"
+    },
+    "display_formula": "GeO2",
+    "composition": [
+      {
+        "symbol": "Ge",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "as2o3",
@@ -7918,10 +9434,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Arsenik trioksit, arsenik içeren bir oksittir. Kullanım alanları ve toksikolojik özellikleri nedeniyle özel denetim gerektiren bir maddedir.",
+      "uses": [
+        "Özel cam işlemleri",
+        "Kimyasal araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14888"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/as2o3-structure.png",
+        "caption": "Arsenik trioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14888",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Arsenik%20trioksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14888"
+    },
+    "display_formula": "As2O3",
+    "composition": [
+      {
+        "symbol": "As",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "mos2",
@@ -8090,10 +9655,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Molibden disülfür, tabakalı yapıya sahip bir bileşiktir. Tabakaların birbirine göre kayması düşük sürtünmeli davranışa katkı verir.",
+      "uses": [
+        "Katı yağlayıcı",
+        "Kataliz",
+        "İki boyutlu malzeme araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14823"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/mos2-structure.png",
+        "caption": "Molibden disülfür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14823",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Molybdenum%20disulfide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14823"
+    },
+    "display_formula": "MoS2",
+    "composition": [
+      {
+        "symbol": "Mo",
+        "count": 1
+      },
+      {
+        "symbol": "S",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "pdcl2",
@@ -8332,10 +9947,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Paladyum(II) klorür, paladyum içeren katalizör ve komplekslerin hazırlanmasında kullanılan bir başlangıç maddesidir.",
+      "uses": [
+        "Katalizör hazırlama",
+        "Analitik kimya"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24290"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/pdcl2-structure.png",
+        "caption": "Paladyum klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24290",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Palladium(II)%20chloride",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24290"
+    },
+    "display_formula": "PdCl2",
+    "composition": [
+      {
+        "symbol": "Pd",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "agno3",
@@ -8629,10 +10293,64 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Gümüş nitrat, suda çözünebilen bir gümüş tuzudur. Halojenür iyonlarıyla az çözünen gümüş tuzları oluşturması analizde kullanılır.",
+      "uses": [
+        "Analitik kimya",
+        "Gümüş bileşikleri",
+        "Fotoğraf malzemeleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24470"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/agno3-structure.png",
+        "caption": "Gümüş nitrat · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24470",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/G%C3%BCm%C3%BC%C5%9F%20nitrat",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24470"
+    },
+    "display_formula": "AgNO3",
+    "composition": [
+      {
+        "symbol": "Ag",
+        "count": 1
+      },
+      {
+        "symbol": "N",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "agcl",
@@ -8782,10 +10500,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Gümüş klorür, suda az çözünen ve ışığa duyarlı bir tuzdur. Klorür iyonunun çöktürülerek belirlenmesinde kullanılabilir.",
+      "uses": [
+        "Referans elektrotlar",
+        "Fotoğrafçılık",
+        "Analitik kimya"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24561"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/agcl-structure.png",
+        "caption": "Gümüş klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24561",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/G%C3%BCm%C3%BC%C5%9F%20klor%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24561"
+    },
+    "display_formula": "AgCl",
+    "composition": [
+      {
+        "symbol": "Ag",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "cds",
@@ -9031,10 +10799,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Kadmiyum sülfür, sarı renkli bir yarı iletkendir. Optik özellikleri pigment ve algılayıcı uygulamalarında değerlendirilmiştir.",
+      "uses": [
+        "Özel pigmentler",
+        "Optoelektronik araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14783"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/cds-structure.png",
+        "caption": "Kadmiyum sülfür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14783",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Cadmium%20sulfide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14783"
+    },
+    "display_formula": "CdS",
+    "composition": [
+      {
+        "symbol": "Cd",
+        "count": 1
+      },
+      {
+        "symbol": "S",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "in2o3",
@@ -9202,10 +11019,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "İndiyum oksit, bazı katkılarla şeffaf iletken malzemelere dönüşebilir. Kalay katkılı biçimi ekran kaplamalarında yaygındır.",
+      "uses": [
+        "Şeffaf iletkenler",
+        "Gaz algılayıcıları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/150905"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/in2o3-structure.png",
+        "caption": "İndiyum oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/150905",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Indium(III)%20oxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/150905"
+    },
+    "display_formula": "In2O3",
+    "composition": [
+      {
+        "symbol": "In",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "sno2",
@@ -9418,10 +11284,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Kalay(IV) oksit, kasiterit mineralinin bileşimidir. Katkılanmış ince filmleri elektriksel ve optik işlevler görebilir.",
+      "uses": [
+        "Cam kaplamaları",
+        "Gaz algılayıcıları",
+        "Seramik"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/16747781"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/sno2-structure.png",
+        "caption": "Kalay dioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/16747781",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Tin(IV)%20oxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/16747781"
+    },
+    "display_formula": "SnO2",
+    "composition": [
+      {
+        "symbol": "Sn",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "sb2o3",
@@ -9705,10 +11621,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Antimon trioksit, antimonun yaygın oksitlerinden biridir. Bazı polimerlerde diğer bileşenlerle birlikte alev geciktirici sistemlerde kullanılır.",
+      "uses": [
+        "Polimer katkıları",
+        "Cam",
+        "Seramik"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14794"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/sb2o3-structure.png",
+        "caption": "Antimon trioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14794",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Antimony%20trioxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14794"
+    },
+    "display_formula": "Sb2O3",
+    "composition": [
+      {
+        "symbol": "Sb",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "teo2",
@@ -9881,10 +11847,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Tellür dioksit, optik özellikleriyle dikkat çeken bir oksittir. Kristal ve cam biçimleri farklı uygulamalarda değerlendirilir.",
+      "uses": [
+        "Akustooptik cihazlar",
+        "Özel camlar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/62638"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/teo2-structure.png",
+        "caption": "Tellür dioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/62638",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Tellurium%20dioxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/62638"
+    },
+    "display_formula": "TeO2",
+    "composition": [
+      {
+        "symbol": "Te",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "cscl",
@@ -10068,10 +12083,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Sezyum klorür, kristal yapı öğretiminde sık karşılaşılan bir iyonik tuzdur. Yoğun çözeltileri ayırma tekniklerinde kullanılabilir.",
+      "uses": [
+        "Yoğunluk gradyanları",
+        "Sezyum kimyası"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24293"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/cscl-structure.png",
+        "caption": "Sezyum klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24293",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Sezyum%20klor%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24293"
+    },
+    "display_formula": "CsCl",
+    "composition": [
+      {
+        "symbol": "Cs",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "baso4",
@@ -10334,10 +12398,64 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Baryum sülfat, barit mineralinin bileşimidir. Suda çok az çözünmesi onu birçok başka baryum tuzundan ayırır.",
+      "uses": [
+        "Sondaj akışkanları",
+        "Dolgu maddeleri",
+        "Özel görüntüleme süspansiyonları"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/24414"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/baso4-structure.png",
+        "caption": "Baryum sülfat · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24414",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Baryum%20s%C3%BClfat",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/24414"
+    },
+    "display_formula": "BaSO4",
+    "composition": [
+      {
+        "symbol": "Ba",
+        "count": 1
+      },
+      {
+        "symbol": "S",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 4
+      }
+    ]
   },
   {
     "id": "wo3",
@@ -10516,10 +12634,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Tungsten trioksit, tungsten içeren bir oksittir. Elektriksel etkiyle renk değiştirebilen sistemlerde araştırılır.",
+      "uses": [
+        "Elektrokromik camlar",
+        "Tungsten üretimi",
+        "Pigment"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14811"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/wo3-structure.png",
+        "caption": "Tungsten trioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14811",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Tungsten%20trioxide",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14811"
+    },
+    "display_formula": "WO3",
+    "composition": [
+      {
+        "symbol": "W",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "wc",
@@ -10615,10 +12783,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Tungsten karbür, yüksek sertliğiyle bilinen bir bileşiktir. Kesici takımlarda çoğunlukla metal bağlayıcıyla birlikte kullanılır.",
+      "uses": [
+        "Kesici takımlar",
+        "Aşınmaya dayanıklı parçalar"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2724274"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/wc-structure.png",
+        "caption": "Tungsten karbür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/2724274",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Tungsten%20karb%C3%BCr",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/2724274"
+    },
+    "display_formula": "WC",
+    "composition": [
+      {
+        "symbol": "W",
+        "count": 1
+      },
+      {
+        "symbol": "C",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "ptcl2",
@@ -10821,10 +13038,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Platin(II) klorür, platin komplekslerinin hazırlanmasında kullanılan bir bileşiktir. Yapısı ve çözünürlüğü kimyasal ortama bağlıdır.",
+      "uses": [
+        "Koordinasyon kimyası",
+        "Katalizör hazırlama"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2770"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/ptcl2-structure.png",
+        "caption": "Platin(II) klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/2770",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Platinum(II)%20chloride",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/2770"
+    },
+    "display_formula": "PtCl2",
+    "composition": [
+      {
+        "symbol": "Pt",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "aucl3",
@@ -10975,10 +13241,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Altın(III) klorür, altının klor içeren bileşiklerinden biridir. Katı yapısı yalnız basit bir üç atomlu çevreyle açıklanmaz.",
+      "uses": [
+        "Altın kimyası",
+        "Kaplama çözeltileri",
+        "Sentez"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/26030"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/aucl3-structure.png",
+        "caption": "Altın(III) klorür · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/26030",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://en.wikipedia.org/wiki/Gold(III)%20chloride",
+        "language": "en"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/26030"
+    },
+    "display_formula": "AuCl3",
+    "composition": [
+      {
+        "symbol": "Au",
+        "count": 1
+      },
+      {
+        "symbol": "Cl",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "hgs",
@@ -11124,10 +13440,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Cıva(II) sülfür, zinober mineralinin bileşimidir. Kırmızı ve siyah gibi farklı yapısal biçimleri bulunabilir.",
+      "uses": [
+        "Mineraloji",
+        "Tarihsel pigmentler",
+        "Araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/62402"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/hgs-structure.png",
+        "caption": "Zinober · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/62402",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Zincifre",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/62402"
+    },
+    "display_formula": "HgS",
+    "composition": [
+      {
+        "symbol": "Hg",
+        "count": 1
+      },
+      {
+        "symbol": "S",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "pbo",
@@ -11376,10 +13742,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Kurşun(II) oksit, farklı kristal biçimleri bulunan bir kurşun oksididir. Kurşun içerdiği için kullanımında toksikoloji bilgisi önemlidir.",
+      "uses": [
+        "Özel camlar",
+        "Akü malzemeleri",
+        "Seramik"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/14827"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/pbo-structure.png",
+        "caption": "Kurşun(II) oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14827",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Kur%C5%9Fun(II)%20oksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/14827"
+    },
+    "display_formula": "PbO",
+    "composition": [
+      {
+        "symbol": "Pb",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 1
+      }
+    ]
   },
   {
     "id": "bi2o3",
@@ -11482,10 +13898,60 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Bizmut(III) oksit, sarı renkli bir oksittir. İyon iletimi ve optik özellikleri malzeme araştırmalarında incelenir.",
+      "uses": [
+        "Özel camlar",
+        "Seramik",
+        "İyon iletkenleri"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/160977"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/bi2o3-structure.png",
+        "caption": "Bizmut oksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/160977",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Bizmut(III)%20oksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/160977"
+    },
+    "display_formula": "Bi2O3",
+    "composition": [
+      {
+        "symbol": "Bi",
+        "count": 2
+      },
+      {
+        "symbol": "O",
+        "count": 3
+      }
+    ]
   },
   {
     "id": "uo2",
@@ -11647,10 +14113,59 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Uranyum dioksit, kristal bir uranyum oksididir. Nükleer yakıtta kullanılan malzemenin özellikleri izotop bileşimi ve üretim koşullarına bağlıdır.",
+      "uses": [
+        "Nükleer yakıt seramikleri",
+        "Nükleer malzeme araştırması"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/51003830"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/uo2-structure.png",
+        "caption": "Uranyum dioksit · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/51003830",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Uranyum%20dioksit",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/51003830"
+    },
+    "display_formula": "UO2",
+    "composition": [
+      {
+        "symbol": "U",
+        "count": 1
+      },
+      {
+        "symbol": "O",
+        "count": 2
+      }
+    ]
   },
   {
     "id": "aspirin",
@@ -12005,9 +14520,63 @@
       ],
       "editorial_fields": [
         "names.tr",
-        "slug"
+        "slug",
+        "editorial",
+        "media",
+        "external_links",
+        "display_formula",
+        "composition"
       ],
       "measurement_policy": "Experimental reports retain their original units, conditions and source. Conflicting measurements are not collapsed into a single number."
-    }
+    },
+    "editorial": {
+      "summary": "Aspirin, asetilsalisilik asidin yaygın adıdır. Aromatik halkasına bağlı karboksilik asit ve ester grupları, molekülün kimliğini belirler.",
+      "uses": [
+        "Farmasötik üretim",
+        "Organik kimya eğitimi",
+        "Analitik araştırma"
+      ],
+      "story": null,
+      "sources": [
+        {
+          "name": "PubChem / NCBI",
+          "url": "https://pubchem.ncbi.nlm.nih.gov/compound/2244"
+        }
+      ]
+    },
+    "media": {
+      "photo": null,
+      "structure": {
+        "url": "/media/atlas/aspirin-structure.png",
+        "caption": "Aspirin · PubChem 2D yapı gösterimi",
+        "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/2244",
+        "creator": "PubChem / NCBI",
+        "license": "PubChem generated structure depiction",
+        "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+        "retrieved_at": "2026-09-06"
+      }
+    },
+    "external_links": {
+      "wikipedia": {
+        "url": "https://tr.wikipedia.org/wiki/Aspirin",
+        "language": "tr"
+      },
+      "pubchem": "https://pubchem.ncbi.nlm.nih.gov/compound/2244"
+    },
+    "display_formula": "C9H8O4",
+    "composition": [
+      {
+        "symbol": "C",
+        "count": 9
+      },
+      {
+        "symbol": "H",
+        "count": 8
+      },
+      {
+        "symbol": "O",
+        "count": 4
+      }
+    ]
   }
 ]

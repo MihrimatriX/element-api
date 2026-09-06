@@ -35,7 +35,6 @@ export function registerOpsEndpoints(app: Express, checkHealth: HealthChecker): 
         orders: `${base}/api/v1/orders`,
         orders_search: `${base}/api/v1/orders/search`,
         health: `${base}/health`,
-        metrics: `${base}/metrics`,
       },
     });
   });

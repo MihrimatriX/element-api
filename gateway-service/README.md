@@ -6,7 +6,6 @@ Tek giriş noktası — YARP reverse proxy, API key doğrulama, rate limiting, G
 |--|--|
 | **Port** | `5000` |
 | **Swagger** | — (backend Swagger: catalog `:5002/swagger`) |
-| **Health UI** | [localhost:5000/health-ui](http://localhost:5000/health-ui) |
 | **Info** | `GET /info` |
 
 ---
@@ -18,7 +17,6 @@ Tek giriş noktası — YARP reverse proxy, API key doğrulama, rate limiting, G
 - Global rate limit (100 req / 10 sn / API key veya IP)
 - GraphQL BFF — `elementPrice(symbol)` sorgusu
 - SignalR proxy — `/hub/notifications`
-- Health Checks UI — tüm backend'lerin durumu
 
 ## Veritabanı
 
@@ -36,8 +34,6 @@ Yok — stateless proxy. Redis: rate limit / cache.
 | GET | `/health` | Readiness (Redis) |
 | GET | `/health/live` | Liveness |
 | GET | `/health/ready` | Readiness |
-| GET | `/health-ui` | Sağlık dashboard |
-| GET | `/metrics` | Prometheus |
 | POST | `/graphql` | GraphQL BFF |
 
 ### Proxy rotaları

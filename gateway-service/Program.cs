@@ -13,9 +13,8 @@ using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Enterprise Logging (Serilog + Seq)
-builder.AddEnterpriseLogging("Element.Gateway");
-builder.AddEnterpriseTracing("Element.Gateway");
+// Console logging
+builder.AddConsoleLogging("Element.Gateway");
 
 // Add HttpClient for DatabaseCheckHandler and GraphQL BFF
 builder.Services.AddHttpClient();
@@ -39,24 +38,6 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddHealthChecks()
     .AddRedis(redisConn, name: "Redis", failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded);
-
-// Add Health Checks UI
-builder.Services.AddHealthChecksUI(setup =>
-{
-    setup.SetEvaluationTimeInSeconds(15);
-    setup.MaximumHistoryEntriesPerEndpoint(60);
-    foreach (var (name, cluster) in new[] {
-        ("Identity API", "identity-cluster"), ("Element Market API", "element-cluster"),
-        ("Compound API", "compound-cluster"), ("Order API", "order-cluster"),
-        ("Shipment API", "shipment-cluster"), ("Notification API", "notification-cluster")
-    }) {
-        var address = builder.Configuration[$"ReverseProxy:Clusters:{cluster}:Destinations:destination1:Address"];
-        if (!string.IsNullOrEmpty(address)) setup.AddHealthCheckEndpoint(name, address.TrimEnd('/') + "/health");
-    }
-    var paymentAddress = builder.Configuration["PaymentServiceInternalUrl"]
-        ?? (Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true" ? "http://payment-service:8080" : "http://localhost:5005");
-    setup.AddHealthCheckEndpoint("Payment API", paymentAddress.TrimEnd('/') + "/health");
-}).AddInMemoryStorage();
 
 // Add Rate Limiting
 builder.Services.AddRateLimiter(options =>
@@ -127,7 +108,7 @@ builder.Services
 builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
 var app = builder.Build();
 
-app.UseEnterpriseLogging();
+app.UseRequestLogging();
 app.UseGlobalExceptionHandling();
 
 app.UseRouting();
@@ -141,19 +122,14 @@ app.UseMiddleware<ApiKeyValidationMiddleware>();
 
 app.MapReverseProxy();
 app.MapGraphQL("/graphql");
-app.MapPrometheusScrapingEndpoint();
 app.MapStandardOpsEndpoints("Element.Gateway", new Dictionary<string, string>
 {
-    ["health_ui"] = "/health-ui",
     ["graphql"] = "/graphql",
     ["catalog"] = "/api/v1",
     ["auth"] = "/api/v1/auth/login",
     ["orders"] = "/api/v1/orders",
     ["notifications_hub"] = "/hub/notifications",
-    ["metrics"] = "/metrics",
-    ["observability_hub"] = "http://localhost:8888"
 });
-app.MapHealthChecksUI(setup => setup.UIPath = "/health-ui");
 
 try
 {

@@ -19,9 +19,8 @@ using Element.Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Enterprise Logging (Serilog + Seq)
-builder.AddEnterpriseLogging("Element.Identity");
-builder.AddEnterpriseTracing("Element.Identity");
+// Console logging
+builder.AddConsoleLogging("Element.Identity");
 
 // Add DbContext
 builder.Services.AddDbContext<IdentityAppDbContext>(options =>
@@ -88,17 +87,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseEnterpriseLogging();
+app.UseRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapPrometheusScrapingEndpoint();
 app.MapStandardOpsEndpoints("Element.Identity", new Dictionary<string, string>
 {
     ["api"] = "/api/v1",
     ["swagger"] = "/swagger",
-    ["metrics"] = "/metrics"
 });
 
 try

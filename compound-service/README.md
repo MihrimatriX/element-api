@@ -27,7 +27,7 @@ Fiyat = ana element alış × `priceMult` × gram. Bu servis çarpanı döner; s
 
 ## Ops
 
-`/info`, `/health`, `/health/live`, `/health/ready`, `/metrics`
+`/info`, `/health`, `/health/live`, `/health/ready`
 
 ---
 

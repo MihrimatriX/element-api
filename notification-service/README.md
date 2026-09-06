@@ -34,7 +34,6 @@ Gerçek zamanlı bildirimler — SignalR hub + RabbitMQ event tüketicisi (.NET 
 |------|----------|
 | `/info` | Hub path + linkler |
 | `/health`, `/health/live`, `/health/ready` | RabbitMQ |
-| `/metrics` | Prometheus |
 
 ---
 
