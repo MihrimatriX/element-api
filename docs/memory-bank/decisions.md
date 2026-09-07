@@ -35,3 +35,11 @@
 ## Memory bank over a custom skill
 
 **Decision:** Persist agent context as `docs/memory-bank/*` + alwaysApply Cursor rule. Do **not** also invent a project skill that duplicates the same content.
+
+## KREDI currency; keep legacy ELX wire names
+
+**Decision:** User-facing currency is **KREDI**. Do **not** rename wire/API fields or reason codes (`balanceElx`, `avgCostElx`, `proceedsElx`, `requiredElx`, `INSUFFICIENT_ELX`, DB `*_elx`) without an explicit breaking migration. Values are Kredi; clients should trust `currency: "KREDI"`.
+
+**Why:** Renaming would break smoke/e2e, web-app types, and any external API-key clients for no product gain. UI copy already says “kredi”.
+
+**Where documented:** root `README.md` § Bilimsel veri ve alışveriş sözleşmesi (canonical list).

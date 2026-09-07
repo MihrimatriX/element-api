@@ -14,10 +14,10 @@ Gateway'den proxy edilmez — yalnızca mesaj tabanlı iş mantığı.
 ## Sorumluluklar
 
 - `ProcessPaymentCommand` kuyruğunu dinler (`payment-processing`)
-- Order-service `POST /internal/wallet/debit` ile ELX çeker
+- Order-service `POST /internal/wallet/debit` ile Kredi çeker
 - Başarı → `PaymentProcessedEvent`
-- Yetersiz bakiye → `PaymentFailedEvent` (`INSUFFICIENT_ELX`)
-- Tek sipariş tavanı 50_000 ELX
+- Yetersiz bakiye → `PaymentFailedEvent` (legacy reason `INSUFFICIENT_ELX`; değerler KREDI — kök README)
+- Tek sipariş tavanı **50_000 KREDI**
 
 Kalıcı veritabanı yok.
 
@@ -28,11 +28,12 @@ Kalıcı veritabanı yok.
 | Method | Path | Açıklama |
 |--------|------|----------|
 | GET | `/info` | Servis metadata |
-| GET | `/health` | HealthChecks.UI format (RabbitMQ) |
-| GET | `/actuator/health/liveness` | Kubernetes liveness |
-| GET | `/actuator/health/readiness` | Kubernetes readiness |
-| GET | `/actuator/prometheus` | Prometheus metrikleri |
+| GET | `/health` | Readiness JSON (RabbitMQ) |
+| GET | `/actuator/health/liveness` | Liveness |
+| GET | `/actuator/health/readiness` | Readiness |
 | GET | `/actuator/info` | Spring info (version) |
+
+Actuator yalnız `health` + `info` expose eder. Prometheus `/actuator/prometheus` ve Logstash **yok** (infra sadeleştirme).
 
 ---
 
@@ -40,8 +41,8 @@ Kalıcı veritabanı yok.
 
 | Kural | Sonuç |
 |-------|-------|
-| Tutar > 50.000 ELX | Red |
-| Cüzdan yetersiz | `INSUFFICIENT_ELX` |
+| Tutar > 50.000 KREDI | Red |
+| Cüzdan yetersiz | `INSUFFICIENT_ELX` (legacy reason; KREDI bakiyesi) |
 
 ---
 
@@ -50,17 +51,21 @@ Kalıcı veritabanı yok.
 | Kaynak | Açıklama |
 |--------|----------|
 | RabbitMQ | Komut + event fanout |
+| order-service | Wallet debit/credit |
 
 ---
 
 ## Çalıştırma
 
 ```bash
-cd payment-service && docker compose up -d --build
+# Host (tercih) — kök start-local -IncludePayment
 mvn spring-boot:run
+
+# İsteğe bağlı
+cd payment-service && docker compose up -d --build
 ```
 
-Docker healthcheck: `GET /health`
+Docker healthcheck: `GET /health`. Eski `target/` Logstash XML içeriyorsa clean rebuild gerekir.
 
 ---
 

@@ -43,6 +43,8 @@ Yok — stateless proxy. Redis: rate limit / cache.
 | `/api/v1/auth/**` | identity | Kayıt, giriş |
 | `/api/v1/api-keys/**` | identity | JWT |
 | `/api/v1/webhooks/**` | identity | JWT |
+| `/api/v2/elements/**` | catalog | Bilimsel katalog — public CORS |
+| `/api/v2/compounds/**` | compound | Bilimsel bileşikler — public CORS |
 | `/api/v1/elements/{symbol}/ticker` | catalog | Public |
 | `/api/v1/market/**` | catalog | Public |
 | `/api/v1/compounds/**` | compound | Public |
@@ -72,16 +74,14 @@ Payment ve shipment gateway'den proxy edilmez (saga internal).
 
 ## Çalıştırma
 
-```bash
-# Tüm platform (önerilen)
-docker compose --env-file docker/.env up -d --build
-
-# Sadece gateway (backend'ler ayakta olmalı)
-cd gateway-service && docker compose up -d --build
-```
+Günlük yol: kök `./deploy/scripts/start-local.ps1` (gateway host’ta `:5000`). Doğrulama için tüm platformu `docker compose up --build` ile yeniden derlemeyin.
 
 ```bash
+# Host (tercih) — Redis + backend’ler ayakta olmalı
 dotnet run --project Element.Gateway.csproj
+
+# İsteğe bağlı: yalnız gateway imajı
+cd gateway-service && docker compose up -d --build
 ```
 
 ---

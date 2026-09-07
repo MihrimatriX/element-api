@@ -140,7 +140,8 @@ export default function ApiDocs() {
           <ul style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.6 }}>
             <li>Alış son fiyatın %0,8 üstünde, satış %0,8 altında. Fiyatlar gerçek piyasa verisi değil, kredi simülasyonudur.</li>
             <li>Alış fiyatı yükseltir, satış düşürür. Tek seferde en fazla %3.</li>
-            <li>Kayıt olunca hesabına 10.000 kredi yüklenir. Sipariş = alış × gram; 402 = yetersiz bakiye.</li>
+            <li>Kayıt olunca hesabına 10.000 kredi yüklenir. Sipariş = alış × gram; 402 = yetersiz bakiye (reason <code>INSUFFICIENT_ELX</code> olabilir).</li>
+            <li>Para birimi kodu <code>KREDI</code>. JSON alan adları uyumluluk için <code>balanceElx</code>, <code>avgCostElx</code>, <code>proceedsElx</code> kalır; değerler kredidir.</li>
             <li>Bileşik fiyatı = ana element alış fiyatı × ürün çarpanı × gram. Her ürün kasada ayrı tutulur; satışta aynı <code>compoundSlug</code> gönderilir.</li>
             <li>Tekrar denemelerde aynı UUID değerini <code>Idempotency-Key</code> başlığıyla gönder. Aynı sipariş tekrar oluşturulmaz.</li>
             <li>Miktar pozitif bir JSON sayısıdır; en fazla 4 ondalık basamak. 409 = stok yetersiz veya istek anahtarı başka bir siparişte kullanılmış.</li>
@@ -162,8 +163,8 @@ export default function ApiDocs() {
                 <tr><td><code>GET /api/v1/compounds</code></td><td>Yok</td><td>bileşikler</td></tr>
                 <tr><td><code>POST /api/v1/orders</code></td><td>Var</td><td>{`{ elementSymbol, quantity, compoundSlug? }`}</td></tr>
                 <tr><td><code>POST /api/v1/desk/sell</code></td><td>Var</td><td>{`{ symbol, grams, compoundSlug? }`} satış</td></tr>
-                <tr><td><code>GET /api/v1/me/wallet</code></td><td>Var</td><td>bakiye</td></tr>
-                <tr><td><code>GET /api/v1/me/holdings</code></td><td>Var</td><td>ürün, gram ve ortalama maliyet</td></tr>
+                <tr><td><code>GET /api/v1/me/wallet</code></td><td>Var</td><td>bakiye (<code>balanceElx</code>, <code>currency: KREDI</code>)</td></tr>
+                <tr><td><code>GET /api/v1/me/holdings</code></td><td>Var</td><td>ürün, gram ve ortalama maliyet (<code>avgCostElx</code>)</td></tr>
               </tbody>
             </table>
           </div>

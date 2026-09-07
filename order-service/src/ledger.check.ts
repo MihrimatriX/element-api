@@ -11,7 +11,7 @@ function main() {
   assert.equal(have < sellGrams, true, 'sell must reject over-holding');
 
   const grant = 10_000;
-  assert.equal(grant, 10000, 'wallet grant is 10_000 ELX');
+  assert.equal(grant, 10000, 'wallet grant is 10_000 KREDI');
 
   console.log('ledger.check: ok (avg cost, over-holding reject, grant 10000)');
 }

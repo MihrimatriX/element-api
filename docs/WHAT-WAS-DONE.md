@@ -115,7 +115,7 @@ Yardımcı script (bir kerelik rewrite): `artifacts/simplify-infra.mjs` — geç
 
 ## 6. Dokümantasyon senkronu
 
-Kök README ve servis README’leri laboratuvarı, atlas yenilemeyi ve “izleme araçları günlük geliştirme için gerekli değil” notunu yansıtacak şekilde güncellendi. `test-platform.mjs` derlenmiş web’de `/lab` arar. Bu dosya (`WHAT-WAS-DONE.md`) “her en ufak şey” anlatımı içindir; hızlı başlangıç hâlâ kök README’dedir.
+Kök README ve servis README’leri laboratuvarı, atlas yenilemeyi ve “izleme araçları günlük geliştirme için gerekli değil” notunu yansıtacak şekilde güncellendi. `test-platform.mjs` derlenmiş web’de `/lab` arar. 2026-09-07’de ikinci bir README turu v2 gateway rotalarını, catalog/compound bilimsel uçlarını, payment/order’daki Prometheus/Logstash/ELX drift’ini ve host-first çalıştırma notlarını hizaladı. Aynı günün devamında **KREDI** kullanıcı yüzü + legacy wire (`balanceElx`, `INSUFFICIENT_ELX`, …) tek kaynak olarak kök README’de sabitlendi; kırıcı rename yok. ApiDocs ve order/payment README buna işaret eder. Bu dosya (`WHAT-WAS-DONE.md`) “her en ufak şey” anlatımı içindir; hızlı başlangıç hâlâ kök README’dedir.
 
 ---
 
@@ -165,12 +165,13 @@ Ayrıntı: [`memory-bank/local-dev.md`](./memory-bank/local-dev.md) ve `.cursor/
 - Fe FAL fotoğrafı API + statik dosya
 - Observability yığını ve `/stack` kaldırma; docs `/lab` ile uyumlu
 - Host-local doğrulama: web test/build, .NET build, canlı Fe/`/lab`/404 metrics
+- KREDI sözleşmesi: UI/docs Kredi; wire `*Elx` / `INSUFFICIENT_ELX` bilinçli korunur
 
 ### Bilinçli / ayrı konu
 
 - Eksik element fotoğrafları (filtre politikası)
-- Yerelde order `:5003` / payment `:5005` bazen ayağa kalkmıyor (RabbitMQ kimlik bilgisi, payment rebuild) → tam alışveriş e2e bu oturumda doğrulanamadı
 - Devasa uncommitted diff — commit kullanıcı istemeden yapılmadı
+- Saga/smoke bu host’ta 2026-09-07’de **20/20** geçti; yine de uncommitted ağaç commit edilene kadar kayıp riski var
 
 ---
 

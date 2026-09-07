@@ -14,6 +14,7 @@ Periyodik tablo element kataloğu — arama, filtreleme, karşılaştırma, fiya
 ## Sorumluluklar
 
 - 118 element kataloğu (fiyat, stok, periyodik tablo metadata)
+- **Bilimsel v2** kayıtları (`scientific-elements.json`: PubChem kaynaklı özellikler + atlas `editorial` / `media` / `external_links`)
 - Gelişmiş **arama ve filtreleme**
 - Saga: `OrderSubmittedEvent` → stok ayırma
 - gRPC fiyat sorgusu (internal)
@@ -22,6 +23,15 @@ Periyodik tablo element kataloğu — arama, filtreleme, karşılaştırma, fiya
 ---
 
 ## API endpoint'leri
+
+### Bilimsel katalog (v2)
+
+| Method | Path | Açıklama |
+|--------|------|----------|
+| GET | `/api/v2/elements` | Liste — `view`, `include`, `fields`, `q`, `category`, `block`, `group`, `period`, `page`, `pageSize` |
+| GET | `/api/v2/elements/{id}` | Tek kayıt — sembol (`fe`), atom no (`26`) veya id (`fe-26`) |
+
+Gateway üzerinden public; ETag + CORS. Plan: [deploy/scientific-catalog.md](../deploy/scientific-catalog.md). Atlas yeniden uygulama: `node deploy/scripts/refresh-atlas.mjs`.
 
 ### Keşif
 
@@ -89,9 +99,14 @@ curl "http://localhost:5002/api/v1/elements?minPrice=10&inStock=true&sort=price&
 ## Çalıştırma
 
 ```bash
-cd catalog-service && docker compose up -d --build
+# Host (tercih) — Postgres/Redis/Rabbit kök compose veya start-local
 dotnet run --project Element.Services.Element.API/Element.Services.Element.API.csproj
+
+# İsteğe bağlı lokal compose
+cd catalog-service && docker compose up -d --build
 ```
+
+Atlas JSON değişince stale Release `Data/` için `start-local.ps1 -Restart` (veya rebuild) kullanın; `-NoBuild` eski snapshot bırakabilir.
 
 ---
 

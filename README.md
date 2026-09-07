@@ -59,7 +59,7 @@ Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, se
 - Veriyi bilinçli yenilemek için `node deploy/scripts/refresh-element-properties.mjs` ve `node deploy/scripts/refresh-compound-properties.mjs --force`; API çalışırken dış kaynağa bağımlı değildir.
 - Siparişe gram cinsinden sayısal `quantity` gönderilir (en fazla dört ondalık). `Idempotency-Key` olarak aynı UUID ile tekrar gönderilen aynı sipariş yalnız bir kez ücretlendirilir; farklı içerik `409` döner.
 - Kasadaki her ürün `symbol + compoundSlug` ile ayrılır. NaCl, saf Na gibi satılamaz. Satışta aynı `compoundSlug` gönderilir; alış ve satış fiyatı sunucuda hesaplanır. Başarısız/zaman aşımına uğramış siparişte ayrılan stok serbest bırakılır, tahsil edilmiş Kredi bir kez iade edilir.
-- Para birimi kodu `KREDI`, fiyat kaynağı `simulation`dır. Eski istemcilerin çalışması için `balanceElx`, `avgCostElx`, `proceedsElx` alan adları korunur; bu alanların değerleri Kredi'dir.
+- Para birimi kodu `KREDI`, fiyat kaynağı `simulation`dır. **Kasıtlı kırıcı rename yok:** wire/API alan adları ve reason kodları geçmişten kalan `*Elx` biçiminde kalır; değerler Kredi'dir. Korunan isimler: `balanceElx`, `avgCostElx`, `proceedsElx`, `requiredElx`, reason `INSUFFICIENT_ELX`, DB kolonları `balance_elx` / `avg_cost_elx` / `elx`. Yanıtta `currency: "KREDI"` ile doğrulayın. Bu paragraf tek kaynak gerçeğidir (servis README’leri buraya işaret eder).
 - Cüzdan ve siparişler ortak yanıt önbelleğine girmez. Özel sipariş durumları herkese açık SignalR kanalında yayımlanmaz; istemci kendi siparişlerini kimlik doğrulayarak sorgular. İç servis çağrıları ayrıca paylaşılan servis anahtarı ister.
 
 ### Tam Docker ortamı
@@ -168,6 +168,8 @@ Gateway üzerinden (`localhost:5000`) erişilen rotalar:
 | Rota | Hedef | Auth |
 |------|-------|------|
 | `GET /api/v1` | Catalog discovery | — |
+| `GET /api/v2/elements/**` | Catalog (bilimsel) | Public (`fields` / ETag / CORS) |
+| `GET /api/v2/compounds/**` | Compound (bilimsel) | Public |
 | `GET /api/v1/elements/**` | Catalog | History API key; **ticker public** |
 | `GET /api/v1/compounds/**` | Compound | Public |
 | `GET /api/v1/market/**` | Catalog | Public (movers, board) |
@@ -198,6 +200,8 @@ Tüm backend servislerde tutarlı ops yüzeyi:
 
 Payment ek olarak: `/actuator/health/liveness`, `/actuator/health/readiness`
 
+Prometheus `/metrics`, HealthChecks UI (`/health-ui`) ve ELK/Grafana yığını **bilinçli olarak kaldırıldı**; bu uçlar 404 beklenir.
+
 ---
 
 ## Veritabanları
@@ -219,12 +223,10 @@ Tek Postgres instance, ayrı veritabanları:
 ```bash
 ./deploy/scripts/build-all.ps1
 ./deploy/scripts/test-unit.ps1
-./deploy/scripts/test-smoke.ps1   # Stack ayaktayken smoke test
+./deploy/scripts/test-smoke.ps1   # Yerel servisler ayaktayken smoke test
 ```
 
-Tek servis: ilgili klasörde `docker compose up -d --build` (kendi README'sine bakın).
-
-Çalışan yol: docker compose (veya günlük geliştirmede host + yalnız postgres/redis/rabbitmq).
+Günlük döngü: host’ta `start-local.ps1` + `web-app` Vite; Docker yalnız postgres/redis/rabbitmq (üstteki **Hızlı başlangıç**). Tek servisi Docker ile denemek için o servisin README’sine bakın — platformu her değişiklikte `docker compose up --build` ile yeniden derlemeyin.
 
 ---
 

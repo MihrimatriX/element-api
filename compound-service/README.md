@@ -9,11 +9,22 @@ Bileşik / allotrop / preparat kataloğu (.NET 9). Fiyat ve stok catalog-service
 | **Swagger** | [localhost:5007/swagger](http://localhost:5007/swagger) |
 | **Info** | `GET /info` |
 
-RabbitMQ yok. Gateway: `GET /api/v1/compounds/**` (anahtarsız).
+RabbitMQ yok. Gateway: `GET /api/v1/compounds/**` ve `GET /api/v2/compounds/**` (anahtarsız).
 
 ---
 
 ## API
+
+### Bilimsel katalog (v2)
+
+| Method | Path | Açıklama |
+|--------|------|----------|
+| GET | `/api/v2/compounds` | Liste — `q`, `view`, `include`, `fields`, `page`, `pageSize` |
+| GET | `/api/v2/compounds/{id}` | Tek kayıt — slug (`aspirin`) veya PubChem CID |
+
+Saf bileşikler; preparat/allotrop bu koleksiyona karışmaz. Atlas alanları + PubChem yapı görselleri `refresh-atlas.mjs` ile uygulanır.
+
+### Mağaza / SKU (v1)
 
 | Method | Path | Açıklama |
 |--------|------|----------|
@@ -45,7 +56,7 @@ Fiyat = ana element alış × `priceMult` × gram. Bu servis çarpanı döner; s
 dotnet run --project Element.Services.Compound.API/Element.Services.Compound.API.csproj
 ```
 
-Yerel Postgres: `element_compound_db`. Compose portu `5007:8080`.
+Yerel Postgres: `element_compound_db`. Compose portu `5007:8080`. Günlük yol: kök `start-local.ps1`.
 
 ---
 

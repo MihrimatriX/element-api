@@ -31,11 +31,13 @@ Gateway üzerinden erişim: `localhost:5000/api/v1/orders` (API key). `POST /ord
 | GET | `/api/v1/orders/search` | `X-User-Id` | **Filtreli arama** |
 | GET | `/api/v1/orders/stats` | `X-User-Id` | İstatistik özeti |
 | GET | `/api/v1/orders/{id}` | `X-User-Id` | Tek sipariş (başkasınınki 404) |
-| GET | `/api/v1/me/wallet` | `X-User-Id` | Cüzdan; ilk çağrı 10_000 ELX grant |
+| GET | `/api/v1/me/wallet` | `X-User-Id` | Cüzdan; ilk çağrı **10_000 KREDI** grant |
 | GET | `/api/v1/me/holdings` | `X-User-Id` | Gram pozisyonları |
 | POST | `/api/v1/desk/sell` | `X-User-Id` | Bid’den sat `{ symbol, grams }` |
 | POST | `/internal/wallet/debit` | `INTERNAL_API_KEY` | Sipariş debit (idempotent `order_id`) |
 | POST | `/internal/wallet/credit` \| `/refund` | `INTERNAL_API_KEY` | Debit olduysa iade |
+
+Para birimi **KREDI**. Wire alanları (`balanceElx`, …) ve 402 reason `INSUFFICIENT_ELX` korunur — kök [README](../README.md) § Bilimsel veri ve alışveriş sözleşmesi.
 
 ### Arama parametreleri (`/orders/search`)
 
@@ -88,11 +90,14 @@ Detay: [contracts/README.md](../contracts/README.md)
 ## Çalıştırma
 
 ```bash
-cd order-service && docker compose up -d --build
+# Host (tercih) — Postgres/Redis/Rabbit + catalog/compound ayakta
 npm ci && npm run build && npm start
+
+# veya kök start-local.ps1 (order dahil)
+./deploy/scripts/start-local.ps1 -IncludePayment
 ```
 
-Tam saga için kök `docker compose` kullanın.
+Tam saga için payment + shipment + RabbitMQ gerekir. İsteğe bağlı: `cd order-service && docker compose up -d --build`.
 
 ---
 
@@ -104,9 +109,9 @@ Tam saga için kök `docker compose` kullanın.
 | `DATABASE_URL` | PostgreSQL connection |
 | `REDIS_URL` | Redis |
 | `RABBITMQ_HOST` | RabbitMQ |
-| `CATALOG_SERVICE_URL` | `http://catalog-service:8080` |
+| `CATALOG_SERVICE_URL` | `http://localhost:5002` |
 | `COMPOUND_SERVICE_URL` | `http://localhost:5007` |
-| `LOGSTASH_HTTP_URL` | Log shipping |
+| `INTERNAL_API_KEY` | Internal wallet çağrıları |
 
 ---
 

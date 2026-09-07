@@ -15,12 +15,28 @@ ElementAPI arayüzü — React 19 + Vite + TypeScript + nginx.
 - Periyodik tablo ve bileşik keşfi, bilimsel ayrıntı, laboratuvar (`/lab`)
 - Piyasa masası (`/market`), mağaza (`/shop`), hesap, API dokümantasyonu
 - Kâğıt kredi cüzdan, gram sepet, SignalR fiyat (login gerekmez)
+- Atlas medya: `public/media/atlas/` (fotoğraf + PubChem yapı PNG)
 
-Statik SPA — tüm veri gateway API'den gelir.
+Statik SPA — tüm veri gateway API'den gelir. Bilimsel kayıtlar `GET /api/v2/...`; piyasa/sipariş `GET /api/v1/...`.
 
 ---
 
-## Endpoint'ler
+## Önemli rotalar
+
+| Path | Sayfa |
+|------|-------|
+| `/`, `/periodic` | Keşif / periyodik tablo |
+| `/element/:symbol`, `/compound/:slug` | Bilimsel ayrıntı |
+| `/compounds` | Bileşik listesi |
+| `/lab` | Keşif laboratuvarı (localStorage; cüzdan/sipariş yok) |
+| `/market`, `/shop` | Piyasa · mağaza |
+| `/docs` | API dokümantasyonu |
+| `/hakkinda` | Hakkında |
+| `/stack` | Eski ops sayfası → `/hakkinda` yönlendirmesi |
+
+---
+
+## Endpoint'ler (nginx / container)
 
 | Path | Açıklama |
 |------|----------|
@@ -41,16 +57,21 @@ Statik SPA — tüm veri gateway API'den gelir.
 
 ## Çalıştırma
 
-```bash
-# Geliştirme (tercih)
-npm ci
-npm run dev    # http://localhost:5173
+Tercih: host Vite (tam Docker web rebuild gerekmez). Gateway `localhost:5000` ayakta olmalı.
 
-# Docker web (gateway ayakta olmalı)
-cd web-app && docker compose up -d --build
+```bash
+npm ci
+npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
+# http://localhost:5173
 ```
 
-Test: `npm test` (laboratuvar keşif mantığı).
+Test: `npm test` (laboratuvar keşif mantığı). Üretim derlemesi: `npm run build`.
+
+Docker web (isteğe bağlı; gateway ayakta olmalı):
+
+```bash
+cd web-app && docker compose up -d --build
+```
 
 Build arg (Docker) — subdomain / HTTPS için public origin yaz, sonra rebuild:
 
@@ -63,7 +84,7 @@ Runtime (`PUBLIC_SITE_URL`): `robots.txt` ve `sitemap.xml` içindeki `__SITE_URL
 
 OG görseli: `/og.png` (1200×630). Favicon: `/favicon.svg`.
 
-Ayrıntı: kök README **Public / subdomain**.
+Ayrıntı: kök README **Public / subdomain**; atlas yenileme: `node deploy/scripts/refresh-atlas.mjs`.
 
 ---
 
