@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Element.Services.Compound.Core.Entities;
+using Element.Services.Compound.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -46,15 +46,11 @@ await check('web: SPA routes and static assets', async () => {
     for (const asset of assets) await request(web + asset[1]);
   }
 });
-await check('GraphQL resolves live catalog prices through the gateway', async () => {
-  const body = await json(`${api}/graphql`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: '{ elementPrice(symbol: "Au") { symbol pricePerGram bid ask } }' }),
-  });
-  assert.equal(body.errors, undefined);
-  assert.equal(body.data.elementPrice.symbol, 'Au');
-  assert.ok(body.data.elementPrice.pricePerGram > 0);
-  assert.ok(body.data.elementPrice.ask >= body.data.elementPrice.bid);
+await check('REST ticker resolves live catalog prices through the gateway', async () => {
+  const body = await json(`${api}/api/v1/elements/Au/ticker`);
+  assert.equal(body.symbol, 'Au');
+  assert.ok(body.last > 0);
+  assert.ok(body.ask >= body.bid);
 });
 await check('SignalR receives a real price event through the gateway', async () => {
   const require = createRequire(new URL('../../web-app/package.json', import.meta.url));

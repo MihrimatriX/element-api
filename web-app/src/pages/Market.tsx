@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelectedElement } from '../App';
-import { compoundService, elementService, walletService, type BoardRow, type Ticker, type Holding } from '../services/api';
+import { compoundService, elementService, walletService, apiError, type BoardRow, type Ticker, type Holding } from '../services/api';
 import { pagePath } from '../config';
 import Seo from '../components/Seo';
 
@@ -132,8 +132,7 @@ export default function Market() {
       const t = await elementService.getTicker(selectedSymbol);
       setTicker(t);
     } catch (err: unknown) {
-      const ax = err as { response?: { data?: { error?: string } } };
-      setSellMsg(ax.response?.data?.error || 'Satış yapılamadı.');
+      setSellMsg(apiError(err, 'Satış yapılamadı.'));
     } finally {
       setSelling(false);
     }

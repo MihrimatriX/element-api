@@ -60,9 +60,6 @@ Actuator yalnız `health` + `info` expose eder. Prometheus `/actuator/prometheus
 ```bash
 # Host (tercih) — kök start-local -IncludePayment
 mvn spring-boot:run
-
-# İsteğe bağlı
-cd payment-service && docker compose up -d --build
 ```
 
 Docker healthcheck: `GET /health`. Eski `target/` Logstash XML içeriyorsa clean rebuild gerekir.

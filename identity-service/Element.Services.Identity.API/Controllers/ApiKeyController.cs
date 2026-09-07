@@ -3,8 +3,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Element.Services.Identity.Core.DTOs;
-using Element.Services.Identity.Core.Interfaces;
 using Element.Services.Identity.Infrastructure.Persistence;
+using Element.Services.Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +16,10 @@ namespace Element.Services.Identity.API.Controllers;
 [Route("api/v1/api-keys")]
 public class ApiKeyController : ControllerBase
 {
-    private readonly IApiKeyService _apiKeyService;
+    private readonly ApiKeyService _apiKeyService;
     private readonly IdentityAppDbContext _context;
 
-    public ApiKeyController(IApiKeyService apiKeyService, IdentityAppDbContext context)
+    public ApiKeyController(ApiKeyService apiKeyService, IdentityAppDbContext context)
     {
         _apiKeyService = apiKeyService;
         _context = context;

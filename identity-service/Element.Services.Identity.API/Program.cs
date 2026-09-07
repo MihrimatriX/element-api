@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using Element.Services.Identity.Core.Entities;
-using Element.Services.Identity.Core.Interfaces;
 using Element.Services.Identity.Infrastructure.Persistence;
 using Element.Services.Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,8 +42,8 @@ var redisConn = builder.Configuration.GetValue<string>("RedisConnection") ?? "lo
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConn));
 
 // Register DI Services
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IApiKeyService, ApiKeyService>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<ApiKeyService>();
 
 // Add JWT Auth
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured.");

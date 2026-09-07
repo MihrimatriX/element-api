@@ -1,10 +1,9 @@
-using Element.Services.Compound.Core.Abstractions;
-using Element.Services.Compound.Core.Entities;
+using Element.Services.Compound.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Compound.Infrastructure.Persistence;
 
-public class EfCompoundRepository : ICompoundRepository
+public class EfCompoundRepository
 {
     private readonly CompoundDbContext _db;
 

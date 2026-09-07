@@ -1,4 +1,4 @@
-namespace Element.Services.Compound.Core.Entities;
+namespace Element.Services.Compound.Infrastructure.Entities;
 
 public class ChemicalCompound
 {

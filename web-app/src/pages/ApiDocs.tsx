@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { API_ORIGIN, getPublicSiteUrl, pagePath } from '../config';
 import { useSelectedElement } from '../App';
 import Seo from '../components/Seo';
@@ -35,9 +34,16 @@ export default function ApiDocs() {
   const apiKey = typeof window !== 'undefined' ? localStorage.getItem('apiKey') : null;
 
   useEffect(() => {
-    axios.get(`${API_ORIGIN}/api/v2/elements/fe`, { timeout: 10000 })
-      .then((res) => setApiResponse(res.data))
-      .catch((err) => setApiResponse({ error: err.message, note: 'Demir bilimsel kaydı yüklenemedi.' }));
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    fetch(`${API_ORIGIN}/api/v2/elements/fe`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setApiResponse(await res.json());
+      })
+      .catch((err) => setApiResponse({ error: err.message, note: 'Demir bilimsel kaydı yüklenemedi.' }))
+      .finally(() => clearTimeout(timer));
+    return () => { controller.abort(); clearTimeout(timer); };
   }, []);
 
   const headers: Record<string, string> = {};
@@ -60,13 +66,21 @@ export default function ApiDocs() {
 
   const handleTryIt = async () => {
     setIsLoading(true);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
     try {
-      const response = await axios.get(`${API_ORIGIN}${tryItEndpoint}`, { headers, timeout: 10000 });
-      setApiResponse(response.data);
+      const response = await fetch(`${API_ORIGIN}${tryItEndpoint}`, { headers, signal: controller.signal });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setApiResponse(data ?? { error: `HTTP ${response.status}`, status: response.status });
+      } else {
+        setApiResponse(data);
+      }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: unknown; status?: number }; message?: string };
-      setApiResponse(err.response?.data ?? { error: err.message, status: err.response?.status });
+      const err = error as { message?: string };
+      setApiResponse({ error: err.message });
     } finally {
+      clearTimeout(timer);
       setIsLoading(false);
     }
   };

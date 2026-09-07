@@ -62,9 +62,6 @@ const hub = new signalR.HubConnectionBuilder()
 ```bash
 # Host (tercih)
 dotnet run --project Element.Services.Notification.API/Element.Services.Notification.API.csproj
-
-# İsteğe bağlı
-cd notification-service && docker compose up -d --build
 ```
 
 ---

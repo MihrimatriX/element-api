@@ -1,9 +1,6 @@
 using System.Text.Json;
-using System.Threading.Tasks;
 using Element.Gateway.Middleware.ApiKeyValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using System.Net.Http;
 using StackExchange.Redis;
 using Yarp.ReverseProxy.Model;
 
@@ -33,8 +30,7 @@ public class ApiKeyValidationMiddleware
         var endpoint = context.GetEndpoint();
         var routeModel = endpoint?.Metadata.GetMetadata<RouteModel>();
 
-        // Check if route has "RequireApiKey" metadata set to "true"
-        var requireApiKey = routeModel?.Config.Metadata?.TryGetValue("RequireApiKey", out var value) == true 
+        var requireApiKey = routeModel?.Config.Metadata?.TryGetValue("RequireApiKey", out var value) == true
                             && value == "true";
 
         if (!requireApiKey)
@@ -47,28 +43,11 @@ public class ApiKeyValidationMiddleware
         // caches therefore cannot safely infer that wallet/order data is private.
         context.Response.Headers.CacheControl = "private, no-store";
 
-        // Get API Key from header
         context.Request.Headers.TryGetValue("X-API-Key", out var apiKeyValues);
-        var apiKey = apiKeyValues.ToString();
+        var (ok, validationContext) = await ApiKeyValidator.ValidateApiKeyAsync(
+            context, apiKeyValues.ToString(), _redisMultiplexer, _httpClientFactory, _configuration);
 
-        // Construct Chain of Responsibility
-        var headerCheck = new HeaderCheckHandler();
-        var formatCheck = new FormatCheckHandler();
-        var redisCheck = new RedisCacheCheckHandler(_redisMultiplexer);
-        var dbCheck = new DatabaseCheckHandler(_httpClientFactory, _configuration);
-        var rateLimitCheck = new RateLimitCheckHandler(_redisMultiplexer);
-
-        headerCheck.SetNext(formatCheck)
-                   .SetNext(redisCheck)
-                   .SetNext(dbCheck)
-                   .SetNext(rateLimitCheck);
-
-        var validationContext = new ApiKeyValidationContext();
-
-        // Execute chain
-        var isAuthorized = await headerCheck.HandleAsync(context, apiKey, validationContext);
-
-        if (!isAuthorized)
+        if (!ok)
         {
             context.Response.StatusCode = validationContext.StatusCode;
             context.Response.ContentType = "application/json";
@@ -86,7 +65,6 @@ public class ApiKeyValidationMiddleware
             return;
         }
 
-        // Forward authenticated User ID to downstream services
         context.Request.Headers["X-User-Id"] = validationContext.UserId.ToString();
         context.Request.Headers["INTERNAL_API_KEY"] = _configuration["INTERNAL_API_KEY"];
 

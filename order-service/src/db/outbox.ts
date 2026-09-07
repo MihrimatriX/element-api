@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
 import { pool } from './pool.js';
 import { MessageType } from '../messaging/massTransit.js';
@@ -23,7 +23,7 @@ export async function enqueueOutbox(
     id?: string;
   }
 ): Promise<string> {
-  const id = entry.id ?? uuidv4();
+  const id = entry.id ?? randomUUID();
   await client.query(
     `INSERT INTO outbox_messages (id, message_type, payload, route, route_target)
      VALUES ($1, $2, $3, $4, $5)`,

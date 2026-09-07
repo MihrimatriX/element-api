@@ -13,24 +13,30 @@ namespace Element.Gateway.Tests;
 
 public class GatewayHandlerTests
 {
+    private const string ValidKey = "ele_live_12345678901234567890123456789012";
+
     [Fact]
-    public async Task DatabaseCheckHandler_Returns503_WhenIdentityUnreachable()
+    public async Task ValidateApiKeyAsync_Returns503_WhenIdentityUnreachable()
     {
         var mockFactory = new Mock<IHttpClientFactory>();
         mockFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Throws(new HttpRequestException("down"));
 
-        var dbHandler = new DatabaseCheckHandler(mockFactory.Object, new ConfigurationBuilder().Build());
+        var redisDb = new Mock<IDatabase>();
+        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(RedisValue.Null);
+        var multiplexer = new Mock<IConnectionMultiplexer>();
+        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
+
         var context = new DefaultHttpContext();
-        var validationContext = new ApiKeyValidationContext();
+        var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
+            context, ValidKey, multiplexer.Object, mockFactory.Object, new ConfigurationBuilder().Build());
 
-        var result = await dbHandler.HandleAsync(context, "ele_live_12345678901234567890123456789012", validationContext);
-
-        result.Should().BeFalse();
-        validationContext.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
+        ok.Should().BeFalse();
+        vc.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
     }
 
     [Fact]
-    public async Task DatabaseCheckHandler_SetsUser_WhenIdentityValidates()
+    public async Task ValidateApiKeyAsync_SetsUser_WhenIdentityValidates()
     {
         var userId = Guid.NewGuid();
         var responseJson = JsonSerializer.Serialize(new
@@ -56,20 +62,28 @@ public class GatewayHandlerTests
         var mockFactory = new Mock<IHttpClientFactory>();
         mockFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
 
-        var dbHandler = new DatabaseCheckHandler(mockFactory.Object, new ConfigurationBuilder().Build());
+        var redisDb = new Mock<IDatabase>();
+        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(RedisValue.Null);
+        redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(1L);
+        redisDb.Setup(r => r.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(true);
+        var multiplexer = new Mock<IConnectionMultiplexer>();
+        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
+
         var context = new DefaultHttpContext();
-        var validationContext = new ApiKeyValidationContext();
+        var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
+            context, ValidKey, multiplexer.Object, mockFactory.Object, new ConfigurationBuilder().Build());
 
-        var result = await dbHandler.HandleAsync(context, "ele_live_12345678901234567890123456789012", validationContext);
-
-        result.Should().BeTrue();
-        validationContext.IsActive.Should().BeTrue();
-        validationContext.UserId.Should().Be(userId);
-        validationContext.RateLimitTps.Should().Be(20);
+        ok.Should().BeTrue();
+        vc.IsActive.Should().BeTrue();
+        vc.UserId.Should().Be(userId);
+        vc.RateLimitTps.Should().Be(20);
     }
 
     [Fact]
-    public async Task RedisCacheCheckHandler_SetsContext_FromCache()
+    public async Task ValidateApiKeyAsync_SetsContext_FromRedisCache()
     {
         var userId = Guid.NewGuid();
         var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 15 });
@@ -77,61 +91,65 @@ public class GatewayHandlerTests
         var redisDb = new Mock<IDatabase>();
         redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
             .ReturnsAsync((RedisValue)cached);
-
+        redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(1L);
+        redisDb.Setup(r => r.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(true);
         var multiplexer = new Mock<IConnectionMultiplexer>();
         multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
 
-        var handler = new RedisCacheCheckHandler(multiplexer.Object);
         var context = new DefaultHttpContext();
-        var validationContext = new ApiKeyValidationContext();
+        var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
+            context, ValidKey, multiplexer.Object, Mock.Of<IHttpClientFactory>(), new ConfigurationBuilder().Build());
 
-        await handler.HandleAsync(context, "ele_live_12345678901234567890123456789012", validationContext);
-
-        validationContext.IsActive.Should().BeTrue();
-        validationContext.UserId.Should().Be(userId);
-        validationContext.RateLimitTps.Should().Be(15);
+        ok.Should().BeTrue();
+        vc.IsActive.Should().BeTrue();
+        vc.UserId.Should().Be(userId);
+        vc.RateLimitTps.Should().Be(15);
         context.Items["HashedApiKey"].Should().NotBeNull();
     }
 
     [Fact]
-    public async Task RateLimitCheckHandler_Returns429_WhenOverLimit()
+    public async Task ValidateApiKeyAsync_Returns429_WhenOverLimit()
     {
+        var userId = Guid.NewGuid();
+        var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 10 });
+
         var redisDb = new Mock<IDatabase>();
+        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync((RedisValue)cached);
         redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
             .ReturnsAsync(11L);
-
         var multiplexer = new Mock<IConnectionMultiplexer>();
         multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
 
-        var handler = new RateLimitCheckHandler(multiplexer.Object);
         var context = new DefaultHttpContext();
-        context.Items["HashedApiKey"] = "abc123";
-        var validationContext = new ApiKeyValidationContext { RateLimitTps = 10 };
+        var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
+            context, ValidKey, multiplexer.Object, Mock.Of<IHttpClientFactory>(), new ConfigurationBuilder().Build());
 
-        var result = await handler.HandleAsync(context, "ele_live_12345678901234567890123456789012", validationContext);
-
-        result.Should().BeFalse();
-        validationContext.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
+        ok.Should().BeFalse();
+        vc.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
     }
 
     [Fact]
-    public async Task RateLimitCheckHandler_Returns429_WhenRedisThrows()
+    public async Task ValidateApiKeyAsync_Returns429_WhenRedisRateLimitThrows()
     {
+        var userId = Guid.NewGuid();
+        var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 10 });
+
         var redisDb = new Mock<IDatabase>();
+        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync((RedisValue)cached);
         redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
             .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.UnableToConnect, "down"));
-
         var multiplexer = new Mock<IConnectionMultiplexer>();
         multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
 
-        var handler = new RateLimitCheckHandler(multiplexer.Object);
         var context = new DefaultHttpContext();
-        context.Items["HashedApiKey"] = "abc123";
-        var validationContext = new ApiKeyValidationContext { RateLimitTps = 10 };
+        var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
+            context, ValidKey, multiplexer.Object, Mock.Of<IHttpClientFactory>(), new ConfigurationBuilder().Build());
 
-        var result = await handler.HandleAsync(context, "ele_live_12345678901234567890123456789012", validationContext);
-
-        result.Should().BeFalse();
-        validationContext.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
+        ok.Should().BeFalse();
+        vc.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
     }
 }

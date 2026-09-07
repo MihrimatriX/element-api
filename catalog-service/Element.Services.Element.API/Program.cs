@@ -79,8 +79,6 @@ builder.Services.AddSwaggerGen(c =>
         c.IncludeXmlComments(xmlPath);
     }
 });
-builder.Services.AddGrpc(); // Add gRPC
-
 // Add Health Checks
 var dbConn = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
 builder.Services.AddHealthChecks()
@@ -90,9 +88,6 @@ builder.Services.AddHealthChecks()
 var app = builder.Build();
 
 await app.ApplyDatabaseAsync<ElementDbContext>("element_market_db");
-
-var gatewayGraphql = app.Configuration["GatewayPublicUrl"]
-    ?? $"{(app.Configuration["PUBLIC_API_BASE"] ?? "http://localhost:5000").Trim().TrimEnd('/')}/graphql";
 
 // Swagger is always available for this open public API
 app.UseSwagger();
@@ -106,12 +101,10 @@ app.UseRequestLogging();
 app.UseGlobalExceptionHandling();
 app.UseAuthorization();
 app.MapControllers();
-app.MapGrpcService<Element.Services.Element.API.Grpc.ElementGrpcService>();
 app.MapStandardOpsEndpoints("Element.Catalog", new Dictionary<string, string>
 {
     ["api"] = "/api/v1",
-    ["swagger"] = "/swagger",
-    ["graphql"] = gatewayGraphql
+    ["swagger"] = "/swagger"
 });
 
 try

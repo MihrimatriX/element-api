@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Element.Services.Shipment.Core\Element.Services.Shipment.Core.csproj" />
     <ProjectReference Include="..\..\shared-lib\Element.Shared.csproj" />
   </ItemGroup>
 

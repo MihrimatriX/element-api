@@ -67,11 +67,7 @@ npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 
 Test: `npm test` (laboratuvar keşif mantığı). Üretim derlemesi: `npm run build`.
 
-Docker web (isteğe bağlı; gateway ayakta olmalı):
-
-```bash
-cd web-app && docker compose up -d --build
-```
+Docker web: kök `docker-compose.yml` içindeki `web-app` servisi (host Vite tercih edilir).
 
 Build arg (Docker) — subdomain / HTTPS için public origin yaz, sonra rebuild:
 

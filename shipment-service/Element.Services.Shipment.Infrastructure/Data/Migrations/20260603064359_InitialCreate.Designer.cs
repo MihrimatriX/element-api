@@ -25,7 +25,7 @@ namespace Element.Services.Shipment.Infrastructure.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Element.Services.Shipment.Core.Entities.Shipment", b =>
+            modelBuilder.Entity("Element.Services.Shipment.Infrastructure.Entities.ShipmentRecord", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

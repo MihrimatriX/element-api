@@ -1,4 +1,4 @@
-using Element.Services.Compound.Core.Entities;
+using Element.Services.Compound.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Compound.Infrastructure.Persistence;

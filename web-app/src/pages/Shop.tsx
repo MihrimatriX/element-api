@@ -5,6 +5,8 @@ import { pagePath } from '../config';
 import Seo from '../components/Seo';
 import {
   addToCart,
+  apiError,
+  ApiHttpError,
   cartLineKey,
   compoundService,
   elementService,
@@ -175,10 +177,10 @@ export default function Shop() {
       refreshWallet();
       toast('Sipariş iletildi');
     } catch (err: unknown) {
-      const ax = err as { response?: { status?: number; data?: { error?: string } } };
-      setCheckoutNote((ax.response?.status === 402
+      const detail = err instanceof ApiHttpError && err.status === 402
         ? 'Cüzdanda yeterli kredi yok.'
-        : (ax.response?.data?.error || 'Sipariş iletilemedi.')) + ' Kalan ürünler sepette. Güvenle tekrar deneyebilirsiniz.');
+        : apiError(err, 'Sipariş iletilemedi.');
+      setCheckoutNote(`${detail} Kalan ürünler sepette. Güvenle tekrar deneyebilirsiniz.`);
     } finally {
       setSubmitting(false);
     }

@@ -23,10 +23,6 @@ public class ApiInfoController : ControllerBase
     public IActionResult GetApiInfo()
     {
         var baseUrl = PublicBaseUrl.Resolve(Request, _configuration);
-        var gateway = _configuration["PUBLIC_API_BASE"]
-            ?? _configuration["GatewayPublicUrl"]
-            ?? "http://localhost:5000";
-        gateway = gateway.Trim().TrimEnd('/');
         var resources = new Dictionary<string, string>
         {
             { "scientific_elements", $"{baseUrl}/api/v2/elements" },
@@ -43,7 +39,6 @@ public class ApiInfoController : ControllerBase
             { "compounds", $"{baseUrl}/api/v1/compounds" },
             { "market_movers", $"{baseUrl}/api/v1/market/movers" },
             { "market_board", $"{baseUrl}/api/v1/market/board" },
-            { "graphql", $"{gateway}/graphql" },
             { "swagger", $"{baseUrl}/swagger" },
             { "health", $"{baseUrl}/health" },
             { "info", $"{baseUrl}/info" }

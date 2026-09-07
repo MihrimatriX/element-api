@@ -9,7 +9,7 @@
 | Surface | Role |
 |---------|------|
 | `web-app` | Periodic table, compound explorer, `/lab` discovery game, market, shop, API docs |
-| `gateway-service :5000` | YARP + GraphQL BFF; single public API entry |
+| `gateway-service :5000` | YARP; single public API entry |
 | `catalog-service :5002` | Elements + market/stock |
 | `compound-service :5007` | Compounds |
 | `identity-service :5001` | Auth, JWT, API keys |

@@ -1,8 +1,8 @@
 using System;
 
-namespace Element.Services.Shipment.Core.Entities;
+namespace Element.Services.Shipment.Infrastructure.Entities;
 
-public class Shipment
+public class ShipmentRecord
 {
     public Guid Id { get; set; }
     public Guid OrderId { get; set; }

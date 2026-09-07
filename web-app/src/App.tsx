@@ -17,8 +17,12 @@ const Compounds = lazy(() => import('./pages/Compounds'));
 const ScientificDetail = lazy(() => import('./components/ScientificDetail'));
 const Laboratory = lazy(() => import('./pages/Laboratory'));
 import { HUB_URL } from './config';
-import { readLocal, writeLocal, removeLocal } from './services/storage';
 import { type ElementItem, STATIC_ELEMENTS, mergeElementData } from './services/elementData';
+
+// Scientific pages remain usable when browser storage is disabled.
+function readLocal(key: string): string | null { try { return window.localStorage.getItem(key); } catch { return null; } }
+function writeLocal(key: string, value: string): boolean { try { window.localStorage.setItem(key, value); return true; } catch { return false; } }
+function removeLocal(key: string): void { try { window.localStorage.removeItem(key); } catch { /* nothing persisted */ } }
 
 interface SelectedElementContextType {
   selectedSymbol: string;

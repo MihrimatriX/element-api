@@ -1,5 +1,5 @@
 import type { Express, Request, Response } from 'express';
-import { buildHealthUiResponse } from './healthUi.js';
+import { buildHealthResponse } from './healthUi.js';
 import { packageJson } from './meta.js';
 
 type HealthChecker = () => Promise<{
@@ -9,18 +9,18 @@ type HealthChecker = () => Promise<{
 
 export function registerOpsEndpoints(app: Express, checkHealth: HealthChecker): void {
   app.get('/health/live', (_req, res) => {
-    res.json(buildHealthUiResponse([]));
+    res.json(buildHealthResponse([]));
   });
 
   app.get('/health/ready', async (_req, res) => {
     const h = await checkHealth();
-    const body = buildHealthUiResponse(h.checks);
+    const body = buildHealthResponse(h.checks);
     res.status(h.ok ? 200 : 503).json(body);
   });
 
   app.get('/health', async (_req, res) => {
     const h = await checkHealth();
-    const body = buildHealthUiResponse(h.checks);
+    const body = buildHealthResponse(h.checks);
     res.status(h.ok ? 200 : 503).json(body);
   });
 

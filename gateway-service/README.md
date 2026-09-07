@@ -1,6 +1,6 @@
 # gateway-service
 
-Tek giriş noktası — YARP reverse proxy, API key doğrulama, rate limiting, GraphQL BFF (.NET 9).
+Tek giriş noktası — YARP reverse proxy, API key doğrulama, rate limiting (.NET 9).
 
 | | |
 |--|--|
@@ -15,7 +15,6 @@ Tek giriş noktası — YARP reverse proxy, API key doğrulama, rate limiting, G
 - REST trafiğini identity, catalog, compound, order, notification servislerine yönlendirme
 - `X-API-Key` doğrulama (Identity internal validate + Redis cache)
 - Global rate limit (100 req / 10 sn / API key veya IP)
-- GraphQL BFF — `elementPrice(symbol)` sorgusu
 - SignalR proxy — `/hub/notifications`
 
 ## Veritabanı
@@ -34,7 +33,6 @@ Yok — stateless proxy. Redis: rate limit / cache.
 | GET | `/health` | Readiness (Redis) |
 | GET | `/health/live` | Liveness |
 | GET | `/health/ready` | Readiness |
-| POST | `/graphql` | GraphQL BFF |
 
 ### Proxy rotaları
 
@@ -79,9 +77,6 @@ Günlük yol: kök `./deploy/scripts/start-local.ps1` (gateway host’ta `:5000`
 ```bash
 # Host (tercih) — Redis + backend’ler ayakta olmalı
 dotnet run --project Element.Gateway.csproj
-
-# İsteğe bağlı: yalnız gateway imajı
-cd gateway-service && docker compose up -d --build
 ```
 
 ---
