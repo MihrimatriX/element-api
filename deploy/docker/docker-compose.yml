@@ -1,3 +1,0 @@
-# Geriye dönük uyumluluk — asıl dosya repo kökünde.
-include:
-  - path: ../../docker-compose.yml

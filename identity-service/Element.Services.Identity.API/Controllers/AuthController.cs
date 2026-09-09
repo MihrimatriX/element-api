@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.Identity.Core.Entities;
-using Element.Services.Identity.Core.Interfaces;
+using Element.Services.Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +12,9 @@ namespace Element.Services.Identity.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly ITokenService _tokenService;
+    private readonly TokenService _tokenService;
 
-    public AuthController(UserManager<ApplicationUser> userManager, ITokenService tokenService)
+    public AuthController(UserManager<ApplicationUser> userManager, TokenService tokenService)
     {
         _userManager = userManager;
         _tokenService = tokenService;

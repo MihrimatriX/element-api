@@ -4,7 +4,7 @@
 
 ```
 Browser / API client
-  → gateway :5000  (REST + GraphQL + SignalR proxy)
+  → gateway :5000  (REST + SignalR proxy)
     → identity / catalog / compound / order / notification
 order saga → RabbitMQ → payment + shipment (+ catalog stock events)
 identity, catalog, compound, order, shipment → PostgreSQL (separate DBs)

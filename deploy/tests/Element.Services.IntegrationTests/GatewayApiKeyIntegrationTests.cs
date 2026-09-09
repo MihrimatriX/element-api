@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using Element.Gateway.Middleware;
 using Element.Services.Identity.API.Controllers;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.IntegrationTests.Infrastructure;
@@ -92,8 +93,8 @@ public class GatewayApiKeyIntegrationTests : IClassFixture<IntegrationTestContai
                 builder.UseSetting("JwtSettings:Secret", "IntegrationTestSecretKey_Minimum32Chars!");
             });
 
-    private WebApplicationFactory<global::Element.Gateway.GraphQL.Query> CreateGatewayFactory(string identityBase) =>
-        new WebApplicationFactory<global::Element.Gateway.GraphQL.Query>()
+    private WebApplicationFactory<ApiKeyValidationMiddleware> CreateGatewayFactory(string identityBase) =>
+        new WebApplicationFactory<ApiKeyValidationMiddleware>()
             .WithWebHostBuilder(builder =>
             {
                 builder.UseSetting("RedisConnection", _containers.RedisConnection);

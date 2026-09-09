@@ -31,7 +31,7 @@ public static class IntegrationTestSettings
     };
 
     /// <summary>
-    /// Seeds Redis so Order can resolve price without gRPC (TestServer does not support gRPC).
+    /// Seeds Redis so Order can resolve catalog price via HTTP ticker.
     /// </summary>
     public static async Task SeedElementPriceCacheAsync(IntegrationTestContainers containers, string symbol, decimal pricePerGram)
     {

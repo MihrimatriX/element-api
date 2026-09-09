@@ -1,5 +1,5 @@
 import { asyncRouter, isQuantity, isSlug, isSymbol, isUuid } from '../http.js';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import * as orders from '../db/orders.js';
 import * as ledger from '../db/ledger.js';
 import { searchOrdersByCustomer } from '../db/orderSearch.js';
@@ -28,7 +28,7 @@ ordersRouter.post('/', async (req, res) => {
   }
   const requestKey = req.header('Idempotency-Key');
   if (requestKey && !isUuid(requestKey)) return res.status(400).json({ error: 'Idempotency-Key must be a UUID.' });
-  const orderId = requestKey || uuidv4();
+  const orderId = requestKey || randomUUID();
   const normalizedSlug = !compoundSlug || compoundSlug === 'elemental' || compoundSlug === `elemental-${elementSymbol.toLowerCase()}`
     ? null : compoundSlug;
   const replay = (existing: orders.OrderRow) => {

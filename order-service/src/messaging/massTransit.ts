@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 
 const NS = 'Element.Shared.Events:';
 
@@ -27,8 +27,8 @@ export function messageUrn(type: MessageType): string {
 
 export function wrapEnvelope<T extends object>(type: MessageType, message: T, messageId?: string): Buffer {
   const body = {
-    messageId: messageId ?? uuidv4(),
-    conversationId: uuidv4(),
+    messageId: messageId ?? randomUUID(),
+    conversationId: randomUUID(),
     messageType: [messageUrn(type)],
     message,
   };

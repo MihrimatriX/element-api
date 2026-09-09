@@ -16,15 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Console logging
 builder.AddConsoleLogging("Element.Gateway");
 
-// Add HttpClient for DatabaseCheckHandler and GraphQL BFF
+// Add HttpClient for identity API-key validate
 builder.Services.AddHttpClient();
-var elementServiceUrl = builder.Configuration["ElementServiceInternalUrl"]
-    ?? builder.Configuration["ReverseProxy:Clusters:element-cluster:Destinations:destination1:Address"]
-    ?? "http://localhost:5002";
-builder.Services.AddHttpClient("ElementService", client =>
-{
-    client.BaseAddress = new Uri(elementServiceUrl);
-});
 
 // Add Redis
 var redisConn = builder.Configuration.GetValue<string>("RedisConnection") ?? "localhost:6379";
@@ -99,12 +92,6 @@ builder.Services.AddCors(options =>
         });
 });
 
-
-// Add GraphQL
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType<Element.Gateway.GraphQL.Query>();
-
 builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
 var app = builder.Build();
 
@@ -121,10 +108,8 @@ app.UseRateLimiter();
 app.UseMiddleware<ApiKeyValidationMiddleware>();
 
 app.MapReverseProxy();
-app.MapGraphQL("/graphql");
 app.MapStandardOpsEndpoints("Element.Gateway", new Dictionary<string, string>
 {
-    ["graphql"] = "/graphql",
     ["catalog"] = "/api/v1",
     ["auth"] = "/api/v1/auth/login",
     ["orders"] = "/api/v1/orders",
@@ -145,3 +130,4 @@ finally
     Log.CloseAndFlush();
 }
 
+public partial class Program { }

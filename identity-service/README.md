@@ -61,16 +61,11 @@ Kimlik doğrulama, JWT oturumları ve API anahtarı yönetimi (.NET 9).
 ```bash
 # Host (tercih) — kök start-local; ortak Postgres host portu genelde 5434
 dotnet run --project Element.Services.Identity.API/Element.Services.Identity.API.csproj
-
-# İsteğe bağlı: yalnız identity + kendi Postgres/Redis
-cd identity-service && docker compose up -d --build
 ```
 
 | Yerel stack port | Değer |
 |------------------|-------|
 | API | `:5001` |
-| Postgres (standalone compose) | `:5431` |
-| Redis (standalone compose) | `:6371` |
 
 Kök platformda identity ortak `postgres` / `redis` konteynerlerine bağlanır (host Postgres **5434** bu makinede).
 

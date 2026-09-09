@@ -6,7 +6,6 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 COPY ["compound-service/Element.Services.Compound.API/Element.Services.Compound.API.csproj", "compound-service/Element.Services.Compound.API/"]
 COPY ["compound-service/Element.Services.Compound.Infrastructure/Element.Services.Compound.Infrastructure.csproj", "compound-service/Element.Services.Compound.Infrastructure/"]
-COPY ["compound-service/Element.Services.Compound.Core/Element.Services.Compound.Core.csproj", "compound-service/Element.Services.Compound.Core/"]
 COPY ["shared-lib/Element.Shared.csproj", "shared-lib/"]
 RUN dotnet restore "compound-service/Element.Services.Compound.API/Element.Services.Compound.API.csproj"
 COPY . .

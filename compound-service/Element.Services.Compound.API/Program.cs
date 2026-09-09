@@ -1,4 +1,3 @@
-using Element.Services.Compound.Core.Abstractions;
 using Element.Services.Compound.Infrastructure.Persistence;
 using Element.Shared.Extensions;
 using Element.Shared.Middleware;
@@ -13,7 +12,7 @@ builder.Services.AddDbContext<CompoundDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
         .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
-builder.Services.AddScoped<ICompoundRepository, EfCompoundRepository>();
+builder.Services.AddScoped<EfCompoundRepository>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

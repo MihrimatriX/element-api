@@ -1,4 +1,4 @@
-using Element.Services.Shipment.Core.Entities;
+using Element.Services.Shipment.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Shipment.Infrastructure.Data;
@@ -7,11 +7,12 @@ public class ShipmentDbContext : DbContext
 {
     public ShipmentDbContext(DbContextOptions<ShipmentDbContext> options) : base(options) { }
 
-    public DbSet<Core.Entities.Shipment> Shipments => Set<Core.Entities.Shipment>();
+    public DbSet<ShipmentRecord> Shipments => Set<ShipmentRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.Entity<Core.Entities.Shipment>().HasKey(s => s.Id);
+        modelBuilder.Entity<ShipmentRecord>().HasKey(s => s.Id);
+        modelBuilder.Entity<ShipmentRecord>().ToTable("Shipments");
     }
 }

@@ -4,13 +4,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Element.Services.Identity.Core.Entities;
-using Element.Services.Identity.Core.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Element.Services.Identity.Infrastructure.Services;
 
-public class TokenService : ITokenService
+public class TokenService
 {
     private readonly IConfiguration _configuration;
 

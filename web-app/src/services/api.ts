@@ -1,51 +1,95 @@
-import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
-export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-});
+const DEFAULT_TIMEOUT_MS = 10_000;
+
+export class ApiHttpError extends Error {
+  status: number;
+  data: unknown;
+  constructor(status: number, data: unknown, message?: string) {
+    super(message ?? `HTTP ${status}`);
+    this.status = status;
+    this.data = data;
+  }
+}
+
+function authHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {};
+  const token = localStorage.getItem('token');
+  const apiKey = localStorage.getItem('apiKey');
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (apiKey) headers['X-API-Key'] = apiKey;
+  return headers;
+}
+
+function toQuery(params?: Record<string, unknown>): string {
+  if (!params) return '';
+  const q = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value == null || value === '') continue;
+    q.set(key, String(value));
+  }
+  const s = q.toString();
+  return s ? `?${s}` : '';
+}
+
+async function request<T>(
+  method: string,
+  path: string,
+  opts?: {
+    body?: unknown;
+    params?: Record<string, unknown>;
+    headers?: Record<string, string>;
+    timeout?: number;
+  }
+): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), opts?.timeout ?? DEFAULT_TIMEOUT_MS);
+  try {
+    const res = await fetch(`${API_BASE_URL}${path}${toQuery(opts?.params)}`, {
+      method,
+      headers: {
+        ...authHeaders(),
+        ...(opts?.body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+        ...opts?.headers,
+      },
+      body: opts?.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      signal: controller.signal,
+    });
+    const text = await res.text();
+    let data: unknown = null;
+    if (text) {
+      try { data = JSON.parse(text); } catch { data = text; }
+    }
+    if (!res.ok) throw new ApiHttpError(res.status, data);
+    return data as T;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 export function apiError(error: unknown, fallback: string): string {
-  if (!axios.isAxiosError(error)) return fallback;
-  const data = error.response?.data;
+  if (!(error instanceof ApiHttpError)) return fallback;
+  const data = error.data;
   if (typeof data === 'string') return data;
   if (data && typeof data === 'object') {
-    if (typeof data.error === 'string') return data.error;
-    if (typeof data.message === 'string') return data.message;
-    if (data.errors && typeof data.errors === 'object') return Object.values(data.errors).flat().join(' ');
+    const obj = data as Record<string, unknown>;
+    if (typeof obj.error === 'string') return obj.error;
+    if (typeof obj.message === 'string') return obj.message;
+    if (obj.errors && typeof obj.errors === 'object') return Object.values(obj.errors as object).flat().join(' ');
   }
   return fallback;
 }
 
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  const apiKey = localStorage.getItem('apiKey');
-
-  if (token && !config.headers.Authorization) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  if (apiKey && !config.headers['X-API-Key']) {
-    config.headers['X-API-Key'] = apiKey;
-  }
-
-  return config;
-});
-
 export const authService = {
   login: async (credentials: { email: string; password: string }) => {
-    const response = await apiClient.post('/auth/login', credentials);
-    if (response.data.token) {
+    const data = await request<{ token?: string }>('POST', '/auth/login', { body: credentials });
+    if (data.token) {
       localStorage.removeItem('apiKey');
-      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('token', data.token);
     }
-    return response.data;
+    return data;
   },
-  register: async (userData: object) => {
-    const response = await apiClient.post('/auth/register', userData);
-    return response.data;
-  },
+  register: async (userData: object) => request('POST', '/auth/register', { body: userData }),
   logout: () => {
     localStorage.removeItem('token');
     localStorage.removeItem('apiKey');
@@ -53,17 +97,11 @@ export const authService = {
 };
 
 export const apiKeyService = {
-  generate: async (description: string, rateLimitTps: number = 5) => {
-    const response = await apiClient.post('/api-keys/generate', { description, rateLimitTps });
-    return response.data;
-  },
-  list: async () => {
-    const response = await apiClient.get('/api-keys');
-    return response.data as { id: string; description: string; maskedKey: string; isActive: boolean; rateLimitTps: number }[];
-  },
-  revoke: async (id: string) => {
-    await apiClient.delete(`/api-keys/${id}`);
-  },
+  generate: async (description: string, rateLimitTps: number = 5) =>
+    request<{ apiKey: string }>('POST', '/api-keys/generate', { body: { description, rateLimitTps } }),
+  list: async () =>
+    request<{ id: string; description: string; maskedKey: string; isActive: boolean; rateLimitTps: number }[]>('GET', '/api-keys'),
+  revoke: async (id: string) => { await request('DELETE', `/api-keys/${id}`); },
   ensureDashboardKey: async () => {
     if (localStorage.getItem('apiKey')) return localStorage.getItem('apiKey');
     try {
@@ -149,8 +187,7 @@ export const compoundService = {
     return [...first.results, ...rest.flatMap((page) => page.results)];
   },
   list: async (params?: { element?: string; kind?: string; q?: string; page?: number; pageSize?: number }) => {
-    const response = await apiClient.get('/compounds', { params, timeout: 8000 });
-    const data = response.data as CompoundList | CompoundSku[];
+    const data = await request<CompoundList | CompoundSku[]>('GET', '/compounds', { params, timeout: 8000 });
     if (Array.isArray(data)) {
       return { info: { count: data.length, pages: 1, next: null, prev: null }, results: data } as CompoundList;
     }
@@ -159,21 +196,15 @@ export const compoundService = {
       results: data.results ?? []
     } as CompoundList;
   },
-  get: async (slug: string) => {
-    const response = await apiClient.get(`/compounds/${encodeURIComponent(slug)}`, { timeout: 8000 });
-    return response.data as CompoundSku;
-  }
+  get: async (slug: string) =>
+    request<CompoundSku>('GET', `/compounds/${encodeURIComponent(slug)}`, { timeout: 8000 })
 };
 
 export const elementService = {
-  getElements: async (page = 1, pageSize = 100) => {
-    const response = await apiClient.get('/elements', { params: { page, pageSize } });
-    return response.data;
-  },
-  query: async (params: ElementQuery) => {
-    const response = await apiClient.get('/elements', { params });
-    return response.data;
-  },
+  getElements: async (page = 1, pageSize = 100) =>
+    request<any>('GET', '/elements', { params: { page, pageSize } }),
+  query: async (params: ElementQuery) =>
+    request('GET', '/elements', { params: params as Record<string, unknown> }),
   getAllElements: async () => {
     const first = await elementService.getElements(1, 100);
     const results = [...(first.results || first)];
@@ -183,46 +214,26 @@ export const elementService = {
     }
     return results;
   },
-  getBySymbol: async (symbol: string) => {
-    const response = await apiClient.get(`/elements/${symbol.toLowerCase()}`);
-    return response.data;
-  },
-  getTicker: async (symbol: string) => {
-    const response = await apiClient.get(`/elements/${symbol.toLowerCase()}/ticker`);
-    return response.data as Ticker;
-  },
-  getHistory: async (symbol: string, limit = 24) => {
-    const response = await apiClient.get(`/elements/${symbol.toLowerCase()}/history`, { params: { limit } });
-    return response.data;
-  },
-  getMovers: async (limit = 12) => {
-    const response = await apiClient.get('/market/movers', { params: { limit } });
-    return response.data as BoardRow[];
-  },
-  getBoard: async () => {
-    const response = await apiClient.get('/market/board');
-    return response.data as BoardRow[];
-  },
-  getStatistics: async () => {
-    const response = await apiClient.get('/statistics');
-    return response.data;
-  },
-  getCategoryStatistics: async (category: string) => {
-    const response = await apiClient.get(`/statistics/category/${encodeURIComponent(category)}`);
-    return response.data;
-  },
-  compare: async (symbols: string[]) => {
-    const response = await apiClient.get('/elements/compare', { params: { symbols: symbols.join(',') } });
-    return response.data;
-  },
-  getNeighbors: async (symbol: string) => {
-    const response = await apiClient.get(`/elements/${symbol.toLowerCase()}/neighbors`);
-    return response.data;
-  },
-  getRelated: async (symbol: string, limit = 6) => {
-    const response = await apiClient.get(`/elements/${symbol.toLowerCase()}/related`, { params: { limit } });
-    return response.data;
-  },
+  getBySymbol: async (symbol: string) =>
+    request('GET', `/elements/${symbol.toLowerCase()}`),
+  getTicker: async (symbol: string) =>
+    request<Ticker>('GET', `/elements/${symbol.toLowerCase()}/ticker`),
+  getHistory: async (symbol: string, limit = 24) =>
+    request('GET', `/elements/${symbol.toLowerCase()}/history`, { params: { limit } }),
+  getMovers: async (limit = 12) =>
+    request<BoardRow[]>('GET', '/market/movers', { params: { limit } }),
+  getBoard: async () =>
+    request<BoardRow[]>('GET', '/market/board'),
+  getStatistics: async () =>
+    request('GET', '/statistics'),
+  getCategoryStatistics: async (category: string) =>
+    request('GET', `/statistics/category/${encodeURIComponent(category)}`),
+  compare: async (symbols: string[]) =>
+    request('GET', '/elements/compare', { params: { symbols: symbols.join(',') } }),
+  getNeighbors: async (symbol: string) =>
+    request('GET', `/elements/${symbol.toLowerCase()}/neighbors`),
+  getRelated: async (symbol: string, limit = 6) =>
+    request('GET', `/elements/${symbol.toLowerCase()}/related`, { params: { limit } }),
   getCompounds: async (symbol: string) => {
     const data = await compoundService.list({ element: symbol, pageSize: 100 });
     return data.results;
@@ -238,32 +249,20 @@ export interface Holding {
 }
 
 export const walletService = {
-  get: async () => {
-    const response = await apiClient.get('/me/wallet');
-    return response.data as { balanceElx: number; currency: string };
-  },
-  holdings: async () => {
-    const response = await apiClient.get('/me/holdings');
-    return response.data as Holding[];
-  },
-  sell: async (symbol: string, grams: number, compoundSlug?: string) => {
-    const response = await apiClient.post('/desk/sell', { symbol, grams, compoundSlug });
-    return response.data;
-  }
+  get: async () =>
+    request<{ balanceElx: number; currency: string }>('GET', '/me/wallet'),
+  holdings: async () =>
+    request<Holding[]>('GET', '/me/holdings'),
+  sell: async (symbol: string, grams: number, compoundSlug?: string) =>
+    request<{ proceedsElx: number }>('POST', '/desk/sell', { body: { symbol, grams, compoundSlug } })
 };
 
 export const webhookService = {
-  list: async () => {
-    const response = await apiClient.get('/webhooks');
-    return response.data as { id: string; url: string; events: string[] }[];
-  },
-  create: async (url: string, events: string[], secret: string) => {
-    const response = await apiClient.post('/webhooks', { url, events, secret });
-    return response.data;
-  },
-  remove: async (id: string) => {
-    await apiClient.delete(`/webhooks/${id}`);
-  }
+  list: async () =>
+    request<{ id: string; url: string; events: string[] }[]>('GET', '/webhooks'),
+  create: async (url: string, events: string[], secret: string) =>
+    request('POST', '/webhooks', { body: { url, events, secret } }),
+  remove: async (id: string) => { await request('DELETE', `/webhooks/${id}`); }
 };
 
 export const CART_KEY = 'elementapi:elementalCart';
@@ -340,25 +339,29 @@ export function addToCart(
   return next;
 }
 
+export interface OrderRow {
+  id: string;
+  elementSymbol: string;
+  quantity: number;
+  totalPrice: number;
+  status: string;
+  trackingNumber?: string | null;
+  productLabel?: string | null;
+  compoundFormula?: string | null;
+}
+
 export const orderService = {
   submitOrder: async (elementSymbol: string, quantity: number, compoundSlug?: string, requestId?: string) => {
     const body: { elementSymbol: string; quantity: number; compoundSlug?: string } = { elementSymbol, quantity };
     if (compoundSlug && compoundSlug !== 'elemental') body.compoundSlug = compoundSlug;
-    const response = await apiClient.post('/orders', body, { headers: requestId ? { 'Idempotency-Key': requestId } : undefined });
-    return response.data;
+    return request<OrderRow>('POST', '/orders', {
+      body,
+      headers: requestId ? { 'Idempotency-Key': requestId } : undefined
+    });
   },
-  getOrder: async (id: string) => {
-    const response = await apiClient.get(`/orders/${id}`);
-    return response.data;
-  },
-  list: async () => {
-    const response = await apiClient.get('/orders');
-    return response.data;
-  },
-  getStats: async () => {
-    const response = await apiClient.get('/orders/stats');
-    return response.data;
-  }
+  getOrder: async (id: string) => request<OrderRow>('GET', `/orders/${id}`),
+  list: async () => request<OrderRow[]>('GET', '/orders'),
+  getStats: async () => request('GET', '/orders/stats')
 };
 
 export const orderStatusLabel: Record<string, string> = {

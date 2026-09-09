@@ -97,19 +97,6 @@ const genericSummaries: Record<string, string> = {
   actinide: "Aktinitler f-blokta yer alır; ileri seviye filtreler ve kategori açıklamaları için ayrı tutulur."
 };
 
-export const financeProfiles: Record<string, { multiplier: number; liquidity: string; use: string; risk: string; volatility: string; collateral: number }> = {
-  alkali: { multiplier: 1.16, liquidity: "Orta", use: "Batarya ve reaktif", risk: "Oynak", volatility: "Yüksek", collateral: 48 },
-  alkaline: { multiplier: 1.05, liquidity: "Orta", use: "Alaşım ve mineral", risk: "Dengeli", volatility: "Orta", collateral: 54 },
-  transition: { multiplier: 1.34, liquidity: "Yüksek", use: "Sanayi ve kataliz", risk: "Dengeli", volatility: "Orta", collateral: 68 },
-  post: { multiplier: 1.12, liquidity: "Orta", use: "Elektronik ve kaplama", risk: "Dengeli", volatility: "Orta", collateral: 58 },
-  metalloid: { multiplier: 1.22, liquidity: "Yüksek", use: "Yarı iletken", risk: "Büyüme", volatility: "Orta", collateral: 62 },
-  nonmetal: { multiplier: 1.1, liquidity: "Yüksek", use: "Yaşam ve eğitim", risk: "Düşük", volatility: "Düşük", collateral: 64 },
-  halogen: { multiplier: 1.08, liquidity: "Orta", use: "İlaç ve arıtma", risk: "Kontrollü", volatility: "Orta", collateral: 50 },
-  noble: { multiplier: 1.28, liquidity: "Sınırlı", use: "Işık ve kriyojenik", risk: "Nadir", volatility: "Düşük", collateral: 72 },
-  lanthanide: { multiplier: 1.46, liquidity: "Sınırlı", use: "Mıknatıs ve optik", risk: "Stratejik", volatility: "Yüksek", collateral: 44 },
-  actinide: { multiplier: 1.52, liquidity: "Kısıtlı", use: "Enerji ve araştırma", risk: "Yüksek", volatility: "Yüksek", collateral: 36 }
-};
-
 export function dbCategoryToStaticCategory(dbCategory: string): string {
   const norm = dbCategory.toLowerCase().trim();
   if (norm.includes("alkali metal") && !norm.includes("alkaline")) return "alkali";
@@ -123,36 +110,6 @@ export function dbCategoryToStaticCategory(dbCategory: string): string {
   if (norm.includes("actinide")) return "actinide";
   if (norm.includes("halogen")) return "halogen";
   return "nonmetal"; // default fallback
-}
-
-export function valuationFor(element: ElementItem, range = 12) {
-  const profile = financeProfiles[element.category] || financeProfiles.nonmetal;
-  // Calculate price based on atomic number and multipliers
-  const basePrice = 42 + element.atomicNumber * 3.55 * profile.multiplier;
-  const price = Number(basePrice.toFixed(2));
-  const trend = Number((((element.atomicNumber % 9) - 3) * 0.7 + profile.multiplier).toFixed(1));
-  const index = Math.min(96, Math.round(34 + element.atomicNumber * 0.38 + profile.multiplier * 18));
-  const supply = Math.max(8400, Math.round((128000 / (1 + element.atomicNumber * 0.055)) * (2 - profile.multiplier)));
-  const useScore = Math.min(99, Math.round(index + profile.multiplier * 7));
-  
-  const history = Array.from({ length: range }, (_, i) => {
-    const wave = ((element.atomicNumber + i * 5) % 17) / 100;
-    return Number((price * (0.91 + wave + i * 0.006)).toFixed(2));
-  });
-
-  return {
-    price,
-    trend,
-    index,
-    supply,
-    useScore,
-    history,
-    liquidity: profile.liquidity,
-    use: profile.use,
-    risk: profile.risk,
-    volatility: profile.volatility,
-    collateral: profile.collateral
-  };
 }
 
 interface ApiElement extends Partial<ElementItem> {

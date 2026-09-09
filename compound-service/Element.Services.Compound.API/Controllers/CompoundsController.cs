@@ -1,6 +1,6 @@
 using Element.Services.Compound.API.DTOs;
-using Element.Services.Compound.Core.Abstractions;
-using Element.Services.Compound.Core.Entities;
+using Element.Services.Compound.Infrastructure.Entities;
+using Element.Services.Compound.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Element.Services.Compound.API.Controllers;
@@ -9,10 +9,10 @@ namespace Element.Services.Compound.API.Controllers;
 [Route("api/v1/compounds")]
 public class CompoundsController : ControllerBase
 {
-    private readonly ICompoundRepository _repository;
+    private readonly EfCompoundRepository _repository;
     private readonly IConfiguration _configuration;
 
-    public CompoundsController(ICompoundRepository repository, IConfiguration configuration)
+    public CompoundsController(EfCompoundRepository repository, IConfiguration configuration)
     {
         _repository = repository;
         _configuration = configuration;

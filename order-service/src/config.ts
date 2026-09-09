@@ -3,7 +3,6 @@ export const config = {
   databaseUrl:
     process.env.DATABASE_URL ??
     'postgres://postgres:postgres@localhost:5432/element_order_db',
-  redisUrl: process.env.REDIS_URL ?? 'redis://localhost:6379',
   rabbitHost: process.env.RABBITMQ_HOST ?? 'localhost',
   rabbitPort: parseInt(process.env.RABBITMQ_PORT ?? '5672', 10),
   rabbitUser: process.env.RABBITMQ_USERNAME ?? 'guest',

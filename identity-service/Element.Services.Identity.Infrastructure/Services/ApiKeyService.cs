@@ -4,14 +4,13 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Element.Services.Identity.Core.Entities;
-using Element.Services.Identity.Core.Interfaces;
 using Element.Services.Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 
 namespace Element.Services.Identity.Infrastructure.Services;
 
-public class ApiKeyService : IApiKeyService
+public class ApiKeyService
 {
     private readonly IdentityAppDbContext _context;
     private readonly IDatabase _redisDb;

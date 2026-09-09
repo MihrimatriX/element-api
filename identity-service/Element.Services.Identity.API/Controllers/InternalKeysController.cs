@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Element.Services.Identity.Core.DTOs;
-using Element.Services.Identity.Core.Interfaces;
+using Element.Services.Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 
@@ -10,10 +10,10 @@ namespace Element.Services.Identity.API.Controllers;
 [Route("api/v1/internal/api-keys")]
 public class InternalKeysController : ControllerBase
 {
-    private readonly IApiKeyService _apiKeyService;
+    private readonly ApiKeyService _apiKeyService;
     private readonly IConfiguration _configuration;
 
-    public InternalKeysController(IApiKeyService apiKeyService, IConfiguration configuration)
+    public InternalKeysController(ApiKeyService apiKeyService, IConfiguration configuration)
     {
         _apiKeyService = apiKeyService;
         _configuration = configuration;

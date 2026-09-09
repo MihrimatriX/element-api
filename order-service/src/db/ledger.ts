@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
 import { pool } from './pool.js';
 
@@ -26,7 +26,7 @@ export async function ensureWallet(userId: string, client?: pg.PoolClient): Prom
       await c.query(
         `INSERT INTO ledger (id, user_id, kind, elx, created_at)
          VALUES ($1, $2, 'grant', 10000, NOW())`,
-        [uuidv4(), userId]
+        [randomUUID(), userId]
       );
     }
     const row = await c.query(`SELECT balance_elx FROM wallets WHERE user_id = $1`, [userId]);
@@ -118,7 +118,7 @@ export async function debitForOrder(params: {
     await client.query(
       `INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, order_id, created_at)
        VALUES ($1, $2, 'buy', $3, $4, $5, $6, NOW())`,
-      [uuidv4(), params.userId, params.amount, params.symbol, params.grams, params.orderId]
+      [randomUUID(), params.userId, params.amount, params.symbol, params.grams, params.orderId]
     );
     await client.query('COMMIT');
     return 'ok';
@@ -159,7 +159,7 @@ export async function refundIfDebited(
   await client.query(
     `INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, order_id, created_at)
      VALUES ($1, $2, 'refund', $3, $4, $5, $6, NOW())`,
-    [uuidv4(), params.userId, amount, params.symbol ?? null, params.grams ?? null, params.orderId]
+    [randomUUID(), params.userId, amount, params.symbol ?? null, params.grams ?? null, params.orderId]
   );
   return 'ok';
 }
@@ -250,7 +250,7 @@ export async function sellAtBid(
   await client.query(
     `INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, compound_slug, created_at)
      VALUES ($1, $2, 'sell', $3, $4, $5, $6, NOW())`,
-    [uuidv4(), params.userId, proceeds, params.symbol, params.grams, slug]
+    [randomUUID(), params.userId, proceeds, params.symbol, params.grams, slug]
   );
   const bal = await client.query(`SELECT balance_elx FROM wallets WHERE user_id = $1`, [params.userId]);
   return {

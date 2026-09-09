@@ -25,7 +25,7 @@ namespace Element.Services.Compound.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Element.Services.Compound.Core.Entities.ChemicalCompound", b =>
+            modelBuilder.Entity("Element.Services.Compound.Infrastructure.Entities.ChemicalCompound", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

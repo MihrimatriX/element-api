@@ -97,7 +97,7 @@ npm ci && npm run build && npm start
 ./deploy/scripts/start-local.ps1 -IncludePayment
 ```
 
-Tam saga için payment + shipment + RabbitMQ gerekir. İsteğe bağlı: `cd order-service && docker compose up -d --build`.
+Tam saga için payment + shipment + RabbitMQ gerekir (kök `docker-compose.yml` / `start-local.ps1`).
 
 ---
 

@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Element.Services.Shipment.Core.Entities;
+using Element.Services.Shipment.Infrastructure.Entities;
 using Element.Services.Shipment.Infrastructure.Data;
 using Element.Shared.Events;
 using MassTransit;
@@ -49,7 +49,7 @@ public class ShipmentRequestedConsumer : IConsumer<ShipmentRequestedEvent>
         if (_failQuantityGte > 0 && msg.Quantity >= _failQuantityGte)
         {
             var reason = $"Shipment rejected: quantity {msg.Quantity}g exceeds carrier limit ({_failQuantityGte}g).";
-            _context.Shipments.Add(new Core.Entities.Shipment
+            _context.Shipments.Add(new ShipmentRecord
             {
                 Id = Guid.NewGuid(),
                 OrderId = msg.OrderId,
@@ -66,7 +66,7 @@ public class ShipmentRequestedConsumer : IConsumer<ShipmentRequestedEvent>
             return;
         }
 
-        var shipment = new Core.Entities.Shipment
+        var shipment = new ShipmentRecord
         {
             Id = Guid.NewGuid(),
             OrderId = msg.OrderId,

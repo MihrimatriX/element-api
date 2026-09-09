@@ -11,7 +11,7 @@ MIT lisansı: [LICENSE](./LICENSE).
 **Son iş paketi (Atlas / `/lab` / infra sadeleştirme):** ayrıntılı Türkçe anlatım → [docs/WHAT-WAS-DONE.md](./docs/WHAT-WAS-DONE.md) · agent bellek bankası → [docs/memory-bank/](./docs/memory-bank/).
 
 [![Stack](https://img.shields.io/badge/stack-.NET%20%7C%20Node%20%7C%20Java%20%7C%20React-blue)](#servis-kataloğu)
-[![Gateway](https://img.shields.io/badge/gateway-YARP%20%2B%20GraphQL-512BD4)](#api-gateway)
+[![Gateway](https://img.shields.io/badge/gateway-YARP-512BD4)](#api-gateway)
 
 ---
 
@@ -49,7 +49,7 @@ npm --prefix web-app run lint
 
 `test-saga.ps1`, gerçek PostgreSQL üzerinde geçici ve ayrı bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar; sonunda kendi şemasını kaldırır. `test-e2e.mjs` ve smoke testi çalışan yerel servislere bağlanır, ayrı deneme hesapları açar. Docker web sürümünü denemek için smoke testine `-WebBase http://localhost:3000` ver.
 
-Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, sekiz backend servisinin sağlık uçlarını, derlenmiş web sayfalarını (`/lab` dahil), GraphQL fiyat sorgusunu ve gateway üzerinden gerçek SignalR fiyat olayını doğrular. Varsayılan web adresi `http://localhost:3000`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
+Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, sekiz backend servisinin sağlık uçlarını, derlenmiş web sayfalarını (`/lab` dahil), REST ticker fiyatını ve gateway üzerinden gerçek SignalR fiyat olayını doğrular. Varsayılan web adresi `http://localhost:3000`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
 
 ### Bilimsel veri ve alışveriş sözleşmesi
 
@@ -96,7 +96,7 @@ Durdurma: `docker compose down` · Verileri sil: `docker compose down -v`
 flowchart TB
     subgraph clients [İstemciler]
         Web[web-app :3000]
-        API[REST / GraphQL]
+        API[REST]
     end
 
     GW[gateway-service :5000]
@@ -147,7 +147,7 @@ Her servisin kendi README'si endpoint tabloları, ortam değişkenleri ve tek ba
 
 | Servis | Port | Stack | Rol | Dokümantasyon |
 |--------|------|-------|-----|---------------|
-| **gateway-service** | 5000 | .NET YARP + GraphQL | Tek giriş, API key, rate limit | [README](./gateway-service/README.md) |
+| **gateway-service** | 5000 | .NET YARP | Tek giriş, API key, rate limit | [README](./gateway-service/README.md) |
 | **identity-service** | 5001 | .NET 9 | Auth, JWT, API anahtarları | [README](./identity-service/README.md) |
 | **catalog-service** | 5002 | .NET 9 | Element kataloğu, arama, stok | [README](./catalog-service/README.md) |
 | **compound-service** | 5007 | .NET 9 | Bileşik / allotrop / preparat | [README](./compound-service/README.md) |
@@ -179,7 +179,6 @@ Gateway üzerinden (`localhost:5000`) erişilen rotalar:
 | `* /api/v1/me/**`, `/desk/**` | Order | API key |
 | `* /api/v1/orders/**` | Order | API key (`X-API-Key`) |
 | `WS /hub/notifications` | Notification SignalR | — |
-| `POST /graphql` | Gateway BFF | — |
 
 **Internal (gateway dışı):** payment, shipment saga worker'ları; identity `POST /api/v1/internal/api-keys/validate`.
 

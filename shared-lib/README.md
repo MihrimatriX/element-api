@@ -11,7 +11,7 @@ Paylaşılan .NET 9 kütüphanesi — çalışan servis değildir.
 | `Events/` | Entegrasyon event kayıtları |
 | `Extensions/LoggingExtensions` | Serilog JSON konsol log |
 | `Extensions/ServiceOpsExtensions` | **`/info`, `/health/live`, `/health/ready`** |
-| `Health/` | HealthChecks.UI.**Client** JSON writer (`UIResponseWriter`) + RabbitMQ check — dashboard/UI paketi yok |
+| `Health/` | Compact `/health` JSON writer + RabbitMQ check |
 | `Middleware/` | Global exception handling |
 | `Messaging/` | `ConfigureRabbitMqHost` |
 | `Science/` | Bilimsel katalog yardımcıları (v2 `fields` / ETag) |

@@ -66,9 +66,6 @@ curl "http://localhost:5004/api/v1/shipments?q=AU&status=Dispatched"
 ```bash
 # Host (tercih)
 dotnet run --project Element.Services.Shipment.API/Element.Services.Shipment.API.csproj
-
-# İsteğe bağlı
-cd shipment-service && docker compose up -d --build
 ```
 
 ---

@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Element.Services.Shipment.Core\Element.Services.Shipment.Core.csproj" />
     <ProjectReference Include="..\Element.Services.Shipment.Infrastructure\Element.Services.Shipment.Infrastructure.csproj" />
     <ProjectReference Include="..\..\shared-lib\Element.Shared.csproj" />
   </ItemGroup>
