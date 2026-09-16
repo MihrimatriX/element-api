@@ -56,7 +56,15 @@
     }
   },
   "C": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/c.jpg",
+      "caption": "Karbon · camsı karbon ve 1 cm³ grafit küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Karbon",
@@ -64,7 +72,15 @@
     }
   },
   "N": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/n.jpg",
+      "caption": "Azot · sıvı azot (yoğunlaşmış element)",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Fluessiger_Stickstoff.jpg",
+      "creator": "Robin Müller",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Azot",
@@ -136,7 +152,15 @@
     }
   },
   "Al": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/al.jpg",
+      "caption": "Alüminyum · metal numunesi",
+      "source_url": "https://images-of-elements.com/aluminium.php",
+      "creator": "Chemical Elements — A Virtual Museum (Jumk.de Webprojects)",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Al%C3%BCminyum",
@@ -144,7 +168,15 @@
     }
   },
   "Si": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/si.jpg",
+      "caption": "Silisyum · saflaştırılmış numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:SiliconCroda.jpg",
+      "creator": "Enricoros at English Wikipedia",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Silisyum",
@@ -152,7 +184,15 @@
     }
   },
   "P": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/p.jpg",
+      "caption": "Fosfor · kırmızı fosfor numunesi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Phosphor_rot.jpg",
+      "creator": "Tomihahndorf",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Fosfor",
@@ -240,7 +280,15 @@
     }
   },
   "Ti": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/ti.jpg",
+      "caption": "Titanyum · kristal çubuk numunesi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Titanium_crystal_bar.jpg",
+      "creator": "Warut Roonguthai",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Titanyum",
@@ -256,7 +304,15 @@
     }
   },
   "Cr": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/cr.jpg",
+      "caption": "Krom · kristaller ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Chromium_crystals_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Krom",
@@ -264,7 +320,15 @@
     }
   },
   "Mn": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/mn.jpg",
+      "caption": "Manganez · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Manganese_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Manganez",
@@ -288,7 +352,15 @@
     }
   },
   "Co": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/co.jpg",
+      "caption": "Kobalt · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Kobalt_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Kobalt",
@@ -296,7 +368,15 @@
     }
   },
   "Ni": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/ni.jpg",
+      "caption": "Nikel · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Nickel_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Nikel",
@@ -320,7 +400,15 @@
     }
   },
   "Zn": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/zn.jpg",
+      "caption": "Çinko · kristal parça, dendrit ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Zinc_fragment_sublimed_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/%C3%87inko",
@@ -544,7 +632,15 @@
     }
   },
   "Sn": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/sn.jpg",
+      "caption": "Kalay · alfa ve beta allotrop numuneleri",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Sn-Alpha-Beta.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Kalay",
@@ -968,7 +1064,15 @@
     }
   },
   "Pb": {
-    "photo": null,
+    "photo": {
+      "url": "/media/atlas/pb.jpg",
+      "caption": "Kurşun · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lead_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
     "structure": null,
     "wikipedia": {
       "url": "https://tr.wikipedia.org/wiki/Kur%C5%9Fun",

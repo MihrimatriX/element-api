@@ -63,10 +63,11 @@ Assert-Status "Orders without key" "$base/api/v1/orders" @(401)
 Assert-Status "Web UI" "$web/" @(200)
 
 $email = "smoke-$(Get-Random)@element.dev"
-$regBody = @{ firstName = "Smoke"; lastName = "Test"; email = $email; password = "Test1234!" } | ConvertTo-Json
+$password = 'Smoke-Test123!'
+$regBody = @{ firstName = "Smoke"; lastName = "Test"; email = $email; password = $password } | ConvertTo-Json
 try {
     Invoke-RestMethod -Uri "$base/api/v1/auth/register" -Method POST -Body $regBody -ContentType "application/json" | Out-Null
-    $login = Invoke-RestMethod -Uri "$base/api/v1/auth/login" -Method POST -Body (@{ email = $email; password = "Test1234!" } | ConvertTo-Json) -ContentType "application/json"
+    $login = Invoke-RestMethod -Uri "$base/api/v1/auth/login" -Method POST -Body (@{ email = $email; password = $password } | ConvertTo-Json) -ContentType "application/json"
     $token = $login.token
     $keyRes = Invoke-RestMethod -Uri "$base/api/v1/api-keys/generate" -Method POST `
         -Headers @{ Authorization = "Bearer $token" } `
@@ -160,4 +161,4 @@ try {
 Write-Host ""
 Write-Host "=== Results: $passed passed, $failed failed ===" -ForegroundColor Cyan
 Write-Host ""
-if ($failed -gt 0) { exit 1 }
+if ($failed -gt 0) { throw "Smoke checks failed: $failed failed, $passed passed." }

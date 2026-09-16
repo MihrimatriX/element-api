@@ -21,3 +21,7 @@ export const config = {
     Shipping: parseInt(process.env.SAGA_TIMEOUT_SHIPPING_SEC ?? '180', 10),
   } as Record<string, number>,
 };
+
+if (process.env.NODE_ENV === 'production' && (config.internalApiKey.length < 32 || config.internalApiKey === 'element-internal-dev-key')) {
+  throw new Error('Configure a unique production INTERNAL_API_KEY of at least 32 characters.');
+}

@@ -1,2 +1,4 @@
-import PeriodicExplorer from '../components/PeriodicExplorer';
-export default function Landing() { return <PeriodicExplorer home />; }
+import PeriodicExplorer from "../components/PeriodicExplorer";
+export default function Landing() {
+  return <PeriodicExplorer home />;
+}

@@ -36,8 +36,15 @@ public class ApiKeyController : ControllerBase
             return Unauthorized("Invalid user identification in token.");
         }
 
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        // Serialize issuance per account and recheck the session after acquiring the lock.
+        var owners = await _context.Users.FromSqlInterpolated($"SELECT * FROM \"AspNetUsers\" WHERE \"Id\" = {userId} FOR UPDATE").AsNoTracking().ToArrayAsync();
+        if (owners.Length != 1 || owners[0].SecurityStamp != User.FindFirst("security_stamp")?.Value) return Unauthorized();
+        if (await _context.ApiKeys.CountAsync(k => k.UserId == userId && k.IsActive) >= 20)
+            return Conflict(new { message = "En fazla 20 etkin API anahtarı kullanabilirsin. Kullanmadıklarını iptal et." });
         var (rawKey, apiKeyRecord) = await _apiKeyService.GenerateKeyAsync(userId, request.Description, request.RateLimitTps);
 
+        await transaction.CommitAsync();
         return Ok(new
         {
             Message = "API Key generated successfully. Please copy it now, it will not be shown again.",

@@ -13,6 +13,15 @@ namespace Element.Gateway.Tests;
 
 public class GatewayHandlerTests
 {
+    private static IHttpClientFactory IdentityFactory(Guid userId, HttpStatusCode status = HttpStatusCode.OK)
+    {
+        var handler = new Mock<HttpMessageHandler>();
+        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(status) { Content = new StringContent(JsonSerializer.Serialize(new { userId, isActive = status == HttpStatusCode.OK, rateLimitTps = 10 }), Encoding.UTF8, "application/json") });
+        var factory = new Mock<IHttpClientFactory>();
+        factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient(handler.Object));
+        return factory.Object;
+    }
     private const string ValidKey = "ele_live_12345678901234567890123456789012";
 
     [Fact]
@@ -83,7 +92,7 @@ public class GatewayHandlerTests
     }
 
     [Fact]
-    public async Task ValidateApiKeyAsync_SetsContext_FromRedisCache()
+    public async Task ValidateApiKeyAsync_IgnoresStaleCache_WhenIdentityRejects()
     {
         var userId = Guid.NewGuid();
         var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 15 });
@@ -100,12 +109,10 @@ public class GatewayHandlerTests
 
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, Mock.Of<IHttpClientFactory>(), new ConfigurationBuilder().Build());
+            context, ValidKey, multiplexer.Object, IdentityFactory(userId, HttpStatusCode.Unauthorized), new ConfigurationBuilder().Build());
 
-        ok.Should().BeTrue();
-        vc.IsActive.Should().BeTrue();
-        vc.UserId.Should().Be(userId);
-        vc.RateLimitTps.Should().Be(15);
+        ok.Should().BeFalse();
+        vc.StatusCode.Should().Be(401);
         context.Items["HashedApiKey"].Should().NotBeNull();
     }
 
@@ -125,7 +132,7 @@ public class GatewayHandlerTests
 
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, Mock.Of<IHttpClientFactory>(), new ConfigurationBuilder().Build());
+            context, ValidKey, multiplexer.Object, IdentityFactory(userId), new ConfigurationBuilder().Build());
 
         ok.Should().BeFalse();
         vc.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
@@ -147,7 +154,7 @@ public class GatewayHandlerTests
 
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, Mock.Of<IHttpClientFactory>(), new ConfigurationBuilder().Build());
+            context, ValidKey, multiplexer.Object, IdentityFactory(userId), new ConfigurationBuilder().Build());
 
         ok.Should().BeFalse();
         vc.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);

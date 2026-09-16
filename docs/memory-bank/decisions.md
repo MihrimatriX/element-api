@@ -32,6 +32,8 @@
 
 **Decision:** Leave `media.photo = null` when Commons has no license/heuristic match. UI falls back to schematic visuals (`AtlasVisual`). Do not force low-quality or wrongly licensed images.
 
+**15 Eylül 2026 güncellemesi:** Kullanıcı fotoğraf eksiklerini aktif olarak ele almamızı istedi. Null değeri koruma kararı eksikleri araştırmadan bırakma gerekçesi değildir. 78 eksik için kaynak taraması ve görsel tamamlama planlandı; gerçek numune fotoğrafı bulunamayanlarda açık etiketli şema veya ayrı bağlam görseli kullanılır. Eski numune seçim filtresini gevşeterek bağlam görselini numune fotoğrafı gibi sunma. [Aktif plan](content-and-games-plan.md).
+
 ## Memory bank over a custom skill
 
 **Decision:** Persist agent context as `docs/memory-bank/*` + alwaysApply Cursor rule. Do **not** also invent a project skill that duplicates the same content.
@@ -43,3 +45,17 @@
 **Why:** Renaming would break smoke/e2e, web-app types, and any external API-key clients for no product gain. UI copy already says “kredi”.
 
 **Where documented:** root `README.md` § Bilimsel veri ve alışveriş sözleşmesi (canonical list).
+
+## Full Docker is the default run path — 15 Eylül 2026
+
+**Decision:** Run every service in its own container via `docker compose` / `present-platform.ps1`. Atlas-only uses `docker-compose.science.yml`. Do not require host .NET/Node/Java + `artifacts/` for the product demo.
+
+**Keep:** Host Vite/`dotnet run` only as a fast single-surface edit loop against an already-running stack — not as the primary bring-up.
+
+**Why:** User preference; avoids portable toolchain / log folders; matches production-shaped topology.
+
+## Ürün ve ön yüz kararı — 15 Eylül 2026
+
+Ana yüzey bilimsel atlas ve öğrenme. Ticaret ayrı sanal demo; gerçek ödeme/teslimat yok. Yerelde sunum hedefi korunur; e-posta sağlayıcısı tercihi Resend, bağlantısı henüz yok.
+
+Ön yüz için gerçek shadcn/ui kaynakları + Radix + Tailwind 4 kullanılır. Ortak ProductShell, sade sans tipografi, nötr zemin ve ölçülü yeşil vurgu. Pazarlama sloganları ve dekoratif kart yığını yerine içeriğe ve yapılan işe öncelik ver. Mevcut bilimsel API ve öğrenme kuralları görsel değişiklik için değiştirilmez. [Tasarım sözleşmesi](design-system.md).

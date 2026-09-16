@@ -1,0 +1,53 @@
+name: Product checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            web-app/package-lock.json
+            order-service/package-lock.json
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - run: npm --prefix web-app ci
+      - run: npm --prefix order-service ci
+      - run: npm --prefix web-app run lint
+      - run: npm --prefix web-app test
+      - run: npm --prefix web-app run build
+      - run: npm --prefix order-service run build
+      - run: npm --prefix order-service run check
+      - run: dotnet test deploy/tests/Element.Gateway.Tests --verbosity minimal
+      - run: dotnet test deploy/tests/Element.Services.UnitTests --verbosity minimal
+      - run: dotnet test deploy/tests/Element.Services.IntegrationTests --filter 'Category=Integration' --verbosity minimal
+      - run: mvn -f payment-service/pom.xml --batch-mode test
+      - run: npx playwright install --with-deps chromium
+        working-directory: web-app
+      - run: npm run test:e2e
+        working-directory: web-app
+      - run: npm run test:e2e:auth
+        working-directory: web-app
+      - run: docker build -f web-app/Dockerfile -t element-web-check .
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: |
+            web-app/playwright-report
+            web-app/playwright-report-auth
+            web-app/test-results

@@ -15,3 +15,6 @@
 **/target
 **/coverage
 **/.cursor
+
+**/test-results*
+**/playwright-report*

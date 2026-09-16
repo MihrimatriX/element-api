@@ -5,16 +5,18 @@ ARG VITE_API_BASE_URL=http://localhost:5000/api/v1
 ARG VITE_PUBLIC_SITE_URL=http://localhost:3000
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_PUBLIC_SITE_URL=$VITE_PUBLIC_SITE_URL
-COPY package.json package-lock.json ./
+COPY web-app/package.json web-app/package-lock.json ./
 RUN npm ci
-COPY . .
+COPY web-app/ .
+COPY compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json /compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json
+COPY catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json /catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json
 RUN npm run build
 
 # Stage 2: Serve
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY web-app/nginx.conf /etc/nginx/conf.d/default.conf
+COPY web-app/docker-entrypoint.sh /docker-entrypoint.sh
 RUN sed -i 's/\r$//' /docker-entrypoint.sh \
     && chmod +x /docker-entrypoint.sh \
     && mkdir -p /seo-templates \

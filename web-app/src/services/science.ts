@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { API_ORIGIN } from '../config';
+import { SCIENCE_BASE_URL } from '../config';
 export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 export type ScientificRecord = { [key: string]: JsonValue };
 export interface AtlasMedia { url: string; caption: string; source_url: string; creator: string; license: string; license_url: string | null; retrieved_at: string }
@@ -23,7 +23,7 @@ export interface ScientificCompound extends AtlasFields {
 }
 export const displayFormula = (value: string) => value.replace(/\d/g, n => '₀₁₂₃₄₅₆₇₈₉'[Number(n)]);
 const cache = new Map<string, Promise<unknown>>();
-export const scienceUrl = (path: string) => `${API_ORIGIN}/api/v2/${path}`;
+export const scienceUrl = (path: string) => `${SCIENCE_BASE_URL}/${path}`;
 async function get<T>(path: string): Promise<T> {
   if (!cache.has(path)) cache.set(path, fetch(scienceUrl(path), { signal: AbortSignal.timeout(15000), credentials: 'omit' }).then(async response => {
     if (!response.ok) throw new Error(response.status === 404 ? 'Kayıt bulunamadı.' : 'Bilimsel veri servisine ulaşılamadı.');

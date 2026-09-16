@@ -11,21 +11,39 @@ services:
     ports: !override []
   identity-service:
     ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      JwtSettings__Secret: ${JWT_SECRET:?Set a unique production JWT_SECRET}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique production INTERNAL_API_KEY}
   catalog-service:
     ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
   compound-service:
     ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
   order-service:
     ports: !override []
+    environment:
+      NODE_ENV: production
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique production INTERNAL_API_KEY}
   payment-service:
     ports: !override []
   shipment-service:
     ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
   notification-service:
     ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
   gateway-service:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique production INTERNAL_API_KEY}
     ports: !override
-      - "5000:8080"
+      - "127.0.0.1:5000:8080"
   web-app:
     ports: !override
-      - "3000:80"
+      - "127.0.0.1:3000:80"

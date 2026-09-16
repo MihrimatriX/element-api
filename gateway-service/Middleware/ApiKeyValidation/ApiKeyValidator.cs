@@ -21,7 +21,6 @@ public sealed class ApiKeyValidationContext
 /// </summary>
 public static class ApiKeyValidator
 {
-    private const string RedisKeyPrefix = "apikey:";
     private const string RateLimitPrefix = "ratelimit:";
 
     public static async Task<(bool Ok, ApiKeyValidationContext Context)> ValidateApiKeyAsync(
@@ -51,25 +50,7 @@ public static class ApiKeyValidator
         var hashedKey = HashKey(apiKey);
         context.Items["HashedApiKey"] = hashedKey;
 
-        try
-        {
-            var cachedValue = await redisDb.StringGetAsync(RedisKeyPrefix + hashedKey);
-            if (cachedValue.HasValue)
-            {
-                var cachedKey = JsonSerializer.Deserialize<CachedApiKey>(cachedValue!);
-                if (cachedKey is { IsActive: true })
-                {
-                    vc.IsActive = true;
-                    vc.UserId = cachedKey.UserId;
-                    vc.RateLimitTps = cachedKey.RateLimitTps;
-                }
-            }
-        }
-        catch (Exception)
-        {
-            // Redis miss/error: fall through to identity.
-        }
-
+        // Always consult identity so revocation and password changes take effect immediately.
         if (!vc.IsActive)
         {
             try
@@ -82,7 +63,10 @@ public static class ApiKeyValidator
                 if (!string.IsNullOrEmpty(internalKey))
                     req.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", internalKey);
 
-                var response = await client.SendAsync(req);
+                using var timeout = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted);
+                timeout.CancelAfter(TimeSpan.FromSeconds(5));
+                using var response = await client.SendAsync(req, timeout.Token);
+                if ((int)response.StatusCode >= 500) throw new HttpRequestException("Identity unavailable");
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
@@ -99,9 +83,9 @@ public static class ApiKeyValidator
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                vc.ErrorMessage = $"Identity Service is temporarily unavailable. Error: {ex.Message}";
+                vc.ErrorMessage = "Identity Service is temporarily unavailable.";
                 vc.StatusCode = StatusCodes.Status503ServiceUnavailable;
                 return (false, vc);
             }
@@ -150,13 +134,6 @@ public static class ApiKeyValidator
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawKey));
         return Convert.ToHexString(bytes).ToLowerInvariant();
-    }
-
-    private sealed class CachedApiKey
-    {
-        public Guid UserId { get; set; }
-        public bool IsActive { get; set; }
-        public int RateLimitTps { get; set; }
     }
 
     private sealed class IdentityValidationResponse

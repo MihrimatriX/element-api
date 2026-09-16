@@ -1,0 +1,56 @@
+{
+  "Al": {
+    "file": "Aluminium-4.jpg",
+    "caption": "Alüminyum · metal numunesi",
+    "creator": "Chemical Elements — A Virtual Museum (Jumk.de Webprojects)",
+    "attribution_url": "https://images-of-elements.com/aluminium.php"
+  },
+  "Si": {
+    "file": "SiliconCroda.jpg",
+    "caption": "Silisyum · saflaştırılmış numune"
+  },
+  "Ti": {
+    "file": "Titanium crystal bar.jpg",
+    "caption": "Titanyum · kristal çubuk numunesi"
+  },
+  "Zn": {
+    "file": "Zinc fragment sublimed and 1cm3 cube.jpg",
+    "caption": "Çinko · kristal parça, dendrit ve karşılaştırma küpü"
+  },
+  "Co": {
+    "file": "Kobalt electrolytic and 1cm3 cube.jpg",
+    "caption": "Kobalt · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "Ni": {
+    "file": "Nickel electrolytic and 1cm3 cube.jpg",
+    "caption": "Nikel · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "C": {
+    "file": "Glassy carbon and a 1cm3 graphite cube HP68-79.jpg",
+    "caption": "Karbon · camsı karbon ve 1 cm³ grafit küp"
+  },
+  "Sn": {
+    "file": "Sn-Alpha-Beta.jpg",
+    "caption": "Kalay · alfa ve beta allotrop numuneleri"
+  },
+  "P": {
+    "file": "Phosphor rot.jpg",
+    "caption": "Fosfor · kırmızı fosfor numunesi"
+  },
+  "Cr": {
+    "file": "Chromium crystals and 1cm3 cube.jpg",
+    "caption": "Krom · kristaller ve karşılaştırma küpü"
+  },
+  "Mn": {
+    "file": "Manganese electrolytic and 1cm3 cube.jpg",
+    "caption": "Manganez · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "Pb": {
+    "file": "Lead electrolytic and 1cm3 cube.jpg",
+    "caption": "Kurşun · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "N": {
+    "file": "Fluessiger Stickstoff.jpg",
+    "caption": "Azot · sıvı azot (yoğunlaşmış element)"
+  }
+}

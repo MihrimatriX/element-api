@@ -1,62 +1,17 @@
-# Open risks / known gaps
+# Açık işler ve sınırlar — 15 Eylül 2026
 
-## Incomplete Atlas photo coverage
+- **Çalıştırma:** varsayılan tam Docker (`present-platform` / compose); host `start-local` / `artifacts` birincil yol değil. Eski 3080 hibrit adresleri tarihsel.
+- **Yeni aktif ürün işi:** [İçerik/oyun/görsel planı](content-and-games-plan.md) sürüyor. Fotoğraflar 53/118; lab malzemelerinde yalnız H şemada. Bileşik sayısı, keşif/rota genişlemesi ve iki yeni oyun modu hâlâ açık. Önceki arayüz teslimi bu kapsamı kapatmaz.
+- **Öğrenme genişletme bağımlılığı:** LearningController 18 keşif ve 3 rota sınırını, izinli kimlikleri sabit tutuyor. Yalnız web kataloğunu artırmak yeni kayıtların sunucuda reddedilmesine yol açar; uyumlu kayıt geçişi gerekir.
 
-- Manifest (~2026-09-06): **40 photos**, **51 compound structures**, **169 keys** (118 elements + 51 compounds).
-- Many elements (e.g. Co, Ni and most gases/synthetics) correctly have `photo: null`.
-- Optional: re-run `node deploy/scripts/refresh-atlas.mjs --fetch` when improving coverage; expect Wikipedia rate limits. Do not fill gaps with poorly licensed images.
-
-## Stale Release bin Data after atlas refresh
-
-`start-local.ps1 -NoBuild` can leave `catalog-service/.../bin/Release/net9.0/Data/scientific-elements.json` older than `Infrastructure/Data/`. Symptom: Fe (and atlas fields) missing from live API until rebuild **or** copy source JSON into Release `Data/` and restart catalog. Prefer `start-local.ps1 -Restart` (with build) after atlas edits.
-
-## Commerce / saga — fixed on this host (2026-09-07)
-
-Root cause of RabbitMQ `ACCESS-REFUSED` / `guest`: `start-local.ps1` used PowerShell `-match` with `[A-Za-z_…]` to parse `docker/.env`. Under **Turkish locale**, letter **I** falls out of that range, so keys like `RABBITMQ_DEFAULT_USER` / `INTERNAL_API_KEY` never loaded → fallback `guest`. Fixed by Split-based `.env` parse in `deploy/scripts/start-local.ps1`.
-
-Verified live: order `:5003` + payment `:5005` up; `./deploy/scripts/test-smoke.ps1` → **20/20** including saga Completed + desk sell.
-
-Stray Node `:3000` / `:3001` may still be unrelated orphans — not the gateway order target.
-
-## Uncommitted mega-diff
-
-Working tree still has huge uncommitted scientific JSON, media, compose, and docs changes (including README + KREDI/ELX doc follow-through). Easy to lose or mix with unrelated edits. Commit only when the user asks; consider splitting Atlas vs infra vs docs commits.
-
-## Payment logging leftover
-
-Infra simplify removed `logstash-logback-encoder` from `pom.xml` and deleted `logback-spring.xml`. Any **old** `target/` build that still embeds Logstash config will crash on boot. Fix: rebuild payment from current tree (no Logstash XML). Current clean package boots fine. payment-service README no longer documents Prometheus/Logstash as live.
-
-## Vite / SignalR noise
-
-`npm run build` may print Rolldown `INVALID_ANNOTATION` warnings from `@microsoft/signalr`. Build still succeeds; ignore unless it becomes an error.
-
-## Helm / k8s / per-service compose removed
-
-`deploy/helm`, `deploy/k8s`, and eight per-service `docker-compose.yml` files are gone. Deploy via root `docker-compose.yml` + `deploy/scripts/start-local.ps1` only. Restore from git history if someone still needs those manifests.
-
-## GraphQL BFF removed
-
-Gateway `/graphql` (HotChocolate) deleted. Unknown whether any external client still called it; in-repo web-app never did (REST ticker). Platform test now hits `GET /api/v1/elements/{symbol}/ticker`.
-
-## Catalog gRPC removed
-
-Internal gRPC price endpoint gone. Order already uses HTTP `priceResolver` → catalog ticker.
-
-## Health JSON shape (2026-09-07)
-
-.NET `/health` and order `/health` now return `{ status, checks:[{name,ok,ms}] }` (no HealthChecks.UI TimeSpan/`entries`). Platform smoke only asserts `status === 'Healthy'`. External UI.Client consumers (if any) need updating.
-
-## Ponytail simplify pass 2 leftovers
-
-- `IElementRepository` kept (multi-controller catalog surface).
-- `element-properties.json` + `ElementPropertyCatalog` kept (would need seed/map migration).
-- `uuid` package retained for `uuidv5` in order saga only.
-
-## Docs drift (mitigated)
-
-Service READMEs aligned with memory bank (2026-09-07). KREDI user-facing + legacy `*Elx` / `INSUFFICIENT_ELX` wire names documented in root README (canonical) and `decisions.md`. Breaking rename of those fields is **deferred** until an explicit user decision.
-
-## No docker/README.md
-
-Intentional: root README + `docker/.env.example` + memory bank `local-dev.md` cover compose. A third copy would drift.
-
+- **İnternet yayını yok:** kullanıcı henüz alan adı/sunucu sağlamadı; yerel sunum hedeflendi. DNS, TLS, public ağ ve üretim işletimi doğrulanmadı.
+- **Resend bağlı değil:** tercih Resend; mevcut e-posta kodu SMTP gönderici altyapısını kullanır. Gerçek Resend API/SMTP seçimi, doğrulanmış domain ve teslimat testi sonraki iş. Yerelde kapalı özelliği gönderilmiş gibi gösterme.
+- **Gerçek kullanıcı testi yok:** öğrenci/öğretmen denemesi ve editöryel uzman değerlendirmesi yapılmadı. Otomasyon sonuçları öğrenme etkisi kanıtı değildir.
+- **Cihaz sınırı:** Chromium masaüstü ve mobil emülasyonu kullanıldı; fiziksel telefon, Safari ve Firefox doğrulaması ayrı iş.
+- **Veri kapsamı:** 53/118 fotoğraf, 51/51 bileşik yapı görseli. H bilerek şema (deşarj tüpü reddedildi). Üç element bölümü bütünüyle boş: elektromanyetik/optik, kristal yapı, bolluk. Eksikleri null koru; kapsamı src/data/coverage.json üretir.
+- **Yedek sınırı:** PostgreSQL için ayrı geçici veritabanında 5 DB/26 tablo satır+hash doğrulaması yapıldı. Uzak/encrypted yedek, anahtar kurtarma, broker/Redis ve tam felaket kurtarma tatbikatı değildir.
+- **Hesap silme kapsamı:** profil/öğrenme/anahtar/webhook silinir; diğer servislerdeki simülasyon işlemleri, loglar ve eski yedekler ayrıca yaşam döngüsü gerektirir.
+- **Legacy alan CSS'i:** ortak kontroller shadcn/Radix temelli; bilimsel/periyodik düzenlerin eski CSS'i legacy katmanında kalır. Yeni stillerde token/bileşen kaynağını kullan, ikinci bir paralel kontrol sistemi kurma.
+- **Çalışma ağacı:** önceki büyük değişiklikler de uncommitted. Kullanıcı istemeden commit/push veya eski diff'i geri alma yok.
+- **Release veri eskimesi:** bilimsel JSON değiştiğinde ilgili Docker imajını yeniden derle; eski net9 notları tarihsel, güncel .NET 10.
+- **Sözleşme:** kullanıcıya KREDI; legacy *Elx / INSUFFICIENT_ELX alanları kırıcı migrasyon olmadan değiştirilmez.

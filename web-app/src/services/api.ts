@@ -1,4 +1,7 @@
+import { clearSession, readStorage } from './session';
 import { API_BASE_URL } from '../config';
+
+let pendingDashboardKey: { token: string; promise: Promise<string> } | null = null;
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
@@ -14,8 +17,8 @@ export class ApiHttpError extends Error {
 
 function authHeaders(): Record<string, string> {
   const headers: Record<string, string> = {};
-  const token = localStorage.getItem('token');
-  const apiKey = localStorage.getItem('apiKey');
+  const token = readStorage('token');
+  const apiKey = readStorage('apiKey');
   if (token) headers.Authorization = `Bearer ${token}`;
   if (apiKey) headers['X-API-Key'] = apiKey;
   return headers;
@@ -42,6 +45,8 @@ async function request<T>(
     timeout?: number;
   }
 ): Promise<T> {
+  if (/^\/(me|orders|desk)(\/|$)/.test(path) && readStorage('token') && !readStorage('apiKey')) await apiKeyService.ensureDashboardKey();
+  const requestedToken = readStorage('token');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts?.timeout ?? DEFAULT_TIMEOUT_MS);
   try {
@@ -60,6 +65,7 @@ async function request<T>(
     if (text) {
       try { data = JSON.parse(text); } catch { data = text; }
     }
+    if (res.status === 401 && requestedToken === readStorage('token') && !['/auth/login', '/auth/register'].includes(path) && (path.startsWith('/auth/') || path.startsWith('/api-keys') || path.startsWith('/webhooks'))) clearSession();
     if (!res.ok) throw new ApiHttpError(res.status, data);
     return data as T;
   } finally {
@@ -75,6 +81,7 @@ export function apiError(error: unknown, fallback: string): string {
     const obj = data as Record<string, unknown>;
     if (typeof obj.error === 'string') return obj.error;
     if (typeof obj.message === 'string') return obj.message;
+    if (typeof obj.detail === 'string') return obj.detail;
     if (obj.errors && typeof obj.errors === 'object') return Object.values(obj.errors as object).flat().join(' ');
   }
   return fallback;
@@ -103,19 +110,20 @@ export const apiKeyService = {
     request<{ id: string; description: string; maskedKey: string; isActive: boolean; rateLimitTps: number }[]>('GET', '/api-keys'),
   revoke: async (id: string) => { await request('DELETE', `/api-keys/${id}`); },
   ensureDashboardKey: async () => {
-    if (localStorage.getItem('apiKey')) return localStorage.getItem('apiKey');
-    try {
-      const keys = await apiKeyService.list();
-      const prev = (keys || []).filter((k) => k.description === 'Web Dashboard Key' && k.isActive);
-      for (const k of prev) {
-        await apiKeyService.revoke(k.id).catch(() => {});
-      }
-    } catch {
-      /* list may 401 before token is wired */
-    }
-    const apiKeyRes = await apiKeyService.generate('Web Dashboard Key', 10);
-    localStorage.setItem('apiKey', apiKeyRes.apiKey);
-    return apiKeyRes.apiKey as string;
+    const existing = readStorage('apiKey');
+    if (existing) return existing;
+    const token = readStorage('token');
+    if (!token) throw new ApiHttpError(401, null);
+    if (pendingDashboardKey?.token === token) return pendingDashboardKey.promise;
+    // Parallel wallet/order requests share one issuance; never attach an old user's key.
+    const promise = apiKeyService.generate('Web Dashboard Key', 10).then(result => {
+      if (readStorage('token') !== token) throw new ApiHttpError(401, null);
+      localStorage.setItem('apiKey', result.apiKey);
+      return result.apiKey;
+    });
+    pendingDashboardKey = { token, promise };
+    try { return await promise; }
+    finally { if (pendingDashboardKey?.promise === promise) pendingDashboardKey = null; }
   }
 };
 
@@ -202,7 +210,7 @@ export const compoundService = {
 
 export const elementService = {
   getElements: async (page = 1, pageSize = 100) =>
-    request<any>('GET', '/elements', { params: { page, pageSize } }),
+    request<{ results: import('./elementData').ElementItem[]; info: { pages: number } }>('GET', '/elements', { params: { page, pageSize } }),
   query: async (params: ElementQuery) =>
     request('GET', '/elements', { params: params as Record<string, unknown> }),
   getAllElements: async () => {
@@ -298,7 +306,7 @@ function normalizeCartItem(raw: Partial<CartItem> & { symbol?: string; qty?: num
 
 export function readCart(): CartItem[] {
   try {
-    const parsed = JSON.parse(localStorage.getItem(CART_KEY) || '[]') as unknown[];
+    const parsed = JSON.parse(readStorage(CART_KEY) || '[]') as unknown[];
     return parsed
       .map((row) => normalizeCartItem(row as CartItem))
       .filter((row): row is CartItem => row != null);

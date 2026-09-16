@@ -1,27 +1,28 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Element.Services.Identity.Core.DTOs;
 
 public record RegisterRequest(
-    string Email,
-    string Password,
-    string FirstName,
-    string LastName
+    [Required, EmailAddress, MaxLength(254)] string Email,
+    [Required, MaxLength(1024)] string Password,
+    [Required, MaxLength(100)] string FirstName,
+    [Required, MaxLength(100)] string LastName
 );
 
 public record LoginRequest(
-    string Email,
-    string Password
+    [Required, EmailAddress, MaxLength(254)] string Email,
+    [Required, MaxLength(1024)] string Password
 );
 
 public record AuthResponse(
     string Token,
-    string Email,
+    [Required, EmailAddress, MaxLength(254)] string Email,
     string FullName
 );
 
 public record GenerateKeyRequest(
-    string Description,
+    [Required, MaxLength(200)] string Description,
     int RateLimitTps = 10
 );
 

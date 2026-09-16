@@ -1,78 +1,86 @@
-import { Link } from 'react-router-dom';
-import { API_ORIGIN } from '../config';
-import Seo from '../components/Seo';
-
-const STEPS = [
-  {
-    title: 'Bir elementle başla',
-    body: 'Ana sayfadaki tabloda Türkçe veya İngilizce ad, sembol ya da atom numarası ara. Kategori filtreleri birlikte çalışır; telefonda liste görünümünü de kullanabilirsin.'
-  },
-  {
-    title: 'Özellikleri ve kaynakları incele',
-    body: 'Elemente tıkla; atomik yapı, termodinamik, mekanik özellikler ve izotoplara geç. Eksik alanları gösterebilir, kaynağı açabilir veya JSON kaydını indirebilirsin.'
-  },
-  {
-    title: 'Bileşikleri keşfet',
-    body: 'Bileşikler sayfasında ad, molekül formülü veya PubChem CID ile ara. Moleküler tanımlayıcıları, fiziksel deneyleri ve kaynaklı güvenlik bilgilerini birlikte incele.'
-  },
-  {
-    title: 'Veriyi kendi projende kullan',
-    body: 'Bilimsel v2 API hesap veya anahtar istemez. view=summary ile küçük bir yanıt, include ile ek bölümler, fields ile yalnız ihtiyacın olan alanları al.'
-  },
-  {
-    title: 'İstersen simülasyona katıl',
-    body: 'Piyasa ve Mağaza sanal Kredi ile çalışan ayrı bir deneme alanıdır. Alım ve satım için hesap gerekir; gerçek ödeme veya fiziksel gönderim yapılmaz.'
-  }
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { SCIENCE_BASE_URL } from "../config";
+import Seo from "../components/Seo";
+const steps = [
+  [
+    "Bir elementle başla",
+    "Tabloda Türkçe ad, İngilizce ad, sembol veya atom numarası ara. Element kartını açarak özelliklerini ve kaynaklarını incele.",
+  ],
+  [
+    "İlk bileşiğini keşfet",
+    "Laboratuvarda hidrojen ve oksijeni seç, Birleştir düğmesine bas. Bu bir keşif oyunu: kart seçimi gerçek deney koşullarını ya da bir reaksiyon denklemini temsil etmez.",
+  ],
+  [
+    "Bir öğrenme rotasını izle",
+    "Koleksiyonum sayfasından Günlük maddeler, Tuzlar veya Oksitler rotasını seç. Gereken üç bileşiği bulduğunda kısa değerlendirme sorusu açılır.",
+  ],
+  [
+    "Keşfini ayrıntılandır",
+    "Bulduğun bileşiğin formülüne, hangi elementlerden oluştuğuna ve kullanım alanlarına bak. Yeni elementlerin kilidini açarak başka birleşimleri dene.",
+  ],
+  [
+    "İlerlemeni koru",
+    "Misafir kayıtları bu tarayıcıda kalır; tarayıcı verilerini silmek onları da kaldırır. Koleksiyonunu JSON olarak indirebilirsin. Hesaplar açık kurulumlarda giriş yapıp cihazlar arasında eşitleyebilirsin.",
+  ],
 ];
-
 export default function Guide() {
-  const sample = `curl -s "${API_ORIGIN}/api/v2/elements/fe?view=summary&include=isotopes"`;
-
   return (
     <main className="page explainer-page">
       <Seo
-        title="Rehber · Element API"
-        description="Periyodik tablo, element özellikleri, bileşikler ve açık bilimsel API. ElementAPI nasıl kullanılır."
+        title="Rehber · ElementAPI"
+        description="İlk bileşiğini keşfet, öğrenme rotasını tamamla ve koleksiyonunu oluştur."
         path="/nasil"
       />
-
       <div className="explainer">
         <article className="explainer-prose">
           <p className="kicker">Rehber</p>
-          <h1>Merak ettiğin yerden başla.</h1>
+          <h1>Kullanım rehberi</h1>
           <p className="lead">
-            Önce bak, sonra dene. Gezmek için hesap gerekmez. Almak ve satmak için kayıt yeter.
+            Hesap açmadan başlayabilirsin. İlk hedef: suyu keşfet ve onun
+            formülünü öğren.
           </p>
-
           <ol className="process">
-            {STEPS.map((step, i) => (
-              <li key={step.title}>
-                <span className="process-n" aria-hidden="true">{i + 1}</span>
+            {steps.map(([title, body], i) => (
+              <li key={title}>
+                <span className="process-n" aria-hidden="true">
+                  {i + 1}
+                </span>
                 <div>
-                  <h2>{step.title}</h2>
-                  <p>{step.body}</p>
+                  <h2>{title}</h2>
+                  <p>{body}</p>
                 </div>
               </li>
             ))}
           </ol>
-
-          <pre className="code-window explainer-code"><code>{sample}</code></pre>
-          <p className="muted">
-            Uçların tam listesi <Link to="/docs">API dokümantasyonunda</Link>.
+          <h2>Aynı veriyi kodla keşfet</h2>
+          <pre className="code-window explainer-code">
+            <code>
+              {'curl -s "' +
+                SCIENCE_BASE_URL +
+                '/elements/fe?view=summary&include=provenance"'}
+            </code>
+          </pre>
+          <p>
+            <Link to="/docs">API örnekleri</Link> ·{" "}
+            <Link to="/data">Kaynaklar ve veri kapsamı</Link>
           </p>
         </article>
-
         <aside className="explainer-aside">
           <div className="def-card">
-            <p className="kicker">Gram</p>
-            <h2>Ne kadar alıyorsun</h2>
+            <p className="kicker">Devam noktası</p>
+            <h2>Kaldığın yerden devam et</h2>
             <p>
-              Fiyat gram başınadır. Mağazada 1, 10 veya 100 gramlık paket seçersin.
-              Kredi uygulamanın deneme bakiyesidir. Gerçek para değil.
+              Tamamlanan rotaları, kalan keşifleri ve açılan bileşikleri aynı
+              yerde bul.
             </p>
+            <Button asChild variant="default">
+              <Link className="btn primary" to="/collection">
+                Koleksiyonum
+              </Link>
+            </Button>
             <p>
-              Kelimeler için <Link to="/sozluk">sözlük</Link>.
-              Ne olduğu için <Link to="/hakkinda">hakkında</Link>.
+              <Link to="/lab?lesson=everyday">İlk keşfe başla</Link>
             </p>
           </div>
         </aside>

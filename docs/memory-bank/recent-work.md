@@ -1,6 +1,40 @@
+# Son çalışma — 15 Eylül 2026
+
+## Varsayılan çalıştırma: tam Docker
+
+Host/`artifacts` hibrit akış bırakıldı. `present-platform.ps1` → `docker compose up -d [--build]` (http://localhost:3000); `present-local.ps1` → `docker-compose.science.yml` (:5080); `stop-local.ps1` → compose stop. `start-local.ps1` duruyor ama varsayılan değil. `contracts/` silindi (kaynak: `shared-lib/Events`).
+
+## Laboratuvar öncelikli fotoğraf paketi 2 (tamamlandı)
+
+İçerik/oyun planındaki görsel izinin yarım kalan laboratuvar dilimi tamamlandı. C, N, P, Sn, Cr, Mn, Pb için lisanslı Commons numuneleri seçildi; fotoğraf 46 → **53/118** (65 eksik). Lab 15 elementinden yalnız **H** şemada kaldı (Commons’ta kabul edilebilir numune yok; deşarj tüpü politika dışı). Seçimler `atlas-photo-selections.json`; envanter yenilendi. Host: 13 birim testi + üretim build geçti. Bileşik katalog / yeni oyun modları bu pakette yok.
+
+## İlk hızlı teslim: 6 numune fotoğrafı
+
+Alüminyum, silisyum, titanyum, çinko, kobalt ve nikel fotoğrafları kaynak/lisanslarıyla eklendi (sonra paket 2 ile 53’e çıktı). Kalıcı seçim listesi atlas-photo-selections.json; envanter ../ELEMENT-MEDIA-INVENTORY.md.
+
+
+## Yeni talep: içerik, oyunlar ve görseller
+
+Kullanıcı bileşik ve oyun kapsamını yetersiz buldu; element resimlerinin tamamlanmasını istedi. [Yapılacaklar planı](content-and-games-plan.md) aktif; görseller ilerledi, bileşik/oyun genişlemesi hâlâ açık. ÖğrenmeController 18 keşif / 3 rota sınırı bağımlılığı duruyor.
+
+Güncel durum: [ürün özeti](project-overview.md), [tasarım sistemi](design-system.md), [senaryolar](../PRODUCT-SCENARIOS.md).
+
+- Ürün odağı atlas → laboratuvar → 3 rota → koleksiyon olarak düzenlendi; 18 keşif korunuyor.
+- Hesap eşitlemesi, misafir aktarımı, özel veri indirme, şifre/hesap yaşam döngüsü ve API anahtar iptali eklendi.
+- Bağımsız bilim profili :5080, tam platform :3000 (Docker compose). Servisler .NET 10'a taşındı.
+- Yerel doğrulama ve DB restore araçları tamamlandı; önceki tam sonuçlar LOCAL-VERIFICATION.md içinde tarihli.
+- Ön yüz gerçek shadcn kaynakları + Radix + Tailwind 4 ortak katmanına taşındı. Yeni sidebar/mobile Sheet; Dialog/Tabs/DropdownMenu/Disclosure; ortak form, tablo, kart, düğme ve ilerleme bileşenleri.
+- Sloganlı başlıklar ve fazla tanıtım alanları sadeleştirildi; sıcak beyaz/grafit/yeşil görsel yön seçildi.
+- Bileşen geçişinde Card Slot sınırları ve bilimsel bölüm açma davranışı düzeltildi. Test raporu klasörleri Vite izlemesinden çıkarıldı; Playwright profillerine ayrı çıktı dizinleri verildi.
+- Resend tercihi kaydedildi; gerçek e-posta gönderimi ve internet yayını yapılmadı.
+
+Aşağıdaki eski kayıtlar tarihsel bağlamdır; portlar ve test sayıları güncel durum için kaynak değildir.
+
+---
+
 # Recent work (ChatGPT → Cursor continuation)
 
-Timeline context: conversation [Resume Atlas Lab work](288cf6e9-1d7b-4dc0-9110-6e9e098ada75). Commits on `main` are mostly placeholder messages (`aaa`); the real unfinished track lived as large **uncommitted** diffs.
+Timeline context: conversation Resume Atlas Lab work (conversation ID: `288cf6e9-1d7b-4dc0-9110-6e9e098ada75`). Commits on `main` are mostly placeholder messages (`aaa`); the real unfinished track lived as large **uncommitted** diffs.
 
 ## ChatGPT started
 
@@ -62,7 +96,8 @@ Timeline context: conversation [Resume Atlas Lab work](288cf6e9-1d7b-4dc0-9110-6
 | payment: drop prometheus; KREDI limits; keep `INSUFFICIENT_ELX` reason | Done |
 | shared-lib: compound consumer; HealthChecks.UI.Client clarification | Done |
 | identity / shipment / notification: host-first run notes | Done |
-| contracts + memory-bank README | Left as-is (accurate) |
+| memory-bank README | Left as-is (accurate) |
+| contracts/ | Removed — docs-only JSON samples; truth is shared-lib/Events |
 
 ## Remaining follow-through (2026-09-07, later)
 
@@ -109,3 +144,7 @@ Timeline context: conversation [Resume Atlas Lab work](288cf6e9-1d7b-4dc0-9110-6
 - Service + root `README.md` sync (lab, v2, host verify, no observability stack)
 - KREDI/ELX legacy wire documented: root README, `decisions.md`, ApiDocs, order/payment READMEs
 
+
+## Ön yüz doğrulama sonucu — 15 Eylül 2026
+
+28 keşif/gezinti + 10 hesap arayüzü + 2 gerçek platform tarayıcı senaryosu geçti; web 11 birim testi, lint ve üretim build başarılı. 3080 tam web ve 5080 bağımsız atlas yeni tasarımı sunar. Sonuç ayrıntısı LOCAL-VERIFICATION.md içinde.

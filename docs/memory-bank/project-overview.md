@@ -1,35 +1,26 @@
-# Project overview — ElementAPI
+# ElementAPI — ürün özeti
 
-**What it is:** Public scientific catalog API (118 elements + 51 compounds) plus a paper-credit market/shop simulation and a React discovery UI.
+Türkçe kimya atlası ve keşif uygulaması. Ana akış: element bul → kaynağını incele → laboratuvarda bileşik keşfet → öğrenme rotasını tamamla → koleksiyonunu koru.
 
-**Not real money / not physical delivery.** Currency code `KREDI`; price source `simulation`.
+- 118 element, 51 bileşik ve kaynakları; 169 Türkçe editöryel anlatım; 53/118 element fotoğrafı.
+- Laboratuvarda 18 ulaşılabilir keşif ve 3 öğrenme rotası. Kart seçimi gerçek laboratuvar deneyi veya kimyasal reaksiyon koşulu değildir.
+- Misafir ilerlemesi tarayıcıda; JSON indirme/aktarma desteklenir. Hesaplı kurulumda öğrenme kayıtları sunucuda saklanır ve cihazlar arasında birleştirilir.
+- Açık bilimsel v2 API: alan seçimi, özet/tam kayıt, filtreler, şemalar ve ETag.
+- Tam platformda ayrı sanal piyasa/mağaza/sipariş/kargo demosu vardır. Gerçek ödeme ve fiziksel teslimat yoktur; para birimi KREDI.
 
-## Surfaces
+## Kullanıcının güncel tercihleri
 
-| Surface | Role |
-|---------|------|
-| `web-app` | Periodic table, compound explorer, `/lab` discovery game, market, shop, API docs |
-| `gateway-service :5000` | YARP; single public API entry |
-| `catalog-service :5002` | Elements + market/stock |
-| `compound-service :5007` | Compounds |
-| `identity-service :5001` | Auth, JWT, API keys |
-| `order-service :5003` | Orders + saga orchestration (Node) |
-| `payment-service :5005` | Payment worker (Java) |
-| `shipment-service :5004` | Shipment worker |
-| `notification-service :5006` | SignalR notifications |
+Son geri bildirim: Bileşikler ve oyunlar yetersiz; element görselleri artırılmalı. [Aktif genişletme planı](content-and-games-plan.md) sürüyor; görseller 53/118, bileşik/oyun sayıları henüz genişletilmedi.
 
-## Scientific / Atlas layer
+Ürün yerelde sunuma hazır olmalı. Alan adı ve barındırma hesabı henüz yok. Gerçek e-posta teslimatı bu çalışmanın dışında; tercih Resend, henüz bağlı değil.
 
-- Source data: PubChem-derived JSON in catalog/compound Infrastructure `Data/` folders.
-- Atlas overlay: Turkish editorial copy, media, Wikipedia/PubChem links via `deploy/scripts/refresh-atlas.mjs`.
-- Editorial source: `deploy/data/atlas-editorial.mjs`
-- Media manifest: `deploy/data/atlas-media.json`
-- Static files: `web-app/public/media/atlas/`
+Arayüz için açık talep: AI üretimi gibi duran sloganlı tasarımı bırak; shadcn/ui ve Radix temelli, sade ve cilalı bir çalışma alanı oluştur. Az sayıda vurgu rengi, tutarlı form/menü/tablo bileşenleri ve açık işlev adları kullan.
 
-## Docs map
+## Kaynak dosyalar
 
-- Quickstart: root [`README.md`](../../README.md)
-- Exhaustive Turkish narrative of recent work: [`docs/WHAT-WAS-DONE.md`](../WHAT-WAS-DONE.md)
-- This folder: agent + human memory bank
-- Local verify rule: [`.cursor/rules/local-dev.mdc`](../../.cursor/rules/local-dev.mdc)
-- Older agent notes: [`deploy/AGENTS.md`](../../deploy/AGENTS.md)
+- Arayüz: web-app/src; ortak kabuk ProductShell; tasarım sistemi components/ui ve design-system.css.
+- Bilimsel JSON: catalog/compound Infrastructure Data; bağımsız servis science-service.
+- Laboratuvar kuralları: services/lab.ts; öğrenme rotaları: services/lessons.ts.
+- Medya: deploy/data/atlas-media.json ve web-app/public/media/atlas.
+
+[Senaryolar](../PRODUCT-SCENARIOS.md) sunumda yapılabilen işleri ve sınırlarını anlatır.

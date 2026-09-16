@@ -11,6 +11,7 @@ public static class LoggingExtensions
 {
     public static WebApplicationBuilder AddConsoleLogging(this WebApplicationBuilder builder, string applicationName)
     {
+        builder.ValidateProductionConfiguration();
         var loggerConfig = new LoggerConfiguration()
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

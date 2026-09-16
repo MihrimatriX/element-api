@@ -58,9 +58,6 @@ public class ApiKeyService
         _context.ApiKeys.Add(apiKey);
         await _context.SaveChangesAsync();
 
-        // 5. Save to Redis Cache (Serialize model)
-        await CacheKeyInRedisAsync(hashedKey, apiKey);
-
         return (rawKey, apiKey);
     }
 
@@ -74,7 +71,7 @@ public class ApiKeyService
 
         // Remove or update in Redis
         var redisKey = RedisKeyPrefix + apiKey.KeyHash;
-        await _redisDb.KeyDeleteAsync(redisKey);
+        try { await _redisDb.KeyDeleteAsync(redisKey); } catch (RedisException) { /* Validation reads the database; stale caches cannot grant access. */ }
 
         return true;
     }
@@ -84,41 +81,8 @@ public class ApiKeyService
         if (string.IsNullOrWhiteSpace(rawKey)) return null;
 
         var hashedKey = HashKey(rawKey);
-        var redisKey = RedisKeyPrefix + hashedKey;
-
-        // 1. Check Redis Cache
-        var cachedValue = await _redisDb.StringGetAsync(redisKey);
-        if (cachedValue.HasValue)
-        {
-            var cachedKey = JsonSerializer.Deserialize<ApiKey>(cachedValue!);
-            if (cachedKey != null && cachedKey.IsActive)
-            {
-                return cachedKey;
-            }
-            return null;
-        }
-
-        // 2. Check Database
-        var apiKey = await _context.ApiKeys.FirstOrDefaultAsync(k => k.KeyHash == hashedKey);
-        if (apiKey != null)
-        {
-            // Sync with Redis for next requests
-            if (apiKey.IsActive)
-            {
-                await CacheKeyInRedisAsync(hashedKey, apiKey);
-                return apiKey;
-            }
-        }
-
-        return null;
-    }
-
-    private async Task CacheKeyInRedisAsync(string hashedKey, ApiKey apiKey)
-    {
-        var redisKey = RedisKeyPrefix + hashedKey;
-        var jsonValue = JsonSerializer.Serialize(apiKey);
-        // Cache API key configuration for 24 hours
-        await _redisDb.StringSetAsync(redisKey, jsonValue, TimeSpan.FromHours(24));
+        // Authorization is never served from a stale positive cache.
+        return await _context.ApiKeys.AsNoTracking().FirstOrDefaultAsync(k => k.KeyHash == hashedKey && k.IsActive);
     }
 
     private string HashKey(string rawKey)

@@ -49,7 +49,7 @@ public class ElementsController : ControllerBase
         try
         {
             var cached = await _redisDb.StringGetAsync(key);
-            if (cached.HasValue) return JsonSerializer.Deserialize<T>(cached!);
+            if (cached.HasValue) return JsonSerializer.Deserialize<T>(cached.ToString());
         }
         catch { /* cache is best-effort */ }
         return null;

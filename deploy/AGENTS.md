@@ -4,7 +4,7 @@ Moved from repo root — read when changing this codebase.
 
 ## Root = projects only
 
-`catalog-service`, `contracts`, `gateway-service`, `identity-service`, `notification-service`, `order-service`, `payment-service`, `shared-lib`, `shipment-service`, `web-app`, `deploy/`
+`catalog-service`, `gateway-service`, `identity-service`, `notification-service`, `order-service`, `payment-service`, `shared-lib`, `shipment-service`, `web-app`, `deploy/`
 
 ## Build / test (no .sln)
 
@@ -17,13 +17,13 @@ dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=In
 
 ## Messaging
 
-- `contracts/README.md` — polyglot JSON envelopes
-- `shared-lib/Events/` — .NET types
+- `shared-lib/Events/` — .NET types (source of truth)
 - URN prefix: `Element.Shared.Events:*` (do not rename without migration)
+- Node/Java: same envelope + URN namespace as MassTransit
 
 ## Conventions
 
 - `ConfigureRabbitMqHost` for RabbitMQ
 - `ApplyDatabaseAsync<TContext>` for EF migrate
-- MassTransit 9.1.1 on .NET services
+- MassTransit 8.3.4 on .NET services
 - Integration tests: `[Trait("Category", "Integration")]`, `OrderNodeTestHost` needs `order-service` built

@@ -4,6 +4,7 @@ $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 
 $projects = @(
+    "science-service\Element.Science.csproj",
     "shared-lib\Element.Shared.csproj",
     "gateway-service\Element.Gateway.csproj",
     "identity-service\Element.Services.Identity.API\Element.Services.Identity.API.csproj",

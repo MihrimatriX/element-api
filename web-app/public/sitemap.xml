@@ -61,8 +61,8 @@
   <url><loc>__SITE_URL__/hakkinda</loc></url>
   <url><loc>__SITE_URL__/nasil</loc></url>
   <url><loc>__SITE_URL__/sozluk</loc></url>
-  <url><loc>__SITE_URL__/login</loc></url>
-  <url><loc>__SITE_URL__/register</loc></url>
+  <url><loc>__SITE_URL__/data</loc></url>
+  <url><loc>__SITE_URL__/demo</loc></url>
   <url><loc>__SITE_URL__/element/h</loc></url>
   <url><loc>__SITE_URL__/element/he</loc></url>
   <url><loc>__SITE_URL__/element/li</loc></url>

@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY ["identity-service/Element.Services.Identity.API/Element.Services.Identity.API.csproj", "identity-service/Element.Services.Identity.API/"]
 COPY ["identity-service/Element.Services.Identity.Infrastructure/Element.Services.Identity.Infrastructure.csproj", "identity-service/Element.Services.Identity.Infrastructure/"]

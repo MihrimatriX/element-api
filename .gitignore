@@ -51,6 +51,8 @@ build/
 .parcel-cache/
 .vite/
 coverage/
+playwright-report/
+test-results/
 *.local
 
 # --- Java / Maven ---
@@ -124,3 +126,9 @@ publish/
 out/
 *.zip
 *.tar.gz
+
+!web-app/src/data/coverage.json
+playwright-report-auth/
+playwright-report-live/
+/web-app/test-results-auth/
+/web-app/test-results-live/

@@ -1,10 +1,10 @@
 # web-app
 
-ElementAPI arayüzü — React 19 + Vite + TypeScript + nginx.
+ElementAPI arayüzü — React 19 + Vite + TypeScript + Tailwind 4 + shadcn/ui (Radix) + nginx.
 
 | | |
 |--|--|
-| **Port** | `3000` (Docker) · `5173` (dev) |
+| **Port** | `3000` (Docker web) · `5173` (dev) |
 | **Health** | `GET /health` |
 | **Info** | `GET /info` |
 
@@ -17,7 +17,7 @@ ElementAPI arayüzü — React 19 + Vite + TypeScript + nginx.
 - Kâğıt kredi cüzdan, gram sepet, SignalR fiyat (login gerekmez)
 - Atlas medya: `public/media/atlas/` (fotoğraf + PubChem yapı PNG)
 
-Statik SPA — tüm veri gateway API'den gelir. Bilimsel kayıtlar `GET /api/v2/...`; piyasa/sipariş `GET /api/v1/...`.
+Statik SPA — tam platformda API gateway, bağımsız profilde bilim servisi kullanılır. Bilimsel kayıtlar `GET /api/v2/...`; piyasa/sipariş `GET /api/v1/...`.
 
 ---
 
@@ -28,7 +28,7 @@ Statik SPA — tüm veri gateway API'den gelir. Bilimsel kayıtlar `GET /api/v2/
 | `/`, `/periodic` | Keşif / periyodik tablo |
 | `/element/:symbol`, `/compound/:slug` | Bilimsel ayrıntı |
 | `/compounds` | Bileşik listesi |
-| `/lab` | Keşif laboratuvarı (localStorage; cüzdan/sipariş yok) |
+| `/lab` | Keşif laboratuvarı (misafir yerel; hesaplı ilerleme sunucuda) |
 | `/market`, `/shop` | Piyasa · mağaza |
 | `/docs` | API dokümantasyonu |
 | `/hakkinda` | Hakkında |
@@ -57,7 +57,7 @@ Statik SPA — tüm veri gateway API'den gelir. Bilimsel kayıtlar `GET /api/v2/
 
 ## Çalıştırma
 
-Tercih: host Vite (tam Docker web rebuild gerekmez). Gateway `localhost:5000` ayakta olmalı.
+Tercih: host Vite (tam Docker web rebuild gerekmez). Tam profil gateway `localhost:5000` kullanır; bağımsız bilim profili için SCIENCE API adresi ayarlanabilir.
 
 ```bash
 npm ci
@@ -85,3 +85,7 @@ Ayrıntı: kök README **Public / subdomain**; atlas yenileme: `node deploy/scri
 ---
 
 [← Ana README](../README.md)
+
+## Tasarım ve senaryolar
+
+Ortak kabuk `src/components/ProductShell.tsx`; shadcn kaynakları `src/components/ui`; tema `src/design-system.css`. [Tasarım sözleşmesi](../docs/memory-bank/design-system.md) ve [ürün senaryoları](../docs/PRODUCT-SCENARIOS.md).

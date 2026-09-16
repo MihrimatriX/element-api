@@ -11,5 +11,13 @@ $previous = $env:DATABASE_URL
 try {
     $env:DATABASE_URL = "postgres://$([uri]::EscapeDataString($dbUser)):$([uri]::EscapeDataString($dbPass))@localhost:$dbPort/element_order_db"
     Push-Location (Join-Path $root 'order-service')
-    try { npx --no-install tsx src/saga.integration.check.ts; if ($LASTEXITCODE -ne 0) { throw 'Saga regression test failed.' } } finally { Pop-Location }
+    try {
+        # npx writes notices to stderr; under Stop that becomes a NativeCommandError even when exit 0.
+        $prev = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        npx --no-install tsx src/saga.integration.check.ts
+        $code = $LASTEXITCODE
+        $ErrorActionPreference = $prev
+        if ($code -ne 0) { throw 'Saga regression test failed.' }
+    } finally { Pop-Location }
 } finally { $env:DATABASE_URL = $previous }

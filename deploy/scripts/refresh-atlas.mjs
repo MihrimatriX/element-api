@@ -6,6 +6,7 @@ const root = new URL('../../', import.meta.url);
 const elementPath = new URL('catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json', root);
 const compoundPath = new URL('compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json', root);
 const manifestPath = new URL('deploy/data/atlas-media.json', root);
+const photoSelectionsPath = new URL('deploy/data/atlas-photo-selections.json', root);
 const publicDir = new URL('web-app/public/media/atlas/', root);
 const clean = value => String(value ?? '').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').trim();
 async function writeSnapshot(path, records) {
@@ -33,6 +34,7 @@ export function composition(formula) {
   return [...totals].map(([symbol,count])=>({symbol,count}));
 }
 export async function refreshAtlas(fetchMedia=false, only=[]) {
+  const photoSelections=JSON.parse(await readFile(photoSelectionsPath,'utf8'));
   const elements=JSON.parse(await readFile(elementPath,'utf8'));
   const compounds=JSON.parse(await readFile(compoundPath,'utf8'));
   let manifest={}; try {manifest=JSON.parse(await readFile(manifestPath,'utf8'));}catch{/* first run */}
@@ -54,8 +56,11 @@ export async function refreshAtlas(fetchMedia=false, only=[]) {
           const tr=page.langlinks?.find(l=>l.lang==='tr');
           manifest[key].wikipedia={url:`https://${tr?'tr':'en'}.wikipedia.org/wiki/${encodeURIComponent(tr?.title??page.title)}`,language:tr?'tr':'en'};
           // For elements, accept only a named specimen, never a portrait or laboratory as a sample.
-          const sample=page.pageimage;
-          if(r.symbol&&r.atomic_number<=83&&sample&&new RegExp(r.names.en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(sample)&&!/portrait|diagram|electron|spectr|tube|lamp|discharge|atomic|symbol|bohr|icon/i.test(sample)) {
+          // Reviewed specimen selections can have non-English names (e.g. Kobalt).
+          // They still pass the same source-license and image MIME checks.
+          const selection=photoSelections[key];
+          const sample=selection?.file??page.pageimage;
+          if(r.symbol&&r.atomic_number<=83&&sample&&(selection||new RegExp(r.names.en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i').test(sample))&&(selection||!/portrait|diagram|electron|spectr|tube|lamp|discharge|atomic|symbol|bohr|icon/i.test(sample))) {
             try {
               const u=new URL('https://commons.wikimedia.org/w/api.php');u.search=new URLSearchParams({action:'query',format:'json',formatversion:'2',prop:'imageinfo',titles:`File:${sample}`,iiprop:'url|extmetadata',iiurlwidth:'640'});
               const info=(await json(u)).query.pages[0].imageinfo?.[0];const meta=info?.extmetadata;
@@ -65,7 +70,7 @@ export async function refreshAtlas(fetchMedia=false, only=[]) {
                 if(!['image/jpeg','image/png','image/webp'].includes(mime))continue;
                 const filename=`${key.toLowerCase()}.${mime==='image/png'?'png':mime==='image/webp'?'webp':'jpg'}`;
                 await writeFile(new URL(filename,publicDir),Buffer.from(await img.arrayBuffer()));
-                manifest[key].photo={url:`/media/atlas/${filename}`,caption:`${r.names.tr} · madde fotoğrafı`,source_url:info.descriptionurl,creator:clean(meta.Artist?.value),license:clean(meta.LicenseShortName?.value),license_url:clean(meta.LicenseUrl?.value)||null,retrieved_at:new Date().toISOString().slice(0,10)};
+                manifest[key].photo={url:`/media/atlas/${filename}`,caption:selection?.caption??`${r.names.tr} · madde fotoğrafı`,source_url:selection?.attribution_url??info.descriptionurl,creator:selection?.creator??clean(meta.Artist?.value),license:clean(meta.LicenseShortName?.value),license_url:clean(meta.LicenseUrl?.value)||null,retrieved_at:new Date().toISOString().slice(0,10)};
               }
             }catch(e){console.warn(`Photo ${key}: ${e.message}; keeping previous image or schema fallback.`);}
           }

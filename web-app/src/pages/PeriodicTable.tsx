@@ -1,2 +1,4 @@
-import PeriodicExplorer from '../components/PeriodicExplorer';
-export default function PeriodicTable() { return <PeriodicExplorer />; }
+import PeriodicExplorer from "../components/PeriodicExplorer";
+export default function PeriodicTable() {
+  return <PeriodicExplorer />;
+}

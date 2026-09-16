@@ -18,7 +18,7 @@ Turkish narrative of the Atlas/Lab/infra track: `docs/WHAT-WAS-DONE.md`.
 
 ## Hard constraints (do not re-litigate)
 
-- Prefer host verify; never full `docker compose up --build` just to check UI/API (see `local-dev.mdc`).
+- Default run is full Docker (`present-platform.ps1` / `docker compose up`). Do not rebuild every image just to check one UI line (see `local-dev.mdc`).
 - Observability stack is intentionally gone; `/metrics` and `/health-ui` 404 is expected.
 - Product lab route is `/lab`; `/stack` is a legacy redirect only.
 - FAL is an allowed Commons license for atlas element photos.

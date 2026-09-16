@@ -37,16 +37,19 @@ builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
-        var apiKey = context.Request.Headers["X-API-Key"].ToString();
         var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var key = string.IsNullOrEmpty(apiKey) ? ip : apiKey;
+        // Untrusted headers cannot select a new limiter partition. Valid API keys
+        // have a separate Redis-backed quota after authentication.
+        var auth = context.Request.Path.StartsWithSegments("/api/v1/auth")
+            && context.Request.Method == "POST";
+        var key = $"{(auth ? "auth" : "public")}:{ip}";
         
         return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
         {
-            PermitLimit = 100,
-            Window = TimeSpan.FromSeconds(10),
+            PermitLimit = auth ? 15 : 100,
+            Window = auth ? TimeSpan.FromMinutes(1) : TimeSpan.FromSeconds(10),
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-            QueueLimit = 5
+            QueueLimit = 0
         });
     });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;

@@ -1,0 +1,14 @@
+# Independent atlas and guest learning; no database, broker or commerce workers.
+name: element-science
+
+services:
+  science:
+    build:
+      context: .
+      dockerfile: science-service/Dockerfile
+    ports:
+      - "127.0.0.1:5080:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp

@@ -1,41 +1,33 @@
-# Architecture (scannable)
+# Mimari
 
-## Request path
+## Çalışma profilleri
 
-```
-Browser / API client
-  → gateway :5000  (REST + SignalR proxy)
-    → identity / catalog / compound / order / notification
-order saga → RabbitMQ → payment + shipment (+ catalog stock events)
-identity, catalog, compound, order, shipment → PostgreSQL (separate DBs)
-catalog + gateway → Redis (where configured)
-```
+| Profil | Giriş | Bağımlılık |
+|---|---|---|
+| Tam platform (varsayılan) | http://localhost:3000 | `docker compose` — her servis kendi konteyneri + PostgreSQL/Redis/RabbitMQ |
+| Bağımsız atlas | http://127.0.0.1:5080 | `docker-compose.science.yml` — tek science imajı; DB/broker yok |
+| Ön yüz geliştirme | http://localhost:5173 | Vite host; çalışan gateway'e bağlanır |
 
-Host-local Postgres port on this machine: **5434** (`POSTGRES_HOST_PORT`). Web dev: **5173**. Docker web: **3000**.
+Tam platform: tarayıcı → web :3000 / gateway :5000 → identity :5001, catalog :5002, order :5003, shipment :5004, payment :5005, notification :5006, compound :5007. Sipariş saga/outbox akışı RabbitMQ üzerinden ödeme, stok ve sevkiyatla çalışır. Servis veritabanları ayrıdır.
 
-## Scientific API v2
+Bu makinede ElementAPI PostgreSQL 5432 (veya `POSTGRES_HOST_PORT`), Redis 6380 kullanıyor. 3000, 5433 ve 6379 başka uygulamaya ait olabilir; sahiplik kontrolü yapmadan durdurma.
 
-- Elements: `GET /api/v2/elements/{symbol}` (also v1 market/catalog routes under `/api/v1/...`)
-- Compounds: `GET /api/v2/compounds/{slug}`
-- Supports `fields`, ETag, CORS; provenance + units on scientific properties
-- Atlas fields on records: `editorial`, `media`, `external_links` (+ compounds: `display_formula`, `composition`)
+## Ön yüz
 
-## Lab (`/lab`)
+React 19, TypeScript, Vite, Tailwind 4; gerçek shadcn/ui bileşen kaynakları ve Radix primitives. ProductShell tüm rotalarda yan menü/üst çubuk sağlar. Mobil gezinme Sheet, hesap menüsü DropdownMenu, element önizlemesi Dialog, görünüm seçimi Tabs, açılır kayıt bölümleri Collapsible tabanlı Disclosure kullanır.
 
-- Client-only discovery game (localStorage progress). Does **not** touch wallet/orders.
-- Logic: `web-app/src/services/lab.ts`
-- UI: `web-app/src/pages/Laboratory.tsx`
-- Tests: `web-app/tests/lab.test.mjs` (18 reachable recipes, unlock stages, equation conservation)
-- Legacy `/stack` → redirect to `/hakkinda` (observability stack page removed)
+Tema ve bileşen sözleşmesi: [design-system.md](design-system.md). Bilimsel grafikler ve periyodik yerleşim özel alan bileşenleri olarak korunur.
 
-## Atlas media pipeline
+## Öğrenme verisi
 
-1. `node deploy/scripts/refresh-atlas.mjs` — offline reapply editorial + manifest into scientific JSON
-2. `node deploy/scripts/refresh-atlas.mjs --fetch` — Wikipedia/Commons + PubChem structure download
-3. Scientific refresh scripts call atlas reapply after property updates
-4. Photos only when Commons license matches allowlist (CC BY, CC0, Public domain, **FAL** / Free Art License)
-5. Element photos: specimen-name heuristics (reject portraits/diagrams/lab gear)
+Lab kuralları tarayıcıda çalışır, cüzdanı değiştirmez. useLearning + lessons modülü misafir kaydını, kullanıcı başına yerel kopyayı ve sunucu birleştirmesini yönetir. Hesaplı kayıt identity /auth/learning üzerinden PostgreSQL'e gider. Misafir kayıtları kullanıcı aktarımı seçmeden hesaba eklenmez. Şifre değişimi ve hesap silme oturum/anahtar erişimini iptal eder.
 
-## Observability (intentionally removed)
+## Bilimsel veri ve medya
 
-No Prometheus `/metrics`, HealthChecks UI, Seq, ELK, Grafana, Loki, OTLP in the default stack. Ops surface left: `/info`, `/health`, `/health/live`, `/health/ready`. Helm/k8s deploy folders removed in the same cleanup track.
+GET /api/v2/elements/{symbol}, /compounds/{slug}; fields, view, include, filtre/sayfalama ve ETag sözleşmeleri korunur. Özelliklerde birim, belirsizlik ve kaynak koşulları vardır. Eksik alan null kalır, sıfır yapılmaz.
+
+Atlas: editöryel manifest + lisanslı Commons örnek fotoğrafları + PubChem yapıları. refresh-atlas.mjs çevrimdışı yeniden uygular; --fetch çevrimiçi günceller. Veri değişiminden sonra Release çıktısını yeniden üret.
+
+## İşletim
+
+/info, /health, /health/live, /health/ready mevcut. Eski observability yığını, GraphQL ve catalog gRPC kaldırıldı. Bütün platformu Docker ile yeniden derlemek günlük doğrulama yöntemi değildir.

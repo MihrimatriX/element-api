@@ -1,51 +1,28 @@
-# Local development & verify
+# Yerel geliştirme ve doğrulama
 
-**Rule:** never `docker compose up --build` the whole platform just to verify UI or one service. See `.cursor/rules/local-dev.mdc`.
+Varsayılan: her servis kendi konteynerinde. `.cursor/rules/local-dev.mdc` geçerlidir. Tek satırlık UI/API doğrulaması için tüm imajları yeniden derleme.
 
-## Daily loop
+## Sunumu aç
 
-```powershell
-# Infra only if missing (no --build)
-docker compose --env-file docker/.env up -d postgres redis rabbitmq
+- Tam platform: `./deploy/scripts/present-platform.ps1` → http://localhost:3000
+- Hazır imajlarla: `./deploy/scripts/present-platform.ps1 -NoBuild`
+- Bağımsız atlas: `./deploy/scripts/present-local.ps1` → http://127.0.0.1:5080
+- Durdur: `./deploy/scripts/stop-local.ps1` (volume korunur)
 
-# Apps on host
-./deploy/scripts/start-local.ps1 -IncludePayment
-# after code changes:
-./deploy/scripts/start-local.ps1 -Restart -IncludePayment
-# skip rebuild:
-./deploy/scripts/start-local.ps1 -NoBuild -IncludePayment
+Eşdeğer: `docker compose --env-file docker/.env up -d --build`
 
-npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
-```
+## Günlük UI döngüsü
 
-Logs / PIDs: `artifacts/local/`. This machine: Postgres host **5434**, web **5173**, gateway **5000**.
+Gateway zaten ayaktaysa web için host Vite yeter: `npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort`.
 
-## Verify without full Docker rebuild
+Portlar: PostgreSQL `POSTGRES_HOST_PORT` (varsayılan 5432), Redis 6380, RabbitMQ 5672/15672, gateway 5000, servisler 5001–5007, web 3000.
 
-| Check | Command / probe |
-|-------|-----------------|
-| Lab unit tests | `npm --prefix web-app test` |
-| Web build | `npm --prefix web-app run build` |
-| Catalog | `dotnet build catalog-service/Element.Services.Element.API/Element.Services.Element.API.csproj` |
-| Order static checks | `npm --prefix order-service run check` |
-| Live Fe + atlas | `GET http://127.0.0.1:5000/api/v2/elements/fe?fields=symbol,names,editorial,media` |
-| Live lab page | `GET http://127.0.0.1:5173/lab` |
-| Fe image | `GET http://127.0.0.1:5173/media/atlas/fe.jpg` |
-| Metrics removed | `GET /metrics` and `/health-ui` → **404** |
+## Kontroller
 
-## Atlas refresh
+- Ön yüz: `npm --prefix web-app run lint` / `run build` / test.
+- Bağımsız tarayıcı: `npm --prefix web-app run test:e2e`.
+- Mock hesap: `npm --prefix web-app run test:e2e:auth`.
+- Gerçek hesap/ticaret: `npm --prefix web-app run test:e2e:live` (`WEB_BASE`; varsayılan http://localhost:3000).
+- Tam doğrulama: `./deploy/scripts/test-all.ps1 -Configuration Review -Integration -Live -Browser -PaymentDocker -Recovery -WebBase http://localhost:3000`.
 
-```powershell
-# Offline: rewrite editorial/media onto scientific JSON from manifest
-node deploy/scripts/refresh-atlas.mjs
-
-# Online: Wikipedia + Commons photos + PubChem structures (slow, rate-limited)
-node deploy/scripts/refresh-atlas.mjs --fetch
-```
-
-Scientific property refresh then auto-reapplies atlas via `refresh-scientific-catalog.mjs`.
-
-## Do not
-
-- Rebuild ELK/Grafana/all microservices images to confirm a landing or `/lab` change
-- Treat full `docker compose up --build` as the default verify step (demo-only, user-requested)
+Atlas yenileme: `node deploy/scripts/refresh-atlas.mjs`; ağdan medya için `--fetch`. Bilimsel JSON değişince ilgili imajı yeniden derle.

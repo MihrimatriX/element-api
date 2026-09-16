@@ -1,14 +1,20 @@
 # Memory bank
 
-Short, factual context for humans and future agents. Start here before continuing non-trivial work.
+Güncel ürün ve geliştirme bağlamı. Son güncelleme: 15 Eylül 2026.
 
-| File | Contents |
-|------|----------|
-| [project-overview.md](./project-overview.md) | What the product is |
-| [architecture.md](./architecture.md) | Request paths, atlas, lab, ops surface |
-| [recent-work.md](./recent-work.md) | ChatGPT → Cursor continuation status |
-| [local-dev.md](./local-dev.md) | Host verify without full Docker rebuild |
-| [decisions.md](./decisions.md) | FAL, no observability, `/lab`, photo policy, KREDI/ELX wire |
-| [open-risks.md](./open-risks.md) | Photo gaps, commerce fragility, uncommitted diff |
+**Aktif iş:** [Bileşikler, oyunlar ve element görselleri](content-and-games-plan.md). İlk 6 element fotoğrafı eklendi (46/118). Bileşikler, oyunlar ve kalan görseller için plan devam ediyor.
 
-Turkish deep-dive: [../WHAT-WAS-DONE.md](../WHAT-WAS-DONE.md).
+| Dosya | İçerik |
+|---|---|
+| [content-and-games-plan.md](content-and-games-plan.md) | Aktif içerik, oyun çeşitliliği ve görsel tamamlama planı |
+| [project-overview.md](project-overview.md) | Ürün, kullanıcılar ve kapsam |
+| [architecture.md](architecture.md) | İki çalışma profili, servisler, kayıt akışı |
+| [design-system.md](design-system.md) | shadcn/Radix bileşenleri ve görsel kararlar |
+| [local-dev.md](local-dev.md) | Sunum, geliştirme ve doğrulama komutları |
+| [recent-work.md](recent-work.md) | Son değişiklikler; eski çalışmalar tarihleriyle |
+| [decisions.md](decisions.md) | Korunması gereken ürün ve sözleşme kararları |
+| [open-risks.md](open-risks.md) | Doğrulanmamış işler ve yayın öncesi eksikler |
+
+[Medya envanteri](../ELEMENT-MEDIA-INVENTORY.md) · [Ürün senaryoları](../PRODUCT-SCENARIOS.md) · [Yerel doğrulama](../LOCAL-VERIFICATION.md) · [Sunum rehberi](../LOCAL-PRESENTATION.md).
+
+Eski tarihli notlar güncel durum değildir. Özellikle portlar, test sayıları ve çalışma profilleri için güncel dosyaları esas al.

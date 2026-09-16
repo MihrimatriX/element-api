@@ -45,7 +45,7 @@ Health check'leri **önce** `AddHealthChecks()` ile kaydedin.
 Node ve Java aynı envelope kullanır:
 
 - Namespace: `Element.Shared.Events:{MessageName}`
-- Detay: [contracts/README.md](../contracts/README.md)
+- Tipler: `shared-lib/Events/`
 
 ---
 

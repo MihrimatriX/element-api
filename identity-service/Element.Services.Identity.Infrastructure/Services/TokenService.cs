@@ -33,6 +33,7 @@ public class TokenService
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("security_stamp", user.SecurityStamp ?? string.Empty),
             new Claim("firstName", user.FirstName),
             new Claim("lastName", user.LastName)
         };

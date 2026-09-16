@@ -1,5 +1,21 @@
 # ElementAPI
 
+**Günlük maddelerin hangi elementlerden oluştuğunu keşfet; kısa rotalarla kimyayı anlamlandır.**
+
+Türkçe kimya atlası, üç öğrenme rotası ve kişisel keşif koleksiyonu. 118 element ve 51 bileşik kaynaklarıyla sunulur. İlk keşif için hesap gerekmez. Açık API geliştirici yüzüdür; sanal ticaret ayrı teknik demodur.
+
+**Yerel sunum — tek komut (Docker Desktop):**
+
+```powershell
+./deploy/scripts/present-platform.ps1
+```
+
+**http://localhost:3000** · her servis kendi konteynerinde (gateway, hesap, katalog, sipariş, ödeme, kargo, bildirim, web + PostgreSQL/Redis/RabbitMQ). Durdur: `./deploy/scripts/stop-local.ps1`.
+
+**Yalnız atlas (DB/broker yok):** `./deploy/scripts/present-local.ps1` → **http://127.0.0.1:5080** · hesap ve ticaret kapalı; misafir koleksiyonu çalışır.
+
+[Üç dakikalık sunum ve deneme rehberi](docs/LOCAL-PRESENTATION.md) · [Uygulanan değişiklikler ve doğrulama](docs/PRODUCT-DELIVERY.md) · [Başlangıç yol haritası](docs/PRODUCT-ROADMAP.md)
+
 **Bilimsel katalog v2:** Referans periyodik tablo, anlatımlı element/bileşik kayıtları, laboratuvar keşfi (`/lab`), `view/include/fields`, ETag ve açık CORS. Plan ve örnekler: [Bilimsel katalog](deploy/scientific-catalog.md). Başlangıç: `GET /api/v2/elements/fe`, `GET /api/v2/compounds/aspirin`.
 
 118 elementin ve 51 bileşiğin kaynaklı bilimsel özellikleri için halka açık API; yanında fiyat tablosu, ürün mağazası ve kişisel kasa. **Kredi** uygulamanın sanal para birimidir. Piyasa fiyatları, stoklar, ödeme ve kargo simülasyondur; gerçek borsa verisi, tahsilat veya fiziksel teslimat yoktur.
@@ -17,22 +33,47 @@ MIT lisansı: [LICENSE](./LICENSE).
 
 ## Hızlı başlangıç
 
-### Günlük geliştirme (hafif)
+### Tam platform (varsayılan)
 
-Docker'da yalnız PostgreSQL, Redis ve RabbitMQ; uygulamalar bilgisayarda çalışır. Her değişiklikte Docker imajlarını yeniden derlemek gerekmez. Node.js 22+, .NET 9 ASP.NET Core runtime ve uyumlu SDK, Java 21 ve Maven gerekir. Bu bilgisayardaki taşınabilir araçlar varsa `artifacts/` içinden otomatik bulunur.
+Docker Desktop açıkken:
 
 ```powershell
-# İlk kurulum: docker/.env.example dosyasını docker/.env olarak kopyala; mevcut .env dosyasını koru.
-docker compose --env-file docker/.env up -d postgres redis rabbitmq
-npm --prefix order-service ci
+# İlk kurulum: docker/.env.example → docker/.env (mevcut .env'i koru)
+./deploy/scripts/present-platform.ps1
+# veya
+docker compose --env-file docker/.env up -d --build
+```
+
+| Adres | Ne için? |
+|-------|----------|
+| **[localhost:3000](http://localhost:3000)** | Tablo · Bileşikler · Laboratuvar (`/lab`) · Piyasa · Mağaza · API |
+| [localhost:5000](http://localhost:5000) | API Gateway |
+| [localhost:5000/swagger](http://localhost:5000/swagger) | Catalog OpenAPI (proxy) |
+
+Hazır imajlarla yeniden aç: `./deploy/scripts/present-platform.ps1 -NoBuild`. Durdur: `./deploy/scripts/stop-local.ps1`. Verileri sil: `docker compose --env-file docker/.env down -v`. Host’ta 5432 doluysa `docker/.env` içinde `POSTGRES_HOST_PORT=5434`.
+
+### Bağımsız atlas
+
+```powershell
+./deploy/scripts/present-local.ps1
+```
+
+**http://127.0.0.1:5080** — tek science imajı; PostgreSQL/Redis/RabbitMQ yok.
+
+### Ön yüz geliştirme (isteğe bağlı, host)
+
+Çalışan gateway’e karşı Vite: Node 22+ gerekir; tüm backend imajlarını yeniden derlemez.
+
+```powershell
 npm --prefix web-app ci
-./deploy/scripts/start-local.ps1 -IncludePayment
 npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Kod güncellendikten sonra `start-local.ps1 -Restart -IncludePayment`; yalnız derlenmiş servisleri açmak için `-NoBuild`. Script başka projelerin dolu portlarındaki işlemlerini durdurmaz. Loglar `artifacts/local/` içindedir. Bu bilgisayarda PostgreSQL portu **5434**, web portu **5173** seçilmiştir. İzleme araçları günlük geliştirme için gerekli değildir.
-
 ### Kontrol
+
+SMTP hariç genişletilmiş yerel doğrulama, gerçek hesap yaşam döngüsü ve beş veritabanında yedek/geri yükleme provası: [doğrulama kaydı](docs/LOCAL-VERIFICATION.md). `test-all.ps1 -Live` gerçek tarayıcı akışlarını da çalıştırır; `-Recovery` geri yükleme provasını ekler. E-posta sağlayıcısı tercihi Resend; henüz etkinleştirilmedi.
+
+Yeni tarayıcı kontrolleri: `npm --prefix web-app run test:e2e` (gerçek bilimsel API) ve `npm --prefix web-app run test:e2e:auth` (hesap UI sözleşmeleri). Çalışan tam sunuma karşı `npm --prefix web-app run test:e2e:live` gerçek kayıt/eşitleme/sipariş akışını sınar. İlk kullanımda web-app içinde `npx playwright install chromium`. Java/Maven host'ta yoksa `test-all.ps1 -PaymentDocker` yalnız Maven/Java test konteynerini kullanır; `-Browser` tarayıcı kontrollerini de ekler.
 
 Tüm yerel derleme, birim testi ve npm güvenlik kontrolleri için `./deploy/scripts/test-all.ps1`.
 Docker üzerinde ayrı test konteynerleriyle entegrasyon için `-Integration`; çalışan yerel servislere karşı bilimsel API, alışveriş ve smoke kontrolleri için `-Live` ekleyin. Örneğin `./deploy/scripts/test-all.ps1 -Integration -Live`. Script Docker imajlarını yeniden derlemez; Java 21/Maven ve npm bağımlılıkları kurulu olmalıdır.
@@ -62,31 +103,16 @@ Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, se
 - Para birimi kodu `KREDI`, fiyat kaynağı `simulation`dır. **Kasıtlı kırıcı rename yok:** wire/API alan adları ve reason kodları geçmişten kalan `*Elx` biçiminde kalır; değerler Kredi'dir. Korunan isimler: `balanceElx`, `avgCostElx`, `proceedsElx`, `requiredElx`, reason `INSUFFICIENT_ELX`, DB kolonları `balance_elx` / `avg_cost_elx` / `elx`. Yanıtta `currency: "KREDI"` ile doğrulayın. Bu paragraf tek kaynak gerçeğidir (servis README’leri buraya işaret eder).
 - Cüzdan ve siparişler ortak yanıt önbelleğine girmez. Özel sipariş durumları herkese açık SignalR kanalında yayımlanmaz; istemci kendi siparişlerini kimlik doğrulayarak sorgular. İç servis çağrıları ayrıca paylaşılan servis anahtarı ister.
 
-### Tam Docker ortamı
+### Public yapılandırma taslağı
 
-**Lab** (tüm portlar açık: postgres host `${POSTGRES_HOST_PORT:-5432}`, redis `:6380`, rabbit, servisler). Host’ta 5432 doluysa `docker/.env` içinde `POSTGRES_HOST_PORT=5434`.
-
-```bash
-cp docker/.env.example docker/.env
-docker compose --env-file docker/.env up -d --build
-```
-
-**Public demo** (host’ta yalnızca web `:3000` ve gateway `:5000`):
+Web ve gateway yalnız loopback portlarına bağlanır; HTTPS reverse proxy ayrıca gerekir. Geliştirme sırları değiştirilmeden servisler Production modunda açılmaz:
 
 ```bash
 cp docker/.env.example docker/.env
 docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
 ```
 
-| Adres | Ne için? |
-|-------|----------|
-| **[localhost:3000](http://localhost:3000)** | Tablo · Bileşikler · Laboratuvar (`/lab`) · Piyasa · Mağaza · API |
-| [localhost:5000](http://localhost:5000) | API Gateway |
-| [localhost:5000/swagger](http://localhost:5000/swagger) | Catalog OpenAPI (proxy) |
-
 Kayıt → `GET /api/v1/me/wallet` 10.000 kredi grant → mağazadan Au (ask) → kasa → masadan sat (bid).
-
-Durdurma: `docker compose down` · Verileri sil: `docker compose down -v`
 
 ---
 
@@ -157,7 +183,6 @@ Her servisin kendi README'si endpoint tabloları, ortam değişkenleri ve tek ba
 | **notification-service** | 5006 | .NET 9 | SignalR push bildirimleri | [README](./notification-service/README.md) |
 | **web-app** | 3000 | React + Vite | Tablo · laboratuvar · mağaza · API | [README](./web-app/README.md) |
 | **shared-lib** | — | .NET lib | Ortak event, logging, ops | [README](./shared-lib/README.md) |
-| **contracts** | — | JSON şemalar | Polyglot mesaj sözleşmeleri | [README](./contracts/README.md) |
 
 ---
 
@@ -283,7 +308,11 @@ element-api/
 ├── gateway-service/     identity-service/    catalog-service/
 ├── order-service/       shipment-service/    payment-service/
 ├── notification-service/  web-app/           shared-lib/
-├── contracts/           deploy/              docker/
+├── deploy/              docker/
 ├── docker-compose.yml   docker/.env.example
 └── README.md            ← bu dosya
 ```
+
+## Ön yüz ve ürün senaryoları
+
+Ön yüz shadcn/ui, Radix ve Tailwind 4 ortak bileşenleriyle düzenlenmiştir. [Ürün senaryoları](docs/PRODUCT-SCENARIOS.md), [tasarım sistemi](docs/memory-bank/design-system.md) ve [güncel memory bank](docs/memory-bank/README.md) devam çalışmaları için başlangıç noktasıdır.

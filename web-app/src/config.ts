@@ -17,3 +17,6 @@ export function pagePath(pathname: string, symbol?: string): string {
   if (!symbol) return base;
   return `${base}?symbol=${encodeURIComponent(symbol)}`;
 }
+
+export const ACCOUNTS_ENABLED = import.meta.env.VITE_ACCOUNTS_ENABLED !== 'false';
+export const SCIENCE_BASE_URL = (import.meta.env.VITE_SCIENCE_API_BASE_URL ?? `${API_ORIGIN}/api/v2`).replace(/\/$/, '');

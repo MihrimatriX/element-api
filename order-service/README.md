@@ -71,7 +71,7 @@ curl -H "X-User-Id: {customerId}" \
 | `ShipmentRequestedEvent` | → shipment |
 | `UpdateOrderStatusEvent` | → notification |
 
-Detay: [contracts/README.md](../contracts/README.md)
+Tipler: `shared-lib/Events/` (URN: `Element.Shared.Events:{MessageName}`)
 
 ---
 
