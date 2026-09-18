@@ -1,24 +1,25 @@
-# Açık işler ve sınırlar — 17 Eylül 2026
+# Açık işler ve sınırlar — 18 Eylül 2026
 
+- **Public host (DNS/TLS kullanıcıda):** Repo tarafı hazır — `docker/.env.public.example`, `docker-compose.public.yml`, `deploy/Caddyfile.elements-api.example`, [PUBLIC-HOST.md](../PUBLIC-HOST.md). Sunucuda: sırları doldur, DNS A/AAAA, `caddy run`, compose public overlay. Compose TLS yok; gateway/web yalnız `127.0.0.1`.
 - **Hareket dili:** Spline + GSAP kaldırıldı (paket + `src` temiz). Tek sistem Framer; `prefers-reduced-motion` saygısı duruyor. Keşif görseli foto varsa foto, yoksa AtomShell/formül.
 - **Ön yüz bağımlılıkları:** `@splinetool/*` + `gsap` düştü (`package-lock` tazelendi); `framer-motion` kaldı. Docker web imajı bu oturumda rebuild edilmedi; `:3000` eski bake ise yeni görsel dil yok.
 - **Çalışan yığın:** Element compose ayakta (postgres 5434, redis 6380, rabbit 5672/15672, identity 5001, catalog 5002, order 5003, shipment 5004, payment 5005, notification 5006, compound 5007, gateway 5000). **Docker web-app yok** — :3000 Indie Valley (PID 29784); ürün UI `http://127.0.0.1:5173`. Host science `:5080`. Gözlemlenebilirlik yok (`/metrics` 404).
 - **Dokümantasyon:** servis kılavuzu + klasör README’leri insan diline çekildi. Eski “.NET 9 / start-local günlük yol” cümleleri kök README’den silindi.
 - **Arayüz leftover:** mağaza/piyasa/demo hâlâ tezgâh; element kaydında “Bu kayıtta” TOC + Kredi simülasyonu + Piyasa/Mağaza; hesap `Giriş yap` (ACCOUNTS_ENABLED); CSS’te kullanılmayan `.workspace-breadcrumb`. `/demo` simülasyon, geri bildirim, data/coverage, About/Guide explainer, docs parametre tabloları (API için normal). Fiziksel telefon yok. Order compose `NODE_ENV=development` (kısa `INTERNAL_API_KEY` production’da reddedilir).
 - **Ponytail (17 Eylül, uygulandı kısmen):** catalog Redis DTO cache silindi. `start-local.ps1` duruyor (isteğe bağlı host döngüsü). Üç element kataloğu duruyor (layout string). Ticaret yığını donduruldu. `chemistry.ts` solver duruyor.
-- **API / sözlük:** `/docs` playground Vite’de same-origin `/api/v2` (proxy → `:5080`). Science kapalıysa tezgâh yine fail eder; gateway `:5000` Fe GET için gerekmez. Gateway’de `/api/v2/coverage` yok; gerekçe gateway README’sinde (kapsam element/bileşik kayıtlarından türetilir). Swagger catalog v1 hâlâ ayrı. Tam Docker `:3000` hâlâ bake edilmiş `VITE_*` kullanır (nginx `/api` proxy yok) — public host’ta Caddy `/api*` → `:5000`.
-- **Çalıştırma:** varsayılan tam Docker (`present-platform` / compose); host `start-local` isteğe bağlı. Public: [docs/PUBLIC-HOST.md](../PUBLIC-HOST.md) — `https://elements-api.ahmetfuzunkaya.com`, Compose TLS yok.
-- **İnternet yayını:** alan adı var; taslak Caddy + `docker/.env.public.example` hazır. Sunucuda gerçek sırlar, DNS ve `caddy run` ayrıca. Yerel UI hâlâ Vite `:5173`.
-- **Bileşik/oyun:** katalog 167; laboratuvar stoikiometri + Formülü kur + Element dedektifi; 6 rota. İzomerler (glikoz/fruktoz, etanol/dimetil eter) ayırt edilmez. Tam 3D yapı üreticisi yok.
-- **Identity imajı:** LearningController `known-compounds.json` + `lessons.json` okuyor. Bu oturumda identity yeniden derlendi (`System.IO.File`). Misafir / Vite laboratuvarı aynı JSON’a bakar.
-- **Resend bağlı değil:** tercih Resend; mevcut e-posta kodu SMTP gönderici altyapısını kullanır. Gerçek Resend API/SMTP seçimi, doğrulanmış domain ve teslimat testi sonraki iş. Yerelde kapalı özelliği gönderilmiş gibi gösterme.
-- **Gerçek kullanıcı testi yok:** öğrenci/öğretmen denemesi ve editöryel uzman değerlendirmesi yapılmadı. Otomasyon sonuçları öğrenme etkisi kanıtı değildir.
-- **Cihaz sınırı:** Chromium masaüstü ve mobil emülasyonu kullanıldı; fiziksel telefon, Safari ve Firefox doğrulaması ayrı iş.
-- **Veri kapsamı:** 53/118 fotoğraf, 51 yapı görseli / 167 bileşik. Yeni kayıtlarda `media.structure: null`. H bilerek şema. Üç element bölümü bütünüyle boş: elektromanyetik/optik, kristal yapı, bolluk. Eksikleri null koru; kapsamı src/data/coverage.json üretir.
-- **API imajı:** `scientific-compounds.json` 167 kayıt. compound-service yeniden derlenmeden v2 51 dönebilir. Ön yüz `useScience` yerel katalogla element/bileşik ayrıntısını açar; tam PubChem anlık görüntü ve bazı yapı PNG’leri yine API’ye kalır.
-- **Yedek sınırı:** PostgreSQL için ayrı geçici veritabanında 5 DB/26 tablo satır+hash doğrulaması yapıldı. Uzak/encrypted yedek, anahtar kurtarma, broker/Redis ve tam felaket kurtarma tatbikatı değildir.
-- **Hesap silme kapsamı:** profil/öğrenme/anahtar/webhook silinir; diğer servislerdeki simülasyon işlemleri, loglar ve eski yedekler ayrıca yaşam döngüsü gerektirir.
-- **Legacy alan CSS'i:** ortak kontroller shadcn/Radix temelli; bilimsel/periyodik düzenlerin eski CSS'i legacy katmanında kalır. Yeni stillerde token/bileşen kaynağını kullan, ikinci bir paralel kontrol sistemi kurma.
-- **Çalışma ağacı:** önceki büyük değişiklikler de uncommitted. Kullanıcı istemeden commit/push veya eski diff'i geri alma yok.
-- **Release veri eskimesi:** bilimsel JSON değiştiğinde ilgili Docker imajını yeniden derle; eski net9 notları tarihsel, güncel .NET 10.
-- **Sözleşme:** kullanıcıya KREDI; legacy *Elx / INSUFFICIENT_ELX alanları kırıcı migrasyon olmadan değiştirilmez.
+- **API / sözlük:** `/docs` playground Vite’de same-origin `/api/v2` (proxy → `:5080`). Science kapalıysa tezgâh yine fail eder; gateway `:5000` Fe GET için gerekmez. Gateway’de `/api/v2/coverage` yok; gerekçe gateway README’sinde. Swagger public’te `/swagger*` → gateway (Caddy). Tam Docker web bake `VITE_*`; public’te relative `/api/v1` önerilir.
+- **Çalıştırma:** varsayılan tam Docker (`present-platform` / compose); host `start-local` isteğe bağlı. Public: [docs/PUBLIC-HOST.md](../PUBLIC-HOST.md).
+- **İnternet yayını:** alan adı seçildi; DNS + Caddy + gerçek sırlar sunucuda ayrı. Yerel UI hâlâ Vite `:5173` veya compose `:3000`.
+- **Bileşik/oyun:** katalog 167; laboratuvar stoikiometri + Formülü kur + Element dedektifi; 6 rota. İzomerler ayırt edilmez. Tam 3D yapı üreticisi yok.
+- **Identity imajı:** LearningController `known-compounds.json` + `lessons.json` okuyor. Misafir / Vite laboratuvarı aynı JSON’a bakar.
+- **Resend bağlı değil:** tercih Resend; mevcut e-posta kodu SMTP. Gerçek Resend/domain/teslimat sonraki iş.
+- **Gerçek kullanıcı testi yok:** öğrenci/öğretmen denemesi yapılmadı.
+- **Cihaz sınırı:** Chromium masaüstü/mobil emülasyon; fiziksel telefon, Safari, Firefox ayrı.
+- **Veri kapsamı:** 53/118 fotoğraf, 51 yapı görseli / 167 bileşik. H bilerek şema. Eksikleri null koru.
+- **API imajı:** compound yeniden derlenmeden v2 51 dönebilir. `useScience` yerel katalogla açar.
+- **Yedek sınırı:** uzak/encrypted yedek ve felaket tatbikatı değil.
+- **Hesap silme kapsamı:** diğer servislerdeki simülasyon işlemleri ayrı yaşam döngüsü ister.
+- **Legacy alan CSS'i:** bilimsel/periyodik düzenler legacy katmanında.
+- **Çalışma ağacı:** uncommitted; kullanıcı istemeden commit/push yok.
+- **Release veri eskimesi:** bilimsel JSON değişince ilgili Docker imajını yeniden derle.
+- **Sözleşme:** KREDI; legacy *Elx / INSUFFICIENT_ELX kırıcı migrasyon yok.

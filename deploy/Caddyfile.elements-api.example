@@ -6,16 +6,26 @@
 # Compose first:
 #   cp docker/.env.public.example docker/.env   # then put real secrets in
 #   docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
+#
+# Path map (single host):
+#   /api* /hub* /swagger*  → gateway :5000
+#   everything else        → web :3000  (SPA: /lab, /media/atlas/*, /assets/…)
 
 elements-api.ahmetfuzunkaya.com {
 	encode gzip
 
-	# /api/v2 is the same gateway as /api/v1
+	# /api/v1 trading+auth, /api/v2 science — same gateway
 	handle /api* {
 		reverse_proxy 127.0.0.1:5000
 	}
 
+	# SignalR (WebSocket upgrade is automatic on reverse_proxy)
 	handle /hub* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	# Catalog OpenAPI UI (not the product /docs page)
+	handle /swagger* {
 		reverse_proxy 127.0.0.1:5000
 	}
 

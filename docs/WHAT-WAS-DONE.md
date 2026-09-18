@@ -2,6 +2,12 @@
 
 Bu dosya, kök `README.md` hızlı başlangıcını bozmadan **son dönemde (ChatGPT + Cursor devamı) yapılan her şeyi** Türkçe açıklar. Güncel agent özeti: [`docs/memory-bank/`](./memory-bank/).
 
+## 18 Eylül — tek domain (elements-api.ahmetfuzunkaya.com)
+
+Public yayın yolu netleştirildi: Caddy tek host; `/` → web, `/api*` `/hub*` `/swagger*` → gateway; same-origin `VITE_API_BASE_URL=/api/v1`. Gateway hız sınırı Caddy arkasında gerçek istemci IP’sini okur. Adım adım: [PUBLIC-HOST.md](./PUBLIC-HOST.md). DNS/TLS/sırlar sunucuda. Commit yok.
+
+---
+
 ## 17 Eylül — de-slop + el kitabı + API ürünü (kapanış)
 
 Üç paralel track bitti, bu dilim yalnız doğrulama + kapanış yaptı. Kullanıcının gördüğü:

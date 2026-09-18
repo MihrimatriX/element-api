@@ -69,7 +69,8 @@ Tek satır UI için tüm imajları `--build` etme.
 | `RedisConnection` | hız sınırı / anahtar önbelleği |
 | `IdentityServiceInternalUrl` | “bu anahtar kimin?” |
 | `INTERNAL_API_KEY` | identity’ye iç sorgu |
-| `PUBLIC_WEB_ORIGIN` | ekstra CORS kökeni |
+| `PUBLIC_WEB_ORIGIN` | ekstra CORS kökeni (public host) |
+| (rate limit IP) | peer loopback iken ilk `X-Forwarded-For` hop |
 | `ReverseProxy__Clusters__*` | odaların adresi (Docker DNS veya localhost) |
 
 Compose’ta Redis host’ta genelde **6380** yayınlanır; `localhost:6379` başka uygulamaya ait olabilir.

@@ -1,5 +1,6 @@
-# Public overlay: host ports only for the web UI and API gateway.
-# Set PUBLIC_WEB_ORIGIN / VITE_PUBLIC_SITE_URL / VITE_API_BASE_URL / PUBLIC_API_BASE in docker/.env
+# Public overlay: loopback-only web (:3000) + gateway (:5000); other ports closed.
+# TLS is host Caddy (deploy/Caddyfile.elements-api.example) — see docs/PUBLIC-HOST.md.
+# Set PUBLIC_WEB_ORIGIN / VITE_* / PUBLIC_API_BASE / JWT_SECRET / INTERNAL_API_KEY in docker/.env
 # Usage: docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
 
 services:

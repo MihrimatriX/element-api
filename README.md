@@ -278,13 +278,13 @@ TLS compose’da yok — host Caddy (`deploy/Caddyfile.elements-api.example`). C
 
 JWT `localStorage`’da; origin-scoped. Cookie auth yok.
 
-**Tek host** (`https://market.example.com` → UI `/`, API `/api` + `/hub`):
+**Tek host** (bu repo: `https://elements-api.ahmetfuzunkaya.com` → UI `/`, API `/api` + `/hub`; ayrıntı [PUBLIC-HOST.md](docs/PUBLIC-HOST.md)):
 
 ```
-PUBLIC_WEB_ORIGIN=https://market.example.com
-VITE_PUBLIC_SITE_URL=https://market.example.com
-VITE_API_BASE_URL=https://market.example.com/api/v1
-PUBLIC_API_BASE=https://market.example.com
+PUBLIC_WEB_ORIGIN=https://elements-api.ahmetfuzunkaya.com
+VITE_PUBLIC_SITE_URL=https://elements-api.ahmetfuzunkaya.com
+VITE_API_BASE_URL=/api/v1
+PUBLIC_API_BASE=https://elements-api.ahmetfuzunkaya.com
 ```
 
 **İki subdomain** (`app` + `api`):
@@ -296,7 +296,7 @@ VITE_API_BASE_URL=https://api.example.com/api/v1
 PUBLIC_API_BASE=https://api.example.com
 ```
 
-Reverse-proxy `X-Forwarded-Host` / `X-Forwarded-Proto` geçirmeli; yoksa `PUBLIC_API_BASE` linkleri düzeltir.
+Reverse-proxy `X-Forwarded-Host` / `X-Forwarded-Proto` geçirmeli; yoksa `PUBLIC_API_BASE` linkleri düzeltir. Gateway hız sınırı, peer loopback iken ilk `X-Forwarded-For` hop’unu kullanır.
 
 SPA: `index.html` varsayılan meta taşır; rota başlıkları istemcide `Seo` ile yazılır. `robots.txt` + `sitemap.xml` (`/lab`, bileşikler, 118 `/element/{symbol}`) nginx’ten statik.
 

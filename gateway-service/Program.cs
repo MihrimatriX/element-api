@@ -1,5 +1,6 @@
 using System;
 using System.Threading.RateLimiting;
+using Element.Gateway;
 using Element.Gateway.Middleware;
 using Element.Shared.Extensions;
 using Element.Shared.Middleware;
@@ -37,9 +38,9 @@ builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
-        var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        // Untrusted headers cannot select a new limiter partition. Valid API keys
-        // have a separate Redis-backed quota after authentication.
+        // Behind host Caddy, RemoteIp is loopback — ClientIp uses X-Forwarded-For only then.
+        var ip = ClientIp.Resolve(context);
+        // Valid API keys have a separate Redis-backed quota after authentication.
         var auth = context.Request.Path.StartsWithSegments("/api/v1/auth")
             && context.Request.Method == "POST";
         var key = $"{(auth ? "auth" : "public")}:{ip}";

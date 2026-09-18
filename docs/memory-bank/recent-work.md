@@ -1,3 +1,14 @@
+# Son çalışma — 18 Eylül 2026 (tek domain public host)
+
+Kullanıcı tüm servislerin `https://elements-api.ahmetfuzunkaya.com` altında çalışmasını istedi. Commit yok.
+
+- Envanter + mevcut Caddy/compose public overlay doğrulandı; yeni reverse-proxy yığını yok.
+- `VITE_API_BASE_URL=/api/v1` (same-origin) `.env.public.example`; Caddy’ye `/swagger*` eklendi.
+- Gateway rate limit: peer loopback iken ilk `X-Forwarded-For` (`ClientIp` + 3 birim test).
+- [docs/PUBLIC-HOST.md](../PUBLIC-HOST.md) path tablosu; README tek-host örneği güncellendi.
+
+---
+
 # Son çalışma — 17 Eylül 2026 (ana sayfa ikinci tur)
 
 Kullanıcı `/` hâlâ slop buldu; tablo-odaklı kalıp kimlik eklendi. Commit yok.
