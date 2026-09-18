@@ -1,69 +1,55 @@
-# notification-service
+# Haberci (`notification-service`)
 
-Gerçek zamanlı bildirimler — SignalR hub + RabbitMQ event tüketicisi (.NET 9).
+Fiyat kıpırdadı, sipariş ilerledi — tarayıcıya anında söyle. İstenirse kayıtlı HTTPS adresine de yaz.
+
+> Piyasa sayfasındaki canlı rakam buradan gelir. Giriş zorunlu değildir (fiyat herkese).
 
 | | |
 |--|--|
-| **Port** | `5006` (internal), gateway: `5000/hub/notifications` |
-| **Info** | `GET /info` |
+| **Port** | `5006` · tarayıcı **kapı** üzerinden `ws://localhost:5000/hub/notifications` |
+| **Teknoloji** | .NET 10, SignalR |
+| **Veri** | Kuyruk. Kendi Postgres’i yok |
 
 ---
 
-## Sorumluluklar
+## Bu kutu ne yapar?
 
-- Fiyat değişimi ve sipariş durumu event'lerini dinler
-- Bağlı istemcilere SignalR push (`PriceUpdated` herkese; login gerekmez)
-- Identity'deki webhook listesine HTTPS POST (`X-Element-Signature`)
+Rabbit’ten dinler:
 
----
+- catalog fiyat olayı → hub’da `PriceUpdated` (her bağlı tarayıcı),
+- order `UpdateOrderStatusEvent` → `OrderStatusUpdated`.
 
-## Endpoint'ler
+Identity’deki webhook listesine HTTPS POST atar (`X-Element-Signature`). Özel sipariş durumu herkese açık kanalda yayınlanmaz; istemci kendi siparişini anahtarla sorar.
 
-| Method | Path | Açıklama |
-|--------|------|----------|
-| WS | `/hub/notifications` | SignalR hub |
-| POST | `/hub/notifications/negotiate` | SignalR negotiate |
+## Ne yapmaz?
 
-### Hub metodları
+Sipariş oluşturmaz. E-posta göndermez (o identity mailer). ELK/Grafana yok.
 
-İstemci broadcast yok. Sunucu `PriceUpdated` ve `OrderStatusUpdated` yollar.
+## Nasıl açılır?
 
-### Ops
+```powershell
+dotnet run --project notification-service/Element.Services.Notification.API/Element.Services.Notification.API.csproj
+```
 
-| Path | Açıklama |
-|------|----------|
-| `/info` | Hub path + linkler |
-| `/health`, `/health/live`, `/health/ready` | RabbitMQ |
-
----
-
-## Tüketilen event'ler
-
-| Event | Kaynak |
-|-------|--------|
-| Element fiyat değişimi | catalog |
-| `UpdateOrderStatusEvent` | order saga |
-
----
-
-## İstemci bağlantısı
+Tarayıcı asla `:5006`’ya gitmesin; CORS/proxy kapıda.
 
 ```javascript
-// Web app gateway üzerinden bağlanır
 const hub = new signalR.HubConnectionBuilder()
   .withUrl("http://localhost:5000/hub/notifications")
   .build();
 ```
 
----
+İstemci sunucuya broadcast etmez; yalnız dinler.
 
-## Çalıştırma
+## Sağlık
 
-```bash
-# Host (tercih)
-dotnet run --project Element.Services.Notification.API/Element.Services.Notification.API.csproj
-```
+`/info`, `/health`, `/health/live`, `/health/ready` (Rabbit).
 
----
+## Bozulursa
 
-[← Ana README](../README.md)
+| Belirti | Muhtemel neden |
+|---------|----------------|
+| Ticker donuk | hub bağlı değil, catalog yayınlamıyor, Rabbit |
+| Webhook gitmiyor | identity iç listesi boş veya imza/URL |
+
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

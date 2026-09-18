@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Element.Services.Element.API.DTOs;
 using Element.Services.Element.Core.Abstractions;
 using Element.Services.Element.Core.Domain;
 using Element.Services.Element.Core.Entities;
-using Element.Services.Element.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using StackExchange.Redis;
 
 namespace Element.Services.Element.API.Controllers;
 
@@ -24,46 +19,20 @@ namespace Element.Services.Element.API.Controllers;
 [Route("api/v1/[controller]")]
 public class ElementsController : ControllerBase
 {
-    private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(5);
-
     private readonly IElementRepository _repository;
-    private readonly IDatabase _redisDb;
     private readonly MarketOptions _market;
 
     public ElementsController(
         IElementRepository repository,
-        IConnectionMultiplexer redisMultiplexer,
         IOptions<MarketOptions> market)
     {
         _repository = repository;
-        _redisDb = redisMultiplexer.GetDatabase();
         _market = market.Value;
     }
 
     private string GetBaseUrl() => PublicBaseUrl.Resolve(Request);
 
     private ElementResponseDto MapToDto(ChemicalElement element) => ElementDtoMapper.ToDto(element, GetBaseUrl());
-
-    private async Task<T?> TryCacheAsync<T>(string key) where T : class
-    {
-        try
-        {
-            var cached = await _redisDb.StringGetAsync(key);
-            if (cached.HasValue) return JsonSerializer.Deserialize<T>(cached.ToString());
-        }
-        catch { /* cache is best-effort */ }
-        return null;
-    }
-
-    private async Task SetCacheAsync<T>(string key, T value)
-    {
-        try
-        {
-            await _redisDb.StringSetAsync(key, JsonSerializer.Serialize(value), CacheTtl);
-            await CatalogCache.TrackListKeyAsync(_redisDb, key);
-        }
-        catch { /* cache is best-effort */ }
-    }
 
     private PaginatedResponse<ElementResponseDto> Paginate(
         IReadOnlyList<ChemicalElement> source, int page, int pageSize, string pathAndFixedQuery)
@@ -126,18 +95,11 @@ public class ElementsController : ControllerBase
             Descending = descending
         };
 
-        var cacheKey = $"elements:list:{category}:{block}:{phase}:{group}:{period}:{minPrice}:{maxPrice}:{inStock}:{sort}:{order}:p{page}:s{pageSize}";
-        var cached = await TryCacheAsync<PaginatedResponse<ElementResponseDto>>(cacheKey);
-        if (cached != null) return Ok(cached);
-
         var all = await _repository.GetAllAsync(ct);
         var filtered = ElementAnalytics.Query(all, filter);
 
         var fixedQuery = $"/api/v1/elements?sort={sort}&order={order}&category={Uri.EscapeDataString(category ?? "")}";
-        var response = Paginate(filtered, page, pageSize, fixedQuery);
-
-        await SetCacheAsync(cacheKey, response);
-        return Ok(response);
+        return Ok(Paginate(filtered, page, pageSize, fixedQuery));
     }
 
     /// <summary>Searches elements by name, Turkish name, symbol or atomic number.</summary>
@@ -164,16 +126,10 @@ public class ElementsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(symbol)) return BadRequest("Symbol is required.");
 
-        var cacheKey = $"element:dto:{symbol.ToLower()}";
-        var cached = await TryCacheAsync<ElementResponseDto>(cacheKey);
-        if (cached != null) return Ok(cached);
-
         var element = await _repository.GetBySymbolAsync(symbol, ct);
         if (element == null) return NotFound($"Chemical element with symbol '{symbol}' was not found.");
 
-        var dto = MapToDto(element);
-        await SetCacheAsync(cacheKey, dto);
-        return Ok(dto);
+        return Ok(MapToDto(element));
     }
 
     /// <summary>Returns a random element from the periodic table.</summary>

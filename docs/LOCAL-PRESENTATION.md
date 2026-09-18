@@ -2,6 +2,8 @@
 
 Bu sürümün odağı Türkçe kimya keşfi: kaynaklı atlas → laboratuvar → öğrenme rotası → koleksiyon. Kullanıcının tercihi doğrultusunda internet yayını yapılmadı.
 
+Kutuların ne işe yaradığı: [servis kılavuzu](SERVIS-KILAVUZU.md).
+
 ## Açılış (tam platform)
 
 Docker Desktop gerekir. Repo kökünde:

@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import Seo from "../components/Seo";
 import { Link } from "react-router-dom";
 import coverage from "../data/coverage.json";
+import { WorkshopMarks } from "../components/AtlasVisual";
 const sectionLabels: Record<string, string> = {
   electromagnetic_and_optical: "Elektromanyetik ve optik özellikler",
   crystallography: "Kristal yapı",
@@ -12,16 +13,17 @@ export default function DataCoverage() {
     <main className="science-detail">
       <Seo
         title="Kaynaklar ve veri kapsamı · ElementAPI"
-        description="Bilimsel verinin kaynakları, kapsamı ve eksik değerlerin anlamı."
+        description="PubChem, RSC, NIST. null sıfır değildir. 118 element, 167 bileşik; eksik bölümler açıkça boş."
         path="/data"
       />
-      <p className="science-eyebrow">BİLGİNİN DAYANAĞI</p>
+      <p className="science-eyebrow">Kaynak</p>
       <h1>Kaynaklar ve veri kapsamı</h1>
       <p className="lead">
-        {coverage.elements} element ve {coverage.compounds} bileşik için
-        kaynaklı kayıtlar. Türkçe açıklamalar editöryeldir; sayısal değerler ve
-        ölçüm koşulları kendi kaynaklarıyla gösterilir.
+        {coverage.elements} element, {coverage.compounds} bileşik. Sayı
+        PubChem / RSC / NIST’ten; Türkçe cümle bizden. Yoksa null — suyun
+        erime noktası uydurulmaz.
       </p>
+      <WorkshopMarks beat="quartz" />
       <div className="learning-grid">
         <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
           <article className="learning-card">

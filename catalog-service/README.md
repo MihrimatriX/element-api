@@ -1,109 +1,76 @@
-# catalog-service
+# Element kataloğu (`catalog-service`)
 
-Periyodik tablo element kataloğu — arama, filtreleme, karşılaştırma, fiyat geçmişi, stok saga (.NET 9).
+118 elementin evi. İki yüzü var: **bilim** (kütle, anlatım, foto) ve **piyasa** (sanal fiyat, stok).
+
+> Demir kaydı, ticker, stok ayırma burada. Su molekülü burada değildir — o `compound-service`.
 
 | | |
 |--|--|
 | **Port** | `5002` |
-| **Discovery** | `GET /api/v1` |
-| **Swagger** | [localhost:5002/swagger](http://localhost:5002/swagger) |
-| **Info** | `GET /info` |
+| **Teknoloji** | .NET 10 |
+| **Veri** | JSON bilimsel anlık görüntü + Postgres `element_market_db` + Redis fiyat |
 
 ---
 
-## Sorumluluklar
+## Bu kutu ne yapar?
 
-- 118 element kataloğu (fiyat, stok, periyodik tablo metadata)
-- **Bilimsel v2** kayıtları (`scientific-elements.json`: PubChem kaynaklı özellikler + atlas `editorial` / `media` / `external_links`)
-- Gelişmiş **arama ve filtreleme**
-- Saga: `OrderSubmittedEvent` → stok ayırma
-- Redis fiyat önbelleği
+**Bilim (v2).** `scientific-elements.json` dosyasından okur. PubChem kaynaklı özellikler, Türkçe özet, varsa Commons fotoğraf. Bilinmeyen değer **null** kalır, sıfır uydurulmaz. `fields`, `view`, `include`, ETag desteklenir.
 
----
+**Piyasa (v1).** Arama, kategori, komşu hücre, sanal last/bid/ask, hareket listesi, fiyat geçmişi. Geçmiş kapıdan API anahtarı ister; ticker herkese açıktır.
 
-## API endpoint'leri
+**Sipariş yolu.** Kuyruktan “şu sipariş için stok ayır” gelir. Ayırır veya reddeder. Redis fiyatı kısa süre hatırlar.
 
-### Bilimsel katalog (v2)
+## Ne yapmaz?
 
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/api/v2/elements` | Liste — `view`, `include`, `fields`, `q`, `category`, `block`, `group`, `period`, `page`, `pageSize` |
-| GET | `/api/v2/elements/{id}` | Tek kayıt — sembol (`fe`), atom no (`26`) veya id (`fe-26`) |
+Bileşik formülü ve mağaza SKU’su yok. Öğrenme ilerlemesi yok. Fotoğraf eksiğini rastgele görselle doldurmaz (`media.photo: null` bilinçli olabilir).
 
-Gateway üzerinden public; ETag + CORS. Plan: [deploy/scientific-catalog.md](../deploy/scientific-catalog.md). Atlas yeniden uygulama: `node deploy/scripts/refresh-atlas.mjs`.
+## Nasıl açılır?
 
-### Keşif
+Tam platform ile. Host (Postgres/Redis/Rabbit ayakta):
 
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/api/v1` | Tüm kaynak linkleri |
+```powershell
+dotnet run --project catalog-service/Element.Services.Element.API/Element.Services.Element.API.csproj
+```
 
-### Elementler
+JSON’u değiştirdikten sonra **Release klasöründeki eski kopya** kalabilir; imajı veya host sürecini yeniden derle. `-NoBuild` eski anlık görüntüyü bırakır.
 
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/api/v1/elements` | Liste — filtre: `category`, `block`, `phase`, `group`, `period`, `minPrice`, `maxPrice`, `inStock`, `sort`, `order`, `page`, `pageSize` |
-| GET | `/api/v1/elements/search?q=` | **Arama** — ad, Türkçe ad, sembol, atom numarası |
-| GET | `/api/v1/elements/random` | Rastgele element |
-| GET | `/api/v1/elements/compare?symbols=au,ag` | Yan yana karşılaştırma (2–6 sembol) |
-| GET | `/api/v1/elements/{symbol}` | Tek element |
-| GET | `/api/v1/elements/{symbol}/ticker` | Public last/bid/ask, sparkline, 24s Δ (yoksa null) |
-| GET | `/api/v1/market/movers` | En büyük \|Δ\| |
-| GET | `/api/v1/market/board` | Tüm semboller — heatmap |
-| GET | `/api/v1/elements/{symbol}/neighbors` | Periyodik tablo komşuları |
-| GET | `/api/v1/elements/{symbol}/related` | Aynı kategori, yakın atom numarası |
-| GET | `/api/v1/elements/{symbol}/history` | Fiyat geçmişi (gateway'de API key) |
+Atlas anlatımını JSON’a basmak: `node deploy/scripts/refresh-atlas.mjs` (ağdan medya: `--fetch`).
 
-### Kategoriler & istatistik
+## Sık istekler
 
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/api/v1/categories` | Kategori listesi |
-| GET | `/api/v1/categories/{slug}` | Kategori detay |
-| GET | `/api/v1/categories/{slug}/elements` | Kategorideki elementler |
-| GET | `/api/v1/statistics` | Genel istatistikler |
-| GET | `/api/v1/statistics/category/{name}` | Kategori bazlı |
-
-### Ops
-
-| Path | Açıklama |
-|------|----------|
-| `/info`, `/health`, `/health/live`, `/health/ready` | Standart ops |
-| `/swagger` | OpenAPI (her zaman açık) |
-
----
-
-## Arama örnekleri
+Kapı: `http://localhost:5000` · doğrudan: `:5002`
 
 ```bash
-# İsimle ara
+# Bilim — Demir
+curl http://localhost:5000/api/v2/elements/fe
+curl "http://localhost:5000/api/v2/elements/fe?fields=symbol,names,editorial.summary"
+
+# Piyasa
 curl "http://localhost:5002/api/v1/elements/search?q=altin"
-
-# Fiyat aralığı + stokta olanlar
-curl "http://localhost:5002/api/v1/elements?minPrice=10&inStock=true&sort=price&order=desc"
+curl http://localhost:5000/api/v1/elements/au/ticker
+curl http://localhost:5000/api/v1/market/movers
 ```
 
----
+Tek kayıt: sembol (`fe`), atom no (`26`) veya id (`fe-26`).
 
-## Bağımlılıklar
+Swagger: http://localhost:5002/swagger (kapı `/swagger` buraya proxy’ler).
 
-| Kaynak | Açıklama |
-|--------|----------|
-| PostgreSQL `element_market_db` | Element + stok |
-| Redis | Fiyat cache |
-| RabbitMQ | Saga event'leri |
+### v2 liste parametreleri
 
----
+`view`, `include`, `fields`, `q`, `category`, `block`, `group`, `period`, `page`, `pageSize`
 
-## Çalıştırma
+### v1 liste parametreleri
 
-```bash
-# Host (tercih) — Postgres/Redis/Rabbit kök compose veya start-local
-dotnet run --project Element.Services.Element.API/Element.Services.Element.API.csproj
-```
+`category`, `block`, `phase`, `group`, `period`, `minPrice`, `maxPrice`, `inStock`, `sort`, `order`, `page`, `pageSize`
 
-Atlas JSON değişince stale Release `Data/` için `start-local.ps1 -Restart` (veya rebuild) kullanın; `-NoBuild` eski snapshot bırakabilir.
+Sözleşme: [deploy/scientific-catalog.md](../deploy/scientific-catalog.md).
 
----
+## Bozulursa
 
-[← Ana README](../README.md)
+| Belirti | Muhtemel neden |
+|---------|----------------|
+| Foto yok, şema var | Çoğu elementte bilinçli boş; lisanslı numune yok |
+| Fe 200 ama özet eski | Atlas script çalışmadı veya imaj eski JSON taşıyor |
+| Sipariş stokta takılı | Rabbit veya bu servisin saga tüketicisi düşmüş |
+
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

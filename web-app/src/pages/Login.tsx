@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -43,105 +42,62 @@ export default function Login() {
         description="Hesabına giriş. Keşiflerine kaldığın yerden devam et."
         path="/login"
       />
-      <Card asChild className="gap-0 py-0 shadow-none">
-        <div className="panel auth-panel">
-          <div
-            className="panel-header"
-            style={{
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              gap: "6px",
-            }}
+      <div className="auth-sheet">
+        <h1>Giriş</h1>
+        <p className="auth-lead">
+          Defterin bu tarayıcıda duruyor. Hesap, suyu başka cihazda da açar.
+        </p>
+        <ul>
+          <li>Keşif defterin her cihazda aynı.</li>
+          <li>10.000 sanal kredi ve ticaret anahtarı.</li>
+          <li>Sipariş geçmişin kaybolmaz.</li>
+        </ul>
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
+        <form onSubmit={handleSubmit} className="fields">
+          <div className="field">
+            <label htmlFor="email">E-posta Adresi</label>
+            <Input
+              id="email"
+              type="email"
+              autoComplete="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="sen@ornek.com"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="password">Şifre</label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </div>
+          <Button
+            variant="default"
+            type="submit"
+            className="btn primary"
+            disabled={loading}
           >
-            <p className="kicker">Hesap</p>
-            <h2 style={{ margin: 0 }}>Giriş yap</h2>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "14px",
-                color: "var(--muted-foreground)",
-              }}
-            >
-              Keşiflerine kaldığın yerden devam et
-            </p>
-          </div>
-
-          <div className="panel-body">
-            {error && (
-              <div
-                className="status-badge status-danger"
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  marginBottom: "18px",
-                  borderRadius: "var(--radius-sm)",
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="fields">
-              <div className="field">
-                <label htmlFor="email">E-posta Adresi</label>
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="john@example.com"
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="password">Şifre</label>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <Button
-                variant="default"
-                type="submit"
-                className="btn primary"
-                style={{ width: "100%", marginTop: "10px" }}
-                disabled={loading}
-              >
-                {loading ? "Giriş Yapılıyor..." : "Giriş Yap"}
-              </Button>
-            </form>
-            <p>
-              <Link to="/reset-password">Şifremi unuttum</Link>
-            </p>
-
-            <div
-              style={{
-                marginTop: "22px",
-                textAlign: "center",
-                fontSize: "13px",
-                color: "var(--muted-foreground)",
-              }}
-            >
-              Hesabınız yok mu?{" "}
-              <Link
-                to="/register"
-                style={{ color: "var(--brand)", fontWeight: 650 }}
-              >
-                Yeni hesap oluşturun
-              </Link>
-            </div>
-          </div>
-        </div>
-      </Card>
+            {loading ? "Giriş yapılıyor…" : "Giriş yap"}
+          </Button>
+        </form>
+        <p>
+          <Link to="/reset-password">Şifremi unuttum</Link>
+        </p>
+        <p className="auth-switch">
+          Hesabınız yok mu? <Link to="/register">Yeni hesap oluşturun</Link>
+        </p>
+      </div>
     </div>
   );
 }

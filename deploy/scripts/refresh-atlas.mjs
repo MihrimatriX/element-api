@@ -28,13 +28,36 @@ async function response(url) {
 }
 const json = async url => (await response(url)).json();
 export function composition(formula) {
-  const parts=[...formula.matchAll(/([A-Z][a-z]?)(\d*)/g)];
-  if(parts.map(m=>m[0]).join('')!==formula)throw Error(`Unsupported formula ${formula}`);
-  const totals=new Map(); for(const [,symbol,n] of parts)totals.set(symbol,(totals.get(symbol)??0)+Number(n||1));
-  return [...totals].map(([symbol,count])=>({symbol,count}));
+  const parse = (text, i = 0) => {
+    const totals = new Map();
+    const add = (symbol, n) => totals.set(symbol, (totals.get(symbol) ?? 0) + n);
+    while (i < text.length && text[i] !== ')') {
+      if (text[i] === '(') {
+        const inner = parse(text, i + 1);
+        i = inner.i;
+        if (text[i] !== ')') throw Error(`Unsupported formula ${formula}`);
+        i += 1;
+        const digits = text.slice(i).match(/^\d+/);
+        const n = digits ? Number(digits[0]) : 1;
+        i += digits ? digits[0].length : 0;
+        for (const [symbol, count] of inner.totals) add(symbol, count * n);
+      } else {
+        const token = text.slice(i).match(/^([A-Z][a-z]?)(\d*)/);
+        if (!token) throw Error(`Unsupported formula ${formula}`);
+        i += token[0].length;
+        add(token[1], Number(token[2] || 1));
+      }
+    }
+    return { totals, i };
+  };
+  const { totals, i } = parse(formula);
+  if (i !== formula.length) throw Error(`Unsupported formula ${formula}`);
+  return [...totals].map(([symbol, count]) => ({ symbol, count }));
 }
 export async function refreshAtlas(fetchMedia=false, only=[]) {
   const photoSelections=JSON.parse(await readFile(photoSelectionsPath,'utf8'));
+  const knownCompounds = JSON.parse(await readFile(new URL('web-app/src/data/known-compounds.json', root), 'utf8'));
+  const knownEditorial = Object.fromEntries(knownCompounds.map(c => [c.slug, { display_formula: c.formula, summary: c.summary, uses: c.uses, story: null }]));
   const elements=JSON.parse(await readFile(elementPath,'utf8'));
   const compounds=JSON.parse(await readFile(compoundPath,'utf8'));
   let manifest={}; try {manifest=JSON.parse(await readFile(manifestPath,'utf8'));}catch{/* first run */}
@@ -92,7 +115,7 @@ export async function refreshAtlas(fetchMedia=false, only=[]) {
   }
   for(const r of [...elements,...compounds]) {
     const element=Boolean(r.symbol),key=r.symbol??r.slug;
-    const copy=(element?elementEditorial:compoundEditorial)[key];if(!copy)throw Error(`Missing editorial ${key}`);
+    const copy=(element?elementEditorial:compoundEditorial)[key]??(!element&&knownEditorial[key]);if(!copy)throw Error(`Missing editorial ${key}`);
     const reference=element?r.provenance.sources.find(s=>s.id==='rsc'||s.name.includes('RSC')||s.url.includes('rsc.org'))?.url:`https://pubchem.ncbi.nlm.nih.gov/compound/${r.identifiers.pubchem_cid}`;
     const entry=manifest[key];
     r.editorial={summary:copy.summary,uses:copy.uses,story:copy.story,sources:[{name:element?'Royal Society of Chemistry':'PubChem / NCBI',url:reference??r.provenance.sources[0].url}]};

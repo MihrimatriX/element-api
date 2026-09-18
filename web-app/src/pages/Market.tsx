@@ -1,11 +1,3 @@
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -211,7 +203,7 @@ export default function Market() {
     : board.length
       ? board.slice(0, 16)
       : boardRows.slice(0, 16);
-  const tape = tapeSource.length ? tapeSource.concat(tapeSource) : [];
+  const tape = tapeSource;
 
   const handleSell = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -268,8 +260,8 @@ export default function Market() {
           <h1>Fiyat tablosu</h1>
         </div>
         <p className="firm-head-note">
-          Alış, ödeyeceğin; satış, geri satarken alacağın fiyat. Fiyatlar kredi
-          ile simüle edilir; gerçek piyasa fiyatı değildir.
+          Alış, ödeyeceğin; satış, geri satarken alacağın fiyat. Fe satırı
+          kredi simülasyonudur; gerçek borsa değil.
         </p>
       </header>
       {marketError && (
@@ -302,7 +294,7 @@ export default function Market() {
       </div>
 
       <div className="desk-terminal">
-        <section className="board-wrap panel" aria-label="Fiyat tablosu">
+        <section className="quote-board-wrap" aria-label="Fiyat tablosu">
           <div className="board-toolbar">
             <h2>Fiyatlar</h2>
             <Input
@@ -315,112 +307,68 @@ export default function Market() {
             />
             <span className="muted mono">{boardRows.length}</span>
           </div>
-          <div className="board-scroll">
-            <Table className="board-table">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>
-                    <Button
-                      variant="plain"
-                      size="none"
-                      type="button"
-                      onClick={() => toggleSort("symbol")}
-                    >
-                      Sembol{sortMark("symbol")}
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="plain"
-                      size="none"
-                      type="button"
-                      onClick={() => toggleSort("last")}
-                    >
-                      Son fiyat{sortMark("last")}
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="plain"
-                      size="none"
-                      type="button"
-                      onClick={() => toggleSort("ask")}
-                    >
-                      Alış{sortMark("ask")}
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="plain"
-                      size="none"
-                      type="button"
-                      onClick={() => toggleSort("bid")}
-                    >
-                      Satış{sortMark("bid")}
-                    </Button>
-                  </TableHead>
-                  <TableHead>
-                    <Button
-                      variant="plain"
-                      size="none"
-                      type="button"
-                      onClick={() => toggleSort("change24hPct")}
-                    >
-                      Değişim{sortMark("change24hPct")}
-                    </Button>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {boardRows.map((row) => {
-                  const sel = row.symbol.toUpperCase() === selectedSymbol;
-                  return (
-                    <TableRow
-                      key={row.symbol}
-                      className={sel ? "is-sel" : undefined}
-                      onClick={() => setSelectedSymbol(row.symbol)}
-                    >
-                      <TableCell className="mono">
-                        <Button
-                          variant="plain"
-                          size="none"
-                          type="button"
-                          className="text-link"
-                          onClick={() => setSelectedSymbol(row.symbol)}
-                        >
-                          {row.symbol}
-                        </Button>
-                      </TableCell>
-                      <TableCell className="mono">{fmt(row.last, 4)}</TableCell>
-                      <TableCell className="mono desk-up">
-                        {fmt(row.ask, 4)}
-                      </TableCell>
-                      <TableCell className="mono desk-down">
-                        {fmt(row.bid, 4)}
-                      </TableCell>
-                      <TableCell
-                        className={`mono heat ${deltaClass(row.change24hPct)}`}
-                      >
-                        {row.change24hPct == null
-                          ? "—"
-                          : `${row.change24hPct >= 0 ? "+" : ""}${fmt(row.change24hPct, 2)}%`}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-            {boardRows.length === 0 && (
-              <p className="empty-cart">
-                {filter
-                  ? "Aramanıza uyan element yok."
-                  : "Fiyatlar bekleniyor…"}
-              </p>
-            )}
+          <div className="quote-sort" role="group" aria-label="Sırala">
+            {(
+              [
+                ["symbol", "Sembol"],
+                ["last", "Son fiyat"],
+                ["ask", "Alış"],
+                ["bid", "Satış"],
+                ["change24hPct", "Değişim"],
+              ] as [SortKey, string][]
+            ).map(([key, label]) => (
+              <Button
+                key={key}
+                variant="plain"
+                size="none"
+                type="button"
+                aria-pressed={sortKey === key}
+                onClick={() => toggleSort(key)}
+              >
+                {label}
+                {sortMark(key)}
+              </Button>
+            ))}
           </div>
+          <div className="quote-board">
+            {boardRows.map((row) => {
+              const sel = row.symbol.toUpperCase() === selectedSymbol;
+              const name =
+                elements.find(
+                  (e) => e.symbol.toUpperCase() === row.symbol.toUpperCase(),
+                )?.name ?? row.symbol;
+              return (
+                <Button
+                  variant="plain"
+                  size="none"
+                  key={row.symbol}
+                  type="button"
+                  className={`quote-tile ${sel ? "is-sel" : ""}`}
+                  onClick={() => setSelectedSymbol(row.symbol)}
+                >
+                  <span className="quote-sym">{row.symbol}</span>
+                  <span className="quote-name">{name}</span>
+                  <strong>{fmt(row.last, 2)}</strong>
+                  <em className={deltaClass(row.change24hPct)}>
+                    {row.change24hPct == null
+                      ? "—"
+                      : `${row.change24hPct >= 0 ? "+" : ""}${fmt(row.change24hPct, 2)}%`}
+                  </em>
+                  <span className="quote-meta">
+                    alış {fmt(row.ask, 2)} · satış {fmt(row.bid, 2)}
+                  </span>
+                </Button>
+              );
+            })}
+          </div>
+          {boardRows.length === 0 && (
+            <p className="empty-cart">
+              {filter ? "Aramanıza uyan element yok." : "Fiyatlar bekleniyor…"}
+            </p>
+          )}
         </section>
 
-        <aside className="desk-ticket panel" aria-label="Alış satış">
+        <aside className="desk-ticket" aria-label="Alış satış">
           <header className="ticket-head">
             <div>
               <p className="kicker">{selectedSymbol}</p>
@@ -527,7 +475,8 @@ export default function Market() {
             <div className="panel-body">
               {holdings.length === 0 && (
                 <p className="muted">
-                  Henüz ürünün yok. Tamamlanan siparişler burada görünür.
+                  Kasada ürün yok.{" "}
+                  <Link to="/shop">Mağazadan 1 g Fe dene</Link>.
                 </p>
               )}
               {holdings.map((holding) => (

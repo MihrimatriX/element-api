@@ -1,73 +1,54 @@
-# shipment-service
+# Kargo (`shipment-service`)
 
-Kargo / sevkiyat mikroservisi — saga worker + sevkiyat sorgu API (.NET 9).
+Sahte sevkiyat: sipariş ödendikten sonra bir takip numarası basar ve kaydı tutar. Kamyon yok, kargo firması yok.
+
+> Kapı genel listeyi açmaz. Takip sorgusu anahtar ister. Worker kuyruktan beslenir.
 
 | | |
 |--|--|
 | **Port** | `5004` |
-| **Discovery** | `GET /info` |
-| **Info** | `GET /info` |
-
-Gateway'den proxy edilmez — doğrudan `:5004` veya internal DNS.
+| **Teknoloji** | .NET 10 |
+| **Veri** | Postgres `element_shipment_db` · RabbitMQ |
 
 ---
 
-## Sorumluluklar
+## Bu kutu ne yapar?
 
-- `ShipmentRequestedEvent` tüketir → sevkiyat kaydı + takip numarası
-- `ShipmentDispatchedEvent` yayınlayarak saga'yı tamamlar
-- REST ile sevkiyat **arama ve takip** (orderId, tracking, status, q)
+`ShipmentRequestedEvent` gelince kayıt açar, numara üretir, `ShipmentDispatchedEvent` yayınlar — saga tamamlanır.
 
----
+REST (doğrudan `:5004` veya kapıdaki track):
 
-## API endpoint'leri
+- sipariş id, takip no, durum, serbest metin ile ara,
+- UUID ile tek kayıt,
+- `GET /api/v1/shipments/track/{numara}`.
 
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/api/v1/shipments` | **Arama** — `orderId`, `tracking`, `status`, `q`, `page`, `pageSize` |
-| GET | `/api/v1/shipments/{id}` | UUID ile sevkiyat |
-| GET | `/api/v1/shipments/track/{trackingNumber}` | Takip numarası ile sorgu |
+## Ne yapmaz?
 
-### Ops
+Adrese mal göndermez. Ödeme almaz. Bildirim hub’ı değildir (onu notification yapar).
 
-| Path | Açıklama |
-|------|----------|
-| `/info` | Servis metadata + linkler |
-| `/health`, `/health/live`, `/health/ready` | PostgreSQL + RabbitMQ |
+## Nasıl açılır?
 
----
+```powershell
+dotnet run --project shipment-service/Element.Services.Shipment.API/Element.Services.Shipment.API.csproj
+```
 
-## Arama örnekleri
+Saga’nın bitmesi için bu kutu + Rabbit şart.
+
+## Sık istekler
 
 ```bash
-# Siparişe göre
 curl "http://localhost:5004/api/v1/shipments?orderId={guid}"
-
-# Takip numarası
-curl "http://localhost:5004/api/v1/shipments/track/EM-2024-ABC123"
-
-# Serbest metin (tracking, sembol, müşteri, order id)
+curl http://localhost:5004/api/v1/shipments/track/EM-2024-ABC123
 curl "http://localhost:5004/api/v1/shipments?q=AU&status=Dispatched"
 ```
 
----
+Kapıdan takip: `GET /api/v1/shipments/track/...` + API anahtarı.
 
-## Bağımlılıklar
+## Bozulursa
 
-| Kaynak | Açıklama |
-|--------|----------|
-| PostgreSQL `element_shipment_db` | Shipments tablosu |
-| RabbitMQ | Event tüketim / yayın |
+| Belirti | Muhtemel neden |
+|---------|----------------|
+| Sipariş ödendi, Completed olmadı | bu worker veya kuyruk |
+| Track 401 | kapı anahtar bekliyor |
 
----
-
-## Çalıştırma
-
-```bash
-# Host (tercih)
-dotnet run --project Element.Services.Shipment.API/Element.Services.Shipment.API.csproj
-```
-
----
-
-[← Ana README](../README.md)
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

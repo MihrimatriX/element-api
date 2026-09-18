@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
-using StackExchange.Redis;
 using Element.Shared.Extensions;
 using Element.Shared.Middleware;
 using Element.Shared.Health;
@@ -28,9 +27,7 @@ builder.Services.AddDbContext<ElementDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
         .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
-// Add Redis
-var redisConn = builder.Configuration.GetValue<string>("RedisConnection") ?? "localhost:6379";
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConn));
+// ponytail: 118-row DTO cache lived in Redis; EF is enough. Gateway/identity still use Redis — do not add a catalog cache until a profiler asks.
 
 // Domain ports
 builder.Services.Configure<MarketOptions>(builder.Configuration.GetSection(MarketOptions.SectionName));
@@ -82,8 +79,7 @@ builder.Services.AddSwaggerGen(c =>
 // Add Health Checks
 var dbConn = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
 builder.Services.AddHealthChecks()
-    .AddNpgSql(dbConn, name: "PostgreSQL")
-    .AddRedis(redisConn, name: "Redis");
+    .AddNpgSql(dbConn, name: "PostgreSQL");
 
 var app = builder.Build();
 

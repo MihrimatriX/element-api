@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SCIENCE_BASE_URL } from '../config';
+import { localScience, mergeRemote } from './scienceCatalog.ts';
 export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 export type ScientificRecord = { [key: string]: JsonValue };
 export interface AtlasMedia { url: string; caption: string; source_url: string; creator: string; license: string; license_url: string | null; retrieved_at: string }
@@ -22,6 +23,7 @@ export interface ScientificCompound extends AtlasFields {
   composition: {symbol: string; count: number}[];
 }
 export const displayFormula = (value: string) => value.replace(/\d/g, n => '₀₁₂₃₄₅₆₇₈₉'[Number(n)]);
+export { localScience };
 const cache = new Map<string, Promise<unknown>>();
 export const scienceUrl = (path: string) => `${SCIENCE_BASE_URL}/${path}`;
 async function get<T>(path: string): Promise<T> {
@@ -32,21 +34,33 @@ async function get<T>(path: string): Promise<T> {
   return cache.get(path) as Promise<T>;
 }
 export async function listScience<T>(kind: 'elements' | 'compounds'): Promise<T[]> {
-  const first = await get<{ info: { pages: number }; results: T[] }>(`${kind}?pageSize=100&view=summary`);
-  const rest = await Promise.all(Array.from({ length: first.info.pages - 1 }, (_, i) => get<{ results: T[] }>(`${kind}?pageSize=100&view=summary&page=${i + 2}`)));
-  return [...first.results, ...rest.flatMap(page => page.results)];
+  try {
+    const first = await get<{ info: { pages: number }; results: T[] }>(`${kind}?pageSize=100&view=summary`);
+    const rest = await Promise.all(Array.from({ length: first.info.pages - 1 }, (_, i) => get<{ results: T[] }>(`${kind}?pageSize=100&view=summary&page=${i + 2}`)));
+    return mergeRemote(kind, [...first.results, ...rest.flatMap(page => page.results)]);
+  } catch {
+    return localScience(kind) as T[];
+  }
 }
 export function useScience<T>(kind: 'elements' | 'compounds', id?: string) {
   const key = `${kind}/${id ?? ''}`;
-  const [state, setState] = useState<{ key: string; data?: T; error?: string }>({ key });
+  const local = localScience(kind, id) as T | undefined;
+  const [state, setState] = useState<{ key: string; data?: T; error?: string }>({ key, data: local });
   const [attempt, retry] = useState(0);
   useEffect(() => {
     let active = true;
+    setState({ key, data: local });
     const promise = id ? get<T>(`${kind}/${encodeURIComponent(id)}`) : listScience(kind) as Promise<T>;
-    promise.then(data => { if (active) setState({ key, data }); }).catch(error => { if (active) setState({ key, error: error.message }); });
+    promise.then(data => { if (active) setState({ key, data }); }).catch(error => {
+      if (active) setState({ key, data: local, error: local ? undefined : error.message });
+    });
     return () => { active = false; };
   }, [kind, id, key, attempt]);
-  return { data: state.key === key ? state.data : undefined, error: state.key === key ? state.error : undefined, retry: () => { setState({ key }); retry(n => n + 1); } };
+  return {
+    data: state.key === key ? state.data : local,
+    error: state.key === key ? state.error : undefined,
+    retry: () => { setState({ key, data: local }); retry(n => n + 1); },
+  };
 }
 export const formatScience = (value: number | null | undefined, unit = '') => value == null ? '—' : `${new Intl.NumberFormat('tr-TR', { maximumSignificantDigits: 7 }).format(value)}${unit ? ` ${unit}` : ''}`;
 export const phaseLabels: Record<string, string> = { solid: 'Katı', liquid: 'Sıvı', gas: 'Gaz', unknown: 'Bilinmiyor' };

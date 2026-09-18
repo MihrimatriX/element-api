@@ -58,4 +58,10 @@
 
 Ana yüzey bilimsel atlas ve öğrenme. Ticaret ayrı sanal demo; gerçek ödeme/teslimat yok. Yerelde sunum hedefi korunur; e-posta sağlayıcısı tercihi Resend, bağlantısı henüz yok.
 
-Ön yüz için gerçek shadcn/ui kaynakları + Radix + Tailwind 4 kullanılır. Ortak ProductShell, sade sans tipografi, nötr zemin ve ölçülü yeşil vurgu. Pazarlama sloganları ve dekoratif kart yığını yerine içeriğe ve yapılan işe öncelik ver. Mevcut bilimsel API ve öğrenme kuralları görsel değişiklik için değiştirilmez. [Tasarım sözleşmesi](design-system.md).
+Ön yüz için gerçek shadcn/ui kaynakları + Radix + Tailwind 4 kullanılır. Ortak ProductShell, sans tipografi, krem kâğıt zemin; periyodik hücreler aile rengini doldurur. Pazarlama sloganları ve dekoratif kart yığını yok. Mevcut bilimsel API ve öğrenme kuralları görsel değişiklik için değiştirilmez. [Tasarım sözleşmesi](design-system.md).
+
+## Bilimsel bileşik kataloğu mağaza SKU’su değildir — 17 Eylül 2026
+
+**Decision:** Eğitim/oyun kataloğu (`known-compounds.json` / `scientific-compounds.json`) büyüyebilir. Mağaza `compounds.json` SKU listesi otomatik büyümez.
+
+**Why:** Ticaret ayrı sanal sözleşmedir; 167 molekülün tamamı satılık ürün değildir.

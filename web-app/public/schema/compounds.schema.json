@@ -75,10 +75,24 @@
           "type": "number"
         },
         "exact_mass_da": {
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "monoisotopic_mass_da": {
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "formal_charge": {
           "type": "number"
@@ -94,19 +108,54 @@
           ]
         },
         "topological_polar_surface_area_a2": {
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "hydrogen_bond_donors": {
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "hydrogen_bond_acceptors": {
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "rotatable_bonds": {
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "complexity": {
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "required": [
@@ -669,40 +718,47 @@
           "description": "No populated value in this snapshot. Null means unavailable, not zero."
         },
         "structure": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string"
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "source_url": {
+                  "type": "string"
+                },
+                "creator": {
+                  "type": "string"
+                },
+                "license": {
+                  "type": "string"
+                },
+                "license_url": {
+                  "type": "string"
+                },
+                "retrieved_at": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url",
+                "caption",
+                "source_url",
+                "creator",
+                "license",
+                "license_url",
+                "retrieved_at"
+              ],
+              "additionalProperties": false
             },
-            "caption": {
-              "type": "string"
-            },
-            "source_url": {
-              "type": "string"
-            },
-            "creator": {
-              "type": "string"
-            },
-            "license": {
-              "type": "string"
-            },
-            "license_url": {
-              "type": "string"
-            },
-            "retrieved_at": {
-              "type": "string"
+            {
+              "type": "null"
             }
-          },
-          "required": [
-            "url",
-            "caption",
-            "source_url",
-            "creator",
-            "license",
-            "license_url",
-            "retrieved_at"
-          ],
-          "additionalProperties": false
+          ]
         }
       },
       "required": [
@@ -715,20 +771,27 @@
       "type": "object",
       "properties": {
         "wikipedia": {
-          "type": "object",
-          "properties": {
-            "url": {
-              "type": "string"
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url",
+                "language"
+              ],
+              "additionalProperties": false
             },
-            "language": {
-              "type": "string"
+            {
+              "type": "null"
             }
-          },
-          "required": [
-            "url",
-            "language"
-          ],
-          "additionalProperties": false
+          ]
         },
         "pubchem": {
           "type": "string"

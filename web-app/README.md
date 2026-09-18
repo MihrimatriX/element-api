@@ -1,91 +1,86 @@
-# web-app
+# Arayüz (`web-app`)
 
-ElementAPI arayüzü — React 19 + Vite + TypeScript + Tailwind 4 + shadcn/ui (Radix) + nginx.
+Ekranda gördüğün ElementAPI. Periyodik tablo, kayıt, laboratuvar, koleksiyon; ayrı bir köşede sanal mağaza.
+
+> Ürün budur. Diğer servisler buna veri taşır. Tek başına Vite, çalışan bir API’ye (veya gömülü JSON’a) bağlanır.
 
 | | |
 |--|--|
-| **Port** | `3000` (Docker web) · `5173` (dev) |
-| **Health** | `GET /health` |
-| **Info** | `GET /info` |
+| **Geliştirme** | http://127.0.0.1:5173 |
+| **Docker web** | http://localhost:3000 |
+| **Teknoloji** | React 19, Vite, TypeScript, Tailwind 4, shadcn/Radix |
 
 ---
 
-## Sorumluluklar
+## Bu kutu ne yapar?
 
-- Periyodik tablo ve bileşik keşfi, bilimsel ayrıntı, laboratuvar (`/lab`)
-- Piyasa masası (`/market`), mağaza (`/shop`), hesap, API dokümantasyonu
-- Kâğıt kredi cüzdan, gram sepet, SignalR fiyat (login gerekmez)
-- Atlas medya: `public/media/atlas/` (fotoğraf + PubChem yapı PNG)
+- Tabloyu çizer (hücre rengi element ailesi). Ayrıntı: yerelde `scientific-elements.json`; canlı API gelince üzerine yazar.
+- Laboratuvar: kart seç, oran tut, bilinen molekül aç. Kurallar tarayıcıda (`chemistry.ts`). Cüzdana dokunmaz.
+- Formülü kur, Element dedektifi, 6 rota, koleksiyon. Misafir kayıt tarayıcıda; girişliyse identity ile birleşir.
+- `/docs` bilimsel API tezgâhı. Vite’de `/api/v2` → host science `:5080` (gateway şart değil).
+- `/market` `/shop` kâğıt KREDI; SignalR fiyat.
 
-Statik SPA — tam platformda API gateway, bağımsız profilde bilim servisi kullanılır. Bilimsel kayıtlar `GET /api/v2/...`; piyasa/sipariş `GET /api/v1/...`.
+Statik SPA. Docker imajında nginx `/*` + `/health` + `/info`.
 
----
+## Ne yapmaz?
 
-## Önemli rotalar
+Gerçek ödeme. Öğretmen notu. 3D molekül motoru. Eksik elementi uydurma fotoğrafla doldurma.
 
-| Path | Sayfa |
-|------|-------|
-| `/`, `/periodic` | Keşif / periyodik tablo |
-| `/element/:symbol`, `/compound/:slug` | Bilimsel ayrıntı |
-| `/compounds` | Bileşik listesi |
-| `/lab` | Keşif laboratuvarı (misafir yerel; hesaplı ilerleme sunucuda) |
-| `/market`, `/shop` | Piyasa · mağaza |
-| `/docs` | API dokümantasyonu |
-| `/hakkinda` | Hakkında |
-| `/stack` | Eski ops sayfası → `/hakkinda` yönlendirmesi |
+## Nasıl açılır?
 
----
+**Günlük (tercih):** gateway veya science zaten ayaktayken tüm web imajını derleme.
 
-## Endpoint'ler (nginx / container)
-
-| Path | Açıklama |
-|------|----------|
-| `/*` | React SPA |
-| `/health` | nginx health probe |
-| `/info` | Statik servis metadata |
-
----
-
-## Bağımlılıklar
-
-| Servis | Adres |
-|--------|-------|
-| gateway-service | `VITE_API_BASE_URL` → `http://localhost:5000/api/v1` |
-| SignalR | `http://localhost:5000/hub/notifications` |
-
----
-
-## Çalıştırma
-
-Tercih: host Vite (tam Docker web rebuild gerekmez). Tam profil gateway `localhost:5000` kullanır; bağımsız bilim profili için SCIENCE API adresi ayarlanabilir.
-
-```bash
-npm ci
-npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
-# http://localhost:5173
+```powershell
+npm --prefix web-app ci
+npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-Test: `npm test` (laboratuvar keşif mantığı). Üretim derlemesi: `npm run build`.
+Bu makinede Docker web yoksa ürün UI **5173**’tür; `:3000` başka uygulamaya ait olabilir.
 
-Docker web: kök `docker-compose.yml` içindeki `web-app` servisi (host Vite tercih edilir).
+**Tam sunum:** `./deploy/scripts/present-platform.ps1` → `:3000` (web imajı bake edilmiş API adresini taşır; değişince rebuild).
 
-Build arg (Docker) — subdomain / HTTPS için public origin yaz, sonra rebuild:
+**Yalnız atlas:** `present-local.ps1` → science imajının içindeki aynı arayüz, hesap kapalı.
 
-```yaml
-VITE_API_BASE_URL: https://api.example.com/api/v1
-VITE_PUBLIC_SITE_URL: https://app.example.com
+```powershell
+npm test          # 22 birim testi
+npm run build
+npm run lint
+npm run test:e2e           # bağımsız tarayıcı
+npm run test:e2e:auth      # hesap UI
+npm run test:e2e:live      # WEB_BASE, gerçek yığın
 ```
 
-Runtime (`PUBLIC_SITE_URL`): `robots.txt` ve `sitemap.xml` içindeki `__SITE_URL__` yerini doldurur.
+İlk e2e: `npx playwright install chromium`.
 
-OG görseli: `/og.png` (1200×630). Favicon: `/favicon.svg`.
+## Önemli adresler
 
-Ayrıntı: kök README **Public / subdomain**; atlas yenileme: `node deploy/scripts/refresh-atlas.mjs`.
+| Yol | Ne |
+|-----|----|
+| `/`, `/periodic` | tablo |
+| `/element/:sembol`, `/compound/:slug` | kayıt |
+| `/lab`, `/lab/formula`, `/lab/detective` | oyunlar |
+| `/collection` | defterim, rotalar |
+| `/docs`, `/sozluk` | API ve dil |
+| `/market`, `/shop` | sanal ticaret |
+| `/stack` | eski ops → `/hakkinda` |
 
----
+Kabuk: `src/components/ProductShell.tsx`. Tema: `src/design-system.css`. [Tasarım](../docs/memory-bank/design-system.md) · [senaryolar](../docs/PRODUCT-SCENARIOS.md).
 
-[← Ana README](../README.md)
+## Ortam
 
-## Tasarım ve senaryolar
+| Değişken | Ne işe yarar |
+|----------|----------------|
+| `VITE_API_BASE_URL` | tarayıcının v1 kapısı (build anı) |
+| `VITE_PUBLIC_SITE_URL` | canonical, OG, sitemap (build) |
+| `SCIENCE_BASE_URL` | Vite’de v2 (dev’de `/api/v2` proxy) |
+| `PUBLIC_SITE_URL` | konteyner start’ta sitemap `__SITE_URL__` |
 
-Ortak kabuk `src/components/ProductShell.tsx`; shadcn kaynakları `src/components/ui`; tema `src/design-system.css`. [Tasarım sözleşmesi](../docs/memory-bank/design-system.md) ve [ürün senaryoları](../docs/PRODUCT-SCENARIOS.md).
+## Bozulursa
+
+| Belirti | Muhtemel neden |
+|---------|----------------|
+| `/docs` Failed to fetch | science `:5080` kapalı; Vite proxy oraya gider |
+| Docker sitede eski API host | imaj `localhost:5000` bake; nginx `/api` yok |
+| Tablo var, kayıt “yeniden dene” | eski davranış; şimdi yerel JSON yedekler |
+
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

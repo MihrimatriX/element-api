@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -73,158 +72,105 @@ export default function Register() {
         description="Keşiflerini ve öğrenme rotalarını farklı cihazlarda sürdür."
         path="/register"
       />
-      <Card asChild className="gap-0 py-0 shadow-none">
-        <div className="panel auth-panel">
-          <div
-            className="panel-header"
-            style={{
-              flexDirection: "column",
-              alignItems: "center",
-              textAlign: "center",
-              gap: "6px",
-            }}
-          >
-            <p className="kicker">Kayıt</p>
-            <h2 style={{ margin: 0 }}>Kayıt Ol</h2>
-            <p
-              style={{
-                margin: 0,
-                fontSize: "13px",
-                color: "var(--muted-foreground)",
-              }}
-            >
-              Keşiflerini ve öğrenme rotalarını farklı cihazlarda sürdür.
-            </p>
-          </div>
-
-          <div className="panel-body">
-            {error && (
-              <div
-                className="status-badge status-danger"
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  marginBottom: "18px",
-                  borderRadius: "var(--radius-sm)",
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            {success && (
-              <div
-                className="status-badge status-success"
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  marginBottom: "18px",
-                  borderRadius: "var(--radius-sm)",
-                }}
-              >
-                {success}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="fields">
-              <div style={{ display: "flex", gap: "10px" }}>
-                <div className="field" style={{ flex: 1 }}>
-                  <label htmlFor="firstName">Ad</label>
-                  <Input
-                    id="firstName"
-                    type="text"
-                    name="firstName"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="field" style={{ flex: 1 }}>
-                  <label htmlFor="lastName">Soyad</label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    name="lastName"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              <div className="field">
-                <label htmlFor="email">E-posta Adresi</label>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  required
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="john@example.com"
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="password">Şifre</label>
-                <Input
-                  id="password"
-                  type="password"
-                  name="password"
-                  minLength={10}
-                  autoComplete="new-password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="En az 10 karakter"
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="confirmPassword">Şifre Tekrar</label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  name="confirmPassword"
-                  minLength={10}
-                  autoComplete="new-password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  placeholder="••••••••"
-                />
-              </div>
-
-              <Button
-                variant="default"
-                type="submit"
-                className="btn primary"
-                style={{ width: "100%", marginTop: "10px" }}
-                disabled={loading}
-              >
-                {loading ? "Hesap Oluşturuluyor..." : "Kayıt Ol"}
-              </Button>
-            </form>
-
-            <div
-              style={{
-                marginTop: "22px",
-                textAlign: "center",
-                fontSize: "13px",
-                color: "var(--muted-foreground)",
-              }}
-            >
-              Zaten hesabınız var mı?{" "}
-              <Link
-                to="/login"
-                style={{ color: "var(--brand)", fontWeight: 650 }}
-              >
-                Giriş yapın
-              </Link>
+      <div className="auth-sheet">
+        <h1>Hesap oluştur</h1>
+        <p className="auth-lead">
+          Hesap aç: defterin cihazlar arası eşitlesin, 10.000 kredi ve API
+          anahtarı al, sipariş geçmişini sakla.
+        </p>
+        <ul>
+          <li>Keşif defterin her cihazda aynı.</li>
+          <li>10.000 sanal kredi ve ticaret anahtarı.</li>
+          <li>Sipariş geçmişin kaybolmaz.</li>
+        </ul>
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
+        {success && (
+          <p className="auth-ok" role="status">
+            {success}
+          </p>
+        )}
+        <form onSubmit={handleSubmit} className="fields">
+          <div className="auth-name-row">
+            <div className="field">
+              <label htmlFor="firstName">Ad</label>
+              <Input
+                id="firstName"
+                type="text"
+                name="firstName"
+                required
+                value={formData.firstName}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="lastName">Soyad</label>
+              <Input
+                id="lastName"
+                type="text"
+                name="lastName"
+                required
+                value={formData.lastName}
+                onChange={handleChange}
+              />
             </div>
           </div>
-        </div>
-      </Card>
+          <div className="field">
+            <label htmlFor="email">E-posta Adresi</label>
+            <Input
+              id="email"
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="sen@ornek.com"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="password">Şifre</label>
+            <Input
+              id="password"
+              type="password"
+              name="password"
+              minLength={10}
+              autoComplete="new-password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="En az 10 karakter"
+            />
+          </div>
+          <div className="field">
+            <label htmlFor="confirmPassword">Şifre Tekrar</label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              minLength={10}
+              autoComplete="new-password"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="••••••••"
+            />
+          </div>
+          <Button
+            variant="default"
+            type="submit"
+            className="btn primary"
+            disabled={loading}
+          >
+            {loading ? "Hesap oluşturuluyor…" : "Hesap oluştur"}
+          </Button>
+        </form>
+        <p className="auth-switch">
+          Zaten hesabınız var mı? <Link to="/login">Giriş yapın</Link>
+        </p>
+      </div>
     </div>
   );
 }

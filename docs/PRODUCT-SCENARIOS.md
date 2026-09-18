@@ -14,7 +14,7 @@ Bu dosya mevcut yetenekleri anlatır. Planlanan bir özelliği yapılmış gibi 
 **Kişi:** Kimyayı merak eden ziyaretçi. **Gereken:** Hesap gerekmez; iki kurulumda da çalışır.
 
 1. Element atlasında “Demir” ara; Fe kartını aç.
-2. Önizlemeden “Elementi keşfet” ile ayrıntıya git.
+2. Önizlemeden “Tam kayıt” ile ayrıntıya git.
 3. Kullanım alanları, atom kütlesi ve elektron dizilimini incele. Fotoğraf/atom şeması arasında geçiş yap.
 4. “Atomik özellikler” bölümünü aç, ardından kaynak bağlantılarına bak.
 
@@ -24,21 +24,21 @@ Bu dosya mevcut yetenekleri anlatır. Planlanan bir özelliği yapılmış gibi 
 
 **Kişi:** İlk kez kullanan öğrenci. **Gereken:** Hesap gerekmez.
 
-1. Ana sayfada “İlk keşfini yap” bağlantısını aç.
-2. Laboratuvarda Hidrojen ve Oksijen kartlarını seç, “Birleştir”e bas.
+1. Ana sayfada “Laboratuvar” bağlantısını aç.
+2. Laboratuvarda hidrojeni iki kez, oksijeni bir kez seç; “Birleştir”e bas.
 3. Su keşfini ve H₂O formülünü incele; bileşik ayrıntısına geç.
 
-**Sonuç:** Koleksiyona bir keşif eklenir. Aynı eşleşmeyi tekrarlamak sayacı artırmaz. Bu kart tabanlı eğitim oyunudur; kart adedi stokiyometrik miktar veya uygulanabilir deney tarifi değildir.
+**Sonuç:** Koleksiyona bir keşif eklenir. Aynı formülü tekrarlamak sayacı artırmaz. Atom sayıları stoikiometriye uyar (2 H + 1 O → H₂O); bu yine de uygulanabilir bir laboratuvar deneyi tarifi değildir.
 
 ## 3. “Başladığım konuyu tamamlayıp anladığımı kontrol etmek istiyorum.”
 
 **Kişi:** Kısa, hedefli öğrenme isteyen kullanıcı. **Gereken:** Koleksiyon → Günlük maddeler rotası.
 
-1. H + O ile suyu; C + O ile karbondioksiti; N + H ile amonyağı keşfet. Her eşleşmeden önce alanı temizle.
+1. H’yi iki kez, O’yu bir kez seçerek suyu; C + 2 O ile karbondioksiti; N + 3 H ile amonyağı keşfet. Her denemeden önce alanı temizle.
 2. Koleksiyonda Günlük maddeler kartına dön.
 3. Açılan formül sorusunu yanıtla. Yanlış yanıttaki açıklamayı gör, doğru yanıtla rotayı tamamla.
 
-**Sonuç:** 3/18 keşif ve 1/3 tamamlanmış rota görünür; yeni malzemeler açılır. Tuzlar ve Oksitler diğer iki rotadır. Rota tamamlama sertifika veya ölçülmüş öğrenme başarısı iddiası taşımaz.
+**Sonuç:** 3/167 keşif ve 1/6 tamamlanmış rota görünür. Tuzlar, Oksitler, Oksiasitler, Karbon iskeleti ve Hava ve kaya diğer rotalardır. Rota tamamlama sertifika veya ölçülmüş öğrenme başarısı iddiası taşımaz.
 
 ## 4. “Hesap açmadan çalışmamı saklamak istiyorum.”
 
@@ -86,17 +86,17 @@ Bu dosya mevcut yetenekleri anlatır. Planlanan bir özelliği yapılmış gibi 
 
 **Kişi:** Araştıran ziyaretçi. **Gereken:** Atlas veya Bileşikler sayfası.
 
-1. Bir elementin ayrıntısından ilgili bileşiklere geç veya 51 kayıt içeren bileşik kütüphanesinde ara.
+1. Bir elementin ayrıntısından ilgili bileşiklere geç veya 167 kayıt içeren bileşik kütüphanesinde ara.
 2. Bileşik kaydında formül, yapı görseli, kullanım alanları ve bileşen elementlerini incele.
 3. Bileşen element bağlantısıyla tekrar element kaydına dön.
 
-**Sonuç:** Element–bileşik ilişkisi çift yönlü keşfedilir. Kütüphane 51 kayıttır; laboratuvardaki 18 keşifle aynı kapsam değildir. Formül oranı her zaman ayrı bir molekül anlamına gelmez.
+**Sonuç:** Element–bileşik ilişkisi çift yönlü keşfedilir. Kütüphane 167 kayıttır; 51’inin tam yapı görseli vardır. Formül oranı her zaman ayrı bir molekül anlamına gelmez.
 
 ## 9. “Sipariş sisteminin baştan sona çalıştığını göstermek istiyorum.”
 
 **Kişi:** Teknik demo izleyicisi. **Gereken:** Tam platform, geçici demo hesabı, çalışan kuyruk/servisler.
 
-1. Simülasyon demosundan mağazaya git. İlk kasa 10.000 KREDI ile başlar.
+1. Piyasa ve mağazadan mağazaya git. İlk kasa 10.000 KREDI ile başlar.
 2. Bir ürünün gram paketini sepete ekle ve sipariş ver.
 3. Siparişin ödeme, sevkiyat ve teslim durumlarını izle; varlıklarını kontrol et.
 4. Piyasa ekranında bir varlığın sanal satış akışını göster.
@@ -127,16 +127,36 @@ Bu dosya mevcut yetenekleri anlatır. Planlanan bir özelliği yapılmış gibi 
 
 **Kişi:** Bağlantı sorunu yaşayan ziyaretçi. **Gereken:** Tarayıcıda yüklenmiş uygulama; testte bilimsel API isteğini engelle.
 
-1. Atlasın temel tabloya döndüğünü ve bağlantı durumunu açıkladığını gör.
-2. Laboratuvarda H + O keşfini yap.
-3. API geri geldiğinde “Yeniden dene” ile ayrıntıları yükle.
+1. Atlas ve bileşik ayrıntıları yerel katalogdan açılır (PubChem tam anlık görüntü API’ye kalır).
+2. Laboratuvarda 2 H + 1 O keşfini yap.
+3. API geri geldiğinde canlı kayıt yerel kopyanın üzerine yazılır.
 
-**Sonuç:** Temel tablo ve keşif mantığı servis arızasında çalışır. Bu tam çevrimdışı/PWA desteği değildir; ilk sayfa ve varlıkların yüklenmesi gerekir.
+**Sonuç:** Tablo ve keşif, servis arızasında çalışır. Ayrıntı sayfası “Yeniden dene” duvarına düşmez. Bu tam çevrimdışı/PWA desteği değildir; ilk sayfa ve varlıkların yüklenmesi gerekir.
+
+## 13. “Bileşiğin adından formülü kurmak istiyorum.”
+
+**Kişi:** Stoikiometri çalışmak isteyen öğrenci. **Gereken:** Hesap gerekmez.
+
+1. Laboratuvarda **Formülü kur** oyununu aç veya bileşik kaydındaki “Formülü kur” bağlantısını kullan.
+2. Su için hidrojeni 2, oksijeni 1 yap; Kontrol et.
+3. Yanlış sayıda özgün açıklamayı oku; doğru olunca bilimsel kayda geç.
+
+**Sonuç:** Skor bu tarayıcıda kalır; keşif defterine yazılmaz. İyonik kayıtlarda formül birimi olduğu belirtilir.
+
+## 14. “İpuçlarından elementi bulmak istiyorum.”
+
+**Kişi:** Periyodik tablo konumunu pekiştirmek isteyen ziyaretçi. **Gereken:** Hesap gerekmez.
+
+1. Laboratuvarda **Element dedektifi**ni aç.
+2. İlk ipucuyla dene; gerekirse başka ipucu aç.
+3. Adı yaz veya dört adaydan birini seç; kayıt sayfasına geç.
+
+**Sonuç:** İpucu metni sembol veya adı sızdırmaz. İlk 36 element havuzdadır. Skor keşif koleksiyonuna karışmaz.
 
 ## Beş dakikalık sunum sırası
 
 1. **0:00–1:00:** Atlas → Demir → fotoğraf/özellik/kaynak.
-2. **1:00–2:30:** İlk keşif → H + O → su kaydı.
+2. **1:00–2:30:** İlk keşif → 2 H + 1 O → su kaydı.
 3. **2:30–3:30:** Koleksiyon → öğrenme rotası → kayıt indirme.
 4. **3:30–4:30:** API dokümanında gerçek istek ve alan seçimi.
 5. **4:30–5:00:** Tam platformda hesap eşitlemesi ve ayrı sanal ticaret kapsamını göster.

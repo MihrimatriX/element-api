@@ -43,7 +43,7 @@ test('navigation reaches collection and mobile drawer closes on navigation and E
     await expect(menu).toBeFocused();
     await menu.click();
   }
-  await page.getByRole('link', { name: 'Koleksiyonum', exact: true }).click();
+  await page.getByRole('link', { name: 'Defterim', exact: true }).click();
   await expect(page).toHaveURL(/\/collection$/);
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

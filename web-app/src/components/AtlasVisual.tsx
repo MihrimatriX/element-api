@@ -3,6 +3,53 @@ import { useState } from "react";
 import { Atom, Image as ImageIcon } from "lucide-react";
 import type { AtlasMedia } from "../services/science";
 
+const BEATS = {
+  water: [
+    ["H₂", "chip"],
+    ["+", "op"],
+    ["O", "chip"],
+    ["→", "op"],
+    ["H₂O", "chip"],
+  ],
+  salt: [
+    ["Na", "chip"],
+    ["+", "op"],
+    ["Cl", "chip"],
+    ["→", "op"],
+    ["NaCl", "chip"],
+  ],
+  rust: [
+    ["Fe", "chip"],
+    ["+", "op"],
+    ["O₂", "chip"],
+    ["→", "op"],
+    ["pas", "chip"],
+  ],
+  quartz: [
+    ["Si", "chip"],
+    ["+", "op"],
+    ["O₂", "chip"],
+    ["→", "op"],
+    ["SiO₂", "chip"],
+  ],
+} as const;
+
+export type WorkshopBeat = keyof typeof BEATS;
+
+export function WorkshopMarks({ beat = "water" }: { beat?: WorkshopBeat }) {
+  return (
+    <div className="lab-invitation-marks" aria-hidden="true">
+      {BEATS[beat].map(([text, kind], i) =>
+        kind === "chip" ? (
+          <span key={i}>{text}</span>
+        ) : (
+          <strong key={i}>{text}</strong>
+        ),
+      )}
+    </div>
+  );
+}
+
 export function AtomShell({
   symbol,
   shells = [],

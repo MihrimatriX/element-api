@@ -97,19 +97,18 @@ export default function Account() {
     return (
       <main className="page">
         {accountSeo}
-        <section className="hero compact">
-          <p className="kicker">Hesap</p>
-          <h1>API anahtarı ve cüzdan</h1>
-          <p className="lead">
-            Kayıt olunca hesabına 10.000 kredi yüklenir. API anahtarın da
-            oluşur.
-          </p>
-          <Button asChild variant="default">
-            <Link to="/login?returnTo=/account" className="btn primary">
-              Giriş
-            </Link>
-          </Button>
-        </section>
+        <p className="science-eyebrow">Hesap</p>
+        <h1>Hesabım · cüzdan, anahtarlar, webhook</h1>
+        <p>
+          10.000 kredi kasa. Giriş sana bir oturum jetonu verir; ilk
+          ticaret anahtarın otomatik üretilir. Bilimsel v2 anahtar
+          istemez; cüzdan v1 ister. Fe gramı keşif defterine yazılmaz.
+        </p>
+        <Button asChild variant="default">
+          <Link to="/login?returnTo=/account" className="btn primary">
+            Giriş
+          </Link>
+        </Button>
       </main>
     );
   }
@@ -117,11 +116,12 @@ export default function Account() {
   return (
     <main className="page account-page">
       {accountSeo}
-      <section className="hero compact">
-        <p className="kicker">Hesap</p>
-        <h1>Cüzdan ve anahtarlar</h1>
-        <p className="lead">Cüzdanın ve API anahtarların.</p>
-      </section>
+      <p className="science-eyebrow">Hesap</p>
+      <h1>Hesabım · cüzdan, anahtarlar, webhook</h1>
+      <p>
+        Kasa kredisi. JSON’da balanceElx görürsün; ekranda KREDI. Su
+        keşfi burayı değiştirmez.
+      </p>
 
       <section className="desk-quotes">
         <article>
@@ -152,13 +152,11 @@ export default function Account() {
           </Button>
         </p>
       )}
-      <div className="desk-grid">
+      <div className="learning-grid">
         <Card asChild className="gap-0 py-0 shadow-none">
-          <section className="panel">
-            <div className="panel-header">
-              <h2 style={{ margin: 0 }}>API anahtarları</h2>
-            </div>
-            <div className="panel-body fields">
+          <section className="learning-card account-card">
+            <h2>API anahtarları</h2>
+            <div className="fields">
               {freshKey && (
                 <p className="desk-msg">
                   Yeni anahtar (bir kez): <code>{freshKey}</code>
@@ -232,11 +230,9 @@ export default function Account() {
         </Card>
 
         <Card asChild className="gap-0 py-0 shadow-none">
-          <section className="panel">
-            <div className="panel-header">
-              <h2 style={{ margin: 0 }}>Webhook</h2>
-            </div>
-            <div className="panel-body fields">
+          <section className="learning-card account-card">
+            <h2>Webhook</h2>
+            <div className="fields">
               <p className="muted">
                 HTTPS URL. İmza: <code>X-Element-Signature</code> HMAC-SHA256.
               </p>

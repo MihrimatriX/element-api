@@ -1,6 +1,6 @@
 # Yerel geliştirme ve doğrulama
 
-Varsayılan: her servis kendi konteynerinde. `.cursor/rules/local-dev.mdc` geçerlidir. Tek satırlık UI/API doğrulaması için tüm imajları yeniden derleme.
+Varsayılan: her servis kendi konteynerinde. `.cursor/rules/local-dev.mdc` geçerlidir. Tek satırlık UI/API doğrulaması için tüm imajları yeniden derleme. Kutular: [servis kılavuzu](../SERVIS-KILAVUZU.md).
 
 ## Sunumu aç
 

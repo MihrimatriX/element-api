@@ -1,6 +1,6 @@
 # ElementAPI — ürün değerlendirmesi ve yol haritası
 
-> Bu belge başlangıç incelemesidir. Kod daha sonra değiştirildi. Güncel durum ve doğrulama için [uygulama kaydına](PRODUCT-DELIVERY.md), yerel gösterim için [sunum rehberine](LOCAL-PRESENTATION.md) bakın.
+> Bu belge başlangıç incelemesidir. Kod daha sonra değiştirildi. **17 Eylül 2026 güncel sayılar:** 118 element, 167 bileşik, 53 fotoğraf, 6 öğrenme rotası, laboratuvarda Birleştir + Formülü kur + Element dedektifi. Güncel durum: [uygulama kaydı](PRODUCT-DELIVERY.md), [ürün özeti](memory-bank/project-overview.md).
 
 14 Eylül 2026 · İncelenen başlangıç commit'i: `2774eac`.
 
@@ -18,10 +18,10 @@ Mevcut uygulamada önemli miktarda mühendislik var. Ürünleşmenin önündeki 
 
 | Alan | Kod/veride doğrulanan durum | Ürün değeri |
 |---|---|---|
-| Bilimsel atlas | 118 element, 51 bileşik; 169 kayıtta Türkçe editöryel özet | Kullanıcının doğrudan yararlanabileceği temel |
-| Görseller | 40 element fotoğrafı, 51 bileşik yapı görseli; başvurulan yerel medya dosyalarında eksik bulunmadı | Kuru JSON verisini anlaşılır içeriğe dönüştürüyor |
+| Bilimsel atlas | 118 element, 167 bileşik; kaynaklı Türkçe kayıt | Kullanıcının doğrudan yararlanabileceği temel |
+| Görseller | 53 element fotoğrafı, 51 bileşik yapı görseli (116 yeni kayıtta yapı PNG yok); başvurulan yerel medya dosyalarında eksik bulunmadı | Kuru JSON verisini anlaşılır içeriğe dönüştürüyor |
 | Keşif | Periyodik tablo, arama, kategori ve özellik görünümleri, element/bileşik ayrıntıları ve aralarındaki bağlantılar | Bir kayıttan diğerine anlamlı geçiş |
-| Laboratuvar | 6 başlangıç elementi, kademeli açılan 15 element, 18 keşif; tarayıcıda kalıcı ilerleme | En belirgin etkileşimli ürün adayı |
+| Laboratuvar | 118 element kartı, 167 keşif + Formülü kur + Element dedektifi; 6 rota; tarayıcıda kalıcı ilerleme | En belirgin etkileşimli ürün adayı |
 | Bilimsel API | v2, alan seçimi, filtreleme, sayfalama, ETag ve kaynak meta verisi | Başka uygulamalarda yeniden kullanım |
 | Ticaret demosu | Sanal kredi, fiyat simülasyonu, ürünler, sepet, sipariş, kasa, satış | Dağıtık sistem davranışlarını gösteren portföy değeri |
 | Güvenilir işlem altyapısı | Sipariş durum geçişleri, outbox, mesaj tekilleştirme, stok ayırma/serbest bırakma, bakiye iadesi | Korunması gereken teknik yatırım |

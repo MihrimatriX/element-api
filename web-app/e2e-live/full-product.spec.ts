@@ -16,6 +16,7 @@ test('real registration, cross-device collection and complete simulated purchase
   await expect(page).toHaveURL(/\/collection$/);
   await page.getByRole('link', { name: 'Laboratuvarı aç', exact: true }).click();
   await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
+  await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
   await page.getByRole('button', { name: 'Oksijen kartını seç' }).click();
   const saved = page.waitForResponse(r => r.url().endsWith('/auth/learning') && r.request().method() === 'PUT' && r.request().postData()?.includes('h2o') === true && r.status() === 200);
   await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
@@ -26,7 +27,7 @@ test('real registration, cross-device collection and complete simulated purchase
     await phone.getByLabel('E-posta Adresi').fill(email);
     await phone.getByLabel('Şifre', { exact: true }).fill(password);
     await phone.getByRole('button', { name: 'Giriş Yap', exact: true }).click();
-    await expect(phone.getByText('1 / 18 bileşik · 0 / 3 rota tamamlandı')).toBeVisible();
+    await expect(phone.getByText(/1 \/ \d+ bileşik · 0 \/ 6 rota tamamlandı/)).toBeVisible();
     await page.goto('/shop');
     const product = page.locator('.compound-grid article').first();
     await expect(product).toBeVisible();
@@ -71,7 +72,7 @@ test('real password rotation, private export and account deletion revoke access'
   expect((await page.request.get(`${api}/auth/export`, { headers: { Authorization: `Bearer ${old.token}` } })).status()).toBe(401);
   expect((await page.request.get(`${api}/me/holdings`, { headers: { 'X-API-Key': old.key } })).status()).toBe(401);
   await login(nextPassword);
-  await expect(page.getByText('1 / 18 bileşik · 0 / 3 rota tamamlandı')).toBeVisible();
+  await expect(page.getByText(/1 \/ \d+ bileşik · 0 \/ 6 rota tamamlandı/)).toBeVisible();
   await page.goto('/settings');
   const downloadEvent = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Hesap ve öğrenme verilerimi indir' }).click();

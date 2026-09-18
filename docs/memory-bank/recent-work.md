@@ -1,3 +1,153 @@
+# Son çalışma — 17 Eylül 2026 (ana sayfa ikinci tur)
+
+Kullanıcı `/` hâlâ slop buldu; tablo-odaklı kalıp kimlik eklendi. Commit yok.
+
+- Karşılama şeridi ("Periyodik tablo, ders kitabı değil tezgâh.") + El kitabı/Lab CTA'ları; "Günün elementi/bileşiği" (tarihten deterministik, `ponytail:` yorumlu, çevrimdışı çalışır); yapışkan filtre çubuğu; özenli boş durum. 2 dosya: `PeriodicExplorer.tsx`, `design-system.css`.
+- `/periodic` aynı bileşenin yalın hali. `npm test` 24/24, `tsc` temiz, `vite build` yeşil. Tarayıcı `:5173` doğrulandı (ekran görüntüsü alındı).
+
+---
+
+# Son çalışma — 17 Eylül 2026
+
+## Verify-close: de-slop + el kitabı + API kapanışı
+
+Üç kardeş track bitti; bu dilim yalnız doğrulama + kapanış. Commit yok.
+
+- `npm install` sonrası `npx tsc -b` temiz. Kök neden: `mergeRemote` generic kısıtı (`scienceCatalog.ts`) yalandı — fonksiyon her satır tipiyle çalışır, kısıt kalktı, okuma iç cast'e indi. `science.ts` değişmedi.
+- İkincil nav'a "Geliştiriciler" (`/developers`); kalan "Koleksiyonum" metinleri "Defterim"e çevrildi (ana nav, Lab dipnotu, atlas-only ekranı + 2 e2e spec). Demo/Settings zaten çevrilmişti.
+- Yeni `web-app/tests/handbook.test.mjs`: el kitabı iç bağlantılarının route karşılığı + `/developers` nav girişi + `public/openapi.json` kilidi.
+- `npm test` **24/24**, `npx vite build` yeşil (chunk/signalr uyarıları eski). `og.png` mevcut (1.4MB) — planın "eksik asset" tespiti bayattı, risk değil.
+
+---
+
+## Atlas kabuğu: defter şeridi + Spline/GSAP/Framer
+
+Kullanıcı admin dashboard kromunu (yan menü, sage SaaS) istemedi; sınıf posteri + 3D/animasyon istedi. Commit yok.
+
+- **Kabuk:** sabit sidebar yok. Yapışkan üst defter şeridi (`El` + ElementAPI + hap nav: Periyodik tablo / Bileşikler / Laboratuvar / Koleksiyonum, Daha fazla, Giriş yap). Altında aile rengi 8 px şerit. Ana sahne tablo. Mobil: `Menüyü aç` Sheet.
+- **Spline:** yalnız `/lab` keşif kartında (`SplineStage`, lazy). Sahne resmi Spline Next.js örneği `https://prod.spline.design/KFonZGtsoUXP-qx7/scene.splinecode` (~246KB, “design” maskot — atom değil). Ana inset’ten çıkarıldı (kimlik üzerine biniyordu). `canUseSpline`: WebGL + genişlik ≥768 + çekirdek >2 + reduced-motion kapalı; aksi halde AtlasVisual/foto/Bohr. 8s timeout + error boundary.
+- **GSAP:** tablo hücre stagger; lab `.lab-result` başarı. **Framer:** `MotionConfig reducedMotion="user"`, rota `RouteStage`, Kartlar tile, önizleme dialog. Aynı elemanda iki kütüphane yok.
+- **Bağımlılık:** `@splinetool/react-spline`, `@splinetool/runtime`, `gsap`, `framer-motion`.
+- Tarayıcı Vite `:5173`: `/` H+Fe önizleme + Tam kayıt, Kartlar, `/lab` H→H₂O Birleştir (Spline inset), `/element/fe`. 390: `Menüyü aç`, Spline yok. `npm --prefix web-app test` **23/23**. Playwright e2e bu dilimde çalıştırılmadı (etiketler duruyor).
+
+---
+
+## Üç takip: kicker, ponytail kesim, public host
+
+Kullanıcı “hepsini yapalım”: ALL-CAPS kicker öldü (cümle hali, slogan yok); 17 Eylül denetiminin **ölü** kesimleri uygulandı; `https://elements-api.ahmetfuzunkaya.com` için Caddy + `.env` taslağı. Commit/push yok. Ticaret yığını donduruldu, silinmedi. `chemistry.ts` solver’a dokunulmadı.
+
+- **A:** `.kicker` / `.science-eyebrow` `text-transform: none`; BİRLEŞTİR → Birleştir vb. E2E `Birleştir` / `İsteği gönder` duruyor. Hesap silme onayı `HESABIMI SİL` duruyor.
+- **B uygulandı:** catalog 118-satır Redis DTO cache (`CatalogCache` + GET cache); ölü `Values.tsx` / `Trading.tsx` / `ElementDetail.tsx`; `lab.ts` `unlockedElements` + `equationText`; test log 51 → gerçek sayı; PRODUCT-ROADMAP “bugün” 167/53/6 rota.
+- **B atlandı:** üç element kataloğu (tablo layout string hâlâ lazım); `start-local.ps1` (smoke/payment hâlâ işaret eder — belgelendi, silinmedi); identity JSON zaten web-app kopyası; IElementRepository / Identity.Core / PublicBaseUrl / MASS tablosu / Java ödeme.
+- **C:** `docker/.env.public.example`, `deploy/Caddyfile.elements-api.example`, [docs/PUBLIC-HOST.md](../PUBLIC-HOST.md). Komut: `docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build` sonra host Caddy. Compose `:443` yok.
+
+Tarayıcı Vite `:5173`: `/`, `/lab` (H₂O Birleştir), `/element/fe`, `/collection`, `/sozluk`, `/docs`, `/shop`; 390 `Menüyü aç`. `npm --prefix web-app test` **22/22**. Catalog `dotnet build` 0 uyarı.
+
+---
+
+## Servis README + kılavuz
+
+Uç tablosu jargonu yerine günlük dil. [docs/SERVIS-KILAVUZU.md](../SERVIS-KILAVUZU.md) tüm kutuları anlatır; her servis (science dahil) kendi README’sinde “ne yapar / ne yapmaz / nasıl açılır / bozulursa”. Kök katalog .NET 10 + science `:5080`. Commit yok.
+
+---
+
+## Ana: hücreler dolu, sınıf posteri
+
+Sage/beyaz SaaS slop: aile rengi 2 px şeritte kalıyordu. Hücreler `color-mix(--element-color)` doldu; hover scale; seçili çerçeve element rengi. Zemin krem kâğıt, marka H-pembe `El` kiremit, Laboratuvar mercan. Slogan/kicker yok.
+
+Tarayıcı Vite `:5173`: tablo dolu hücre, H tık → pembe inset + dialog, Kartlar, `/lab` H kartı tezgâh, `/element/fe`, 390 Menüyü aç. `npm --prefix web-app test` **22/22**.
+
+---
+
+## Tam yığın + arayüz (layout, kopya değil)
+
+Kullanıcı: tüm servisler çalışırken arayüz hâlâ kötü. Compose `up -d` (web imajı yok: :3000 Indie Valley). UI Vite `http://127.0.0.1:5173`. Gateway `:5000` Healthy, Fe 200. Host science `:5080` Fe 200. Servisler açık bırakıldı; `docker down` yok.
+
+Görsel (ikinci tasarım sistemi yok): koyu krom kabuk; auth `auth-sheet` (kart/panel yok, yinelenen marka rayı silindi); koleksiyon 6 rota kartı sol şerit + `--lesson-tint`; sözlük 25 kart; mağaza SKU koyu formül başlığı (tablo yok, Au süzünce 3 ürün); piyasa 118 `quote-tile` + bilet (tablo yok). Ana: `Periyodik tablo` + `İlk keşfini yap` (üç slogan kartı yok).
+
+Tarayıcı (tık): `/` CTA, Hidrojen önizleme → `/element/h`, bileşikler → `/compound/h2o`, sözlük, `/docs` İsteği gönder Fe JSON (Failed to fetch değil), `/lab` Birleştir + H tezgâh, `/lab/formula`, `/lab/detective`, koleksiyon `/ 6 rota`, giriş, mağaza, piyasa. Mobil 390: `Menüyü aç` çekmece + lab-modes kaydırılır, sayfa taşması yok. `npm --prefix web-app test` **22/22**.
+
+---
+
+## Ana sayfa: AI slop (koyu krom + slogan)
+
+`/` iniş sayfasıydı: koyu krom, kicker, şiir, tezgâh daveti, API şeridi. Silindi.
+
+- Kabuk açık (`#f4f5f1`). Marka `ElementAPI`. Nav `Periyodik tablo`.
+- Tablo önde; araç çubuğunda `Laboratuvar`. Önizleme `Tam kayıt`.
+- `WorkshopInvite` yok. E2E: `#main-content` Laboratuvar, `Tam kayıt`.
+
+---
+
+## Tam arayüz geçişi (görsel + yer)
+
+Kullanıcı yalnız kopya değişimini yetersiz buldu; tüm yüzey elden geçti. İkinci tasarım sistemi yok; shadcn + mevcut atlas/lab geometrisi. Slogan kart yığını geri gelmedi.
+
+- WorkshopMarks / `WorkshopInvite` kaldırıldı (ana). Grup renkleri `categorySwatches`, bileşik kartı grup tinti, lab kartı aile rengi.
+- Sözlük: 25 terim kart + bölüm atlama + “dene” linki + VSEPR’de su geometrisi.
+- Her üründe yer adı başlık (Hakkında, Kullanım rehberi, Mağaza, Geri bildirim…). E2E: `İlk keşfini yap`, `Birleştir`, `Hidrojen`, `İsteği gönder`, `0 / 6 rota`, playground Demir. `/docs` fetch/proxy’ye dokunulmadı (paralel düzeltme recent-work’te).
+- Tarayıcı Vite `:5173`: ana, lab (su birleştirme), sözlük, formül (NaCl), about/rehber/koleksiyon/bileşik/Fe/dedektif/docs/data/demo/geri bildirim/giriş/404/mağaza/piyasa. Mobil 390: sözlük kabuğu + lab drawer. `npm --prefix web-app test` 22/22. Commit yok.
+
+---
+
+## `/docs` playground fetch (Failed to fetch)
+
+Vite `:5173` playground `http://localhost:5000/api/v2/elements/fe` çağırıyordu; gateway ve atlas kapalıydı, CORS/Failed to fetch. Vite artık `/api/v2` → `127.0.0.1:5080` proxy’liyor; dev `SCIENCE_BASE_URL=/api/v2`. Curl sayfa origin’ini gösterir. Fe/H₂O GET için tam platform gerekmez; science `:5080` yeterli (şu an host `dotnet run`, atlas imajı yoktu). Tarayıcı: Fe 200 JSON, Su chip, ETag 304. `npm --prefix web-app test` 22/22.
+
+---
+
+## API dokümanı, sözlük, tezgâh dili
+
+Ponytail *denetimi* kod silmedi; bu dilimde de tüm-repo silme yok. Ticaret yığını duruyor.
+
+- `/docs`: v2 parametre tablosu (Türkçe), Fe + H₂O curl, ETag/304, 400/404 gövdeleri, playground’da Demir/Su ve “Aynı ETag ile sor”. KREDI vs legacy `*Elx` duruyor. Uydurma uç yok.
+- `/sozluk`: laboratuvar / API / kredi masası; formül birimi, stoikiometri, VSEPR, keşif ≠ reaksiyon, ETag, KREDI.
+- Kopya: slogan yığını yok. Su/tuz/pas, somut başlık. About’taki “üç rota” artık altı. `İsteği gönder` / `İlk keşfini yap` / `Birleştir` e2e etiketleri aynı.
+
+---
+
+## İçerik/oyun planı: 6 rota + iki oyun
+
+`content-and-games-plan.md` kalan ürün dilimi: Formülü kur, Element dedektifi, 3 ek rota, bileşik grup filtreleri, laboratuvar sıradaki hedef + kayıt türü sorusu.
+
+- Rotalar `web-app/src/data/lessons.json` (ön yüz + identity `Data/lessons.json`). Eski `everyday`/`salts`/`oxides` kimlikleri durur.
+- Oyun skorları `elementapi:games:v1`; keşif/rota JSON’una yazılmaz.
+- LearningController ders üst sınırı `Lessons.Count`; hesap eşitlemesi için identity imajı yeniden derlenmeli.
+- Bileşik listesi grup süzgeci formül/kullanımdan türetilir. 65 fotoğraf eksiği ve PubChem tam anlık görüntü bu dilimde yok.
+
+---
+
+## Laboratuvar formül sırası ve geometri
+
+Deneme alanı Hill/alfabetik torba sırası gösteriyordu (`O₂Si`, `ClNa`). `bagFormula` artık katalog formülünü (yoksa elektropositif/`writeFormula`) kullanır. SiO₂ kuvars ağı olarak etiketlenir. Keşif kartı + bileşik ayrıntısında VSEPR/ağ geometrisi (SVG, 3D yok). Katalog 167; izomerler hâlâ tek anahtar.
+
+---
+
+## Ponytail denetimi (kod silinmedi)
+
+Tüm servisler tarandı. Canvas: Cursor canvases `ponytail-audit.canvas.tsx`. Ölçülebilir kesim ~−480 satır, 0 bağımlılık; Java ödeme süreci satıra dahil değil (demo dondurulur). Uygulanan silme yok — laboratuvar geometrisi/formül sırası ayrı iş.
+
+Öne çıkanlar: üç element kataloğu; Redis önbelleği 118 satır için; `start-local.ps1`; README:21 ve PRODUCT-ROADMAP hâlâ 51/18; identity/compound imajı JSON gömülü. `chemistry.ts` solver’ına dokunulmadı.
+
+---
+
+## Atlas ayrıntısı API olmadan (Yeniden dene)
+
+Vite’de gateway yokken periyodik tablo yerelde çiziliyor, ayrıntı `useScience` ile `/api/v2` bekliyordu → “Temel tablo gösteriliyor / Yeniden dene”. `useScience` artık `scientific-elements.json` + `known-compounds.json` ile hemen kayıt gösteriyor; canlı API gelince üzerine yazar. 404 olan yeni bileşikler de yerel katalogdan açılır.
+
+---
+
+## Bileşik kataloğu ve laboratuvar (stoikiometri)
+
+Kullanıcı bileşik sayısını ve oyunun basitliğini yetersiz buldu. 18 tariflik iki kart eşleşmesi kalktı.
+
+- Katalog: **51 → 167** bilinen gerçek molekül (`web-app/src/data/known-compounds.json`). Mağaza SKU listesine otomatik ürün eklenmedi.
+- Oyun: element seç + atom sayısı + Birleştir. Başarı kaydı gösterir; başarısızlık oranı (`HO` vs `H2O`), kararsız stoikiometri veya soygaz olarak açıklanır. Hayali bileşik yok.
+- Doğrulama: `web-app/tests/chemistry.test.mjs` + `lab.test.mjs`. LearningController izin listesi aynı JSON’dan; hesap eşitlemesi için identity imajının yeniden derlenmesi gerekir.
+- Yeni bilimsel kayıtlarda yapı PNG yok (`media.structure: null`); 51 eski kayıtta yapı duruyor. PubChem tam anlık görüntü yeniler için sonradan `refresh-scientific-catalog.mjs`.
+
+---
+
 # Son çalışma — 15 Eylül 2026
 
 ## Varsayılan çalıştırma: tam Docker

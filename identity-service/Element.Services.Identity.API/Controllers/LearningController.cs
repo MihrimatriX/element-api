@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Element.Services.Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,9 @@ namespace Element.Services.Identity.API.Controllers;
 public sealed class LearningController(IdentityAppDbContext database) : ControllerBase
 {
     private const string Provider = "ElementLearning.v1";
-    private static readonly HashSet<string> Discoveries = ["h2o", "co2", "nh3", "hcl", "nacl", "naoh", "mgo", "cao", "kcl", "koh", "caco3", "al2o3", "sio2", "fe2o3", "fe3o4", "zno", "tio2", "agcl"];
-    private static readonly Dictionary<string, string[]> Lessons = new()
-    {
-        ["everyday"] = ["h2o", "co2", "nh3"], ["salts"] = ["nacl", "hcl", "kcl"], ["oxides"] = ["mgo", "cao", "fe2o3"]
-    };
+    // ponytail: allowlist is web-app JSON copied into the identity image (csproj Content). scientific-compounds.json is the compound-service snapshot, not a second allowlist.
+    private static readonly HashSet<string> Discoveries = LoadDiscoveries();
+    private static readonly Dictionary<string, string[]> Lessons = LoadLessons();
     public sealed record Progress(string[] Discoveries, string[] Lessons);
     private Guid UserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub")!);
 
@@ -27,7 +26,7 @@ public sealed class LearningController(IdentityAppDbContext database) : Controll
     [HttpPut]
     public async Task<ActionResult<Progress>> Merge(Progress progress, CancellationToken ct)
     {
-        if (progress.Discoveries is null || progress.Lessons is null || progress.Discoveries.Length > 18 || progress.Lessons.Length > 3
+        if (progress.Discoveries is null || progress.Lessons is null || progress.Discoveries.Length > Discoveries.Count || progress.Lessons.Length > Lessons.Count
             || progress.Discoveries.Any(id => !Discoveries.Contains(id)) || progress.Lessons.Any(id => id is null || !Lessons.ContainsKey(id)))
             return BadRequest(new { message = "İlerleme kaydı geçersiz." });
         var userId = UserId;
@@ -40,6 +39,21 @@ public sealed class LearningController(IdentityAppDbContext database) : Controll
             if (Lessons[id].All(merged.Discoveries.Contains)) await Insert(userId, "lesson:" + id, ct);
         await transaction.CommitAsync(ct);
         return await Read(userId, ct);
+    }
+    private static HashSet<string> LoadDiscoveries()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "Data", "known-compounds.json");
+        using var doc = JsonDocument.Parse(System.IO.File.ReadAllText(path));
+        return doc.RootElement.EnumerateArray().Select(item => item.GetProperty("slug").GetString()!).ToHashSet(StringComparer.Ordinal);
+    }
+    private static Dictionary<string, string[]> LoadLessons()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "Data", "lessons.json");
+        using var doc = JsonDocument.Parse(System.IO.File.ReadAllText(path));
+        return doc.RootElement.EnumerateArray().ToDictionary(
+            item => item.GetProperty("id").GetString()!,
+            item => item.GetProperty("discoveries").EnumerateArray().Select(value => value.GetString()!).ToArray(),
+            StringComparer.Ordinal);
     }
     private Task Insert(Guid userId, string name, CancellationToken ct) => database.Database.ExecuteSqlInterpolatedAsync(
         $"INSERT INTO \"AspNetUserTokens\" (\"UserId\", \"LoginProvider\", \"Name\", \"Value\") VALUES ({userId}, {Provider}, {name}, '1') ON CONFLICT DO NOTHING", ct);

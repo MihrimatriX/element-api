@@ -1,10 +1,20 @@
+import catalog from '../data/lessons.json' with { type: 'json' };
 import { normalizeDiscoveries } from './lab.ts';
 
-export const lessons = [
-  { id: 'everyday', title: 'Günlük maddeler', description: 'Su, karbondioksit ve amonyakta aynı elementin farklı bağlarını keşfet.', discoveries: ['h2o', 'co2', 'nh3'], question: 'H₂O formülü bize ne söyler?', choices: ['İki hidrojen ve bir oksijen atomu', 'İki oksijen ve bir hidrojen atomu', 'Hidrojen ve oksijenin eşit kütleleri'], answer: 0, explanation: 'Alt indis atom sayısını belirtir. Atom sayısı oranı, kütle oranı değildir.' },
-  { id: 'salts', title: 'Tuzlar ve iyonlar', description: 'Sodyum klorür, potasyum klorür ve hidrojen klorür arasındaki bağlantıları incele.', discoveries: ['nacl', 'hcl', 'kcl'], question: 'NaCl kristalindeki 1:1 oranı neyi anlatır?', choices: ['Ayrı NaCl moleküllerini', 'Sodyum ve klorür iyonlarının oranını', 'Eşit gram sodyum ve kloru'], answer: 1, explanation: 'İyonik kristalde formül birimi iyon oranını gösterir; ayrı bir molekülü temsil etmez.' },
-  { id: 'oxides', title: 'Metaller ve oksitler', description: 'Magnezyum, kalsiyum ve demirin oksijenle bağlantılarını kur.', discoveries: ['mgo', 'cao', 'fe2o3'], question: 'Gerçek pas için hangi ifade doğrudur?', choices: ['Her zaman tek ve saf bir bileşiktir', 'Yalnız demir metalinden oluşur', 'Farklı oksit ve hidroksitler içerebilir'], answer: 2, explanation: 'Oyunda hematiti keşfediyoruz. Gerçek pasın bileşimi ortam koşullarına göre değişir.' },
-] as const;
+export interface LessonQuestion {
+  question: string;
+  choices: string[];
+  answer: number;
+  explanation: string;
+}
+export interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  discoveries: string[];
+  questions: LessonQuestion[];
+}
+export const lessons = catalog as Lesson[];
 export interface LearningProgress { discoveries: string[]; lessons: string[] }
 export function normalizeLearning(value: unknown): LearningProgress {
   const record = value && typeof value === 'object' ? value as Partial<LearningProgress> : {};

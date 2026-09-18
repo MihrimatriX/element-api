@@ -3,12 +3,10 @@ using System.Threading.Tasks;
 using Element.Services.Element.Core.Domain;
 using Element.Services.Element.Core.Entities;
 using Element.Services.Element.Infrastructure.Persistence;
-using Element.Services.Element.Infrastructure.Services;
 using Element.Shared.Events;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 
 namespace Element.Services.Element.Infrastructure.Messaging.Consumers;
 
@@ -16,18 +14,15 @@ public class ElementSoldConsumer : IConsumer<ElementSoldEvent>
 {
     private readonly ElementDbContext _context;
     private readonly IPublishEndpoint _publishEndpoint;
-    private readonly IConnectionMultiplexer _redis;
     private readonly ILogger<ElementSoldConsumer> _logger;
 
     public ElementSoldConsumer(
         ElementDbContext context,
         IPublishEndpoint publishEndpoint,
-        IConnectionMultiplexer redis,
         ILogger<ElementSoldConsumer> logger)
     {
         _context = context;
         _publishEndpoint = publishEndpoint;
-        _redis = redis;
         _logger = logger;
     }
 
@@ -65,7 +60,6 @@ public class ElementSoldConsumer : IConsumer<ElementSoldEvent>
         });
         await _context.SaveChangesAsync();
         if (transaction != null) await transaction.CommitAsync();
-        await CatalogCache.EvictElementAsync(_redis, element.Symbol);
         await _publishEndpoint.Publish(new ElementPriceChangedIntegrationEvent(
             element.Symbol, newPrice, DateTime.UtcNow));
     }

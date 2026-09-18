@@ -1,26 +1,31 @@
-# shared-lib
+# Ortak kutu (`shared-lib`)
 
-Paylaşılan .NET 9 kütüphanesi — çalışan servis değildir.
+Çalışan bir servis değil. .NET projelerinin paylaştığı kod.
+
+> “Sağlık ucu her kutuda aynı dursun, kuyruk zarfı Node/Java ile uyuşsun” diye burası var.
+
+| | |
+|--|--|
+| **Çıktı** | `Element.Shared` kütüphanesi |
+| **Teknoloji** | .NET 10 |
+
+Kullananlar: gateway, identity, catalog, compound, shipment, notification. Order (Node) ve payment (Java) yalnız **olay isimlerini** taklit eder, bu DLL’i yüklemez.
 
 ---
 
-## Modüller
+## İçinde ne var?
 
-| Modül | İçerik |
-|-------|--------|
-| `Events/` | Entegrasyon event kayıtları |
-| `Extensions/LoggingExtensions` | Serilog JSON konsol log |
-| `Extensions/ServiceOpsExtensions` | **`/info`, `/health/live`, `/health/ready`** |
-| `Health/` | Compact `/health` JSON writer + RabbitMQ check |
-| `Middleware/` | Global exception handling |
+| Klasör | Düz dil |
+|--------|---------|
+| `Events/` | Sipariş/stok/ödeme olay tipleri. Kaynak gerçek. URN: `Element.Shared.Events:İsim` — isim değiştirmek migrasyon ister. |
+| `Extensions/ServiceOpsExtensions` | `/info`, `/health/live`, `/health/ready` |
+| `Health/` | Kısa `/health` JSON, Rabbit kontrolü |
 | `Messaging/` | `ConfigureRabbitMqHost` |
-| `Science/` | Bilimsel katalog yardımcıları (v2 `fields` / ETag) |
+| `Science/` | v2 `fields` / ETag yardımcısı (catalog + compound + science host) |
+| `Middleware/` | genel hata |
+| `Extensions/LoggingExtensions` | JSON konsol log |
 
----
-
-## Standart ops convention
-
-Tüm .NET servislerde:
+## Sağlık ucunu takmak
 
 ```csharp
 app.MapStandardOpsEndpoints("Element.MyService", new Dictionary<string, string>
@@ -29,40 +34,14 @@ app.MapStandardOpsEndpoints("Element.MyService", new Dictionary<string, string>
 });
 ```
 
-Bu şunları map eder:
-
-- `GET /info` — name, version, environment, links
-- `GET /health/live` — liveness (bağımlılık yok)
-- `GET /health/ready` — tüm health check'ler
-- `GET /health` — ready alias
-
-Health check'leri **önce** `AddHealthChecks()` ile kaydedin.
-
----
-
-## Polyglot sözleşme
-
-Node ve Java aynı envelope kullanır:
-
-- Namespace: `Element.Shared.Events:{MessageName}`
-- Tipler: `shared-lib/Events/`
-
----
-
-## Kullanan servisler
-
-gateway, identity, catalog, compound, shipment, notification
-
----
+Önce `AddHealthChecks()` kaydet. Canlılık bağımlılık sormaz; hazırlık DB/kuyruk sorar.
 
 ## Derleme
 
-```bash
+```powershell
 dotnet build shared-lib/Element.Shared.csproj
 ```
 
-Diğer projeler `ProjectReference` ile bağlanır.
+Başka proje `ProjectReference` ile bağlar. NuGet paketi yayınlanmaz.
 
----
-
-[← Ana README](../README.md)
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

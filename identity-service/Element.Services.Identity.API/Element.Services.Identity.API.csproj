@@ -20,5 +20,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Element.Services.Identity.Infrastructure\Element.Services.Identity.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\web-app\src\data\known-compounds.json" Link="Data\known-compounds.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\web-app\src\data\lessons.json" Link="Data\lessons.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 
 </Project>

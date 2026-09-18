@@ -19,4 +19,17 @@ export function pagePath(pathname: string, symbol?: string): string {
 }
 
 export const ACCOUNTS_ENABLED = import.meta.env.VITE_ACCOUNTS_ENABLED !== 'false';
-export const SCIENCE_BASE_URL = (import.meta.env.VITE_SCIENCE_API_BASE_URL ?? `${API_ORIGIN}/api/v2`).replace(/\/$/, '');
+export const SCIENCE_BASE_URL = (
+  import.meta.env.VITE_SCIENCE_API_BASE_URL ??
+  (import.meta.env.DEV ? '/api/v2' : `${API_ORIGIN}/api/v2`)
+).replace(/\/$/, '');
+
+/** Copy-paste host. Relative `/api/v2` (Vite proxy / atlas SPA) uses the page origin. */
+export function publicApiUrl(path: string): string {
+  const raw = path.startsWith('/api/v2')
+    ? SCIENCE_BASE_URL + path.slice(7)
+    : `${API_ORIGIN}${path}`;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  const origin = typeof window !== 'undefined' ? window.location.origin : getPublicSiteUrl();
+  return `${origin}${raw.startsWith('/') ? raw : `/${raw}`}`;
+}

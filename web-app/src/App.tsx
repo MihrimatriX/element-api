@@ -10,6 +10,7 @@ import {
   useContext,
   useEffect,
   useState,
+  type ReactNode,
 } from "react";
 import {
   BrowserRouter as Router,
@@ -20,6 +21,7 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
+import { motion, MotionConfig, useReducedMotion } from "framer-motion";
 const Settings = lazy(() => import("./pages/Settings"));
 const Recovery = lazy(() => import("./pages/Recovery"));
 const Feedback = lazy(() => import("./pages/Feedback"));
@@ -32,7 +34,7 @@ const PeriodicTable = lazy(() => import("./pages/PeriodicTable"));
 const Market = lazy(() => import("./pages/Market"));
 const Shop = lazy(() => import("./pages/Shop"));
 const ApiDocs = lazy(() => import("./pages/ApiDocs"));
-const ElementDetail = lazy(() => import("./pages/ElementDetail"));
+const Developers = lazy(() => import("./pages/Developers"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const Account = lazy(() => import("./pages/Account"));
@@ -43,6 +45,8 @@ const Glossary = lazy(() => import("./pages/Glossary"));
 const Compounds = lazy(() => import("./pages/Compounds"));
 const ScientificDetail = lazy(() => import("./components/ScientificDetail"));
 const Laboratory = lazy(() => import("./pages/Laboratory"));
+const LabFormula = lazy(() => import("./pages/LabFormula"));
+const LabDetective = lazy(() => import("./pages/LabDetective"));
 import { ACCOUNTS_ENABLED, HUB_URL } from "./config";
 import {
   type ElementItem,
@@ -288,6 +292,25 @@ export function SelectedElementProvider({
   );
 }
 
+function RouteStage({ children }: { children: ReactNode }) {
+  const reduce = useReducedMotion();
+  const { pathname } = useLocation();
+  const detail = /^\/(element|compound)\/[^/]+$/.test(pathname);
+  return (
+    <motion.div
+      key={pathname}
+      className="route-stage"
+      initial={reduce ? false : { opacity: 0, y: detail ? 8 : 0 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={
+        reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 32 }
+      }
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function LegacyRedirect({ to }: { to: string }) {
   const location = useLocation();
   return <Navigate to={`${to}${location.search}`} replace />;
@@ -295,15 +318,20 @@ function LegacyRedirect({ to }: { to: string }) {
 
 function FeatureUnavailable() {
   return (
-    <main className="science-detail">
+    <main className="science-detail page-miss">
       <h1>Bu kurulum keşif için hazır.</h1>
       <p>
         Hesap ve ticaret servisleri bu bağımsız atlas sürümünde açık değil.
-        Keşiflerini bu tarayıcıda sürdürebilirsin.
+        Keşiflerini bu tarayıcıda sürdürebilirsin. Su için iki H, bir O yeter.
       </p>
       <Button asChild variant="default">
-        <Link className="btn primary" to="/collection">
-          Koleksiyonuma dön
+        <Link className="btn primary" to="/lab">
+          Laboratuvara dön
+        </Link>
+      </Button>
+      <Button asChild variant="outline">
+        <Link className="btn" to="/collection">
+          Defterime dön
         </Link>
       </Button>
     </main>
@@ -345,7 +373,8 @@ function AppContent() {
             </main>
           }
         >
-          <Routes>
+          <RouteStage>
+            <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/periodic" element={<PeriodicTable />} />
             <Route
@@ -362,13 +391,16 @@ function AppContent() {
             />
             <Route path="/values" element={<LegacyRedirect to="/market" />} />
             <Route path="/trading" element={<LegacyRedirect to="/shop" />} />
-            <Route path="/element/:symbol" element={<ElementDetail />} />
+            <Route path="/element/:symbol" element={<ScientificDetail kind="elements" />} />
             <Route path="/compounds" element={<Compounds />} />
             <Route
               path="/compound/:slug"
               element={<ScientificDetail kind="compounds" />}
             />
             <Route path="/docs" element={<ApiDocs />} />
+            <Route path="/developers" element={<Developers />} />
+            <Route path="/lab/formula" element={<LabFormula />} />
+            <Route path="/lab/detective" element={<LabDetective />} />
             <Route path="/lab" element={<Laboratory />} />
             <Route
               path="/settings"
@@ -403,18 +435,27 @@ function AppContent() {
             <Route
               path="*"
               element={
-                <main className="page">
+                <main className="page page-miss">
                   <h1>Sayfa bulunamadı</h1>
-                  <p>Bu bağlantı artık geçerli olmayabilir.</p>
+                  <p>
+                    Bu bağlantı artık geçerli olmayabilir. Su hâlâ /lab, Demir
+                    hâlâ /element/fe.
+                  </p>
                   <Button asChild variant="default">
                     <Link className="btn primary" to="/">
                       Ana sayfaya dön
                     </Link>
                   </Button>
+                  <Button asChild variant="outline">
+                    <Link className="btn" to="/lab">
+                      Laboratuvar
+                    </Link>
+                  </Button>
                 </main>
               }
             />
-          </Routes>
+            </Routes>
+          </RouteStage>
         </Suspense>
       </div>
       <div className="toast" id="toast" role="status" aria-live="polite" />
@@ -424,11 +465,13 @@ function AppContent() {
 
 function App() {
   return (
-    <Router>
-      <SelectedElementProvider>
-        <AppContent />
-      </SelectedElementProvider>
-    </Router>
+    <MotionConfig reducedMotion="user">
+      <Router>
+        <SelectedElementProvider>
+          <AppContent />
+        </SelectedElementProvider>
+      </Router>
+    </MotionConfig>
   );
 }
 

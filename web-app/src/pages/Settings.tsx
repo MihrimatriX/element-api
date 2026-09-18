@@ -110,14 +110,15 @@ export default function Settings() {
     }
   }
   return (
-    <main className="science-detail">
+    <main className="science-detail settings-page">
       <Seo
         title="Hesap ayarları · ElementAPI"
         description="Hesap ve güvenlik ayarların."
         path="/settings"
         noIndex
       />
-      <h1>Hesap ayarları</h1>
+      <p className="science-eyebrow">Hesap</p>
+      <h1>Ayarlar · profil, güvenlik, veri</h1>
       {!isAuthenticated ? (
         <p>
           <Link to="/login?returnTo=/settings">
@@ -127,12 +128,16 @@ export default function Settings() {
       ) : (
         <>
           <p>
-            <Link to="/collection">Koleksiyonum</Link> ·{" "}
-            <Link to="/account">API anahtarları ve simülasyon kasası</Link>
+            Şifre ve hesap burada. Keşif defteri koleksiyonda; suyu yeniden
+            kurmana gerek yok.
+          </p>
+          <p>
+            <Link to="/collection">Defterim</Link> ·{" "}
+            <Link to="/account">Hesabım · cüzdan, anahtarlar, webhook</Link>
           </p>
           <div className="learning-grid">
-            <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
-              <article className="learning-card">
+            <Card asChild className="gap-0 py-0 shadow-none">
+              <article className="learning-card account-card">
                 <h2>Profil</h2>
                 {profile ? (
                   <>
@@ -166,8 +171,8 @@ export default function Settings() {
                 )}
               </article>
             </Card>
-            <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
-              <article className="learning-card">
+            <Card asChild className="gap-0 py-0 shadow-none">
+              <article className="learning-card account-card">
                 <h2>Şifreni değiştir</h2>
                 <form
                   className="fields"
@@ -214,8 +219,8 @@ export default function Settings() {
                 </form>
               </article>
             </Card>
-            <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
-              <article className="learning-card">
+            <Card asChild className="gap-0 py-0 shadow-none">
+              <article className="learning-card account-card">
                 <h2>Verilerin</h2>
                 <p>
                   Keşif kaydını koleksiyonundan indirebilirsin. Misafir
@@ -238,8 +243,8 @@ export default function Settings() {
                 <Link to="/collection">Keşif kaydımı aç</Link>
               </article>
             </Card>
-            <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
-              <article className="learning-card">
+            <Card asChild className="gap-0 py-0 shadow-none">
+              <article className="learning-card account-card">
                 <h2>Hesabını sil</h2>
                 <p>
                   Profilin, öğrenme kayıtların, API anahtarların ve webhook

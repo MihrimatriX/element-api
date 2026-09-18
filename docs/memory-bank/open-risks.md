@@ -1,14 +1,21 @@
-# Açık işler ve sınırlar — 15 Eylül 2026
+# Açık işler ve sınırlar — 17 Eylül 2026
 
-- **Çalıştırma:** varsayılan tam Docker (`present-platform` / compose); host `start-local` / `artifacts` birincil yol değil. Eski 3080 hibrit adresleri tarihsel.
-- **Yeni aktif ürün işi:** [İçerik/oyun/görsel planı](content-and-games-plan.md) sürüyor. Fotoğraflar 53/118; lab malzemelerinde yalnız H şemada. Bileşik sayısı, keşif/rota genişlemesi ve iki yeni oyun modu hâlâ açık. Önceki arayüz teslimi bu kapsamı kapatmaz.
-- **Öğrenme genişletme bağımlılığı:** LearningController 18 keşif ve 3 rota sınırını, izinli kimlikleri sabit tutuyor. Yalnız web kataloğunu artırmak yeni kayıtların sunucuda reddedilmesine yol açar; uyumlu kayıt geçişi gerekir.
-
-- **İnternet yayını yok:** kullanıcı henüz alan adı/sunucu sağlamadı; yerel sunum hedeflendi. DNS, TLS, public ağ ve üretim işletimi doğrulanmadı.
+- **Hareket dili:** Spline + GSAP kaldırıldı (paket + `src` temiz). Tek sistem Framer; `prefers-reduced-motion` saygısı duruyor. Keşif görseli foto varsa foto, yoksa AtomShell/formül.
+- **Ön yüz bağımlılıkları:** `@splinetool/*` + `gsap` düştü (`package-lock` tazelendi); `framer-motion` kaldı. Docker web imajı bu oturumda rebuild edilmedi; `:3000` eski bake ise yeni görsel dil yok.
+- **Çalışan yığın:** Element compose ayakta (postgres 5434, redis 6380, rabbit 5672/15672, identity 5001, catalog 5002, order 5003, shipment 5004, payment 5005, notification 5006, compound 5007, gateway 5000). **Docker web-app yok** — :3000 Indie Valley (PID 29784); ürün UI `http://127.0.0.1:5173`. Host science `:5080`. Gözlemlenebilirlik yok (`/metrics` 404).
+- **Dokümantasyon:** servis kılavuzu + klasör README’leri insan diline çekildi. Eski “.NET 9 / start-local günlük yol” cümleleri kök README’den silindi.
+- **Arayüz leftover:** mağaza/piyasa/demo hâlâ tezgâh; element kaydında “Bu kayıtta” TOC + Kredi simülasyonu + Piyasa/Mağaza; hesap `Giriş yap` (ACCOUNTS_ENABLED); CSS’te kullanılmayan `.workspace-breadcrumb`. `/demo` simülasyon, geri bildirim, data/coverage, About/Guide explainer, docs parametre tabloları (API için normal). Fiziksel telefon yok. Order compose `NODE_ENV=development` (kısa `INTERNAL_API_KEY` production’da reddedilir).
+- **Ponytail (17 Eylül, uygulandı kısmen):** catalog Redis DTO cache silindi. `start-local.ps1` duruyor (isteğe bağlı host döngüsü). Üç element kataloğu duruyor (layout string). Ticaret yığını donduruldu. `chemistry.ts` solver duruyor.
+- **API / sözlük:** `/docs` playground Vite’de same-origin `/api/v2` (proxy → `:5080`). Science kapalıysa tezgâh yine fail eder; gateway `:5000` Fe GET için gerekmez. Gateway’de `/api/v2/coverage` yok; gerekçe gateway README’sinde (kapsam element/bileşik kayıtlarından türetilir). Swagger catalog v1 hâlâ ayrı. Tam Docker `:3000` hâlâ bake edilmiş `VITE_*` kullanır (nginx `/api` proxy yok) — public host’ta Caddy `/api*` → `:5000`.
+- **Çalıştırma:** varsayılan tam Docker (`present-platform` / compose); host `start-local` isteğe bağlı. Public: [docs/PUBLIC-HOST.md](../PUBLIC-HOST.md) — `https://elements-api.ahmetfuzunkaya.com`, Compose TLS yok.
+- **İnternet yayını:** alan adı var; taslak Caddy + `docker/.env.public.example` hazır. Sunucuda gerçek sırlar, DNS ve `caddy run` ayrıca. Yerel UI hâlâ Vite `:5173`.
+- **Bileşik/oyun:** katalog 167; laboratuvar stoikiometri + Formülü kur + Element dedektifi; 6 rota. İzomerler (glikoz/fruktoz, etanol/dimetil eter) ayırt edilmez. Tam 3D yapı üreticisi yok.
+- **Identity imajı:** LearningController `known-compounds.json` + `lessons.json` okuyor. Bu oturumda identity yeniden derlendi (`System.IO.File`). Misafir / Vite laboratuvarı aynı JSON’a bakar.
 - **Resend bağlı değil:** tercih Resend; mevcut e-posta kodu SMTP gönderici altyapısını kullanır. Gerçek Resend API/SMTP seçimi, doğrulanmış domain ve teslimat testi sonraki iş. Yerelde kapalı özelliği gönderilmiş gibi gösterme.
 - **Gerçek kullanıcı testi yok:** öğrenci/öğretmen denemesi ve editöryel uzman değerlendirmesi yapılmadı. Otomasyon sonuçları öğrenme etkisi kanıtı değildir.
 - **Cihaz sınırı:** Chromium masaüstü ve mobil emülasyonu kullanıldı; fiziksel telefon, Safari ve Firefox doğrulaması ayrı iş.
-- **Veri kapsamı:** 53/118 fotoğraf, 51/51 bileşik yapı görseli. H bilerek şema (deşarj tüpü reddedildi). Üç element bölümü bütünüyle boş: elektromanyetik/optik, kristal yapı, bolluk. Eksikleri null koru; kapsamı src/data/coverage.json üretir.
+- **Veri kapsamı:** 53/118 fotoğraf, 51 yapı görseli / 167 bileşik. Yeni kayıtlarda `media.structure: null`. H bilerek şema. Üç element bölümü bütünüyle boş: elektromanyetik/optik, kristal yapı, bolluk. Eksikleri null koru; kapsamı src/data/coverage.json üretir.
+- **API imajı:** `scientific-compounds.json` 167 kayıt. compound-service yeniden derlenmeden v2 51 dönebilir. Ön yüz `useScience` yerel katalogla element/bileşik ayrıntısını açar; tam PubChem anlık görüntü ve bazı yapı PNG’leri yine API’ye kalır.
 - **Yedek sınırı:** PostgreSQL için ayrı geçici veritabanında 5 DB/26 tablo satır+hash doğrulaması yapıldı. Uzak/encrypted yedek, anahtar kurtarma, broker/Redis ve tam felaket kurtarma tatbikatı değildir.
 - **Hesap silme kapsamı:** profil/öğrenme/anahtar/webhook silinir; diğer servislerdeki simülasyon işlemleri, loglar ve eski yedekler ayrıca yaşam döngüsü gerektirir.
 - **Legacy alan CSS'i:** ortak kontroller shadcn/Radix temelli; bilimsel/periyodik düzenlerin eski CSS'i legacy katmanında kalır. Yeni stillerde token/bileşen kaynağını kullan, ikinci bir paralel kontrol sistemi kurma.

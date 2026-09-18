@@ -1,63 +1,55 @@
-# compound-service
+# Bileşik (`compound-service`)
 
-Bileşik / allotrop / preparat kataloğu (.NET 9). Fiyat ve stok catalog-service’te kalır.
+Moleküller ve mağaza etiketleri. **İki ayrı liste** vardır; karıştırma.
+
+> Laboratuvarda suyu keşfetmek eğitim kataloğuna bakar. Mağazada “AuCl₃ sat” SKU listesine bakar. 167 eğitim bileşiği otomatik ürün olmaz.
 
 | | |
 |--|--|
 | **Port** | `5007` |
-| **Discovery** | `GET /api/v1` |
-| **Swagger** | [localhost:5007/swagger](http://localhost:5007/swagger) |
-| **Info** | `GET /info` |
+| **Teknoloji** | .NET 10 |
+| **Veri** | `scientific-compounds.json` + Postgres `element_compound_db` |
+| **Kuyruk** | Yok |
 
-RabbitMQ yok. Gateway: `GET /api/v1/compounds/**` ve `GET /api/v2/compounds/**` (anahtarsız).
-
----
-
-## API
-
-### Bilimsel katalog (v2)
-
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/api/v2/compounds` | Liste — `q`, `view`, `include`, `fields`, `page`, `pageSize` |
-| GET | `/api/v2/compounds/{id}` | Tek kayıt — slug (`aspirin`) veya PubChem CID |
-
-Saf bileşikler; preparat/allotrop bu koleksiyona karışmaz. Atlas alanları + PubChem yapı görselleri `refresh-atlas.mjs` ile uygulanır.
-
-### Mağaza / SKU (v1)
-
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/api/v1/compounds` | Liste — `element`, `kind`, `q`, `page`, `pageSize` |
-| GET | `/api/v1/compounds/{slug}` | Tek kayıt (`aucl3`, `elemental-au`) |
-| GET | `/api/v1/elements/{symbol}/compounds` | Kolaylık: o elementin ürünleri |
-
-Fiyat = ana element alış × `priceMult` × gram. Bu servis çarpanı döner; sipariş fiyatını order-service hesaplar.
+Kapı: `GET /api/v2/compounds/**` ve `GET /api/v1/compounds/**` anahtarsız.
 
 ---
 
-## Ops
+## Bu kutu ne yapar?
 
-`/info`, `/health`, `/health/live`, `/health/ready`
+**Eğitim / bilim (v2).** 167 bilinen molekül. 51’inde tam PubChem anlık görüntü ve yapı PNG vardır; yenilerde bazı fiziksel/GHS alanları ve yapı görseli henüz boştur (`media.structure: null`). Allotrop ve preparat bu koleksiyona karışmaz.
 
----
+**Mağaza (v1).** Kısa SKU: `priceMult`, hangi elemente bağlı, slug (`aucl3`, `elemental-au`). Fiyat = ana element alış × çarpan × gram. Çarpanı bu kutu söyler; tutarı **order** hesaplar.
 
-## Bağımlılıklar
+## Ne yapmaz?
 
-| Kaynak | Açıklama |
-|--------|----------|
-| PostgreSQL `element_compound_db` | Compounds tablosu |
+Stok ve sanal borsa fiyatı catalog’dadır. Sipariş yazmaz. İzomerleri (glikoz/fruktoz) ayrı kayıt yapmaz.
 
----
+## Nasıl açılır?
 
-## Çalıştırma
-
-```bash
-dotnet run --project Element.Services.Compound.API/Element.Services.Compound.API.csproj
+```powershell
+dotnet run --project compound-service/Element.Services.Compound.API/Element.Services.Compound.API.csproj
 ```
 
-Yerel Postgres: `element_compound_db`. Compose portu `5007:8080`. Günlük yol: kök `start-local.ps1`.
+JSON 167’ye çıktıysa imajı yeniden derle; aksi halde API hâlâ 51 dönebilir. Ön yüz Vite’de yerel JSON ile kaydı yine açar.
 
----
+## Sık istekler
 
-[← Ana README](../README.md)
+```bash
+curl http://localhost:5000/api/v2/compounds/h2o
+curl "http://localhost:5000/api/v2/compounds?q=tuz"
+curl http://localhost:5000/api/v1/compounds/aucl3
+curl http://localhost:5000/api/v1/elements/au/compounds
+```
+
+v2 kimlik: slug (`aspirin`) veya PubChem CID.
+
+## Bozulursa
+
+| Belirti | Muhtemel neden |
+|---------|----------------|
+| v2 51 kayıt | Eski compound imajı |
+| Mağazada 167 ürün yok | Beklenen; SKU ayrı dosya |
+| Yapı resmi yok | Yeni kayıtta bilinçli null |
+
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

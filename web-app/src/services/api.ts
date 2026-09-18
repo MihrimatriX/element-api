@@ -43,9 +43,11 @@ async function request<T>(
     params?: Record<string, unknown>;
     headers?: Record<string, string>;
     timeout?: number;
+    retried?: boolean;
   }
 ): Promise<T> {
-  if (/^\/(me|orders|desk)(\/|$)/.test(path) && readStorage('token') && !readStorage('apiKey')) await apiKeyService.ensureDashboardKey();
+  const dashboard = /^\/(me|orders|desk)(\/|$)/.test(path);
+  if (dashboard && readStorage('token') && !readStorage('apiKey')) await apiKeyService.ensureDashboardKey();
   const requestedToken = readStorage('token');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), opts?.timeout ?? DEFAULT_TIMEOUT_MS);
@@ -66,6 +68,12 @@ async function request<T>(
       try { data = JSON.parse(text); } catch { data = text; }
     }
     if (res.status === 401 && requestedToken === readStorage('token') && !['/auth/login', '/auth/register'].includes(path) && (path.startsWith('/auth/') || path.startsWith('/api-keys') || path.startsWith('/webhooks'))) clearSession();
+    if (res.status === 401 && dashboard && !opts?.retried && readStorage('apiKey')) {
+      // ponytail: ölü pano anahtarı (başka cihazda iptal) tek denemede yenilenir; tutmazsa 401 kullanıcıya döner.
+      try { localStorage.removeItem('apiKey'); } catch { /* Storage disabled. */ }
+      await apiKeyService.ensureDashboardKey().catch(() => null);
+      return request<T>(method, path, { ...opts, retried: true });
+    }
     if (!res.ok) throw new ApiHttpError(res.status, data);
     return data as T;
   } finally {
@@ -116,10 +124,19 @@ export const apiKeyService = {
     if (!token) throw new ApiHttpError(401, null);
     if (pendingDashboardKey?.token === token) return pendingDashboardKey.promise;
     // Parallel wallet/order requests share one issuance; never attach an old user's key.
-    const promise = apiKeyService.generate('Web Dashboard Key', 10).then(result => {
+    const mint = () => apiKeyService.generate('Web Dashboard Key', 10).then(result => {
       if (readStorage('token') !== token) throw new ApiHttpError(401, null);
       localStorage.setItem('apiKey', result.apiKey);
       return result.apiKey;
+    });
+    const promise = mint().catch(async (error) => {
+      // 20 anahtar kotası doluysa en eski pano anahtarını emekli edip bir kez daha dene.
+      if (!(error instanceof ApiHttpError) || error.status !== 409) throw error;
+      const keys = await apiKeyService.list().catch(() => []);
+      const oldest = keys.filter(k => k.isActive && k.description === 'Web Dashboard Key').pop();
+      if (!oldest) throw error;
+      await apiKeyService.revoke(oldest.id);
+      return mint();
     });
     pendingDashboardKey = { token, promise };
     try { return await promise; }

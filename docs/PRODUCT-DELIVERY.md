@@ -7,7 +7,7 @@
 | Alan | Son davranış |
 |---|---|
 | Konumlandırma | Ana gezinme keşif, bileşik, laboratuvar ve koleksiyona odaklanır. API ikincil girişte; ticaret ayrı demo anlatımındadır. |
-| Öğrenme | Üç rota, ön koşullu sorular, 18 bileşik için koleksiyon ve kalıcı ilerleme. İndirme/yeniden yükleme mevcut ilerlemeyi birleştirir. |
+| Öğrenme | Altı rota, ön koşullu sorular, 167 bileşik için koleksiyon ve kalıcı ilerleme. İndirme/yeniden yükleme mevcut ilerlemeyi birleştirir. Formülü kur / Element dedektifi skorları ayrı yerel anahtardadır. |
 | Mobil | İlk iki kart ve Birleştir eylemi 390×844 ekranda erişilebilir; aşama şeridi ana eylemin sonrasına taşındı. |
 | Hesap | Varsayılan giriş/kayıt dönüşü koleksiyon. Kullanıcı bazlı yerel kayıt, açık misafir aktarımı ve sunucuda eklemeli eşitleme. |
 | Güvenlik | Hatalı giriş kilidi; kullanıcı/cihaz başına anahtar davranışı; tekil eşzamanlı anahtar üretimi; 20 etkin anahtar sınırı; veritabanından güncel anahtar doğrulama. |

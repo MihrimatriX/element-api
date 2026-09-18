@@ -66,7 +66,7 @@ export default function Seo({
       "robots",
       noIndex ? "noindex, nofollow" : "index, follow",
     );
-    upsertMeta("name", "theme-color", "#2B5F5E");
+    upsertMeta("name", "theme-color", "#e23d4a");
     upsertLink("canonical", url);
 
     upsertMeta("property", "og:type", ogType);
@@ -76,7 +76,7 @@ export default function Seo({
     upsertMeta("property", "og:description", description);
     upsertMeta("property", "og:url", url);
     upsertMeta("property", "og:image", image);
-    upsertMeta("property", "og:image:alt", "ElementAPI — kimya keşif atlası");
+    upsertMeta("property", "og:image:alt", "ElementAPI periyodik tablo");
     upsertMeta("property", "og:image:width", "1200");
     upsertMeta("property", "og:image:height", "630");
 

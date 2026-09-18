@@ -46,11 +46,11 @@ export default function Feedback() {
         path="/feedback"
         noIndex
       />
-      <p className="science-eyebrow">ÜRÜNÜ BİRLİKTE GELİŞTİRELİM</p>
-      <h1>Deneyim notların</h1>
+      <p className="science-eyebrow">Geri bildirim</p>
+      <h1>Geri bildirim</h1>
       <p className="lead">
-        İlk keşifte nerede zorlandın? Formüller hakkında yeni ne öğrendin? Bir
-        sonraki kullanımda ne görmek istersin?
+        Su kurulmadı mı, tuz formül birimi karıştı mı? Notu buraya yaz; kimseye
+        otomatik gitmez.
       </p>
       <div className="learning-grid">
         <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">

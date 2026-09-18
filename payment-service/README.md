@@ -1,79 +1,70 @@
-# payment-service
+# Ödeme işçisi (`payment-service`)
 
-Ödeme saga worker — RabbitMQ komut tüketicisi (Java 21 + Spring Boot 3.4).
+Kuyruktan “bu siparişi tahsil et” gelir. Kendi kasası yoktur; order’a “cüzdanından KREDI çek” der.
+
+> Dışarıdan kart numarası, Iyzico, Stripe yok. Kapı bu kutuya yol vermez.
 
 | | |
 |--|--|
-| **Port** | `5005` |
-| **Info** | `GET /info` veya `/actuator/info` |
-
-Gateway'den proxy edilmez — yalnızca mesaj tabanlı iş mantığı.
-
----
-
-## Sorumluluklar
-
-- `ProcessPaymentCommand` kuyruğunu dinler (`payment-processing`)
-- Order-service `POST /internal/wallet/debit` ile Kredi çeker
-- Başarı → `PaymentProcessedEvent`
-- Yetersiz bakiye → `PaymentFailedEvent` (legacy reason `INSUFFICIENT_ELX`; değerler KREDI — kök README)
-- Tek sipariş tavanı **50_000 KREDI**
-
-Kalıcı veritabanı yok.
+| **Port** | `5005` (sağlık için) |
+| **Teknoloji** | Java 21, Spring Boot 3.4 |
+| **Veritabanı** | Yok |
 
 ---
 
-## Endpoint'ler
+## Bu kutu ne yapar?
 
-| Method | Path | Açıklama |
-|--------|------|----------|
-| GET | `/info` | Servis metadata |
-| GET | `/health` | Readiness JSON (RabbitMQ) |
-| GET | `/actuator/health/liveness` | Liveness |
-| GET | `/actuator/health/readiness` | Readiness |
-| GET | `/actuator/info` | Spring info (version) |
+`ProcessPaymentCommand` dinler (`payment-processing` kuyruğu).
 
-Actuator yalnız `health` + `info` expose eder. Prometheus `/actuator/prometheus` ve Logstash **yok** (infra sadeleştirme).
+1. Tutar **50 000 KREDI** üstündeyse reddeder.
+2. `POST {order}/internal/wallet/debit` — aynı `order_id` iki kez çekilmez.
+3. Olursa `PaymentProcessedEvent`; yetmezse `PaymentFailedEvent`.
 
----
+Ekranda KREDI. Fail reason kabloda hâlâ `INSUFFICIENT_ELX`.
 
-## İş kuralları
+## Ne yapmaz?
 
-| Kural | Sonuç |
-|-------|-------|
-| Tutar > 50.000 KREDI | Red |
-| Cüzdan yetersiz | `INSUFFICIENT_ELX` (legacy reason; KREDI bakiyesi) |
+Kullanıcıya REST “öde” ucu sunmaz. Bakiyeyi kendi tablosunda tutmaz. Logstash / Prometheus actuator yok.
 
----
+## Nasıl açılır?
 
-## Bağımlılıklar
+Tam platform ile. Host:
 
-| Kaynak | Açıklama |
-|--------|----------|
-| RabbitMQ | Komut + event fanout |
-| order-service | Wallet debit/credit |
-
----
-
-## Çalıştırma
-
-```bash
-# Host (tercih) — kök start-local -IncludePayment
+```powershell
+# kök script payment’ı da açar
+./deploy/scripts/start-local.ps1 -IncludePayment
+# veya
+cd payment-service
 mvn spring-boot:run
 ```
 
-Docker healthcheck: `GET /health`. Eski `target/` Logstash XML içeriyorsa clean rebuild gerekir.
+Java/Maven host’ta yoksa testler `test-all.ps1 -PaymentDocker` ile konteynerde koşar.
 
----
+Eski `target/` artığı kafa karıştırırsa `mvn clean`.
 
-## Ortam değişkenleri
+## Sağlık
 
-| Değişken | Açıklama |
-|----------|----------|
-| `RABBITMQ_HOST` | RabbitMQ host |
-| `ORDER_SERVICE_URL` | order-service (wallet debit) |
-| `INTERNAL_API_KEY` | Internal debit header |
+| Yol | Anlamı |
+|-----|--------|
+| `GET /health` | Compose healthcheck; Rabbit |
+| `/actuator/health/liveness` | süreç |
+| `/actuator/health/readiness` | hazır |
+| `/info` veya `/actuator/info` | ad/sürüm |
 
----
+## Ortam
 
-[← Ana README](../README.md)
+| Değişken | Ne işe yarar |
+|----------|----------------|
+| `RABBITMQ_HOST` | kuyruk |
+| `ORDER_SERVICE_URL` | debit/credit |
+| `INTERNAL_API_KEY` | order iç kapısı |
+
+## Bozulursa
+
+| Belirti | Muhtemel neden |
+|---------|----------------|
+| Sipariş stok ayrıldı, para çekilmedi | bu kutu veya Rabbit |
+| 401 debit | anahtar order ile aynı değil |
+| Tavan reddi | 50 000 KREDI kuralı |
+
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

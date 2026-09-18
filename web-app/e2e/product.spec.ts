@@ -6,7 +6,7 @@ test('atlas uses real scientific records, search and linked details', async ({ p
   await page.getByRole('button', { name: 'Demir, Fe, atom numarası 26; önizle', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Demir Fe', exact: true })).toContainText('Demir');
-  await dialog.getByRole('link', { name: 'Elementi keşfet' }).click();
+  await dialog.getByRole('link', { name: 'Tam kayıt' }).click();
   await expect(page.getByRole('heading', { name: 'Demir', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Elektromanyetik ve optik' })).toHaveCount(0);
   await page.getByRole('checkbox', { name: 'Eksik alanları göster' }).check();
@@ -15,52 +15,70 @@ test('atlas uses real scientific records, search and linked details', async ({ p
 
 test('discover, reload, finish a learning route and download progress', async ({ page }) => {
   await page.goto('/lab');
-  for (const pair of [['Hidrojen', 'Oksijen'], ['Karbon', 'Oksijen'], ['Azot', 'Hidrojen']]) {
+  for (const steps of [
+    ['Hidrojen', 'Hidrojen', 'Oksijen'],
+    ['Karbon', 'Oksijen', 'Oksijen'],
+    ['Azot', 'Hidrojen', 'Hidrojen', 'Hidrojen'],
+  ]) {
     await page.getByRole('button', { name: 'Alanı temizle', exact: true }).click();
-    for (const name of pair) await page.getByRole('button', { name: `${name} kartını seç`, exact: true }).click();
+    for (const name of steps) await page.getByRole('button', { name: `${name} kartını seç`, exact: true }).click();
     await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
     await expect(page.getByRole('status', { name: 'Keşif sonucu' })).toContainText('Yeni keşif');
   }
   await page.reload();
   await expect(page.getByRole('progressbar', { name: 'Keşif ilerlemesi' })).toHaveAttribute('aria-valuenow', '3');
   if (await page.getByRole('button', { name: 'Menüyü aç' }).isVisible()) await page.getByRole('button', { name: 'Menüyü aç' }).click();
-  await page.getByRole('link', { name: 'Koleksiyonum', exact: true }).click();
+  await page.getByRole('link', { name: 'Defterim', exact: true }).click();
   const lesson = page.locator('article').filter({ has: page.getByRole('heading', { name: 'Günlük maddeler', exact: true }) });
   await lesson.getByRole('button', { name: 'İki oksijen ve bir hidrojen atomu', exact: true }).click();
   await expect(lesson.getByRole('status')).toContainText('Bir daha düşün');
   await lesson.getByRole('button', { name: 'İki hidrojen ve bir oksijen atomu', exact: true }).click();
   await expect(lesson).toContainText('Tamamlandı');
   await page.reload();
-  await expect(page.getByText('3 / 18 bileşik · 1 / 3 rota tamamlandı')).toBeVisible();
+  await expect(page.getByText(/3 \/ \d+ bileşik · 1 \/ 6 rota tamamlandı/)).toBeVisible();
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Kaydımı indir' }).click();
   expect((await download).suggestedFilename()).toBe('elementapi-koleksiyon.json');
 });
 
-test('locked material stays locked and duplicate discovery counts once', async ({ page }) => {
-  await page.goto('/lab?material=Fe');
-  await expect(page.getByText('Demir henüz açılmadı.', { exact: false })).toBeVisible();
+test('wrong ratio is rejected and duplicate discovery counts once', async ({ page }) => {
+  await page.goto('/lab');
   await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
   await page.getByRole('button', { name: 'Oksijen kartını seç' }).click();
+  await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
+  await expect(page.getByRole('status', { name: 'Keşif sonucu' })).toContainText('atom sayıları tutmuyor');
+  await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
   await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
   await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
   await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
 });
 
-test('API failure leaves a usable atlas and does not block discovery', async ({ page }) => {
+test('API failure still opens catalog details from local records', async ({ page }) => {
   await page.route('**/api/v2/**', route => route.abort());
   await page.goto('/');
-  await expect(page.getByText('Temel tablo gösteriliyor.', { exact: false })).toBeVisible();
-  await page.getByRole('link', { name: 'İlk keşfini yap', exact: false }).click();
+  await expect(page.getByText('Yeniden dene', { exact: true })).toHaveCount(0);
+  await page.getByRole('searchbox', { name: 'Element ara', exact: true }).fill('Demir');
+  await page.getByRole('button', { name: 'Demir, Fe, atom numarası 26; önizle', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByRole('heading', { name: 'Demir Fe', exact: true })).toContainText('Demir');
+  await expect(dialog.getByText('Ayrıntı yüklenemedi.', { exact: false })).toHaveCount(0);
+  await dialog.getByRole('link', { name: 'Tam kayıt' }).click();
+  await expect(page.getByRole('heading', { name: 'Demir', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Yeniden dene', exact: true })).toHaveCount(0);
+  await page.goto('/lab');
+  await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
   await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
   await page.getByRole('button', { name: 'Oksijen kartını seç' }).click();
   await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
   await expect(page.getByRole('status', { name: 'Keşif sonucu' })).toContainText('Yeni keşif: Su');
+  await page.getByRole('link', { name: 'Bilimsel kaydı aç' }).click();
+  await expect(page.getByRole('heading', { name: 'Su', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Yeniden dene', exact: true })).toHaveCount(0);
 });
 
 test('science profile has no fake account promise and the first action fits mobile', async ({ page }, info) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'İlk keşfini yap' }).click();
+  await page.locator('#main-content').getByRole('link', { name: 'Laboratuvar', exact: true }).click();
   await expect(page.getByRole('link', { name: 'Kayıt', exact: true })).toBeHidden();
   const button = page.getByRole('button', { name: 'Birleştir', exact: true });
   await expect(button).toBeVisible();
@@ -95,12 +113,13 @@ test('collection import merges progress and optional diagnostics stay local', as
   await page.getByRole('checkbox', { name: 'Bu cihazda deneme olaylarını kaydet' }).check();
   await page.goto('/lab');
   await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
+  await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
   await page.getByRole('button', { name: 'Oksijen kartını seç' }).click();
   await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
   await page.goto('/collection');
   await page.getByText('Koleksiyon dosyası aktar', { exact: true }).click();
   await page.getByLabel('İndirdiğin koleksiyonu geri yükle').setInputFiles({ name: 'progress.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify({ version: 1, discoveries: ['co2'], lessons: [] })) });
-  await expect(page.getByText('2 / 18 bileşik · 0 / 3 rota tamamlandı')).toBeVisible();
+  await expect(page.getByText(/2 \/ \d+ bileşik · 0 \/ 6 rota tamamlandı/)).toBeVisible();
   await page.goto('/feedback');
   const events = await page.evaluate(() => JSON.parse(localStorage.getItem('elementapi:diagnostics:v1') ?? '[]'));
   expect(events.some((event: { event: string }) => event.event === 'discovery_completed')).toBe(true);
@@ -115,8 +134,23 @@ test('disabled browser storage still allows discoveries for the current session'
   });
   await page.goto('/lab');
   await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
+  await page.getByRole('button', { name: 'Hidrojen kartını seç' }).click();
   await page.getByRole('button', { name: 'Oksijen kartını seç' }).click();
   await page.getByRole('button', { name: 'Birleştir', exact: true }).click();
   await expect(page.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
   await expect(page.getByText('Tarayıcı kaydı kapalı; ilerleme bu oturumda tutuluyor.', { exact: false })).toBeVisible();
+});
+
+test('formula and detective games stay off the discovery ledger', async ({ page }) => {
+  await page.goto('/lab/formula?compound=h2o');
+  await page.getByRole('button', { name: 'Hidrojen artır' }).click();
+  await page.getByRole('button', { name: 'Hidrojen artır' }).click();
+  await page.getByRole('button', { name: 'Oksijen artır' }).click();
+  await page.getByRole('button', { name: 'Kontrol et' }).click();
+  await expect(page.getByRole('status')).toContainText('Doğru');
+  await page.goto('/lab/detective?element=H');
+  await page.getByRole('button', { name: 'Hidrojen H', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Hidrojen');
+  await page.goto('/lab');
+  await expect(page.getByRole('progressbar', { name: 'Keşif ilerlemesi' })).toHaveAttribute('aria-valuenow', '0');
 });

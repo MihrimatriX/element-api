@@ -5,6 +5,7 @@ using Element.Services.Element.Core.Entities;
 
 namespace Element.Services.Element.Core.Abstractions;
 
+// ponytail: one EF adapter; fold this interface when a second store exists (same as compound).
 /// <summary>
 /// Read port over the element catalogue. The domain/application layers depend on
 /// this abstraction; the EF Core adapter lives in the Infrastructure project.

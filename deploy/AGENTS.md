@@ -2,9 +2,11 @@
 
 Moved from repo root — read when changing this codebase.
 
+İnsan dili: [docs/SERVIS-KILAVUZU.md](../docs/SERVIS-KILAVUZU.md). Her proje klasörünün README’si o kutuyu anlatır.
+
 ## Root = projects only
 
-`catalog-service`, `gateway-service`, `identity-service`, `notification-service`, `order-service`, `payment-service`, `shared-lib`, `shipment-service`, `web-app`, `deploy/`
+`catalog-service`, `compound-service`, `gateway-service`, `identity-service`, `notification-service`, `order-service`, `payment-service`, `science-service`, `shared-lib`, `shipment-service`, `web-app`, `deploy/`
 
 ## Build / test (no .sln)
 

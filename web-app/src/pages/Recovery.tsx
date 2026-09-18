@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -77,88 +76,84 @@ export default function Recovery({ verify = false }: { verify?: boolean }) {
       ? "Yeni şifreni belirle"
       : "Şifreni yenile";
   return (
-    <main className="auth-container">
+    <div className="auth-container">
       <Seo
         title={`${title} · ElementAPI`}
         description={title}
         path={verify ? "/verify-email" : "/reset-password"}
         noIndex
       />
-      <Card asChild className="gap-0 py-0 shadow-none">
-        <div className="panel auth-panel">
-          <div className="panel-body">
-            <h1>{title}</h1>
-            {enabled === null && (
-              <p role="status">Kurtarma seçenekleri kontrol ediliyor…</p>
-            )}
-            {enabled === false && (
-              <p role="status">
-                Bu kurulumda e-posta ile şifre kurtarma kullanılamıyor. Giriş
-                yapabildiğin bir oturum varsa hesap ayarlarından şifreni
-                değiştirebilirsin.
-              </p>
-            )}
-            {!done && enabled && (
-              <form className="fields" onSubmit={submit}>
+      <div className="auth-sheet">
+        <h1>{title}</h1>
+        <p className="auth-lead">
+          Keşif defteri tarayıcıda durur. Şifre, hesabın kablosunu yeniler —
+          suyu yeniden kurmana gerek yok.
+        </p>
+        {enabled === null && (
+          <p role="status">Kurtarma seçenekleri kontrol ediliyor…</p>
+        )}
+        {enabled === false && (
+          <p role="status">
+            Bu kurulumda e-posta ile şifre kurtarma kullanılamıyor. Giriş
+            yapabildiğin bir oturum varsa hesap ayarlarından şifreni
+            değiştirebilirsin.
+          </p>
+        )}
+        {!done && enabled && (
+          <form className="fields" onSubmit={submit}>
+            <label className="field">
+              E-posta
+              <Input
+                required
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </label>
+            {!verify && token && (
+              <>
                 <label className="field">
-                  E-posta
+                  Yeni şifre
                   <Input
                     required
-                    type="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    minLength={10}
+                    type="password"
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <small>En az 10 karakter.</small>
+                </label>
+                <label className="field">
+                  Yeni şifre tekrar
+                  <Input
+                    required
+                    minLength={10}
+                    type="password"
+                    autoComplete="new-password"
+                    value={repeat}
+                    onChange={(e) => setRepeat(e.target.value)}
                   />
                 </label>
-                {!verify && token && (
-                  <>
-                    <label className="field">
-                      Yeni şifre
-                      <Input
-                        required
-                        minLength={10}
-                        type="password"
-                        autoComplete="new-password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                      <small>En az 10 karakter.</small>
-                    </label>
-                    <label className="field">
-                      Yeni şifre tekrar
-                      <Input
-                        required
-                        minLength={10}
-                        type="password"
-                        autoComplete="new-password"
-                        value={repeat}
-                        onChange={(e) => setRepeat(e.target.value)}
-                      />
-                    </label>
-                  </>
-                )}
-                <Button
-                  variant="default"
-                  className="btn primary"
-                  disabled={busy}
-                >
-                  {busy
-                    ? "İşleniyor…"
-                    : verify
-                      ? "Adresimi doğrula"
-                      : token
-                        ? "Şifreyi yenile"
-                        : "Yenileme bağlantısı gönder"}
-                </Button>
-              </form>
+              </>
             )}
-            {message && <p role="status">{message}</p>}
-            <p>
-              <Link to="/login">Girişe dön</Link>
-            </p>
-          </div>
-        </div>
-      </Card>
-    </main>
+            <Button variant="default" className="btn primary" disabled={busy}>
+              {busy
+                ? "İşleniyor…"
+                : verify
+                  ? "Adresimi doğrula"
+                  : token
+                    ? "Şifreyi yenile"
+                    : "Yenileme bağlantısı gönder"}
+            </Button>
+          </form>
+        )}
+        {message && <p role="status">{message}</p>}
+        <p className="auth-switch">
+          <Link to="/login">Girişe dön</Link>
+        </p>
+      </div>
+    </div>
   );
 }

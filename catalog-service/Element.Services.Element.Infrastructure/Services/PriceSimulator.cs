@@ -9,24 +9,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using StackExchange.Redis;
 
 namespace Element.Services.Element.Infrastructure.Services;
 
 public class PriceSimulator : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IConnectionMultiplexer _redisMultiplexer;
     private readonly ILogger<PriceSimulator> _logger;
     private readonly Random _random;
 
     public PriceSimulator(
         IServiceScopeFactory scopeFactory,
-        IConnectionMultiplexer redisMultiplexer,
         ILogger<PriceSimulator> logger)
     {
         _scopeFactory = scopeFactory;
-        _redisMultiplexer = redisMultiplexer;
         _logger = logger;
         _random = new Random();
     }
@@ -80,8 +76,6 @@ public class PriceSimulator : BackgroundService
 
             _logger.LogInformation("Market change: {Name} ({Symbol}) price changed from ${Old} to ${New} ({Change:P2})",
                 element.Name, element.Symbol, oldPrice, newPrice, percentageChange);
-
-            await CatalogCache.EvictElementAsync(_redisMultiplexer, element.Symbol);
 
             // Publish Integration Event for Order Service or other consumers
             await publishEndpoint.Publish(new ElementPriceChangedIntegrationEvent(

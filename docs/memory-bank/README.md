@@ -1,8 +1,8 @@
 # Memory bank
 
-Güncel ürün ve geliştirme bağlamı. Son güncelleme: 15 Eylül 2026.
+Güncel ürün ve geliştirme bağlamı. Son güncelleme: 17 Eylül 2026.
 
-**Aktif iş:** [Bileşikler, oyunlar ve element görselleri](content-and-games-plan.md). İlk 6 element fotoğrafı eklendi (46/118). Bileşikler, oyunlar ve kalan görseller için plan devam ediyor.
+**Aktif iş:** Formülü kur + Element dedektifi + 6 rota (17 Eylül 2026). Katalog 167. Görseller 53/118.
 
 | Dosya | İçerik |
 |---|---|
@@ -15,6 +15,6 @@ Güncel ürün ve geliştirme bağlamı. Son güncelleme: 15 Eylül 2026.
 | [decisions.md](decisions.md) | Korunması gereken ürün ve sözleşme kararları |
 | [open-risks.md](open-risks.md) | Doğrulanmamış işler ve yayın öncesi eksikler |
 
-[Medya envanteri](../ELEMENT-MEDIA-INVENTORY.md) · [Ürün senaryoları](../PRODUCT-SCENARIOS.md) · [Yerel doğrulama](../LOCAL-VERIFICATION.md) · [Sunum rehberi](../LOCAL-PRESENTATION.md).
+[Servis kılavuzu](../SERVIS-KILAVUZU.md) · [Medya envanteri](../ELEMENT-MEDIA-INVENTORY.md) · [Ürün senaryoları](../PRODUCT-SCENARIOS.md) · [Yerel doğrulama](../LOCAL-VERIFICATION.md) · [Sunum rehberi](../LOCAL-PRESENTATION.md).
 
 Eski tarihli notlar güncel durum değildir. Özellikle portlar, test sayıları ve çalışma profilleri için güncel dosyaları esas al.

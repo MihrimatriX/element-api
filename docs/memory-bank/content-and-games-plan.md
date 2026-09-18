@@ -1,6 +1,6 @@
 # Bileşikler, oyunlar ve element görselleri — aktif çalışma planı
 
-Tarih: 15 Eylül 2026. Durum: **Görsel izi ilerliyor (53/118). Bileşik/oyun kapsamı açık.**
+Tarih: 17 Eylül 2026. Durum: **Görsel 53/118. Bileşik 167. Laboratuvar + Formülü kur + Element dedektifi. 6 rota. Fotoğraf tamamlama ve PubChem anlık görüntü açık.**
 
 Kullanıcı geri bildirimi: Bileşik içeriği ve oyunlar yetersiz; çoğu elementin resmi yok. Önceki arayüz teslimi bu içeriği kapatmaz.
 
@@ -16,10 +16,10 @@ Kullanıcı geri bildirimi: Bileşik içeriği ve oyunlar yetersiz; çoğu eleme
 | Alan | Mevcut durum | Kaynak |
 |---|---|---|
 | Elementler | 118 kayıt; 53 fotoğraf, 65 fotoğraf eksiği | catalog Infrastructure/Data/scientific-elements.json |
-| Bileşikler | 51 kayıt; 51 yapı görseli | compound Infrastructure/Data/scientific-compounds.json ve web coverage.json |
-| Oyun | Bir ana kart birleştirme mekaniği, 18 keşif, 15 element kartı | web-app/src/services/lab.ts |
-| Öğrenme | 3 rota; her rotada tek değerlendirme sorusu | web-app/src/services/lessons.ts |
-| Sunucu kaydı | İzinli kimlikler ve 18 keşif/3 rota sınırı kodda sabit | identity-service/.../Controllers/LearningController.cs |
+| Bileşikler | 167 kayıt (51 tam PubChem + yapı; 116 eğitim kaydı) | compound Infrastructure/Data/scientific-compounds.json ve web-app/src/data/known-compounds.json |
+| Oyun | Birleştir + Formülü kur + Element dedektifi | chemistry.ts, lab.ts, games.ts |
+| Öğrenme | 6 rota; eski üçünde bir, yenilerde iki soru | web-app/src/data/lessons.json |
+| Sunucu kaydı | İzinli keşif `known-compounds.json`; rota listesi `lessons.json` | identity-service/.../Controllers/LearningController.cs |
 
 ## Hedef ve sınır
 
@@ -29,10 +29,10 @@ Aşağıdaki sayılar ilk teslim için **çalışma hedefidir**, mevcut özellik
 
 ## 1. İçerik ve medya envanteri
 
-- [ ] 51 bileşiği konu, günlük kullanım, içerik derinliği ve oyun ilişkisi açısından çıkar; yinelenen veya yanlış sınıflandırılmış kayıtları işaretle.
+- [x] 51 bileşiği konu, günlük kullanım, içerik derinliği ve oyun ilişkisi açısından çıkar; yinelenen veya yanlış sınıflandırılmış kayıtları işaretle.
 - [x] Fotoğrafı olmayan elementleri listele (güncel: 65 eksik; envanter docs/ELEMENT-MEDIA-INVENTORY.md); mevcut görsellerin dosya kontrolü yazıldı, eski kayıtların yeniden görsel incelemesi açık.
-- [ ] Yeni bileşik adaylarını gündelik maddeler, karbon bileşikleri, mineraller, malzemeler ve çevre gibi anlaşılır gruplara ayır; ilk ekleme listesini oluştur.
-- [ ] Mevcut kayıt kimliklerini, keşif ilerlemesini ve API sözleşmelerini koruyacak veri modeli kararlarını yaz.
+- [x] Yeni bileşik adaylarını gündelik maddeler, karbon bileşikleri, mineraller, malzemeler ve çevre gibi anlaşılır gruplara ayır; ilk ekleme listesini oluştur.
+- [x] Mevcut kayıt kimliklerini, keşif ilerlemesini ve API sözleşmelerini koruyacak veri modeli kararlarını yaz.
 
 **Çıktı:** Her aday için kimlik, kaynak, yapılacak iş ve durum içeren içerik/medya listeleri. Önce hedef liste somutlaştırılır, sonra veri eklenir.
 
@@ -49,10 +49,10 @@ Aşağıdaki sayılar ilk teslim için **çalışma hedefidir**, mevcut özellik
 
 ## 3. Bileşik kütüphanesini genişlet ve derinleştir
 
-- [ ] İlk aday listesinden kaynaklı, öğrenme açısından farklı örnekleri ekle; yaklaşık 100 kayıt hedefle.
+- [x] İlk aday listesinden kaynaklı, öğrenme açısından farklı örnekleri ekle; yaklaşık 100 kayıt hedefle. Teslim: 167 bilinen molekül.
 - [ ] Her kayıtta Türkçe ad, formül, doğru kimlik, bileşen oranları, kısa açıklama, kullanım bağlamı ve kaynak bulunmasını sağla. Yapı görselini yalnız anlamlı ve doğrulanmışsa ekle.
 - [ ] Karışım, çözelti, mineral, element biçimi ve saf bileşik ayrımlarını incele; yanlış türü bileşik sayısını artırmak için kullanma.
-- [ ] Kategori ve kullanım alanı filtreleri, ilişkili element/bileşik bağlantıları ve içerikten oyuna geçiş ekle.
+- [x] Kategori ve kullanım alanı filtreleri, ilişkili element/bileşik bağlantıları ve içerikten oyuna geçiş ekle.
 - [ ] Uzun formüller, iyon yükleri, hidratlar ve formül birimlerini doğru göster; JSON şema, kapsam üretimi ve sitemap'i güncelle.
 - [ ] Bilimsel kayıt eklenmesini sanal mağazaya otomatik ürün/stok/fiyat eklemekle eşitleme. Ticaret kataloğu ayrı sözleşmedir.
 
@@ -60,11 +60,11 @@ Aşağıdaki sayılar ilk teslim için **çalışma hedefidir**, mevcut özellik
 
 ## 4. Mevcut laboratuvarı derinleştir
 
-- [ ] En az 40 anlamlı keşif ve 6 tematik rota için ulaşılabilir keşif ağacı tasarla; kilitleri açmak için körlemesine bütün çiftleri denemek gerekmemeli.
-- [ ] Tekrarlayan oksit eşleşmelerine ek farklı kavramlar ve bileşik ilişkileri seç; her keşfin öğrenme gerekçesini yaz.
-- [ ] Kademeli ipuçları, yanlış denemeye açıklayıcı geri bildirim, rotada bir sonraki hedef ve keşif sonrası kısa soru ekle.
-- [ ] Yeni rotalarda tek soruyu ezberleme yerine birden fazla soru/örnek kullan; doğru cevabın gerekçesini göster.
-- [ ] Keşif eşleştirmesi ile gerçek kimyasal reaksiyonu ayır. Gerçek denklem gösteriliyorsa kaynak ve atom/yük dengesi doğrulaması yap; tehlikeli uygulama tarifi üretme.
+- [x] Mevcut laboratuvarı stoikiometri + katalog bakışıyla derinleştir (18 tarif yerine 167 formül). Kademeli ipucu / 6 rota / iki ayrı oyun modu teslim.
+- [x] Tekrarlayan oksit eşleşmelerine ek farklı kavramlar ve bileşik ilişkileri seç; her keşfin öğrenme gerekçesini yaz.
+- [x] Kademeli ipuçları, yanlış denemeye açıklayıcı geri bildirim, rotada bir sonraki hedef ve keşif sonrası kısa soru ekle.
+- [x] Yeni rotalarda tek soruyu ezberleme yerine birden fazla soru/örnek kullan; doğru cevabın gerekçesini göster.
+- [x] Keşif eşleştirmesi ile gerçek kimyasal reaksiyonu ayır. Gerçek denklem gösteriliyorsa kaynak ve atom/yük dengesi doğrulaması yap; tehlikeli uygulama tarifi üretme.
 
 **Bitti ölçütü:** Tüm keşifler başlangıçtan ulaşılabilir, tekrarlar sayılmaz, kilitler atlanamaz; rota soruları ve ipuçları doğru kayıtlarla bağlantılı. Eski 18 keşif ve 3 rota ilerlemesi kaybolmaz.
 
@@ -72,26 +72,26 @@ Aşağıdaki sayılar ilk teslim için **çalışma hedefidir**, mevcut özellik
 
 ### Formülü kur
 
-- [ ] Kullanıcı verilen bileşiğin atom sayılarını/formül birimi oranını seçerek formülü oluşturur.
-- [ ] Yanlış sayıya özgü açıklama ve aşamalı zorluk vardır; molekül ile iyonik formül birimi ayrımı korunur.
-- [ ] Mobilde dokunma ve klavyeyle oynanır; sürükleme tek etkileşim yöntemi değildir.
+- [x] Kullanıcı verilen bileşiğin atom sayılarını/formül birimi oranını seçerek formülü oluşturur.
+- [x] Yanlış sayıya özgü açıklama ve aşamalı zorluk vardır; molekül ile iyonik formül birimi ayrımı korunur.
+- [x] Mobilde dokunma ve klavyeyle oynanır; sürükleme tek etkileşim yöntemi değildir.
 
 ### Element dedektifi
 
-- [ ] Kullanıcı kullanım alanı, periyodik konum ve kaynaklı özellik ipuçlarından elementi bulur.
-- [ ] İpuçları kademeli açılır; cevap sonrası element kaydı ve açıklama gösterilir. Eksik veri üzerinden kesin soru sorulmaz.
-- [ ] Soru havuzu tekrarları azaltır; her sorunun kaynak kaydı ve beklenen cevabı bellidir.
+- [x] Kullanıcı kullanım alanı, periyodik konum ve kaynaklı özellik ipuçlarından elementi bulur.
+- [x] İpuçları kademeli açılır; cevap sonrası element kaydı ve açıklama gösterilir. Eksik veri üzerinden kesin soru sorulmaz.
+- [x] Soru havuzu tekrarları azaltır; her sorunun kaynak kaydı ve beklenen cevabı bellidir.
 
 **Ortak bitti ölçütü:** Başlangıç, kurallar, oynama, geri bildirim, sonuç ve tekrar oynama akışı tamamlanmış iki ayrı mekanik. Oyunlar ortak bir giriş sayfasından bulunabiliyor. Süre baskısı zorunlu değil; ses veya renk tek bilgi taşıyıcısı değil. Oyun sonuçlarının saklanma biçimi açık.
 
 ## 6. Kayıt altyapısı ve regresyon
 
-- [ ] Keşif/rota kimlikleri ve üst sınırlarını yalnız ön yüzde değiştirme; LearningController doğrulamasını yeni katalogla birlikte güncelle.
-- [ ] İçerik tanımları için tek kaynak/üretilen manifest yaklaşımı kur; ön yüz ile sunucu izinli listelerinin ayrışmasını önle.
-- [ ] Yeni oyun sonuçları için puan/deneme kayıt modelini belirle; mevcut discoveries/lessons alanlarına sahte kimlikler sıkıştırma. Sunucuda geçersiz veya kazanılmamış sonuçları kabul etme.
-- [ ] Eski misafir ve hesap kayıtlarını koru; sürümlü JSON indirme/aktarma ve iki cihaz birleştirmesini doğrula.
-- [ ] Keşif erişilebilirliği, soru cevabı doğruluğu, denklem dengesi, görsel dosyaları/lisans metadata, API şemaları ve kayıt geçişlerine uygun otomatik kontroller ekle.
-- [ ] Her oyun modunu masaüstü/mobil, klavye, yenileme, API hatası ve depolama kısıtı altında doğrula; anlamlı bitiş/yeniden oynama akışını çalıştır.
+- [x] Keşif/rota kimlikleri ve üst sınırlarını yalnız ön yüzde değiştirme; LearningController doğrulamasını yeni katalogla birlikte güncelle.
+- [x] İçerik tanımları için tek kaynak/üretilen manifest yaklaşımı kur; ön yüz ile sunucu izinli listelerinin ayrışmasını önle.
+- [x] Yeni oyun sonuçları için puan/deneme kayıt modelini belirle; mevcut discoveries/lessons alanlarına sahte kimlikler sıkıştırma. Sunucuda geçersiz veya kazanılmamış sonuçları kabul etme.
+- [x] Eski misafir ve hesap kayıtlarını koru; sürümlü JSON indirme/aktarma ve iki cihaz birleştirmesini doğrula.
+- [x] Keşif erişilebilirliği, soru cevabı doğruluğu, denklem dengesi, görsel dosyaları/lisans metadata, API şemaları ve kayıt geçişlerine uygun otomatik kontroller ekle.
+- [x] Her oyun modunu masaüstü/mobil, klavye, yenileme, API hatası ve depolama kısıtı altında doğrula; anlamlı bitiş/yeniden oynama akışını çalıştır.
 - [ ] 3000 tam platform ve 5080 bağımsız sunumu güncelle; senaryoları, ekran görüntülerini, kapsam raporunu ve memory bankı gerçek sonuçlarla yenile.
 
 ## Uygulama sırası

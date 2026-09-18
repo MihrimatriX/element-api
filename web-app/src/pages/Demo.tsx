@@ -11,13 +11,12 @@ export default function Demo() {
         description="Sanal krediyle sipariş ve piyasa akışını deneyin."
         path="/demo"
       />
-      <p className="science-eyebrow">AYRI BİR DENEY ALANI</p>
+      <p className="science-eyebrow">Ayrı bir deney alanı</p>
       <h1>Sanal ticaret demosu</h1>
       <p className="lead">
-        Elementleri ve bileşikleri sanal krediyle alıp sat. Fiyat, ödeme ve
-        kargo işlemleri simülasyondur; gerçek para veya fiziksel teslimat
-        içermez.
-      </p>
+          Sanal krediyle sipariş ve piyasa akışını dene. Fe gramı kredi
+          yakar; laboratuvarda su keşfi cüzdanı değiştirmez.
+        </p>
       {!ACCOUNTS_ENABLED && (
         <p className="science-notice">
           Bu bağımsız atlas kurulumunda ticaret servisleri kapalı. Aşağıdaki
@@ -27,9 +26,9 @@ export default function Demo() {
       <div className="learning-grid">
         <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
           <article className="learning-card">
-            <h2>Fiyatları incele</h2>
+            <h2>Fe fiyatına bak</h2>
             <p>
-              Elementlerin simüle edilen alış ve satış fiyatlarını karşılaştır.
+              Demirin alış ve satışını karşılaştır. Sayı kredi; borsa değil.
             </p>
             <Button asChild variant="outline">
               <Link className="btn" to="/market">
@@ -42,8 +41,8 @@ export default function Demo() {
           <article className="learning-card">
             <h2>Bir sipariş dene</h2>
             <p>
-              Hesabınla mağazayı kullan. Deneme kasan ilk açılışta 10.000
-              krediyle başlar.
+              1 g Fe veya bir su SKU’su. Kasa 10.000 krediyle açılır. 167
+              eğitim bileşiği otomatik ürün olmaz.
             </p>
             <Button asChild variant="default">
               <Link className="btn primary" to="/shop">

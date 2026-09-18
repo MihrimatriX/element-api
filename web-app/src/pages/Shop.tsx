@@ -326,10 +326,10 @@ export default function Shop() {
       <section className="shop-header">
         <div className="shop-header-copy">
           <p className="kicker">Mağaza</p>
-          <h1>Elementler ve bileşikler</h1>
+          <h1>Mağaza</h1>
           <p className="lead shop-lead">
-            Gram seç, sepete ekle. Alışverişler uygulamanın para birimi Kredi
-            ile simüle edilir.
+            Sanal kredi. Demir gramı, su SKU’su — bilimsel 167’lik katalog
+            otomatik satılmaz. Paket: 1 / 10 / 100 gram.
           </p>
           {!isAuthenticated && (
             <p className="guest-note">
@@ -413,10 +413,10 @@ export default function Shop() {
               const line = skuInCart(sku);
               const unit = q.ask * sku.priceMult;
               return (
-                <article
-                  key={sku.slug}
-                  className={`compound-card ${line ? "in-cart" : ""}`}
-                >
+        <article
+          key={sku.slug}
+          className={`compound-card sku-product ${line ? "in-cart" : ""}`}
+        >
                   <div className="sku-card-head">
                     <h3 className="mono">{sku.formula}</h3>
                     <span className="sku-kind">
@@ -675,7 +675,7 @@ export default function Shop() {
                 {ordersList.length === 0 && (
                   <p className="muted">
                     {isAuthenticated
-                      ? "Henüz sipariş yok."
+                      ? "Sipariş yok. İlk deneme: 1 g Fe."
                       : "Takip için giriş."}
                   </p>
                 )}

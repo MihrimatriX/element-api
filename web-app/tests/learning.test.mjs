@@ -10,6 +10,7 @@ test('two devices merge discoveries without duplicates or lost progress', () => 
 test('unearned, unknown and corrupt progress cannot unlock a lesson', () => {
   assert.deepEqual(normalizeLearning({ discoveries: ['h2o', 'unknown', 'h2o'], lessons: ['everyday', 'made-up'] }), { discoveries: ['h2o'], lessons: [] });
   assert.deepEqual(normalizeLearning(null), { discoveries: [], lessons: [] });
+  assert.deepEqual(normalizeLearning({ discoveries: ['h2so4', 'hno3', 'h3po4'], lessons: ['acids'] }).lessons, ['acids']);
 });
 test('post-login destinations stay inside the app', () => {
   for (const value of ['https://evil.test', '//evil.test', '/\\evil.test', null]) assert.equal(safeReturnTo(value), '/collection');

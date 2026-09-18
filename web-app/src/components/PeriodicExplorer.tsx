@@ -14,45 +14,36 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Link } from "react-router-dom";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, ArrowUpRight, Atom, BookOpenText, FlaskConical, Search, X } from "lucide-react";
 import {
-  ArrowRight,
-  ArrowUpRight,
-  Atom,
-  Braces,
-  FlaskConical,
-  Search,
-  X,
-} from "lucide-react";
-import { categoryLabels, STATIC_ELEMENTS } from "../services/elementData";
+  categoryLabels,
+  categorySwatches,
+  STATIC_ELEMENTS,
+} from "../services/elementData";
+import { formulaText, knownCompounds } from "../services/chemistry";
 import {
   formatScience,
   phaseLabels,
   useScience,
   type ScientificElement,
-  type ScientificCompound,
 } from "../services/science";
 import Seo from "./Seo";
 import AtlasVisual, { AtomShell } from "./AtlasVisual";
-import CompoundCard from "./CompoundCard";
 
-const colors: Record<string, string> = {
-  alkali: "#fa6d77",
-  alkaline: "#eac35a",
-  transition: "#56c9dd",
-  post: "#50adb8",
-  metalloid: "#ac91e8",
-  nonmetal: "#e5a0db",
-  halogen: "#94bfee",
-  noble: "#eccb68",
-  lanthanide: "#65caae",
-  actinide: "#81d3d3",
-};
 const fold = (s: string) =>
   s
     .toLocaleLowerCase("tr-TR")
     .replace(/ı/g, "i")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+// ponytail: deterministic daily pick, no API or storage. Same record all day, new one tomorrow.
+const dayIndex = (n: number) => {
+  const now = new Date();
+  return (
+    Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 864e5) % n
+  );
+};
 type Lens = "category" | "mass" | "electronegativity" | "phase";
 function ElementPreview({
   symbol,
@@ -76,17 +67,14 @@ function ElementPreview({
         photo={e?.media?.photo}
       />
       <div className="atlas-preview-copy">
-        <p className="science-eyebrow">
-          ELEMENTE YAKINDAN BAK · {seed.atomicNumber}
-        </p>
         <h2>
           {e?.names.tr ?? seed.name} <span>{symbol}</span>
         </h2>
         <p>
           {e?.editorial?.summary ??
             (error
-              ? "Ayrıntı yüklenemedi. Temel tabloyu keşfetmeye devam edebilirsin."
-              : "Bilimsel kayıt yükleniyor…")}
+              ? "Ayrıntı yüklenemedi. Temel tabloyu kullanmaya devam edebilirsin."
+              : "Kayıt yükleniyor…")}
         </p>
         <div className="preview-facts">
           <span>
@@ -100,7 +88,7 @@ function ElementPreview({
           to={`/element/${symbol.toLowerCase()}`}
           className="science-text-link"
         >
-          Elementi keşfet <ArrowUpRight size={15} />
+          Tam kayıt <ArrowUpRight size={15} />
         </Link>
       </div>
       {compact && e?.media?.photo && (
@@ -115,31 +103,6 @@ function ElementPreview({
     </div>
   );
 }
-function EverydayCompounds() {
-  const { data } = useScience<ScientificCompound[]>("compounds");
-  const chosen = ["h2o", "nacl", "sio2", "caco3"];
-  return (
-    <section className="everyday">
-      <header>
-        <div>
-          <p className="science-eyebrow">BİLEŞİK KÜTÜPHANESİ</p>
-          <h2>Günlük hayattan dört bileşik</h2>
-        </div>
-        <Link to="/compounds" className="science-text-link">
-          Bütün bileşikler <ArrowRight size={16} />
-        </Link>
-      </header>
-      <div className="everyday-grid">
-        {chosen
-          .map((id) => data?.find((c) => c.slug === id))
-          .filter((c): c is ScientificCompound => Boolean(c))
-          .map((c) => (
-            <CompoundCard key={c.slug} compound={c} />
-          ))}
-      </div>
-    </section>
-  );
-}
 export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
   const { data, error, retry } = useScience<ScientificElement[]>("elements");
   const [query, setQuery] = useState("");
@@ -152,6 +115,7 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
   const [preview, setPreview] = useState<string | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
+  const reduce = useReducedMotion();
   const records = new Map((data ?? []).map((e) => [e.symbol, e]));
   const matches = (e: (typeof STATIC_ELEMENTS)[number]) =>
     (category === "all" || e.category === category) &&
@@ -200,7 +164,7 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
   }
   function appearance(e: (typeof STATIC_ELEMENTS)[number]) {
     const r = records.get(e.symbol);
-    let color = colors[e.category],
+    let color = categorySwatches[e.category],
       value = formatScience(r?.atomic_properties.atomic_mass),
       missing = false;
     if (lens === "mass" || lens === "electronegativity") {
@@ -210,9 +174,9 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
           : r?.atomic_properties.electronegativity.pauling;
       missing = number == null;
       value = formatScience(number);
-      color = missing
-        ? "#aeb8c8"
-        : `hsl(${215 - ((number ?? 0) / (lens === "mass" ? 300 : 4)) * 75} 58% 64%)`;
+      const stops = ["#56c9dd", "#65caae", "#eac35a", "#fa6d77"];
+      const t = Math.min(1, (number ?? 0) / (lens === "mass" ? 300 : 4));
+      color = missing ? "#aeb8c8" : stops[Math.min(3, Math.floor(t * 4))];
     } else if (lens === "phase") {
       const phase = r?.thermodynamic_properties.standard_state ?? "unknown";
       color =
@@ -231,34 +195,110 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
     <main className="science-home atlas-home">
       <Seo
         title={
-          home
-            ? "ElementAPI · Maddenin alfabesi"
-            : "Periyodik tablo · ElementAPI"
+          home ? "ElementAPI · Periyodik tablo" : "Periyodik tablo · ElementAPI"
         }
-        description="118 elementi görselleri, atom şemaları ve kaynaklı bilimsel verileriyle keşfet. Bileşikleri tanı, laboratuvarda yeni bağlantılar bul."
+        description="118 element. PubChem, RSC ve NIST kaynaklı Türkçe kayıtlar."
         path={home ? "/" : "/periodic"}
       />
-      <section className="explorer-heading">
-        <div>
-          <p className="science-eyebrow">PERİYODİK TABLO</p>
-          <h1>Element atlası</h1>
-          <p>
-            118 element. Özelliklerini karşılaştır, kaynaklarını incele,
-            aralarındaki bağlantıları keşfet.
-          </p>
-        </div>
-        <Button asChild size="sm">
-          <Link to="/lab?lesson=everyday">
-            <FlaskConical size={16} /> İlk keşfini yap <ArrowRight size={15} />
-          </Link>
-        </Button>
-      </section>
+      {home ? (
+        <motion.section
+          className="home-welcome"
+          aria-label="Atlas tanıtımı"
+          initial={reduce ? false : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduce ? 0 : 0.28 }}
+        >
+          <div className="home-welcome-copy">
+            <p className="kicker">ElementAPI Atlas · 118 element, 167 bileşik</p>
+            <h1>
+              Periyodik tablo, <span>ders kitabı değil tezgâh.</span>
+            </h1>
+            <p>
+              Ara, renklendir, önizle, laboratuvarda kur. Kayıtlar PubChem, RSC
+              ve NIST kaynaklı; Türkçe özetler editoryal, formüller denetlenir.
+            </p>
+            <div className="home-cta">
+              <Button asChild>
+                <Link to="/nasil">
+                  <BookOpenText size={16} />
+                  El kitabı: ilk 10 dakika
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/lab?lesson=everyday">
+                  <FlaskConical size={16} />
+                  Laboratuvar: iki H, bir O
+                </Link>
+              </Button>
+            </div>
+          </div>
+          <aside className="home-daily" aria-label="Günün kayıtları">
+            {(() => {
+              const daily = STATIC_ELEMENTS[dayIndex(STATIC_ELEMENTS.length)];
+              const record = records.get(daily.symbol);
+              const compound = knownCompounds[dayIndex(knownCompounds.length)];
+              return (
+                <>
+                  <Link
+                    to={`/element/${daily.symbol.toLowerCase()}`}
+                    className="daily-card"
+                    style={
+                      {
+                        "--element-color": categorySwatches[daily.category],
+                      } as CSSProperties
+                    }
+                  >
+                    <span className="daily-kicker">
+                      Günün elementi · No {daily.atomicNumber}
+                    </span>
+                    <strong>
+                      <span className="daily-mark">{daily.symbol}</span>
+                      {record?.names.tr ?? daily.name}
+                    </strong>
+                    <span className="daily-summary">
+                      {record?.editorial?.summary ??
+                        "Kaynağını aç, kütleyi ve hâli gör."}
+                    </span>
+                    <em>
+                      {phaseLabels[
+                        record?.thermodynamic_properties.standard_state ??
+                          "unknown"
+                      ] ?? "Bilinmiyor"}{" "}
+                      · {formatScience(record?.atomic_properties.atomic_mass, "u")}
+                    </em>
+                  </Link>
+                  <Link
+                    to={`/compound/${compound.slug}`}
+                    className="daily-card is-compound"
+                  >
+                    <span className="daily-kicker">Günün bileşiği</span>
+                    <strong>
+                      <span className="daily-mark is-formula">
+                        {formulaText(compound.formula)}
+                      </span>
+                      {compound.nameTr}
+                    </strong>
+                    <span className="daily-summary">{compound.summary}</span>
+                    <em>{compound.uses.slice(0, 2).join(" · ")}</em>
+                  </Link>
+                </>
+              );
+            })()}
+          </aside>
+        </motion.section>
+      ) : (
+        <h1 className="explorer-heading">Periyodik tablo</h1>
+      )}
       <Tabs
         className="explorer"
         aria-label="Element keşfi"
         value={view}
         onValueChange={(v) => setView(v as "table" | "list")}
       >
+        {home && (
+          <h2 className="explorer-heading home-table-title">Tabloyu keşfet</h2>
+        )}
+        <div className="explorer-sticky">
         <div className="explorer-toolbar">
           <label className="explorer-search">
             <Search size={18} />
@@ -278,6 +318,9 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
             <TabsTrigger value="table">Tablo</TabsTrigger>
             <TabsTrigger value="list">Kartlar</TabsTrigger>
           </TabsList>
+          <Button asChild size="sm" className="explorer-play">
+            <Link to="/lab?lesson=everyday">Laboratuvar</Link>
+          </Button>
         </div>
         <div className="atlas-lenses">
           <span>Tabloyu renklendir</span>
@@ -302,9 +345,9 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
           {lens !== "category" && (
             <small>
               {lens === "mass"
-                ? "u · açık maviden yeşile artar"
+                ? "u · 4 renk basamağı, kırmızı yüksek değer"
                 : lens === "electronegativity"
-                  ? "Pauling · açık maviden yeşile artar"
+                  ? "Pauling · 4 renk basamağı, kırmızı yüksek değer"
                   : "Kaynağın bildirdiği hâl"}{" "}
               · Taralı: veri yok
             </small>
@@ -319,7 +362,7 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
               aria-pressed={category === key}
               onClick={() => setCategory(category === key ? "all" : key)}
             >
-              <i style={{ background: colors[key] }} />
+              <i style={{ background: categorySwatches[key] }} />
               {label}
             </Button>
           ))}
@@ -337,6 +380,7 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
             </Button>
           )}
         </div>
+        </div>
         {error && (
           <p className="science-notice" role="status">
             Temel tablo gösteriliyor. Ayrıntılı verilere ulaşılamıyor.{" "}
@@ -346,9 +390,29 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
           </p>
         )}
         {count === 0 && (
-          <p className="science-notice" role="status">
-            Eşleşen element yok. Farklı bir ad veya kategori deneyin.
-          </p>
+          <div className="home-empty" role="status">
+            <p className="kicker">Sonuç yok</p>
+            <p>
+              {query.trim() ? (
+                <>
+                  <strong>“{query.trim()}”</strong> tabloyla eşleşmedi. Sembol
+                  (Fe), Türkçe ad (Demir) ya da atom numarası (26) dene.
+                </>
+              ) : (
+                "Bu kategori filtresiyle eşleşen element yok."
+              )}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setCategory("all");
+                setQuery("");
+              }}
+            >
+              Filtreyi temizle
+            </Button>
+          </div>
         )}
         <TabsContent
           value={view}
@@ -362,6 +426,14 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
               : "Element kartları"
           }
         >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={view}
+              initial={reduce ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduce ? 0 : 0.2 }}
+            >
           <div
             className={
               view === "table" ? "explorer-grid" : "atlas-element-grid"
@@ -379,7 +451,17 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
                     {i + 1}
                   </span>
                 ))}
-                <div className="explorer-inset">
+                <div
+                  className="explorer-inset"
+                  style={
+                    {
+                      "--element-color": appearance(
+                        STATIC_ELEMENTS.find((e) => e.symbol === selected) ??
+                          STATIC_ELEMENTS[0],
+                      ).color,
+                    } as CSSProperties
+                  }
+                >
                   <ElementPreview symbol={selected} compact />
                 </div>
                 <span
@@ -412,7 +494,7 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
               const match = matches(el);
               if (view === "list" && !match) return null;
               const a = appearance(el);
-              return (
+              const tile = (
                 <Button
                   variant="plain"
                   size="none"
@@ -445,8 +527,22 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
                   {view === "list" && <ArrowUpRight size={14} />}
                 </Button>
               );
+              return view === "list" ? (
+                <motion.div
+                  key={el.symbol}
+                  initial={reduce ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: reduce ? 0 : 0.2 }}
+                >
+                  {tile}
+                </motion.div>
+              ) : (
+                tile
+              );
             })}
           </div>
+            </motion.div>
+          </AnimatePresence>
         </TabsContent>
         <div className="explorer-footnote">
           <span>
@@ -460,24 +556,6 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
           </span>
         </div>
       </Tabs>
-      {home && (
-        <>
-          <EverydayCompounds />
-          <section className="atlas-api-note">
-            <Braces />
-            <div>
-              <h2>Açık bilimsel API</h2>
-              <p>
-                Kaynaklı bilimsel veriye açık API ile ulaş; yalnız ihtiyacın
-                olan alanları al.
-              </p>
-            </div>
-            <Link to="/docs" className="science-text-link">
-              API’yi incele <ArrowUpRight size={16} />
-            </Link>
-          </section>
-        </>
-      )}
       <Dialog
         open={!!preview}
         onOpenChange={(open) => {
@@ -493,10 +571,16 @@ export default function PeriodicExplorer({ home = false }: { home?: boolean }) {
           }}
         >
           <DialogTitle>Element önizlemesi</DialogTitle>
-          <DialogDescription>
-            Özelliklerini incelemek için bilimsel kaydı aç.
-          </DialogDescription>
-          {preview && <ElementPreview symbol={preview} />}
+          <DialogDescription>Kütle, faz ve kaynaklı özet.</DialogDescription>
+          {preview && (
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.28 }}
+            >
+              <ElementPreview symbol={preview} />
+            </motion.div>
+          )}
         </DialogContent>
       </Dialog>
     </main>

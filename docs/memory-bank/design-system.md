@@ -4,9 +4,11 @@
 
 ## Görsel yön
 
-Sıcak beyaz zemin, grafit metin/ana düğme, ölçülü yeşil vurgu, ince sınırlar ve küçük köşe yarıçapları. IBM Plex Sans arayüzde; IBM Plex Mono bilimsel değer/formül/kodda. Büyük pazarlama sloganları, dekoratif gradyanlar ve gereksiz tanıtım panelleri ekleme. Sayfa başlığı kullanıcının bulunduğu yeri söylesin.
+Krem kâğıt zemin (`#f8f1de`), grafit metin, aile renkleri hücreyi doldurur (sınıf posteri; 2 px şerit değil). IBM Plex Sans arayüzde; IBM Plex Mono bilimsel değer/formül/kodda. Koyu “workshop” krom, büyük harfli kicker, dekoratif gradyan ve tanıtım paneli ekleme. Sayfa başlığı kullanıcının bulunduğu yeri söylesin.
 
-Masaüstünde sabit yan gezinme; 900 px ve altında Radix Sheet. Periyodik tablo masaüstünde mekânsal düzenini korur, telefonda varsayılan kart görünümü sunar. Renk yalnız anlam taşıdığı yerde (element kategorisi/durum) kullanılır.
+Masaüstünde yapışkan üst defter şeridi (hap nav + Daha fazla); şeridin altında aile rengi 8 px çizgi. 900 px ve altında `Menüyü aç` Radix Sheet. Sabit yan menü yok. Periyodik tablo masaüstünde mekânsal düzenini korur, telefonda varsayılan kart görünümü sunar. Kategori/hâl/kütle lensi hücre rengine yazılır.
+
+Hareket: Framer rota/kart/dialog; GSAP tablo intro + lab keşif. Spline yalnız lab keşif inset’i (statik fallback). `prefers-reduced-motion` üçünü de keser.
 
 ## Kaynak ve kullanım
 

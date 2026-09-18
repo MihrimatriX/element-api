@@ -1,86 +1,163 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { SCIENCE_BASE_URL } from "../config";
+import { publicApiUrl } from "../config";
 import Seo from "../components/Seo";
-const steps = [
+import { WorkshopMarks } from "../components/AtlasVisual";
+
+const steps: {
+  title: string;
+  body: string;
+  links: { to: string; label: string }[];
+}[] = [
+  {
+    title: "Demir'i bul",
+    body: "Atlas'ta Fe, Demir veya 26 yaz. Kaynağını oku. Fotoğraf yoksa şema var; boş hücre çoğu zaman bilinçli bir lisans veya gaz kararı.",
+    links: [{ to: "/element/fe", label: "Fe kaydını aç" }],
+  },
+  {
+    title: "Suyu kur",
+    body: "Laboratuvarda hidrojeni iki kez, oksijeni bir kez seç, Birleştir. HO su değildir; sayı tutmazsa kart açılmaz.",
+    links: [{ to: "/lab?lesson=everyday", label: "İki H, bir O" }],
+  },
+  {
+    title: "İlk rotayı bitir",
+    body: "Defterinde altı rota var. Günlük maddeler su, karbondioksit, amonyak ister. Keşifler dolunca soru açılır.",
+    links: [{ to: "/collection", label: "Defterime git" }],
+  },
+  {
+    title: "Formülü kur, Dedektifi oyna",
+    body: "Adı verilen kaydın atom sayılarını bas; ipuçlarından elementi bul. Skorlar ayrı kutudadır, keşif defterine yazılmaz.",
+    links: [
+      { to: "/lab/formula?compound=nacl", label: "Tuzla başla" },
+      { to: "/lab/detective", label: "Dedektifi aç" },
+    ],
+  },
+  {
+    title: "Defteri yedekle",
+    body: "Misafir kayıtları yalnız bu tarayıcıda. JSON indir, aynı dosyayı geri yükle. Hesap açarsan defter cihazlar arası eşitlenir.",
+    links: [
+      { to: "/collection", label: "Dosyamı indir" },
+      { to: "/register?returnTo=/collection", label: "Hesap aç" },
+    ],
+  },
+  {
+    title: "İstersen pazara geç",
+    body: "Bilim bitti, simülasyon başlar: 10.000 sanal kredi, Fe gramı, alış-satış farkı. Gerçek para yok; keşif defterin değişmez.",
+    links: [
+      { to: "/demo", label: "Simülasyonu tanı" },
+      { to: "/market", label: "Fiyat tablosu" },
+    ],
+  },
+];
+
+const faq: [string, string][] = [
   [
-    "Bir elementle başla",
-    "Tabloda Türkçe ad, İngilizce ad, sembol veya atom numarası ara. Element kartını açarak özelliklerini ve kaynaklarını incele.",
+    "HO neden su değil?",
+    "Su iki hidrojen, bir oksijen ister. Bir H bir O kataloğumuzda yok; laboratuvarda Birleştir boş döner. Sayı tutmalı, adı benzemek yetmez.",
   ],
   [
-    "İlk bileşiğini keşfet",
-    "Laboratuvarda hidrojen ve oksijeni seç, Birleştir düğmesine bas. Bu bir keşif oyunu: kart seçimi gerçek deney koşullarını ya da bir reaksiyon denklemini temsil etmez.",
+    "Misafir verim ne zaman silinir?",
+    "Tarayıcı verisini silersen veya JSON yedeğin yoksa gider. Hesap açıp defterini taşımadıkça kayıtlar yalnız bu cihazda durur.",
   ],
   [
-    "Bir öğrenme rotasını izle",
-    "Koleksiyonum sayfasından Günlük maddeler, Tuzlar veya Oksitler rotasını seç. Gereken üç bileşiği bulduğunda kısa değerlendirme sorusu açılır.",
+    "5080 ile 3000'in farkı ne?",
+    "5080 yalnız bilim kataloğunu sunar; hesap kapalıdır. 3000 hesap, cüzdan ve mağazayı da açan tam yığının kapısıdır.",
   ],
   [
-    "Keşfini ayrıntılandır",
-    "Bulduğun bileşiğin formülüne, hangi elementlerden oluştuğuna ve kullanım alanlarına bak. Yeni elementlerin kilidini açarak başka birleşimleri dene.",
+    "API çalışmazsa ne olur?",
+    "Tablo gömülü kayıtlarla açılır, ayrıntı sayfası yeniden denemeni ister. Keşiflerin tarayıcıda durur; kaybolmaz.",
   ],
   [
-    "İlerlemeni koru",
-    "Misafir kayıtları bu tarayıcıda kalır; tarayıcı verilerini silmek onları da kaldırır. Koleksiyonunu JSON olarak indirebilirsin. Hesaplar açık kurulumlarda giriş yapıp cihazlar arasında eşitleyebilirsin.",
+    "Oyun skorları deftere yazılır mı?",
+    "Hayır. Formülü kur ve Dedektif skorları ayrı kutudadır. Giriş yaptıysan Sıfırla düğmesi görünmez; sunucudaki defterin korunur.",
   ],
 ];
+
 export default function Guide() {
   return (
     <main className="page explainer-page">
       <Seo
-        title="Rehber · ElementAPI"
-        description="İlk bileşiğini keşfet, öğrenme rotasını tamamla ve koleksiyonunu oluştur."
+        title="El kitabı · ElementAPI"
+        description="İlk 10 dakika: Demir'i bul, suyu kur, ilk rotayı bitir, Formülü kur ve Dedektifi oyna, defteri yedekle."
         path="/nasil"
       />
       <div className="explainer">
         <article className="explainer-prose">
-          <p className="kicker">Rehber</p>
-          <h1>Kullanım rehberi</h1>
+          <p className="kicker">El kitabı</p>
+          <h1>İlk 10 dakika</h1>
           <p className="lead">
-            Hesap açmadan başlayabilirsin. İlk hedef: suyu keşfet ve onun
-            formülünü öğren.
+            Atlas'ta bul, laboratuvarda kur, defterde biriktir. İstersen
+            pazarda dene. Hesap şart değil.
           </p>
           <ol className="process">
-            {steps.map(([title, body], i) => (
-              <li key={title}>
+            {steps.map((step, i) => (
+              <li key={step.title}>
                 <span className="process-n" aria-hidden="true">
                   {i + 1}
                 </span>
                 <div>
-                  <h2>{title}</h2>
-                  <p>{body}</p>
+                  <h2>{step.title}</h2>
+                  <p>{step.body}</p>
+                  <p>
+                    {step.links.map((link, j) => (
+                      <span key={link.to}>
+                        {j > 0 && " · "}
+                        <Link to={link.to}>{link.label}</Link>
+                      </span>
+                    ))}
+                  </p>
                 </div>
               </li>
             ))}
           </ol>
-          <h2>Aynı veriyi kodla keşfet</h2>
+          <h2>Sık sorulanlar</h2>
+          {faq.map(([q, a]) => (
+            <section key={q}>
+              <h3>{q}</h3>
+              <p>{a}</p>
+            </section>
+          ))}
+          <h2>Aynı kaydı kabloyla</h2>
           <pre className="code-window explainer-code">
             <code>
               {'curl -s "' +
-                SCIENCE_BASE_URL +
-                '/elements/fe?view=summary&include=provenance"'}
+                publicApiUrl(
+                  "/api/v2/elements/fe?fields=symbol,names,editorial.summary",
+                ) +
+                '"'}
+            </code>
+          </pre>
+          <pre className="code-window explainer-code">
+            <code>
+              {'curl -s "' +
+                publicApiUrl(
+                  "/api/v2/compounds/h2o?fields=slug,names,display_formula,composition",
+                ) +
+                '"'}
             </code>
           </pre>
           <p>
-            <Link to="/docs">API örnekleri</Link> ·{" "}
-            <Link to="/data">Kaynaklar ve veri kapsamı</Link>
+            <Link to="/docs">API tezgâhı</Link> ·{" "}
+            <Link to="/sozluk">Sözlük</Link> ·{" "}
+            <Link to="/data">Kaynaklar</Link>
           </p>
         </article>
         <aside className="explainer-aside">
           <div className="def-card">
-            <p className="kicker">Devam noktası</p>
-            <h2>Kaldığın yerden devam et</h2>
+            <p className="kicker">Defter</p>
+            <WorkshopMarks beat="salt" />
+            <h2>Kaldığın yer</h2>
             <p>
-              Tamamlanan rotaları, kalan keşifleri ve açılan bileşikleri aynı
-              yerde bul.
+              Rotalar, kalan keşifler, indirdiğin JSON. Oyun skorları burada
+              görünmez, ayrı kutu.
             </p>
             <Button asChild variant="default">
               <Link className="btn primary" to="/collection">
-                Koleksiyonum
+                Defterime git
               </Link>
             </Button>
             <p>
-              <Link to="/lab?lesson=everyday">İlk keşfe başla</Link>
+              <Link to="/lab?lesson=everyday">İki H, bir O</Link>
             </p>
           </div>
         </aside>

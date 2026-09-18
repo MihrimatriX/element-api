@@ -1,118 +1,83 @@
-# order-service
+# Sipariş ve kasa (`order-service`)
 
-Sipariş REST API ve dağıtık saga orkestrasyonu (Node.js 22 + TypeScript + Express).
+Sanal ticaretin yönetmeni: cüzdan, alış, satış, siparişin adım adım yürümesi.
+
+> “10 000 KREDI ile altın al, sonra masadan sat” burada başlar. Kimya laboratuvarı buraya uğramaz.
 
 | | |
 |--|--|
 | **Port** | `5003` |
-| **Discovery** | `GET /api/v1` |
-| **Info** | `GET /info` |
+| **Teknoloji** | Node.js 22, TypeScript, Express |
+| **Veri** | Postgres `element_order_db` (sipariş, saga, cüzdan, pozisyon, defter) · Redis · RabbitMQ |
 
-Gateway üzerinden erişim: `localhost:5000/api/v1/orders` (API key). `POST /orders` `X-User-Id` zorunlu, fiyat **ask**, bakiye yetmezse **402**.
-
----
-
-## Sorumluluklar
-
-- Sipariş oluşturma ve durum takibi
-- Saga: `Submitted → StockReserved → Payment → Shipping → Completed`
-- MassTransit uyumlu RabbitMQ mesajları + transactional outbox
-- Müşteri bazlı sipariş **arama ve filtreleme**
+Kapı: `http://localhost:5000/api/v1/orders` — **API anahtarı** (`X-API-Key`). Gateway kullanıcıyı `X-User-Id` ile ekler.
 
 ---
 
-## API endpoint'leri
+## Bu kutu ne yapar?
 
-| Method | Path | Header | Açıklama |
-|--------|------|--------|----------|
-| GET | `/api/v1` | — | Keşif linkleri |
-| POST | `/api/v1/orders` | `X-User-Id` (gateway) | Sipariş oluştur → 202 |
-| GET | `/api/v1/orders` | `X-User-Id` | Müşteri siparişleri |
-| GET | `/api/v1/orders/search` | `X-User-Id` | **Filtreli arama** |
-| GET | `/api/v1/orders/stats` | `X-User-Id` | İstatistik özeti |
-| GET | `/api/v1/orders/{id}` | `X-User-Id` | Tek sipariş (başkasınınki 404) |
-| GET | `/api/v1/me/wallet` | `X-User-Id` | Cüzdan; ilk çağrı **10_000 KREDI** grant |
-| GET | `/api/v1/me/holdings` | `X-User-Id` | Gram pozisyonları |
-| POST | `/api/v1/desk/sell` | `X-User-Id` | Bid’den sat `{ symbol, grams }` |
-| POST | `/internal/wallet/debit` | `INTERNAL_API_KEY` | Sipariş debit (idempotent `order_id`) |
-| POST | `/internal/wallet/credit` \| `/refund` | `INTERNAL_API_KEY` | Debit olduysa iade |
+- İlk cüzdan okumasında **10 000 KREDI** bağışlar (simülasyon).
+- Alış: `POST /orders` — fiyat **ask**, gram (en fazla dört ondalık). Aynı `Idempotency-Key` ile aynı gövde bir kez ücretlenir; içerik değişirse 409.
+- Bakiye yetmezse **402** (reason kabloda `INSUFFICIENT_ELX`; değer KREDI).
+- Satış masası: `POST /desk/sell` — `symbol` + `grams` (+ bileşikte `compoundSlug`). NaCl, saf Na gibi satılmaz.
+- Siparişi kuyruğa bırakır: stok → ödeme → kargo. Outbox ile mesaj kaybolmasın diye Postgres’te tutar.
+- İç uçlar: payment’ın `debit` / `credit` / `refund` çağrıları (`INTERNAL_API_KEY`).
 
-Para birimi **KREDI**. Wire alanları (`balanceElx`, …) ve 402 reason `INSUFFICIENT_ELX` korunur — kök [README](../README.md) § Bilimsel veri ve alışveriş sözleşmesi.
+Ekranda para **KREDI**. Kablodaki `balanceElx` vb. bilinçli eski isimlerdir — kök README sözleşmesi.
 
-### Arama parametreleri (`/orders/search`)
+## Ne yapmaz?
 
-| Param | Açıklama |
-|-------|----------|
-| `q` | Sipariş ID veya element sembolünde arama |
-| `status` | `Submitted`, `Completed`, … |
-| `elementSymbol` | `AU`, `AG`, … |
-| `page`, `pageSize` | Sayfalama |
+Gerçek tahsilat yok. Katalog fiyatını uydurmaz; catalog HTTP’ye sorar. SKU çarpanını compound’dan alır.
 
-```bash
-curl -H "X-User-Id: {customerId}" \
-  "http://localhost:5003/api/v1/orders/search?status=Completed&q=au&page=1"
+## Nasıl açılır?
+
+Tam platform (payment + shipment + Rabbit olmadan saga yarıda kalır):
+
+```powershell
+cd order-service
+npm ci
+npm run build
+npm start
 ```
 
-### Ops
+Kontrol: `npm run check` (tsc).
 
-| Path | Açıklama |
-|------|----------|
-| `/info` | Servis metadata |
-| `/health`, `/health/live`, `/health/ready` | PostgreSQL + RabbitMQ |
+## Sık uçlar
 
----
-
-## Saga mesajları
-
-| Event / Command | Yön |
-|-----------------|-----|
-| `OrderSubmittedEvent` | → catalog |
-| `ProcessPaymentCommand` | → payment |
-| `ShipmentRequestedEvent` | → shipment |
-| `UpdateOrderStatusEvent` | → notification |
-
-Tipler: `shared-lib/Events/` (URN: `Element.Shared.Events:{MessageName}`)
-
----
-
-## Bağımlılıklar
-
-| Kaynak | Açıklama |
-|--------|----------|
-| PostgreSQL `element_order_db` | orders, saga_state, wallets, holdings, ledger |
-| Redis | Katalog fiyat cache |
-| RabbitMQ | Saga kuyrukları |
-| catalog-service | Canlı fiyat HTTP |
-| compound-service | SKU `priceMult` HTTP (`COMPOUND_SERVICE_URL`) |
-
----
-
-## Çalıştırma
+| Ne | Yol | Not |
+|----|-----|-----|
+| Cüzdan | `GET /api/v1/me/wallet` | ilk çağrı grant |
+| Pozisyonlar | `GET /api/v1/me/holdings` | gram |
+| Al | `POST /api/v1/orders` | 202 |
+| Sat | `POST /api/v1/desk/sell` | bid |
+| Liste / ara | `GET /api/v1/orders`, `/orders/search` | `q`, `status`, `elementSymbol` |
+| İstatistik | `GET /api/v1/orders/stats` | |
+| Başkasının siparişi | `GET /orders/{id}` | 404 |
 
 ```bash
-# Host (tercih) — Postgres/Redis/Rabbit + catalog/compound ayakta
-npm ci && npm run build && npm start
-
-# veya kök start-local.ps1 (order dahil)
-./deploy/scripts/start-local.ps1 -IncludePayment
+curl -H "X-API-Key: ele_live_…" http://localhost:5000/api/v1/me/wallet
 ```
 
-Tam saga için payment + shipment + RabbitMQ gerekir (kök `docker-compose.yml` / `start-local.ps1`).
+Doğrudan `:5003` deniyorsan `X-User-Id` zorunlu (kapı bunu anahtardan doldurur).
 
----
+## Ortam
 
-## Ortam değişkenleri
+| Değişken | Ne işe yarar |
+|----------|----------------|
+| `PORT` | varsayılan 8080 (host yayın 5003) |
+| `DATABASE_URL` | Postgres |
+| `REDIS_URL` | fiyat önbelleği |
+| `RABBITMQ_HOST` | saga |
+| `CATALOG_SERVICE_URL` | canlı fiyat |
+| `COMPOUND_SERVICE_URL` | SKU çarpanı |
+| `INTERNAL_API_KEY` | cüzdan iç çağrı |
 
-| Değişken | Varsayılan |
-|----------|------------|
-| `PORT` | `8080` |
-| `DATABASE_URL` | PostgreSQL connection |
-| `REDIS_URL` | Redis |
-| `RABBITMQ_HOST` | RabbitMQ |
-| `CATALOG_SERVICE_URL` | `http://localhost:5002` |
-| `COMPOUND_SERVICE_URL` | `http://localhost:5007` |
-| `INTERNAL_API_KEY` | Internal wallet çağrıları |
+## Bozulursa
 
----
+| Belirti | Muhtemel neden |
+|---------|----------------|
+| Sipariş Submitted’ta kalır | payment veya catalog worker / Rabbit |
+| Production’da kısa key reddi | `INTERNAL_API_KEY` compose’ta development kısa; prod’da uzun olmalı |
+| Çift çekim | Idempotency-Key yok; aynı siparişi iki UUID ile gönderme |
 
-[← Ana README](../README.md)
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

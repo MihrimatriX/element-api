@@ -1,0 +1,25 @@
+# Host Caddy only. Compose does not bind :443 (web is 127.0.0.1:3000, gateway 127.0.0.1:5000).
+# DNS A/AAAA for elements-api.ahmetfuzunkaya.com → this machine, then:
+#   caddy run --config deploy/Caddyfile.elements-api.example
+# Optional ACME email: add `email you@domain` inside a global `{ }` block.
+#
+# Compose first:
+#   cp docker/.env.public.example docker/.env   # then put real secrets in
+#   docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
+
+elements-api.ahmetfuzunkaya.com {
+	encode gzip
+
+	# /api/v2 is the same gateway as /api/v1
+	handle /api* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	handle /hub* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+}

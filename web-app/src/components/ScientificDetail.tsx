@@ -23,7 +23,7 @@ import {
 } from "../services/science";
 import Seo from "./Seo";
 import AtlasVisual from "./AtlasVisual";
-import { categoryLabels, STATIC_ELEMENTS } from "../services/elementData";
+import { categoryLabels, categorySwatches, STATIC_ELEMENTS } from "../services/elementData";
 import {
   displayFormula,
   formatScience,
@@ -32,6 +32,9 @@ import {
   type ScientificElement,
   type ScientificCompound,
 } from "../services/science";
+import { labElements, geometryOf } from "../services/chemistry";
+import { compoundBySlug } from "../services/lab";
+import GeometryFigure from "./GeometryFigure";
 
 const labels: Record<string, string> = {
   precautionary_codes: "Önlem kodları",
@@ -311,43 +314,6 @@ function RelatedCompounds({ symbol }: { symbol: string }) {
     </section>
   );
 }
-const labElements = [
-  "H",
-  "O",
-  "C",
-  "N",
-  "Na",
-  "Cl",
-  "Mg",
-  "Ca",
-  "K",
-  "Al",
-  "Si",
-  "Fe",
-  "Zn",
-  "Ti",
-  "Ag",
-];
-const labCompounds = [
-  "h2o",
-  "co2",
-  "nh3",
-  "hcl",
-  "nacl",
-  "naoh",
-  "mgo",
-  "cao",
-  "kcl",
-  "koh",
-  "caco3",
-  "al2o3",
-  "sio2",
-  "fe2o3",
-  "fe3o4",
-  "zno",
-  "tio2",
-  "agcl",
-];
 export default function ScientificDetail({
   kind,
 }: {
@@ -400,7 +366,11 @@ export default function ScientificDetail({
   );
   const inLab = element
     ? labElements.includes(mark)
-    : labCompounds.includes(compound!.slug);
+    : Boolean(compound && compoundBySlug[compound.slug]);
+  const geometry =
+    compound && compoundBySlug[compound.slug]
+      ? geometryOf(compoundBySlug[compound.slug])
+      : undefined;
   const download = () => {
     const url = URL.createObjectURL(
       new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
@@ -436,12 +406,22 @@ export default function ScientificDetail({
         <span>/</span>
         <span>{names.tr}</span>
       </nav>
-      <header className="atlas-detail-hero">
+      <header
+        className="atlas-detail-hero"
+        style={
+          element
+            ? {
+                borderBottomColor:
+                  categorySwatches[element.classification.category],
+              }
+            : undefined
+        }
+      >
         <div className="atlas-detail-intro">
           <p className="science-eyebrow">
             {element
-              ? `${categoryLabels[element.classification.category] ?? "Element"} · ATOM NUMARASI ${element.atomic_number}`
-              : `BİLEŞİK · PUBCHEM ${compound!.identifiers.pubchem_cid}`}
+              ? `${categoryLabels[element.classification.category] ?? "Element"} · atom numarası ${element.atomic_number}`
+              : `Bileşik · PubChem ${compound!.identifiers.pubchem_cid}`}
           </p>
           <div className="atlas-detail-title">
             <h1>{names.tr}</h1>
@@ -489,6 +469,9 @@ export default function ScientificDetail({
                     "Bileşen element",
                     String(compound!.composition?.length ?? "—"),
                   ],
+                  ...(geometry
+                    ? [["Geometri", geometry.nameTr] as [string, string]]
+                    : []),
                 ]
             ).map(([label, value]) => (
               <div key={label}>
@@ -518,9 +501,14 @@ export default function ScientificDetail({
             </a>
             {inLab && (
               <Link
-                to={`/lab?material=${encodeURIComponent(element?.symbol ?? compound!.slug)}`}
+                to={
+                  compound
+                    ? `/lab/formula?compound=${encodeURIComponent(compound.slug)}`
+                    : `/lab?material=${encodeURIComponent(element!.symbol)}`
+                }
               >
-                <FlaskConical size={15} /> Laboratuvarda keşfet
+                <FlaskConical size={15} />{" "}
+                {compound ? "Formülü kur" : "Laboratuvarda keşfet"}
               </Link>
             )}
           </div>
@@ -536,10 +524,15 @@ export default function ScientificDetail({
       </header>
       <div className="science-detail-layout">
         <aside className="science-detail-nav">
-          <p className="science-eyebrow">BU KAYITTA</p>
+          <p className="science-eyebrow">Bu kayıtta</p>
           <a href="#overview">
             Nedir, nerede kullanılır? <ArrowUpRight size={13} />
           </a>
+          {compound && (
+            <a href="#geometry">
+              Molekül geometrisi <ArrowUpRight size={13} />
+            </a>
+          )}
           {sections.map(([key]) => (
             <a key={key} href={`#${key}`} onClick={() => reveal(key)}>
               {labels[key]}
@@ -563,7 +556,7 @@ export default function ScientificDetail({
         <div className="science-detail-content">
           <section className="atlas-overview" id="overview">
             <div>
-              <p className="science-eyebrow">GÜNLÜK YAŞAMDAN BİLİME</p>
+              <p className="science-eyebrow">Günlük yaşamdan bilime</p>
               <h2>Nerelerde kullanılır?</h2>
               <ul className="atlas-uses">
                 {atlas.editorial?.uses.map((use) => (
@@ -582,6 +575,12 @@ export default function ScientificDetail({
               </div>
             )}
           </section>
+          {compound && geometry && (
+            <section className="atlas-geometry" id="geometry">
+              <h2>Molekül geometrisi</h2>
+              <GeometryFigure geometry={geometry} />
+            </section>
+          )}
           {compound && (
             <section className="atlas-composition">
               <h2>İçindeki elementler</h2>
@@ -607,7 +606,7 @@ export default function ScientificDetail({
             </section>
           )}
           <div className="atlas-data-heading">
-            <p className="science-eyebrow">BİR KATMAN DAHA DERİNE</p>
+            <p className="science-eyebrow">Bir katman daha derine</p>
             <h2>Bilimsel özellikler</h2>
           </div>
           <div className="science-data-tools">

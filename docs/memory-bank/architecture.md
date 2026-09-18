@@ -1,5 +1,7 @@
 # Mimari
 
+İnsan dili tur: [servis kılavuzu](../SERVIS-KILAVUZU.md). Her kutu kendi `README.md`.
+
 ## Çalışma profilleri
 
 | Profil | Giriş | Bağımlılık |
@@ -20,7 +22,7 @@ Tema ve bileşen sözleşmesi: [design-system.md](design-system.md). Bilimsel gr
 
 ## Öğrenme verisi
 
-Lab kuralları tarayıcıda çalışır, cüzdanı değiştirmez. useLearning + lessons modülü misafir kaydını, kullanıcı başına yerel kopyayı ve sunucu birleştirmesini yönetir. Hesaplı kayıt identity /auth/learning üzerinden PostgreSQL'e gider. Misafir kayıtları kullanıcı aktarımı seçmeden hesaba eklenmez. Şifre değişimi ve hesap silme oturum/anahtar erişimini iptal eder.
+Lab kuralları tarayıcıda çalışır (`chemistry.ts` + `known-compounds.json`), cüzdanı değiştirmez. Formülü kur / Element dedektifi skorları ayrı `elementapi:games:v1` anahtarındadır. Mağaza SKU listesi (`compounds.json`) bilimsel katalogdan ayrıdır; 167 eğitim bileşiği otomatik ürün olmaz. useLearning + lessons modülü misafir kaydını, kullanıcı başına yerel kopyayı ve sunucu birleştirmesini yönetir. Hesaplı kayıt identity /auth/learning üzerinden PostgreSQL'e gider. Misafir kayıtları kullanıcı aktarımı seçmeden hesaba eklenmez. Şifre değişimi ve hesap silme oturum/anahtar erişimini iptal eder.
 
 ## Bilimsel veri ve medya
 

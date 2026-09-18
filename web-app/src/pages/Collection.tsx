@@ -7,12 +7,13 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { track } from "../services/diagnostics";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { BookOpen, Check, Download, FlaskConical } from "lucide-react";
 import { ACCOUNTS_ENABLED } from "../config";
 import Seo from "../components/Seo";
-import { recipes, materialById, formulaText } from "../services/lab";
+import { catalogSize, materialById, formulaText } from "../services/lab";
+import { WorkshopMarks } from "../components/AtlasVisual";
 import {
   lessons,
   mergeLearning,
@@ -20,6 +21,15 @@ import {
   type LearningProgress,
 } from "../services/lessons";
 import { useLearning } from "../services/useLearning";
+
+const LESSON_TINT: Record<string, string> = {
+  everyday: "var(--cat-nonmetal)",
+  salts: "var(--cat-alkali)",
+  oxides: "var(--cat-transition)",
+  acids: "var(--cat-halogen)",
+  organics: "var(--cat-post)",
+  environment: "var(--cat-alkaline)",
+};
 
 function Lesson({
   lesson,
@@ -31,14 +41,23 @@ function Lesson({
   save: (p: LearningProgress) => void;
 }) {
   const [answer, setAnswer] = useState<number | null>(null);
+  const [step, setStep] = useState(0);
   const completed = progress.lessons.includes(lesson.id);
   const count = lesson.discoveries.filter((id) =>
     progress.discoveries.includes(id),
   ).length;
   const ready = count === lesson.discoveries.length;
+  const current = lesson.questions[Math.min(step, lesson.questions.length - 1)];
   return (
-    <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
-      <article className="learning-card">
+    <Card asChild className="gap-0 py-0 shadow-none">
+      <article
+        className="learning-card"
+        style={
+          {
+            "--lesson-tint": LESSON_TINT[lesson.id] ?? "var(--cat-nonmetal)",
+          } as CSSProperties
+        }
+      >
         <div className="learning-card-heading">
           <BookOpen size={21} />
           <Badge variant="secondary">
@@ -67,12 +86,16 @@ function Lesson({
           </Button>
         ) : completed ? (
           <p className="learning-success">
-            <Check size={18} /> {lesson.explanation}
+            <Check size={18} /> {lesson.questions[0].explanation}
           </p>
         ) : (
           <fieldset className="lesson-question">
-            <legend>{lesson.question}</legend>
-            {lesson.choices.map((choice, i) => (
+            <legend>
+              {lesson.questions.length > 1
+                ? `${step + 1}/${lesson.questions.length} · ${current.question}`
+                : current.question}
+            </legend>
+            {current.choices.map((choice, i) => (
               <Button
                 variant="plain"
                 size="none"
@@ -81,19 +104,23 @@ function Lesson({
                 aria-pressed={answer === i}
                 onClick={() => {
                   setAnswer(i);
-                  if (i === lesson.answer) {
-                    track("lesson_completed", lesson.id);
-                    save({
-                      ...progress,
-                      lessons: [...progress.lessons, lesson.id],
-                    });
+                  if (i !== current.answer) return;
+                  if (step + 1 < lesson.questions.length) {
+                    setStep(step + 1);
+                    setAnswer(null);
+                    return;
                   }
+                  track("lesson_completed", lesson.id);
+                  save({
+                    ...progress,
+                    lessons: [...progress.lessons, lesson.id],
+                  });
                 }}
               >
                 {choice}
               </Button>
             ))}
-            {answer !== null && answer !== lesson.answer && (
+            {answer !== null && answer !== current.answer && (
               <p role="status">
                 Bir daha düşün. İlgili bilimsel kayıtlardaki formül
                 açıklamalarından yararlanabilirsin.
@@ -148,17 +175,17 @@ export default function Collection() {
   return (
     <main className="science-detail collection-page">
       <Seo
-        title="Koleksiyonum · ElementAPI"
-        description="Keşiflerin, öğrenme rotaların ve kaldığın yer."
+        title="Defterim · ElementAPI"
+        description="Keşif defterim ve altı rota. Su, tuz, pas; oyun skorları burada yok."
         path="/collection"
         noIndex
       />
       <header className="collection-header">
         <div>
-          <p className="science-eyebrow">KEŞFETTİKÇE BİRİKİR</p>
-          <h1>Koleksiyonum</h1>
+          <p className="science-eyebrow">Defterim · panelim</p>
+          <h1>Keşif defterim</h1>
           <p>
-            {progress.discoveries.length} / {recipes.length} bileşik ·{" "}
+            {progress.discoveries.length} / {catalogSize} bileşik ·{" "}
             {progress.lessons.length} / {lessons.length} rota tamamlandı
           </p>
         </div>
@@ -185,8 +212,12 @@ export default function Collection() {
       {learning.user && learning.guest.discoveries.length > 0 && !imported && (
         <div className="science-notice">
           <p>
-            Bu cihazda {learning.guest.discoveries.length} misafir keşfi var.
-            Sana aitse hesabına ekleyebilirsin.
+            <strong>
+              Bu cihazda {learning.guest.discoveries.length} misafir keşfi
+              duruyor.
+            </strong>{" "}
+            Sana aitse tek tıkla hesabına taşı; taşımazsan bu cihazda kalır,
+            silinmez.
           </p>
           <Button
             variant="outline"
@@ -203,8 +234,8 @@ export default function Collection() {
       <section aria-label="Öğrenme rotaları">
         <h2 className="section-title">Öğrenme rotaları</h2>
         <p>
-          Her rotanın bileşiklerini keşfet, ardından kısa soruyla öğrendiklerini
-          kontrol et. Yeni kartlar toplam keşif sayınla açılır.
+          Altı rota. Önce bileşikleri laboratuvarda kaydet, sonra soruyu aç.
+          Günlük maddeler hâlâ su, karbondioksit ve amonyak ister.
         </p>
         <div className="learning-grid">
           {lessons.map((lesson) => (
@@ -228,11 +259,12 @@ export default function Collection() {
         </header>
         {!progress.discoveries.length ? (
           <div className="learning-empty">
+            <WorkshopMarks beat="water" />
             <FlaskConical size={30} />
-            <h3>Henüz keşif kaydın yok.</h3>
+            <h3>Defterin boş, panelin hazır.</h3>
             <p>
-              Laboratuvarda hidrojen ve oksijeni seç. İlk keşfin burada
-              görünecek.
+              İki hidrojen, bir oksijen. Su burada görününce tuzu dene.{" "}
+              <Link to="/nasil">El kitabı</Link>
             </p>
             <Button asChild variant="default">
               <Link className="btn primary" to="/lab">

@@ -2,7 +2,7 @@
 
 **Günlük maddelerin hangi elementlerden oluştuğunu keşfet; kısa rotalarla kimyayı anlamlandır.**
 
-Türkçe kimya atlası, üç öğrenme rotası ve kişisel keşif koleksiyonu. 118 element ve 51 bileşik kaynaklarıyla sunulur. İlk keşif için hesap gerekmez. Açık API geliştirici yüzüdür; sanal ticaret ayrı teknik demodur.
+Türkçe kimya atlası, altı öğrenme rotası ve kişisel keşif koleksiyonu. 118 element ve 167 bileşik kaynaklarıyla sunulur. İlk keşif için hesap gerekmez. Açık API geliştirici yüzüdür; sanal ticaret ayrı teknik demodur.
 
 **Yerel sunum — tek komut (Docker Desktop):**
 
@@ -14,11 +14,11 @@ Türkçe kimya atlası, üç öğrenme rotası ve kişisel keşif koleksiyonu. 1
 
 **Yalnız atlas (DB/broker yok):** `./deploy/scripts/present-local.ps1` → **http://127.0.0.1:5080** · hesap ve ticaret kapalı; misafir koleksiyonu çalışır.
 
-[Üç dakikalık sunum ve deneme rehberi](docs/LOCAL-PRESENTATION.md) · [Uygulanan değişiklikler ve doğrulama](docs/PRODUCT-DELIVERY.md) · [Başlangıç yol haritası](docs/PRODUCT-ROADMAP.md)
+[Servis kılavuzu (insan dili)](docs/SERVIS-KILAVUZU.md) · [Üç dakikalık sunum](docs/LOCAL-PRESENTATION.md) · [Doğrulama](docs/PRODUCT-DELIVERY.md) · [Yol haritası](docs/PRODUCT-ROADMAP.md)
 
-**Bilimsel katalog v2:** Referans periyodik tablo, anlatımlı element/bileşik kayıtları, laboratuvar keşfi (`/lab`), `view/include/fields`, ETag ve açık CORS. Plan ve örnekler: [Bilimsel katalog](deploy/scientific-catalog.md). Başlangıç: `GET /api/v2/elements/fe`, `GET /api/v2/compounds/aspirin`.
+**Bilimsel katalog v2:** Referans periyodik tablo, anlatımlı element/bileşik kayıtları, laboratuvar keşfi (`/lab`), `view/include/fields`, ETag ve açık CORS. Canlı örnekler (Fe, H₂O, 400/404, ETag): uygulama `/docs`. Sözlük: `/sozluk`. Sözleşme: [Bilimsel katalog](deploy/scientific-catalog.md). Başlangıç: `GET /api/v2/elements/fe`, `GET /api/v2/compounds/h2o`.
 
-118 elementin ve 51 bileşiğin kaynaklı bilimsel özellikleri için halka açık API; yanında fiyat tablosu, ürün mağazası ve kişisel kasa. **Kredi** uygulamanın sanal para birimidir. Piyasa fiyatları, stoklar, ödeme ve kargo simülasyondur; gerçek borsa verisi, tahsilat veya fiziksel teslimat yoktur.
+118 elementin ve 167 bileşiğin kaynaklı bilimsel özellikleri için halka açık API; yanında fiyat tablosu, ürün mağazası ve kişisel kasa. **Kredi** uygulamanın sanal para birimidir. Piyasa fiyatları, stoklar, ödeme ve kargo simülasyondur; gerçek borsa verisi, tahsilat veya fiziksel teslimat yoktur.
 
 Yerel geliştirme: **[localhost:5173](http://localhost:5173)** · API: **[localhost:5000/api/v1](http://localhost:5000/api/v1)**. Docker web sürümü 3000 portunu kullanır.
 
@@ -95,7 +95,7 @@ Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, se
 ### Bilimsel veri ve alışveriş sözleşmesi
 
 - Elementlerin kütle, yoğunluk, sıcaklık, elektron dizilimi ve elektronegatiflik verisi [PubChem periyodik tablosundan](https://pubchem.ncbi.nlm.nih.gov/periodic-table/) alınan sürümlenmiş dosyadan gelir. Yanıtlarda `sourceUrl`, `retrievedAt` ve `units` bulunur; kaynaktaki bilinmeyen değerler `null` kalır. Atom numarası 119 gibi varsayımsal kayıtlar yayımlanmaz.
-- 51 bileşikte molekül formülü, molar kütle (`g/mol`), IUPAC adı, InChIKey ve PubChem bağlantısı bulunur. Allotrop ve preparatlar saf bir bileşik kaydı gibi sunulmaz. Mağaza 118 saf elementi ve mevcut bileşik/preparat ürünlerini listeler.
+- 167 bileşikte formül, molar kütle ve PubChem CID bulunur. 51 kayıt tam PubChem anlık görüntüsü + yapı görseli taşır; eklenenler eğitim kaydıdır (fiziksel/GHS alanları henüz dolu değil, yapı PNG yok). Allotrop ve preparatlar saf bir bileşik kaydı gibi sunulmaz. Mağaza SKU kataloğu ayrıdır.
 - Atlas katmanı (Türkçe anlatım, görseller, Wikipedia/PubChem linkleri) `node deploy/scripts/refresh-atlas.mjs` ile yeniden uygulanır; bilimsel yenilemeden sonra otomatik çalışır. Medya indirme: `node deploy/scripts/refresh-atlas.mjs --fetch`.
 - Veriyi bilinçli yenilemek için `node deploy/scripts/refresh-element-properties.mjs` ve `node deploy/scripts/refresh-compound-properties.mjs --force`; API çalışırken dış kaynağa bağımlı değildir.
 - Siparişe gram cinsinden sayısal `quantity` gönderilir (en fazla dört ondalık). `Idempotency-Key` olarak aynı UUID ile tekrar gönderilen aynı sipariş yalnız bir kez ücretlendirilir; farklı içerik `409` döner.
@@ -169,20 +169,21 @@ POST /api/v1/orders  →  Submitted
 
 ## Servis kataloğu
 
-Her servisin kendi README'si endpoint tabloları, ortam değişkenleri ve tek başına çalıştırma adımlarını içerir.
+Hangi kutu ne işe yarar: **[servis kılavuzu](docs/SERVIS-KILAVUZU.md)**. Her klasörün README’si aynı dilde, o kutuya özeldir.
 
 | Servis | Port | Stack | Rol | Dokümantasyon |
 |--------|------|-------|-----|---------------|
-| **gateway-service** | 5000 | .NET YARP | Tek giriş, API key, rate limit | [README](./gateway-service/README.md) |
-| **identity-service** | 5001 | .NET 9 | Auth, JWT, API anahtarları | [README](./identity-service/README.md) |
-| **catalog-service** | 5002 | .NET 9 | Element kataloğu, arama, stok | [README](./catalog-service/README.md) |
-| **compound-service** | 5007 | .NET 9 | Bileşik / allotrop / preparat | [README](./compound-service/README.md) |
-| **order-service** | 5003 | Node.js 22 | Sipariş + saga orkestrasyonu | [README](./order-service/README.md) |
-| **shipment-service** | 5004 | .NET 9 | Kargo worker + sorgu API | [README](./shipment-service/README.md) |
-| **payment-service** | 5005 | Java 21 | Ödeme worker | [README](./payment-service/README.md) |
-| **notification-service** | 5006 | .NET 9 | SignalR push bildirimleri | [README](./notification-service/README.md) |
-| **web-app** | 3000 | React + Vite | Tablo · laboratuvar · mağaza · API | [README](./web-app/README.md) |
-| **shared-lib** | — | .NET lib | Ortak event, logging, ops | [README](./shared-lib/README.md) |
+| **science-service** | 5080 | .NET 10 | Atlas tek kutu (DB yok) | [README](./science-service/README.md) |
+| **gateway-service** | 5000 | .NET 10 YARP | Kapı, API anahtarı, hız sınırı | [README](./gateway-service/README.md) |
+| **identity-service** | 5001 | .NET 10 | Hesap, JWT, anahtar, öğrenme | [README](./identity-service/README.md) |
+| **catalog-service** | 5002 | .NET 10 | 118 element: bilim + sanal stok | [README](./catalog-service/README.md) |
+| **compound-service** | 5007 | .NET 10 | Eğitim bileşiği ≠ mağaza SKU | [README](./compound-service/README.md) |
+| **order-service** | 5003 | Node.js 22 | Cüzdan, alış/satış, saga | [README](./order-service/README.md) |
+| **shipment-service** | 5004 | .NET 10 | Sahte kargo + takip | [README](./shipment-service/README.md) |
+| **payment-service** | 5005 | Java 21 | KREDI çekme işçisi | [README](./payment-service/README.md) |
+| **notification-service** | 5006 | .NET 10 | Canlı fiyat / sipariş haberi | [README](./notification-service/README.md) |
+| **web-app** | 3000 / 5173 | React + Vite | Tablo · laboratuvar · mağaza | [README](./web-app/README.md) |
+| **shared-lib** | — | .NET 10 lib | Ortak olay ve sağlık uçları | [README](./shared-lib/README.md) |
 
 ---
 
@@ -250,7 +251,7 @@ Tek Postgres instance, ayrı veritabanları:
 ./deploy/scripts/test-smoke.ps1   # Yerel servisler ayaktayken smoke test
 ```
 
-Günlük döngü: host’ta `start-local.ps1` + `web-app` Vite; Docker yalnız postgres/redis/rabbitmq (üstteki **Hızlı başlangıç**). Tek servisi Docker ile denemek için o servisin README’sine bakın — platformu her değişiklikte `docker compose up --build` ile yeniden derlemeyin.
+Günlük UI: çalışan kapıya karşı host Vite (`web-app` README). Tek servis için o klasörün README’si. Platformu her CSS satırında `docker compose up --build` etme. Ayrıntı: [servis kılavuzu](docs/SERVIS-KILAVUZU.md).
 
 ---
 
@@ -258,14 +259,14 @@ Günlük döngü: host’ta `start-local.ps1` + `web-app` Vite; Docker yalnız p
 
 Kâğıt kredi **para değildir**. Ev piyasa yapıcısı; emir defteri ve eşleştirme yok. MIT: [LICENSE](./LICENSE).
 
-**Public overlay** (host’ta yalnızca `:3000` + `:5000`; DB portları kapalı):
+**Public overlay** (host’ta yalnızca `:3000` + `:5000`; DB portları kapalı). Bu makine için alan adı **https://elements-api.ahmetfuzunkaya.com** — adım adım: [docs/PUBLIC-HOST.md](docs/PUBLIC-HOST.md) (`docker/.env.public.example` + `deploy/Caddyfile.elements-api.example`).
 
 ```bash
-cp docker/.env.example docker/.env   # sırları değiştir
+cp docker/.env.public.example docker/.env   # sırları değiştir (≥32, ChangeMe yok)
 docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.public.yml up -d --build
 ```
 
-TLS compose’da yok — önüne Caddy / nginx / Cloudflare koy.
+TLS compose’da yok — host Caddy (`deploy/Caddyfile.elements-api.example`). Compose `:443` bağlama.
 
 | Env | Ne işe yarar |
 |-----|----------------|
@@ -305,12 +306,14 @@ SPA: `index.html` varsayılan meta taşır; rota başlıkları istemcide `Seo` i
 
 ```
 element-api/
-├── gateway-service/     identity-service/    catalog-service/
-├── order-service/       shipment-service/    payment-service/
-├── notification-service/  web-app/           shared-lib/
+├── science-service/     gateway-service/     identity-service/
+├── catalog-service/     compound-service/    order-service/
+├── shipment-service/    payment-service/     notification-service/
+├── web-app/             shared-lib/
 ├── deploy/              docker/
-├── docker-compose.yml   docker/.env.example
-└── README.md            ← bu dosya
+├── docker-compose.yml   docker-compose.science.yml
+├── docs/SERVIS-KILAVUZU.md
+└── README.md
 ```
 
 ## Ön yüz ve ürün senaryoları
