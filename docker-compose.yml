@@ -402,7 +402,7 @@ services:
       PUBLIC_SITE_URL: ${VITE_PUBLIC_SITE_URL:-http://localhost:3000}
     container_name: element-web-app
     ports:
-      - "3000:80"
+      - "6241:80"
     depends_on:
       gateway-service:
         condition: service_healthy
