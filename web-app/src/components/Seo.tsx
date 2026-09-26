@@ -66,7 +66,7 @@ export default function Seo({
       "robots",
       noIndex ? "noindex, nofollow" : "index, follow",
     );
-    upsertMeta("name", "theme-color", "#F4F6F8");
+    upsertMeta("name", "theme-color", "#0E1110");
     upsertLink("canonical", url);
 
     upsertMeta("property", "og:type", ogType);
@@ -76,7 +76,7 @@ export default function Seo({
     upsertMeta("property", "og:description", description);
     upsertMeta("property", "og:url", url);
     upsertMeta("property", "og:image", image);
-    upsertMeta("property", "og:image:alt", "ElementAPI periyodik tablo");
+    upsertMeta("property", "og:image:alt", "ElementAPI · kimya atlası");
     upsertMeta("property", "og:image:width", "1200");
     upsertMeta("property", "og:image:height", "630");
 
@@ -84,6 +84,7 @@ export default function Seo({
     upsertMeta("name", "twitter:title", title);
     upsertMeta("name", "twitter:description", description);
     upsertMeta("name", "twitter:image", image);
+    upsertMeta("name", "twitter:image:alt", "ElementAPI · kimya atlası");
 
     const scriptId = "json-ld-seo";
     let script = document.getElementById(scriptId) as HTMLScriptElement | null;

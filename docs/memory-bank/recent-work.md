@@ -1,3 +1,14 @@
+# Son çalışma — 26 Eylül 2026 (web-app SEO / OpenGraph)
+
+Commit yok. Kullanıcı: production-ready SEO/OG (SPA).
+
+- Zaten vardı: `Seo.tsx`, `index.html` OG/Twitter, `og.png`, `robots.txt` + `write-sitemap.mjs` (347 URL), `finalize-static` / Docker `__SITE_URL__` ↔ `VITE_PUBLIC_SITE_URL` / `PUBLIC_SITE_URL`.
+- Eklendi/sıkılaştırıldı: landing Organization+WebSite JSON-LD (static + client); auth/private `noIndex` (login/register/account + mevcut settings/recovery/collection/feedback); 404 + FeatureUnavailable noindex; robots Disallow private paths; theme-color void `#0E1110`; twitter/og image:alt; market/shop/docs clean canonical (query yok); marka “ElementAPI”.
+- Test: `tests/seo-static.test.mjs`. Doğrulama: `npm test` 22/22; `npm run build` yeşil.
+- Bilinçli sınır: SPA — JS çalıştırmayan crawler’lar derin rota meta’sı yerine `index.html` varsayılanını görür.
+
+---
+
 # Son çalışma — 26 Eylül 2026 (Jenkins local unlock + Multibranch seed)
 
 Commit yok. Controller `element-jenkins` :8085 wizard API ile tamamlandı; admin → `docker/.jenkins-local-admin.txt` (gitignored). Multibranch `element-api` Job DSL ile seed; scan SUCCESS ama remote `main`’de henüz `Jenkinsfile` yok → branch yok. PAT/`github-element-api` + agent toolchain hâlâ kullanıcıda. Docs: `CI-JENKINS.md` unlock one-liner.

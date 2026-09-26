@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useCommerce, useSelectedElement } from "../App";
-import { pagePath } from "../config";
 import Seo from "../components/Seo";
 import {
   addToCart,
@@ -314,9 +313,9 @@ export default function Shop() {
   return (
     <main className="page shop-page">
       <Seo
-        title="Mağaza · Element API"
+        title="Mağaza · ElementAPI"
         description="Bileşik, allotrop ve preparat. Fiyat, ana element alış × çarpan."
-        path={pagePath("/shop", selectedSymbol)}
+        path="/shop"
       />
       <section className="shop-header">
         <div className="shop-header-copy">

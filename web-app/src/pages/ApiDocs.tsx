@@ -24,10 +24,8 @@ import {
   ACCOUNTS_ENABLED,
   SCIENCE_BASE_URL,
   getPublicSiteUrl,
-  pagePath,
   publicApiUrl,
 } from "../config";
-import { useSelectedElement } from "../App";
 import Seo from "../components/Seo";
 import { highlightJson, jsonSource } from "../lib/highlightJson";
 
@@ -157,7 +155,6 @@ const QUERY_ROWS = [
 ];
 
 export default function ApiDocs() {
-  const { selectedSymbol } = useSelectedElement();
   const [activeLang, setActiveLang] = useState<Language>("curl");
   const [tryItEndpoint, setTryItEndpoint] = useState(FE);
   const [apiResponse, setApiResponse] = useState<unknown>({ loading: true });
@@ -272,7 +269,7 @@ export default function ApiDocs() {
       <Seo
         title="Bilimsel API · ElementAPI"
         description="Fe ve H2O örnekleri, fields/view/filtre, ETag/304 ve hata gövdeleri. Anahtar yok. KREDI simülasyonu ayrı v1 uçlarda."
-        path={pagePath("/docs", selectedSymbol)}
+        path="/docs"
         jsonLd={{
           "@type": "WebAPI",
           name: "ElementAPI",

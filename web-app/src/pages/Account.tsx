@@ -91,6 +91,7 @@ export default function Account() {
       title="Hesap · ElementAPI"
       description="Cüzdan ve API anahtarı."
       path="/account"
+      noIndex
     />
   );
 

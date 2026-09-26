@@ -13,7 +13,6 @@ import {
   type Ticker,
   type Holding,
 } from "../services/api";
-import { pagePath } from "../config";
 import Seo from "../components/Seo";
 
 const fmt = (n: number, digits = 2) =>
@@ -244,9 +243,9 @@ export default function Market() {
   return (
     <main className="page desk-page">
       <Seo
-        title="Piyasa · Element API"
+        title="Piyasa · ElementAPI"
         description={`${selectedElement.name} (${selectedSymbol}) fiyat tablosu: son fiyat, alış, satış.`}
-        path={pagePath("/market", selectedSymbol)}
+        path="/market"
       />
 
       <header className="firm-head">

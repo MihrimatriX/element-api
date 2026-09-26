@@ -84,6 +84,7 @@ export default function Register() {
         title="Kayıt · ElementAPI"
         description="Keşiflerini ve öğrenme rotalarını farklı cihazlarda sürdür."
         path="/register"
+        noIndex
       />
       <div className="auth-sheet">
         <p className="auth-kicker">Hesap</p>

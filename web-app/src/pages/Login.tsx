@@ -69,6 +69,7 @@ export default function Login() {
         title="Giriş · ElementAPI"
         description="Hesabına giriş. Keşiflerine kaldığın yerden devam et."
         path="/login"
+        noIndex
       />
       <div className="auth-sheet">
         <p className="auth-kicker">Hesap</p>

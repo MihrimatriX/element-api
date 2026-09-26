@@ -17,7 +17,8 @@ Kaynak gerçek: kök README **[Eksikler…](../../README.md#eksikler-ve-yapmak-i
 - **Fotoğraf:** 75/118; kötü lisansla doldurma yok.
 - **v2 açık:** RL + isteğe CF proxy.
 - **Playwright:** `e2e/` dolu (atlas-lab + auth smoke); canlı sipariş `e2e-live` stack ister.
+- **SEO/OG:** Vite SPA; JS’siz crawler’lar derin rota meta’sı yerine `index.html` + runtime `__SITE_URL__` alır. Ayrı yasal sayfa rotası yok (API şartları docs).
 
 ## Çalışma ağacı
 
-Uncommitted operator leftover track; kullanıcı istemeden commit/push yok.
+Uncommitted SEO + operator leftover tracks; kullanıcı istemeden commit/push yok.

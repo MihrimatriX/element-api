@@ -3,9 +3,13 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Code2, FlaskConical, Grid2X2, BookMarked } from "lucide-react";
 import Seo from "../components/Seo";
 import { Button } from "../components/ui/button";
+import { getPublicSiteUrl } from "../config";
 
 const HERO_PHOTO = "/brand/elementapi-hero-void-cuprite.jpg";
 const LAB_PHOTO = "/brand/elementapi-lab-glass.jpg";
+const SITE = getPublicSiteUrl();
+const LANDING_DESC =
+  "118 element, 214 bileşik. Periyodik tablodan laboratuvara, deftere ve açık bilimsel API’ye.";
 
 const ORBIT = [
   "H",
@@ -51,8 +55,23 @@ export default function Landing() {
     <main className="product-landing product-landing--void">
       <Seo
         title="ElementAPI · Kimya kayıtları ve açık API"
-        description="118 element, 214 bileşik. Periyodik tablodan laboratuvara, deftere ve açık bilimsel API’ye."
+        description={LANDING_DESC}
         path="/"
+        jsonLd={[
+          {
+            "@type": "Organization",
+            name: "ElementAPI",
+            url: `${SITE}/`,
+            logo: `${SITE}/brand/mark.svg`,
+          },
+          {
+            "@type": "WebSite",
+            name: "ElementAPI",
+            url: `${SITE}/`,
+            inLanguage: "tr",
+            description: LANDING_DESC,
+          },
+        ]}
       />
 
       <section className="product-hero" aria-label="ElementAPI">

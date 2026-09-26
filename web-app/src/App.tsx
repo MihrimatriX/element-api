@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import ProductShell from "./components/ProductShell";
+import Seo from "./components/Seo";
 import { track } from "./services/diagnostics";
 import {
   Suspense,
@@ -317,8 +318,15 @@ function LegacyRedirect({ to }: { to: string }) {
 }
 
 function FeatureUnavailable() {
+  const { pathname } = useLocation();
   return (
     <main className="science-detail page-miss">
+      <Seo
+        title="Bu kurulum · ElementAPI"
+        description="Hesap ve ticaret bu atlas kurulumunda kapalı. Keşif ve laboratuvar açık."
+        path={pathname}
+        noIndex
+      />
       <h1>Bu kurulum keşif için hazır.</h1>
       <p>
         Hesap ve ticaret servisleri bu bağımsız atlas sürümünde açık değil.
@@ -448,6 +456,12 @@ function AppContent() {
                 path="*"
                 element={
                   <main className="page page-miss">
+                    <Seo
+                      title="Sayfa bulunamadı · ElementAPI"
+                      description="Bu bağlantı artık geçerli olmayabilir."
+                      path="/"
+                      noIndex
+                    />
                     <h1>Sayfa bulunamadı</h1>
                     <p>
                       Bu bağlantı artık geçerli olmayabilir. Su hâlâ /lab, Demir
