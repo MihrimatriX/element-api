@@ -28,7 +28,7 @@ export default class ErrorBoundary extends Component<
           >
             Yeniden dene
           </Button>{" "}
-          <a href="/">Keşfe dön</a>
+          <a href="/">Ana sayfa</a>
         </main>
       );
     return this.props.children;

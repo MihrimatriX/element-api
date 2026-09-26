@@ -36,6 +36,8 @@ assert.doesNotMatch(product, /product-chapters/);
 assert.doesNotMatch(product, /product-landing--wow/);
 assert.doesNotMatch(landing, /—|–/);
 assert.match(landing, /product-landing--void/);
+assert.match(landing, /Atomdan bileşiğe\./);
+assert.doesNotMatch(landing, /Hücreden moleküle/);
 assert.match(landing, /elementapi-hero-void-cuprite/);
 assert.match(landing, /214/);
 assert.doesNotMatch(landing, /\b167\b/);

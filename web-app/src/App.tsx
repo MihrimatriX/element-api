@@ -323,14 +323,14 @@ function FeatureUnavailable() {
     <main className="science-detail page-miss">
       <Seo
         title="Bu kurulum · ElementAPI"
-        description="Hesap ve ticaret bu atlas kurulumunda kapalı. Keşif ve laboratuvar açık."
+        description="Hesap ve ticaret kapalı. Tablo, laboratuvar ve defter açık."
         path={pathname}
         noIndex
       />
-      <h1>Bu kurulum keşif için hazır.</h1>
+      <h1>Bu kurulumda hesap kapalı</h1>
       <p>
-        Hesap ve ticaret servisleri bu bağımsız atlas sürümünde açık değil.
-        Keşiflerini bu tarayıcıda sürdürebilirsin. Su için iki H, bir O yeter.
+        Bağımsız atlas: hesap ve ticaret yok. Tablo, laboratuvar ve defter
+        açık; ilerleme bu tarayıcıda kalır. Su için iki H, bir O yeter.
       </p>
       <Button asChild variant="default">
         <Link className="btn primary" to="/lab">

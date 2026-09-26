@@ -53,7 +53,7 @@ export default function Compounds() {
           </p>
         </div>
         <Link to="/periodic" className="science-text-link">
-          Elementleri keşfet <ArrowUpRight size={16} />
+          Periyodik tablo <ArrowUpRight size={16} />
         </Link>
       </section>
       <div className="explorer-toolbar">

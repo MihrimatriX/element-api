@@ -246,7 +246,7 @@ export default function ProductShell({ children }: { children: ReactNode }) {
               <BrandMark className="workspace-mark" />
               ElementAPI
             </Link>
-            <span className="workspace-footer-tagline">Hücreden moleküle.</span>
+            <span className="workspace-footer-tagline">Atomdan bileşiğe.</span>
             <span>Kimya kayıtları, laboratuvar ve açık bilimsel API.</span>
           </div>
           <nav>

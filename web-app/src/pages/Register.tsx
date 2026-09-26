@@ -82,7 +82,7 @@ export default function Register() {
     <div className="auth-container">
       <Seo
         title="Kayıt · ElementAPI"
-        description="Keşiflerini ve öğrenme rotalarını farklı cihazlarda sürdür."
+        description="Defteri cihazlar arasında eşitle. 10.000 sanal kredi ve ticaret anahtarı."
         path="/register"
         noIndex
       />
@@ -90,8 +90,8 @@ export default function Register() {
         <p className="auth-kicker">Hesap</p>
         <h1>Hesap aç</h1>
         <p className="auth-lead">
-          Defterin cihazlar arası eşitlensin. 10.000 kredi, API anahtarı ve
-          sipariş geçmişi hesabına bağlanır.
+          Defter cihazlar arası eşitlenir. Kayıtta 10.000 sanal kredi, bir
+          ticaret anahtarı ve sipariş geçmişi gelir.
         </p>
         <ul className="auth-perks">
           <li>Keşif defteri her cihazda aynı</li>

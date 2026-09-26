@@ -113,7 +113,7 @@ export default function Settings() {
     <main className="science-detail settings-page">
       <Seo
         title="Hesap ayarları · ElementAPI"
-        description="Hesap ve güvenlik ayarların."
+        description="Profil, şifre ve hesap verisi."
         path="/settings"
         noIndex
       />

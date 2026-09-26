@@ -18,7 +18,7 @@ const quests = [
     to: "/lab/formula",
     icon: Sigma,
     title: "Formülü kur",
-    blurb: "Atomları doğru sıraya diz",
+    blurb: "Adı oku, atom sayısını bas",
   },
   {
     to: "/lab/detective",

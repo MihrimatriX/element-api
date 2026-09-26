@@ -1,5 +1,11 @@
 # Decisions
 
+## Brand slogan: Atomdan bileşiğe.
+
+**Decision:** Product tagline is **Atomdan bileşiğe.** (Landing h1 + ProductShell footer). Do not use “Hücreden moleküle.”
+
+**Why:** Element Market / ElementAPI is periodic table + compounds + lab. Cell→molecule is biology scale/direction; atom→compound matches the product.
+
 ## FAL (Free Art License) for element photos
 
 **Decision:** Treat FAL / Free Art License as openly reusable, same bucket as CC BY / CC0 / Public domain.

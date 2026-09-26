@@ -14,7 +14,7 @@ Son geri bildirim: Bileşikler ve oyunlar yetersizdi. 17 Eylül 2026: bileşik k
 
 Ürün yerelde ve public compose ile sunuma hazır olmalı. Alan adı: **elements-api.ahmetfuzunkaya.com** ([PUBLIC-HOST.md](../PUBLIC-HOST.md)). Yayın kararı: **e-postasız beta** (SMTP boş, kurtarma kapalı); Resend tercihi sonra, henüz anahtar yok.
 
-Arayüz: slogan “Hücreden moleküle.” Kabuk **void mineral** (zemin `#0c0f0e`, plaka `#141a18`, mürekkep `#e8ecea`, vurgu cuprite `#812f26` tek accent, başlık Bricolage Grotesque, gövde Source Sans 3 18px). Marka: orbital-E monogram (`/brand/mark.svg`). Landing + ürün yüzeyleri aynı dark mineral dil; light museum sandwich yok. Periyodik: void chart + muted family swatches + plinth hücre. Bileşik kartı yatay katalog şerit + PubChem 2D yapı PNG (`media.structure`); `media.photo` bileşiklerde null. shadcn/Radix kabuk; ikinci tasarım sistemi yok. `/market` `/shop` `/account` `/demo`: KREDI sanal, gerçek para yok (banner).
+Arayüz: slogan “Atomdan bileşiğe.” (atom → molekül → bileşik; biyoloji/hücre değil). Kabuk **void mineral** (zemin `#0c0f0e`, plaka `#141a18`, mürekkep `#e8ecea`, vurgu cuprite `#812f26` tek accent, başlık Bricolage Grotesque, gövde Source Sans 3 18px). Marka: orbital-E monogram (`/brand/mark.svg`). Landing + ürün yüzeyleri aynı dark mineral dil; light museum sandwich yok. Periyodik: void chart + muted family swatches + plinth hücre. Bileşik kartı yatay katalog şerit + PubChem 2D yapı PNG (`media.structure`); `media.photo` bileşiklerde null. shadcn/Radix kabuk; ikinci tasarım sistemi yok. `/market` `/shop` `/account` `/demo`: KREDI sanal, gerçek para yok (banner).
 
 ## Kaynak dosyalar
 

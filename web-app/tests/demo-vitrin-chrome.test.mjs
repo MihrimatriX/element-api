@@ -15,7 +15,7 @@ assert.match(
 );
 assert.match(
   demo,
-  /fırsat buldukça geliştirmeye devam\s+edeceğiz/,
+  /Bu vitrin değişebilir\. Atlas ve laboratuvar buradan bağımsızdır\./,
 );
 assert.match(demo, /to="\/market"/);
 assert.match(demo, /to="\/shop"/);

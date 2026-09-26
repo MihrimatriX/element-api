@@ -1,3 +1,25 @@
+# Son çalışma — 26 Eylül 2026 (slogan: Atomdan bileşiğe.)
+
+Commit yok. Kullanıcı: “Hücreden moleküle.” ürün için yanlış ölçek (biyoloji); atom/molekül/bileşik istiyor.
+
+- Tek slogan: **Atomdan bileşiğe.** — Landing h1 + ProductShell footer + `docs/brand` + memory-bank.
+- Eski satır geri gelmesin: hücre→molekül biyoloji; ürün periyodik + bileşik + lab.
+- Doğrulama: `npm --prefix web-app test` (+ build).
+
+---
+
+# Son çalışma — 26 Eylül 2026 (web-app AI-fluff copy pass)
+
+Commit yok. Kullanıcı: web’de anlamsız/AI duran metinleri bul ve düzelt.
+
+- Landing: “Karıştır. Dene. Gör.” / “Atlası aç.” / “uygulamana hazır” → somut tezgâh + API + sayı dili; hero/ölçüm satırları sadeleşti.
+- Demo vitrin evolve cümlesi dürüst sınır; `demo-vitrin-chrome` assert güncellendi.
+- Compounds/Collection/Lab/API/auth SEO + empty/CTA: “keşfet/hazır/şimdi dene” klişeleri yerine tablo/tezgâh/defter dili.
+- Bilinçli bırakılanlar (o turda): Guide/Glossary/About somut metin; Market/Shop demo uyarıları. Slogan sonradan “Atomdan bileşiğe.” oldu.
+- Doğrulama: `npm test` 22/22; `npm run build` yeşil.
+
+---
+
 # Son çalışma — 26 Eylül 2026 (web-app SEO / OpenGraph)
 
 Commit yok. Kullanıcı: production-ready SEO/OG (SPA).

@@ -48,8 +48,8 @@ export default function Feedback() {
   return (
     <main className="science-detail void-page void-enter feedback-page">
       <Seo
-        title="Deneyim notları · ElementAPI"
-        description="Yerel deneme sırasında öğrendiklerini ve karşılaştığın sorunları kaydet."
+        title="Geri bildirim · ElementAPI"
+        description="Yerel not ve isteğe bağlı deneme kaydı. Sunucuya otomatik gitmez."
         path="/feedback"
         noIndex
       />

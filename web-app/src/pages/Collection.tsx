@@ -296,14 +296,14 @@ export default function Collection() {
           <div className="learning-empty">
             <WorkshopMarks beat="water" />
             <FlaskConical size={30} />
-            <h3>Defterin boş, panelin hazır.</h3>
+            <h3>Henüz bileşik yok</h3>
             <p>
               İki hidrojen, bir oksijen. Su burada görününce tuzu dene.{" "}
               <Link to="/nasil">El kitabı</Link>
             </p>
             <Button asChild variant="default">
               <Link className="btn primary" to="/lab">
-                İlk keşfimi yap
+                Laboratuvara git
               </Link>
             </Button>
           </div>

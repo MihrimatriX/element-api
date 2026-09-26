@@ -101,9 +101,9 @@ export default function Landing() {
             />
             <p className="product-hero-brand">ElementAPI</p>
           </div>
-          <h1>Hücreden moleküle.</h1>
+          <h1>Atomdan bileşiğe.</h1>
           <p className="product-hero-lead">
-            118 element, 214 bileşik. Tabloyu aç, laboratuvara gir, kaydı kullan.
+            118 element, 214 bileşik. Tablo, laboratuvar, defter ve açık API.
           </p>
           <div className="product-hero-cta">
             <Button asChild size="lg">
@@ -144,11 +144,11 @@ export default function Landing() {
           <div className="product-measure-side">
             <Link to="/lab" className="product-measure-row">
               <strong>214</strong>
-              <span>bileşik keşfi</span>
+              <span>bileşik</span>
             </Link>
             <Link to="/developers" className="product-measure-row">
               <strong>API</strong>
-              <span>anahtarsız uçlar</span>
+              <span>anahtarsız v2</span>
             </Link>
           </div>
         </motion.div>
@@ -166,10 +166,10 @@ export default function Landing() {
         </div>
         <div className="product-stage-veil" aria-hidden="true" />
         <motion.div className="product-stage-copy" {...(reveal ?? {})}>
-          <h2 id="stage-title">Karıştır. Dene. Gör.</h2>
+          <h2 id="stage-title">Tezgâhta birleştir</h2>
           <p>
-            Sürükle-bırak laboratuvar. Hit, almost, impossible. Gerçek tarif
-            değil, gerçek stoikiometri.
+            Paletten sürükle, oranı ayarla, Dene. Hit, almost, impossible.
+            Gerçek deney tarifi değil; stoikiometri ve bilinen molekül.
           </p>
           <Button asChild size="lg">
             <Link to="/lab">
@@ -185,7 +185,7 @@ export default function Landing() {
           <div className="product-signal-copy">
             <h2 id="signal-title">Açık bilimsel API</h2>
             <p>
-              Alan seçimi, ETag, Türkçe kayıt. Anahtarsız uçlar uygulamana hazır.
+              Alan seçimi, ETag, Türkçe kayıt. Bilimsel v2 anahtar istemez.
             </p>
             <Button asChild>
               <Link to="/developers">
@@ -203,9 +203,9 @@ Accept-Language: tr`}</code>
 
       <section className="product-close" aria-label="Kapanış">
         <motion.div className="product-close-inner" {...(reveal ?? {})}>
-          <p className="product-close-tag">Atlası aç.</p>
+          <p className="product-close-tag">118 hücre · 214 bileşik</p>
           <p className="product-close-lead">
-            Kaydı kendi uygulamanda kullan. Defterine yaz.
+            Tabloyu aç veya Fe’yi API’den çek. Defter tarayıcıda durur.
           </p>
           <div className="product-close-cta">
             <Button asChild size="lg">

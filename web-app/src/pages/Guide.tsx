@@ -86,8 +86,8 @@ export default function Guide() {
           <p className="void-kicker">El kitabı</p>
           <h1>İlk 10 dakika</h1>
           <p className="lead">
-            Atlas'ta bul, laboratuvarda kur, defterde biriktir. İstersen
-            pazarda dene. Hesap şart değil.
+            Demir’i bul, suyu kur, defteri yedekle. Hesap şart değil; piyasa
+            ayrı bir kredi demosu.
           </p>
           <ol className="process guide-steps void-stagger">
             {steps.map((step, i) => (

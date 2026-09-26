@@ -227,7 +227,7 @@ export default function PeriodicExplorer() {
         <div>
           <p className="museum-mast-meta">118 hücre · kaynaklı atlas</p>
           <h1>Periyodik tablo</h1>
-          <p>Bir elemente dokun; kütle, hâl ve kaynaklı özeti gör.</p>
+          <p>Hücreye dokun; kütle, hâl ve kaynaklı özet.</p>
         </div>
         <Link to="/lab" className="museum-mast-cta">
           Laboratuvar <ArrowUpRight size={15} />

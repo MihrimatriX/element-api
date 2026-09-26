@@ -335,7 +335,8 @@ export default function ScientificDetail({
     return (
       <main className="science-detail atlas-detail atlas-detail--void">
         <Link to={back} className="science-text-link">
-          <ArrowLeft size={16} /> Keşfe dön
+          <ArrowLeft size={16} />{" "}
+          {kind === "elements" ? "Tabloya dön" : "Bileşiklere dön"}
         </Link>
         <h1>{error ?? "Bilimsel kayıt yükleniyor…"}</h1>
         {error && (
@@ -513,7 +514,7 @@ export default function ScientificDetail({
                 }
               >
                 <FlaskConical size={15} />{" "}
-                {compound ? "Formülü kur" : "Laboratuvarda keşfet"}
+                {compound ? "Formülü kur" : "Laboratuvara al"}
               </Link>
             )}
           </div>
@@ -530,7 +531,7 @@ export default function ScientificDetail({
       <div className="science-detail-layout">
         <aside className="science-detail-nav">
           <a href="#overview">
-            Nedir, nerede kullanılır? <ArrowUpRight size={13} />
+            Özet <ArrowUpRight size={13} />
           </a>
           {compound && (
             <a href="#geometry">

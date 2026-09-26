@@ -382,7 +382,7 @@ export default function Laboratory() {
     >
       <Seo
         title="Laboratuvar · ElementAPI"
-        description="Element sürükle, karıştır, bak ne çıkar. Bilinen moleküller deftere yazılır; uydurma tepkime yok."
+        description="Paletten tezgâha sürükle, Dene’ye bas. Bilinen molekül deftere yazılır; uydurma tepkime yok."
         path="/lab"
       />
       <header className="lab-heading">
@@ -427,7 +427,7 @@ export default function Laboratory() {
           </strong>
           <span>
             {found.length === 0
-              ? "Henüz keşif yok — ilk molekülü dene"
+              ? `0 / ${catalogSize} — tezgâhta ilk molekülü dene`
               : found.length === catalogSize
                 ? "Katalog tamam"
                 : `%${pct} · ${catalogSize - found.length} kaldı`}
@@ -451,7 +451,7 @@ export default function Laboratory() {
                 .filter((id) => !found.includes(id))
                 .map((id) => compoundBySlug[id].nameTr)
                 .join(" · ") ||
-                "Keşifler hazır. Koleksiyonundaki kısa soruyla rotayı tamamla."}
+                "Hepsi kayıtlı. Koleksiyondaki soruyu aç."}
             </p>
           </div>
           <Link to="/collection">Rotaya dön</Link>
@@ -663,7 +663,7 @@ export default function Laboratory() {
                 onClick={() => {
                   const next = hint(found);
                   if (!next) {
-                    setTip("Katalogdaki bütün bileşikleri keşfettin.");
+                    setTip("Katalogdaki bütün bileşikler kayıtlı.");
                     setTone(null);
                     return;
                   }

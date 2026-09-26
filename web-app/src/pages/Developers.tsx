@@ -66,7 +66,7 @@ export default function Developers() {
         <h1>ElementAPI API</h1>
         <p className="lead">
           118 element ve 214 bileşik. PubChem, RSC ve NIST kaynaklı Türkçe
-          kayıtlar. Hesap yok, anahtar yok; ilk isteği şimdi dene.
+          kayıtlar. Hesap yok, anahtar yok.
         </p>
         <div className="api-hero-cta">
           <Button asChild>
@@ -99,7 +99,7 @@ export default function Developers() {
       </section>
 
       <section className="api-abilities">
-        <h2>Ne alırsın</h2>
+        <h2>Ne var</h2>
         <dl>
           <div>
             <dt>
@@ -131,7 +131,7 @@ export default function Developers() {
       </section>
 
       <section className="api-who">
-        <h2>Kim için</h2>
+        <h2>Kim kullanır</h2>
         <ul>
           <li>Uygulama, bot veya eklentiye element/bileşik verisi çekenler</li>
           <li>Ders materyaline kaynaklı sayı ve Türkçe anlatım taşıyanlar</li>
@@ -163,7 +163,7 @@ export default function Developers() {
       </section>
 
       <section className="api-next">
-        <h2>Sonraki adım</h2>
+        <h2>Bağlantılar</h2>
         <p>
           <Link to="/docs">Deneme tezgâhında Fe veya H₂O iste</Link>
           {" · "}

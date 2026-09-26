@@ -27,8 +27,7 @@ export default function Demo() {
           fiziksel kargo veya canlı borsa yok; para birimi sanal KREDI.
         </p>
         <p className="demo-frame-evolve">
-          Platform hâlâ şekilleniyor; fırsat buldukça geliştirmeye devam
-          edeceğiz.
+          Bu vitrin değişebilir. Atlas ve laboratuvar buradan bağımsızdır.
         </p>
       </aside>
 

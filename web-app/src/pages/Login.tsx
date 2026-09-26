@@ -67,7 +67,7 @@ export default function Login() {
     <div className="auth-container">
       <Seo
         title="Giriş · ElementAPI"
-        description="Hesabına giriş. Keşiflerine kaldığın yerden devam et."
+        description="E-posta ve şifre ile giriş. Defter, anahtar ve sipariş hesabına bağlıdır."
         path="/login"
         noIndex
       />
@@ -75,8 +75,8 @@ export default function Login() {
         <p className="auth-kicker">Hesap</p>
         <h1>Giriş yap</h1>
         <p className="auth-lead">
-          Defterine, API anahtarına ve siparişlerine kaldığın yerden devam et.
-          Misafirken kayıtlar yalnız bu tarayıcıda durur.
+          Defter, API anahtarı ve sipariş geçmişi hesaba bağlıdır. Misafirken
+          kayıtlar yalnız bu tarayıcıda durur.
         </p>
         {error && (
           <p className="auth-error" role="alert">
