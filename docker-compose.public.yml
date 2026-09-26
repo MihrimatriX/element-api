@@ -1,0 +1,118 @@
+# Public single-host stack (dev / test / prod).
+# Infra + app ports closed on the host (!override []); only Caddy publishes HTTP(S).
+# Do not re-publish postgres/redis/gateway/web ports on a public server.
+# Env files set ELEMENT_ENV, CADDY_*, ASPNETCORE_*.
+#
+#   ./deploy/scripts/present-public.ps1 -Environment Dev|Test|Prod
+#   ./deploy/scripts/present-public.ps1 -All          # side-by-side local :8080/:8081/:8082
+#   # or: docker compose -p element-dev --env-file docker/.env.public.dev \
+#   #        -f docker-compose.yml -f docker-compose.public.yml up -d --build
+#
+# See docs/PUBLIC-HOST.md. Atlas-only: docker-compose.science.yml (unchanged).
+
+services:
+  postgres:
+    container_name: element-${ELEMENT_ENV:-prod}-postgres
+    ports: !override []
+  redis:
+    container_name: element-${ELEMENT_ENV:-prod}-redis
+    ports: !override []
+  rabbitmq:
+    container_name: element-${ELEMENT_ENV:-prod}-rabbitmq
+    ports: !override []
+  identity-service:
+    container_name: element-${ELEMENT_ENV:-prod}-identity-service
+    ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      JwtSettings__Secret: ${JWT_SECRET:?Set a unique JWT_SECRET}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:?Set PUBLIC_WEB_ORIGIN}
+      # Empty = captcha off. Prod: set CAPTCHA_SECRET_KEY (+ VITE_CAPTCHA_SITE_KEY, rebuild web).
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
+  catalog-service:
+    container_name: element-${ELEMENT_ENV:-prod}-catalog-service
+    ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      PUBLIC_API_BASE: ${PUBLIC_API_BASE:?Set PUBLIC_API_BASE}
+  compound-service:
+    container_name: element-${ELEMENT_ENV:-prod}-compound-service
+    ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      PUBLIC_API_BASE: ${PUBLIC_API_BASE:?Set PUBLIC_API_BASE}
+  order-service:
+    container_name: element-${ELEMENT_ENV:-prod}-order-service
+    ports: !override []
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
+  wallet-service:
+    container_name: element-${ELEMENT_ENV:-prod}-wallet-service
+    ports: !override []
+    environment:
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
+      # Smaller demo grant on public hosts (local compose keeps default 10000).
+      WALLET_WELCOME_GRANT: ${WALLET_WELCOME_GRANT:-1000}
+  inventory-service:
+    container_name: element-${ELEMENT_ENV:-prod}-inventory-service
+    ports: !override []
+  shipment-service:
+    container_name: element-${ELEMENT_ENV:-prod}-shipment-service
+    ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+  notification-service:
+    container_name: element-${ELEMENT_ENV:-prod}-notification-service
+    ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:?Set PUBLIC_WEB_ORIGIN}
+  gateway-service:
+    container_name: element-${ELEMENT_ENV:-prod}-gateway-service
+    ports: !override []
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:?Set PUBLIC_WEB_ORIGIN}
+      # Caddy → gateway on compose network. Empty falls back to RFC1918 in ClientIp.
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+  web-app:
+    container_name: element-${ELEMENT_ENV:-prod}-web-app
+    image: element-web-app-${ELEMENT_ENV:-prod}
+    ports: !override []
+    build:
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
+        VITE_PUBLIC_SITE_URL: ${VITE_PUBLIC_SITE_URL:?Set VITE_PUBLIC_SITE_URL}
+        VITE_CAPTCHA_SITE_KEY: ${VITE_CAPTCHA_SITE_KEY:-}
+    environment:
+      PUBLIC_SITE_URL: ${VITE_PUBLIC_SITE_URL:?Set VITE_PUBLIC_SITE_URL}
+
+  caddy:
+    image: caddy:2.9-alpine
+    container_name: element-${ELEMENT_ENV:-prod}-caddy
+    environment:
+      CADDY_SITE: ${CADDY_SITE:?Set CADDY_SITE (e.g. http://:80 or elements-api.ahmetfuzunkaya.com)}
+    ports:
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
+      - "${CADDY_HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./deploy/Caddyfile.elements-api:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web-app:
+        condition: service_healthy
+      gateway-service:
+        condition: service_healthy
+    networks:
+      - element-network
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

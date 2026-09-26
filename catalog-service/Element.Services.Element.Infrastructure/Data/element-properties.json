@@ -1,0 +1,1068 @@
+{
+  "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/periodic-table/",
+  "retrievedAt": "2026-09-05",
+  "elements": {
+    "H": {
+      "atomicMass": 1.008,
+      "electronegativity": 2.2,
+      "density": 0.00008988,
+      "meltingPoint": 13.81,
+      "boilingPoint": 20.28,
+      "electronConfiguration": "1s1",
+      "yearDiscovered": 1766
+    },
+    "He": {
+      "atomicMass": 4.0026,
+      "electronegativity": null,
+      "density": 0.0001785,
+      "meltingPoint": 0.95,
+      "boilingPoint": 4.22,
+      "electronConfiguration": "1s2",
+      "yearDiscovered": 1868
+    },
+    "Li": {
+      "atomicMass": 7,
+      "electronegativity": 0.98,
+      "density": 0.534,
+      "meltingPoint": 453.65,
+      "boilingPoint": 1615,
+      "electronConfiguration": "[He]2s1",
+      "yearDiscovered": 1817
+    },
+    "Be": {
+      "atomicMass": 9.012183,
+      "electronegativity": 1.57,
+      "density": 1.85,
+      "meltingPoint": 1560,
+      "boilingPoint": 2744,
+      "electronConfiguration": "[He]2s2",
+      "yearDiscovered": 1798
+    },
+    "B": {
+      "atomicMass": 10.81,
+      "electronegativity": 2.04,
+      "density": 2.37,
+      "meltingPoint": 2348,
+      "boilingPoint": 4273,
+      "electronConfiguration": "[He]2s2 2p1",
+      "yearDiscovered": 1808
+    },
+    "C": {
+      "atomicMass": 12.011,
+      "electronegativity": 2.55,
+      "density": 2.267,
+      "meltingPoint": 3823,
+      "boilingPoint": 4098,
+      "electronConfiguration": "[He]2s2 2p2",
+      "yearDiscovered": null
+    },
+    "N": {
+      "atomicMass": 14.007,
+      "electronegativity": 3.04,
+      "density": 0.0012506,
+      "meltingPoint": 63.15,
+      "boilingPoint": 77.36,
+      "electronConfiguration": "[He] 2s2 2p3",
+      "yearDiscovered": 1772
+    },
+    "O": {
+      "atomicMass": 15.999,
+      "electronegativity": 3.44,
+      "density": 0.001429,
+      "meltingPoint": 54.36,
+      "boilingPoint": 90.2,
+      "electronConfiguration": "[He]2s2 2p4",
+      "yearDiscovered": 1774
+    },
+    "F": {
+      "atomicMass": 18.99840316,
+      "electronegativity": 3.98,
+      "density": 0.001696,
+      "meltingPoint": 53.53,
+      "boilingPoint": 85.03,
+      "electronConfiguration": "[He]2s2 2p5",
+      "yearDiscovered": 1670
+    },
+    "Ne": {
+      "atomicMass": 20.18,
+      "electronegativity": null,
+      "density": 0.0008999,
+      "meltingPoint": 24.56,
+      "boilingPoint": 27.07,
+      "electronConfiguration": "[He]2s2 2p6",
+      "yearDiscovered": 1898
+    },
+    "Na": {
+      "atomicMass": 22.9897693,
+      "electronegativity": 0.93,
+      "density": 0.97,
+      "meltingPoint": 370.95,
+      "boilingPoint": 1156,
+      "electronConfiguration": "[Ne]3s1",
+      "yearDiscovered": 1807
+    },
+    "Mg": {
+      "atomicMass": 24.305,
+      "electronegativity": 1.31,
+      "density": 1.74,
+      "meltingPoint": 923,
+      "boilingPoint": 1363,
+      "electronConfiguration": "[Ne]3s2",
+      "yearDiscovered": 1808
+    },
+    "Al": {
+      "atomicMass": 26.981538,
+      "electronegativity": 1.61,
+      "density": 2.7,
+      "meltingPoint": 933.437,
+      "boilingPoint": 2792,
+      "electronConfiguration": "[Ne]3s2 3p1",
+      "yearDiscovered": null
+    },
+    "Si": {
+      "atomicMass": 28.085,
+      "electronegativity": 1.9,
+      "density": 2.3296,
+      "meltingPoint": 1687,
+      "boilingPoint": 3538,
+      "electronConfiguration": "[Ne]3s2 3p2",
+      "yearDiscovered": 1854
+    },
+    "P": {
+      "atomicMass": 30.973762,
+      "electronegativity": 2.19,
+      "density": 1.82,
+      "meltingPoint": 317.3,
+      "boilingPoint": 553.65,
+      "electronConfiguration": "[Ne]3s2 3p3",
+      "yearDiscovered": 1669
+    },
+    "S": {
+      "atomicMass": 32.07,
+      "electronegativity": 2.58,
+      "density": 2.067,
+      "meltingPoint": 388.36,
+      "boilingPoint": 717.75,
+      "electronConfiguration": "[Ne]3s2 3p4",
+      "yearDiscovered": null
+    },
+    "Cl": {
+      "atomicMass": 35.45,
+      "electronegativity": 3.16,
+      "density": 0.003214,
+      "meltingPoint": 171.65,
+      "boilingPoint": 239.11,
+      "electronConfiguration": "[Ne]3s2 3p5",
+      "yearDiscovered": 1774
+    },
+    "Ar": {
+      "atomicMass": 39.9,
+      "electronegativity": null,
+      "density": 0.0017837,
+      "meltingPoint": 83.8,
+      "boilingPoint": 87.3,
+      "electronConfiguration": "[Ne]3s2 3p6",
+      "yearDiscovered": 1894
+    },
+    "K": {
+      "atomicMass": 39.0983,
+      "electronegativity": 0.82,
+      "density": 0.89,
+      "meltingPoint": 336.53,
+      "boilingPoint": 1032,
+      "electronConfiguration": "[Ar]4s1",
+      "yearDiscovered": 1807
+    },
+    "Ca": {
+      "atomicMass": 40.08,
+      "electronegativity": 1,
+      "density": 1.54,
+      "meltingPoint": 1115,
+      "boilingPoint": 1757,
+      "electronConfiguration": "[Ar]4s2",
+      "yearDiscovered": null
+    },
+    "Sc": {
+      "atomicMass": 44.95591,
+      "electronegativity": 1.36,
+      "density": 2.99,
+      "meltingPoint": 1814,
+      "boilingPoint": 3109,
+      "electronConfiguration": "[Ar]4s2 3d1",
+      "yearDiscovered": 1879
+    },
+    "Ti": {
+      "atomicMass": 47.867,
+      "electronegativity": 1.54,
+      "density": 4.5,
+      "meltingPoint": 1941,
+      "boilingPoint": 3560,
+      "electronConfiguration": "[Ar]4s2 3d2",
+      "yearDiscovered": 1791
+    },
+    "V": {
+      "atomicMass": 50.9415,
+      "electronegativity": 1.63,
+      "density": 6,
+      "meltingPoint": 2183,
+      "boilingPoint": 3680,
+      "electronConfiguration": "[Ar]4s2 3d3",
+      "yearDiscovered": 1801
+    },
+    "Cr": {
+      "atomicMass": 51.996,
+      "electronegativity": 1.66,
+      "density": 7.15,
+      "meltingPoint": 2180,
+      "boilingPoint": 2944,
+      "electronConfiguration": "[Ar]3d5 4s1",
+      "yearDiscovered": 1797
+    },
+    "Mn": {
+      "atomicMass": 54.93804,
+      "electronegativity": 1.55,
+      "density": 7.3,
+      "meltingPoint": 1519,
+      "boilingPoint": 2334,
+      "electronConfiguration": "[Ar]4s2 3d5",
+      "yearDiscovered": 1774
+    },
+    "Fe": {
+      "atomicMass": 55.84,
+      "electronegativity": 1.83,
+      "density": 7.874,
+      "meltingPoint": 1811,
+      "boilingPoint": 3134,
+      "electronConfiguration": "[Ar]4s2 3d6",
+      "yearDiscovered": null
+    },
+    "Co": {
+      "atomicMass": 58.93319,
+      "electronegativity": 1.88,
+      "density": 8.86,
+      "meltingPoint": 1768,
+      "boilingPoint": 3200,
+      "electronConfiguration": "[Ar]4s2 3d7",
+      "yearDiscovered": 1735
+    },
+    "Ni": {
+      "atomicMass": 58.693,
+      "electronegativity": 1.91,
+      "density": 8.912,
+      "meltingPoint": 1728,
+      "boilingPoint": 3186,
+      "electronConfiguration": "[Ar]4s2 3d8",
+      "yearDiscovered": 1751
+    },
+    "Cu": {
+      "atomicMass": 63.55,
+      "electronegativity": 1.9,
+      "density": 8.933,
+      "meltingPoint": 1357.77,
+      "boilingPoint": 2835,
+      "electronConfiguration": "[Ar]4s1 3d10",
+      "yearDiscovered": null
+    },
+    "Zn": {
+      "atomicMass": 65.4,
+      "electronegativity": 1.65,
+      "density": 7.134,
+      "meltingPoint": 692.68,
+      "boilingPoint": 1180,
+      "electronConfiguration": "[Ar]4s2 3d10",
+      "yearDiscovered": 1746
+    },
+    "Ga": {
+      "atomicMass": 69.723,
+      "electronegativity": 1.81,
+      "density": 5.91,
+      "meltingPoint": 302.91,
+      "boilingPoint": 2477,
+      "electronConfiguration": "[Ar]4s2 3d10 4p1",
+      "yearDiscovered": 1875
+    },
+    "Ge": {
+      "atomicMass": 72.63,
+      "electronegativity": 2.01,
+      "density": 5.323,
+      "meltingPoint": 1211.4,
+      "boilingPoint": 3106,
+      "electronConfiguration": "[Ar]4s2 3d10 4p2",
+      "yearDiscovered": 1886
+    },
+    "As": {
+      "atomicMass": 74.92159,
+      "electronegativity": 2.18,
+      "density": 5.776,
+      "meltingPoint": 1090,
+      "boilingPoint": 887,
+      "electronConfiguration": "[Ar]4s2 3d10 4p3",
+      "yearDiscovered": null
+    },
+    "Se": {
+      "atomicMass": 78.97,
+      "electronegativity": 2.55,
+      "density": 4.809,
+      "meltingPoint": 493.65,
+      "boilingPoint": 958,
+      "electronConfiguration": "[Ar]4s2 3d10 4p4",
+      "yearDiscovered": 1817
+    },
+    "Br": {
+      "atomicMass": 79.9,
+      "electronegativity": 2.96,
+      "density": 3.11,
+      "meltingPoint": 265.95,
+      "boilingPoint": 331.95,
+      "electronConfiguration": "[Ar]4s2 3d10 4p5",
+      "yearDiscovered": 1826
+    },
+    "Kr": {
+      "atomicMass": 83.8,
+      "electronegativity": 3,
+      "density": 0.003733,
+      "meltingPoint": 115.79,
+      "boilingPoint": 119.93,
+      "electronConfiguration": "[Ar]4s2 3d10 4p6",
+      "yearDiscovered": 1898
+    },
+    "Rb": {
+      "atomicMass": 85.468,
+      "electronegativity": 0.82,
+      "density": 1.53,
+      "meltingPoint": 312.46,
+      "boilingPoint": 961,
+      "electronConfiguration": "[Kr]5s1",
+      "yearDiscovered": 1861
+    },
+    "Sr": {
+      "atomicMass": 87.62,
+      "electronegativity": 0.95,
+      "density": 2.64,
+      "meltingPoint": 1050,
+      "boilingPoint": 1655,
+      "electronConfiguration": "[Kr]5s2",
+      "yearDiscovered": 1790
+    },
+    "Y": {
+      "atomicMass": 88.90584,
+      "electronegativity": 1.22,
+      "density": 4.47,
+      "meltingPoint": 1795,
+      "boilingPoint": 3618,
+      "electronConfiguration": "[Kr]5s2 4d1",
+      "yearDiscovered": 1794
+    },
+    "Zr": {
+      "atomicMass": 91.22,
+      "electronegativity": 1.33,
+      "density": 6.52,
+      "meltingPoint": 2128,
+      "boilingPoint": 4682,
+      "electronConfiguration": "[Kr]5s2 4d2",
+      "yearDiscovered": 1789
+    },
+    "Nb": {
+      "atomicMass": 92.90637,
+      "electronegativity": 1.6,
+      "density": 8.57,
+      "meltingPoint": 2750,
+      "boilingPoint": 5017,
+      "electronConfiguration": "[Kr]5s1 4d4",
+      "yearDiscovered": 1801
+    },
+    "Mo": {
+      "atomicMass": 95.95,
+      "electronegativity": 2.16,
+      "density": 10.2,
+      "meltingPoint": 2896,
+      "boilingPoint": 4912,
+      "electronConfiguration": "[Kr]5s1 4d5",
+      "yearDiscovered": 1778
+    },
+    "Tc": {
+      "atomicMass": 96.90636,
+      "electronegativity": 1.9,
+      "density": 11,
+      "meltingPoint": 2430,
+      "boilingPoint": 4538,
+      "electronConfiguration": "[Kr]5s2 4d5",
+      "yearDiscovered": 1937
+    },
+    "Ru": {
+      "atomicMass": 101.1,
+      "electronegativity": 2.2,
+      "density": 12.1,
+      "meltingPoint": 2607,
+      "boilingPoint": 4423,
+      "electronConfiguration": "[Kr]5s1 4d7",
+      "yearDiscovered": 1827
+    },
+    "Rh": {
+      "atomicMass": 102.9055,
+      "electronegativity": 2.28,
+      "density": 12.4,
+      "meltingPoint": 2237,
+      "boilingPoint": 3968,
+      "electronConfiguration": "[Kr]5s1 4d8",
+      "yearDiscovered": 1803
+    },
+    "Pd": {
+      "atomicMass": 106.42,
+      "electronegativity": 2.2,
+      "density": 12,
+      "meltingPoint": 1828.05,
+      "boilingPoint": 3236,
+      "electronConfiguration": "[Kr]4d10",
+      "yearDiscovered": 1803
+    },
+    "Ag": {
+      "atomicMass": 107.868,
+      "electronegativity": 1.93,
+      "density": 10.501,
+      "meltingPoint": 1234.93,
+      "boilingPoint": 2435,
+      "electronConfiguration": "[Kr]5s1 4d10",
+      "yearDiscovered": null
+    },
+    "Cd": {
+      "atomicMass": 112.41,
+      "electronegativity": 1.69,
+      "density": 8.69,
+      "meltingPoint": 594.22,
+      "boilingPoint": 1040,
+      "electronConfiguration": "[Kr]5s2 4d10",
+      "yearDiscovered": 1817
+    },
+    "In": {
+      "atomicMass": 114.818,
+      "electronegativity": 1.78,
+      "density": 7.31,
+      "meltingPoint": 429.75,
+      "boilingPoint": 2345,
+      "electronConfiguration": "[Kr]5s2 4d10 5p1",
+      "yearDiscovered": 1863
+    },
+    "Sn": {
+      "atomicMass": 118.71,
+      "electronegativity": 1.96,
+      "density": 7.287,
+      "meltingPoint": 505.08,
+      "boilingPoint": 2875,
+      "electronConfiguration": "[Kr]5s2 4d10 5p2",
+      "yearDiscovered": null
+    },
+    "Sb": {
+      "atomicMass": 121.76,
+      "electronegativity": 2.05,
+      "density": 6.685,
+      "meltingPoint": 903.78,
+      "boilingPoint": 1860,
+      "electronConfiguration": "[Kr]5s2 4d10 5p3",
+      "yearDiscovered": null
+    },
+    "Te": {
+      "atomicMass": 127.6,
+      "electronegativity": 2.1,
+      "density": 6.232,
+      "meltingPoint": 722.66,
+      "boilingPoint": 1261,
+      "electronConfiguration": "[Kr]5s2 4d10 5p4",
+      "yearDiscovered": 1782
+    },
+    "I": {
+      "atomicMass": 126.9045,
+      "electronegativity": 2.66,
+      "density": 4.93,
+      "meltingPoint": 386.85,
+      "boilingPoint": 457.55,
+      "electronConfiguration": "[Kr]5s2 4d10 5p5",
+      "yearDiscovered": 1811
+    },
+    "Xe": {
+      "atomicMass": 131.29,
+      "electronegativity": 2.6,
+      "density": 0.005887,
+      "meltingPoint": 161.36,
+      "boilingPoint": 165.03,
+      "electronConfiguration": "[Kr]5s2 4d10 5p6",
+      "yearDiscovered": 1898
+    },
+    "Cs": {
+      "atomicMass": 132.905452,
+      "electronegativity": 0.79,
+      "density": 1.93,
+      "meltingPoint": 301.59,
+      "boilingPoint": 944,
+      "electronConfiguration": "[Xe]6s1",
+      "yearDiscovered": 1860
+    },
+    "Ba": {
+      "atomicMass": 137.33,
+      "electronegativity": 0.89,
+      "density": 3.62,
+      "meltingPoint": 1000,
+      "boilingPoint": 2170,
+      "electronConfiguration": "[Xe]6s2",
+      "yearDiscovered": 1808
+    },
+    "La": {
+      "atomicMass": 138.9055,
+      "electronegativity": 1.1,
+      "density": 6.15,
+      "meltingPoint": 1191,
+      "boilingPoint": 3737,
+      "electronConfiguration": "[Xe]6s2 5d1",
+      "yearDiscovered": 1839
+    },
+    "Ce": {
+      "atomicMass": 140.116,
+      "electronegativity": 1.12,
+      "density": 6.77,
+      "meltingPoint": 1071,
+      "boilingPoint": 3697,
+      "electronConfiguration": "[Xe]6s2 4f1 5d1",
+      "yearDiscovered": 1803
+    },
+    "Pr": {
+      "atomicMass": 140.90766,
+      "electronegativity": 1.13,
+      "density": 6.77,
+      "meltingPoint": 1204,
+      "boilingPoint": 3793,
+      "electronConfiguration": "[Xe]6s2 4f3",
+      "yearDiscovered": 1885
+    },
+    "Nd": {
+      "atomicMass": 144.24,
+      "electronegativity": 1.14,
+      "density": 7.01,
+      "meltingPoint": 1294,
+      "boilingPoint": 3347,
+      "electronConfiguration": "[Xe]6s2 4f4",
+      "yearDiscovered": 1885
+    },
+    "Pm": {
+      "atomicMass": 144.91276,
+      "electronegativity": null,
+      "density": 7.26,
+      "meltingPoint": 1315,
+      "boilingPoint": 3273,
+      "electronConfiguration": "[Xe]6s2 4f5",
+      "yearDiscovered": 1945
+    },
+    "Sm": {
+      "atomicMass": 150.4,
+      "electronegativity": 1.17,
+      "density": 7.52,
+      "meltingPoint": 1347,
+      "boilingPoint": 2067,
+      "electronConfiguration": "[Xe]6s2 4f6",
+      "yearDiscovered": 1879
+    },
+    "Eu": {
+      "atomicMass": 151.964,
+      "electronegativity": null,
+      "density": 5.24,
+      "meltingPoint": 1095,
+      "boilingPoint": 1802,
+      "electronConfiguration": "[Xe]6s2 4f7",
+      "yearDiscovered": 1901
+    },
+    "Gd": {
+      "atomicMass": 157.25,
+      "electronegativity": 1.2,
+      "density": 7.9,
+      "meltingPoint": 1586,
+      "boilingPoint": 3546,
+      "electronConfiguration": "[Xe]6s2 4f7 5d1",
+      "yearDiscovered": 1880
+    },
+    "Tb": {
+      "atomicMass": 158.92535,
+      "electronegativity": null,
+      "density": 8.23,
+      "meltingPoint": 1629,
+      "boilingPoint": 3503,
+      "electronConfiguration": "[Xe]6s2 4f9",
+      "yearDiscovered": 1843
+    },
+    "Dy": {
+      "atomicMass": 162.5,
+      "electronegativity": 1.22,
+      "density": 8.55,
+      "meltingPoint": 1685,
+      "boilingPoint": 2840,
+      "electronConfiguration": "[Xe]6s2 4f10",
+      "yearDiscovered": 1886
+    },
+    "Ho": {
+      "atomicMass": 164.93033,
+      "electronegativity": 1.23,
+      "density": 8.8,
+      "meltingPoint": 1747,
+      "boilingPoint": 2973,
+      "electronConfiguration": "[Xe]6s2 4f11",
+      "yearDiscovered": 1878
+    },
+    "Er": {
+      "atomicMass": 167.26,
+      "electronegativity": 1.24,
+      "density": 9.07,
+      "meltingPoint": 1802,
+      "boilingPoint": 3141,
+      "electronConfiguration": "[Xe]6s2 4f12",
+      "yearDiscovered": 1843
+    },
+    "Tm": {
+      "atomicMass": 168.93422,
+      "electronegativity": 1.25,
+      "density": 9.32,
+      "meltingPoint": 1818,
+      "boilingPoint": 2223,
+      "electronConfiguration": "[Xe]6s2 4f13",
+      "yearDiscovered": 1879
+    },
+    "Yb": {
+      "atomicMass": 173.05,
+      "electronegativity": null,
+      "density": 6.9,
+      "meltingPoint": 1092,
+      "boilingPoint": 1469,
+      "electronConfiguration": "[Xe]6s2 4f14",
+      "yearDiscovered": 1878
+    },
+    "Lu": {
+      "atomicMass": 174.9667,
+      "electronegativity": 1.27,
+      "density": 9.84,
+      "meltingPoint": 1936,
+      "boilingPoint": 3675,
+      "electronConfiguration": "[Xe]6s2 4f14 5d1",
+      "yearDiscovered": 1907
+    },
+    "Hf": {
+      "atomicMass": 178.49,
+      "electronegativity": 1.3,
+      "density": 13.3,
+      "meltingPoint": 2506,
+      "boilingPoint": 4876,
+      "electronConfiguration": "[Xe]6s2 4f14 5d2",
+      "yearDiscovered": 1923
+    },
+    "Ta": {
+      "atomicMass": 180.9479,
+      "electronegativity": 1.5,
+      "density": 16.4,
+      "meltingPoint": 3290,
+      "boilingPoint": 5731,
+      "electronConfiguration": "[Xe]6s2 4f14 5d3",
+      "yearDiscovered": 1802
+    },
+    "W": {
+      "atomicMass": 183.84,
+      "electronegativity": 2.36,
+      "density": 19.3,
+      "meltingPoint": 3695,
+      "boilingPoint": 5828,
+      "electronConfiguration": "[Xe]6s2 4f14 5d4",
+      "yearDiscovered": 1783
+    },
+    "Re": {
+      "atomicMass": 186.207,
+      "electronegativity": 1.9,
+      "density": 20.8,
+      "meltingPoint": 3459,
+      "boilingPoint": 5869,
+      "electronConfiguration": "[Xe]6s2 4f14 5d5",
+      "yearDiscovered": 1925
+    },
+    "Os": {
+      "atomicMass": 190.2,
+      "electronegativity": 2.2,
+      "density": 22.57,
+      "meltingPoint": 3306,
+      "boilingPoint": 5285,
+      "electronConfiguration": "[Xe]6s2 4f14 5d6",
+      "yearDiscovered": 1803
+    },
+    "Ir": {
+      "atomicMass": 192.22,
+      "electronegativity": 2.2,
+      "density": 22.42,
+      "meltingPoint": 2719,
+      "boilingPoint": 4701,
+      "electronConfiguration": "[Xe]6s2 4f14 5d7",
+      "yearDiscovered": 1803
+    },
+    "Pt": {
+      "atomicMass": 195.08,
+      "electronegativity": 2.28,
+      "density": 21.46,
+      "meltingPoint": 2041.55,
+      "boilingPoint": 4098,
+      "electronConfiguration": "[Xe]6s1 4f14 5d9",
+      "yearDiscovered": 1735
+    },
+    "Au": {
+      "atomicMass": 196.96657,
+      "electronegativity": 2.54,
+      "density": 19.282,
+      "meltingPoint": 1337.33,
+      "boilingPoint": 3129,
+      "electronConfiguration": "[Xe]6s1 4f14 5d10",
+      "yearDiscovered": null
+    },
+    "Hg": {
+      "atomicMass": 200.59,
+      "electronegativity": 2,
+      "density": 13.5336,
+      "meltingPoint": 234.32,
+      "boilingPoint": 629.88,
+      "electronConfiguration": "[Xe]6s2 4f14 5d10",
+      "yearDiscovered": null
+    },
+    "Tl": {
+      "atomicMass": 204.383,
+      "electronegativity": 1.62,
+      "density": 11.8,
+      "meltingPoint": 577,
+      "boilingPoint": 1746,
+      "electronConfiguration": "[Xe]6s2 4f14 5d10 6p1",
+      "yearDiscovered": 1861
+    },
+    "Pb": {
+      "atomicMass": 207,
+      "electronegativity": 2.33,
+      "density": 11.342,
+      "meltingPoint": 600.61,
+      "boilingPoint": 2022,
+      "electronConfiguration": "[Xe]6s2 4f14 5d10 6p2",
+      "yearDiscovered": null
+    },
+    "Bi": {
+      "atomicMass": 208.9804,
+      "electronegativity": 2.02,
+      "density": 9.807,
+      "meltingPoint": 544.55,
+      "boilingPoint": 1837,
+      "electronConfiguration": "[Xe]6s2 4f14 5d10 6p3",
+      "yearDiscovered": 1753
+    },
+    "Po": {
+      "atomicMass": 208.98243,
+      "electronegativity": 2,
+      "density": 9.32,
+      "meltingPoint": 527,
+      "boilingPoint": 1235,
+      "electronConfiguration": "[Xe]6s2 4f14 5d10 6p4",
+      "yearDiscovered": 1898
+    },
+    "At": {
+      "atomicMass": 209.98715,
+      "electronegativity": 2.2,
+      "density": 7,
+      "meltingPoint": 575,
+      "boilingPoint": null,
+      "electronConfiguration": "[Xe]6s2 4f14 5d10 6p5",
+      "yearDiscovered": 1940
+    },
+    "Rn": {
+      "atomicMass": 222.01758,
+      "electronegativity": null,
+      "density": 0.00973,
+      "meltingPoint": 202,
+      "boilingPoint": 211.45,
+      "electronConfiguration": "[Xe]6s2 4f14 5d10 6p6",
+      "yearDiscovered": 1900
+    },
+    "Fr": {
+      "atomicMass": 223.01973,
+      "electronegativity": 0.7,
+      "density": null,
+      "meltingPoint": 300,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s1",
+      "yearDiscovered": 1939
+    },
+    "Ra": {
+      "atomicMass": 226.02541,
+      "electronegativity": 0.9,
+      "density": 5,
+      "meltingPoint": 973,
+      "boilingPoint": 1413,
+      "electronConfiguration": "[Rn]7s2",
+      "yearDiscovered": 1898
+    },
+    "Ac": {
+      "atomicMass": 227.02775,
+      "electronegativity": 1.1,
+      "density": 10.07,
+      "meltingPoint": 1324,
+      "boilingPoint": 3471,
+      "electronConfiguration": "[Rn]7s2 6d1",
+      "yearDiscovered": 1899
+    },
+    "Th": {
+      "atomicMass": 232.038,
+      "electronegativity": 1.3,
+      "density": 11.72,
+      "meltingPoint": 2023,
+      "boilingPoint": 5061,
+      "electronConfiguration": "[Rn]7s2 6d2",
+      "yearDiscovered": 1828
+    },
+    "Pa": {
+      "atomicMass": 231.03588,
+      "electronegativity": 1.5,
+      "density": 15.37,
+      "meltingPoint": 1845,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f2 6d1",
+      "yearDiscovered": 1913
+    },
+    "U": {
+      "atomicMass": 238.0289,
+      "electronegativity": 1.38,
+      "density": 18.95,
+      "meltingPoint": 1408,
+      "boilingPoint": 4404,
+      "electronConfiguration": "[Rn]7s2 5f3 6d1",
+      "yearDiscovered": 1789
+    },
+    "Np": {
+      "atomicMass": 237.048172,
+      "electronegativity": 1.36,
+      "density": 20.25,
+      "meltingPoint": 917,
+      "boilingPoint": 4175,
+      "electronConfiguration": "[Rn]7s2 5f4 6d1",
+      "yearDiscovered": 1940
+    },
+    "Pu": {
+      "atomicMass": 244.0642,
+      "electronegativity": 1.28,
+      "density": 19.84,
+      "meltingPoint": 913,
+      "boilingPoint": 3501,
+      "electronConfiguration": "[Rn]7s2 5f6",
+      "yearDiscovered": 1940
+    },
+    "Am": {
+      "atomicMass": 243.06138,
+      "electronegativity": 1.3,
+      "density": 13.69,
+      "meltingPoint": 1449,
+      "boilingPoint": 2284,
+      "electronConfiguration": "[Rn]7s2 5f7",
+      "yearDiscovered": 1944
+    },
+    "Cm": {
+      "atomicMass": 247.07035,
+      "electronegativity": 1.3,
+      "density": 13.51,
+      "meltingPoint": 1618,
+      "boilingPoint": 3400,
+      "electronConfiguration": "[Rn]7s2 5f7 6d1",
+      "yearDiscovered": 1944
+    },
+    "Bk": {
+      "atomicMass": 247.07031,
+      "electronegativity": 1.3,
+      "density": 14,
+      "meltingPoint": 1323,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f9",
+      "yearDiscovered": 1949
+    },
+    "Cf": {
+      "atomicMass": 251.07959,
+      "electronegativity": 1.3,
+      "density": null,
+      "meltingPoint": 1173,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f10",
+      "yearDiscovered": 1950
+    },
+    "Es": {
+      "atomicMass": 252.083,
+      "electronegativity": 1.3,
+      "density": null,
+      "meltingPoint": 1133,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f11",
+      "yearDiscovered": 1952
+    },
+    "Fm": {
+      "atomicMass": 257.09511,
+      "electronegativity": 1.3,
+      "density": null,
+      "meltingPoint": 1800,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn] 5f12 7s2",
+      "yearDiscovered": 1952
+    },
+    "Md": {
+      "atomicMass": 258.09843,
+      "electronegativity": 1.3,
+      "density": null,
+      "meltingPoint": 1100,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f13",
+      "yearDiscovered": 1955
+    },
+    "No": {
+      "atomicMass": 259.101,
+      "electronegativity": 1.3,
+      "density": null,
+      "meltingPoint": 1100,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14",
+      "yearDiscovered": 1957
+    },
+    "Lr": {
+      "atomicMass": 266.12,
+      "electronegativity": 1.3,
+      "density": null,
+      "meltingPoint": 1900,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d1",
+      "yearDiscovered": 1961
+    },
+    "Rf": {
+      "atomicMass": 267.122,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d2",
+      "yearDiscovered": 1964
+    },
+    "Db": {
+      "atomicMass": 268.126,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d3",
+      "yearDiscovered": 1967
+    },
+    "Sg": {
+      "atomicMass": 269.128,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d4",
+      "yearDiscovered": 1974
+    },
+    "Bh": {
+      "atomicMass": 270.133,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d5",
+      "yearDiscovered": 1976
+    },
+    "Hs": {
+      "atomicMass": 269.1336,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d6",
+      "yearDiscovered": 1984
+    },
+    "Mt": {
+      "atomicMass": 277.154,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d7 (calculated)",
+      "yearDiscovered": 1982
+    },
+    "Ds": {
+      "atomicMass": 282.166,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d8 (predicted)",
+      "yearDiscovered": 1994
+    },
+    "Rg": {
+      "atomicMass": 282.169,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d9 (predicted)",
+      "yearDiscovered": 1994
+    },
+    "Cn": {
+      "atomicMass": 286.179,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 5f14 6d10 (predicted)",
+      "yearDiscovered": 1996
+    },
+    "Nh": {
+      "atomicMass": 286.182,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]5f14 6d10 7s2 7p1 (predicted)",
+      "yearDiscovered": 2004
+    },
+    "Fl": {
+      "atomicMass": 290.192,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 7p2 5f14 6d10 (predicted)",
+      "yearDiscovered": 1998
+    },
+    "Mc": {
+      "atomicMass": 290.196,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 7p3 5f14 6d10 (predicted)",
+      "yearDiscovered": 2003
+    },
+    "Lv": {
+      "atomicMass": 293.205,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 7p4 5f14 6d10 (predicted)",
+      "yearDiscovered": 2000
+    },
+    "Ts": {
+      "atomicMass": 294.211,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 7p5 5f14 6d10 (predicted)",
+      "yearDiscovered": 2010
+    },
+    "Og": {
+      "atomicMass": 295.216,
+      "electronegativity": null,
+      "density": null,
+      "meltingPoint": null,
+      "boilingPoint": null,
+      "electronConfiguration": "[Rn]7s2 7p6 5f14 6d10 (predicted)",
+      "yearDiscovered": 2006
+    }
+  }
+}

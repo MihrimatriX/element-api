@@ -1,0 +1,1877 @@
+/* Atlas plates sit on the cabinet tokens. Formulas stay mono. */
+.atlas-home h2,
+.atlas-detail h2,
+.lab-page h2 {
+  letter-spacing: -0.025em;
+}
+.atlas-resource-links a,
+.lab-result-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.atlas-lenses {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px 0 0;
+  font-size: 14px;
+}
+.atlas-lenses > span {
+  color: var(--muted-foreground, #3a433e);
+  margin-right: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.atlas-lenses button {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+.atlas-lenses small {
+  color: var(--muted-foreground, #5c636b);
+  margin-left: auto;
+}
+.atlas-home .science-tile {
+  color: var(--tile-ink, #121417);
+  cursor: pointer;
+  appearance: none;
+  font-family: var(--font-body);
+}
+.atlas-home .explorer-inset {
+  display: none;
+}
+.atlas-preview {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.75fr) minmax(0, 1.3fr);
+  align-items: center;
+  gap: 22px;
+}
+.atlas-preview.is-inset {
+  grid-template-columns: minmax(160px, 0.95fr) minmax(0, 1.05fr);
+  gap: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  align-items: stretch;
+}
+.atlas-preview.is-inset > .atlas-visual {
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  background: #e4e0d6;
+}
+.atlas-preview.is-inset .atlas-image {
+  height: 100%;
+  min-height: 100%;
+  border: 0;
+  border-radius: 0;
+  aspect-ratio: auto;
+}
+.atlas-preview.is-inset .atlas-image img,
+.atlas-preview.is-inset .atlas-image canvas,
+.atlas-preview.is-inset .atlas-image svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.atlas-preview.is-inset .atlas-preview-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 24px 22px;
+  min-width: 0;
+  background: #efece4;
+}
+.atlas-preview h2 {
+  margin: 5px 0 9px;
+  font: 700 clamp(26px, 2.6vw, 40px)/1.05 var(--font-display);
+  letter-spacing: -0.035em;
+  color: #121417;
+}
+.atlas-preview h2 > span {
+  color: var(--element-color, var(--brand, #812f26));
+  font: 500 13px var(--font-mono);
+  margin-left: 8px;
+}
+.atlas-preview-copy > p:not(.science-eyebrow) {
+  color: var(--muted-foreground, #5c636b);
+  font-size: 13px;
+  line-height: 1.65;
+  max-width: 520px;
+}
+.atlas-preview.is-inset .science-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.01em;
+}
+.atlas-preview.is-inset h2 {
+  font-size: clamp(28px, 2.4vw, 40px);
+  margin: 0 0 10px;
+}
+.atlas-preview.is-inset .atlas-preview-copy > p:not(.science-eyebrow) {
+  font-size: 13px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.atlas-preview .science-text-link {
+  font-size: 12px;
+  margin-top: 10px;
+  color: var(--brand, #812f26);
+  font-weight: 600;
+}
+.preview-facts {
+  display: flex;
+  gap: 8px;
+  color: var(--muted-foreground, #a8b0ab);
+  font: 500 10px var(--font-mono);
+  margin-top: 8px;
+}
+.preview-facts span + span {
+  border-left: 1px solid var(--border, #2a322e);
+  padding-left: 8px;
+}
+.preview-atom small {
+  display: block;
+  font-size: 8px;
+  text-align: center;
+  color: #6a7e98;
+}
+.atlas-visual {
+  min-width: 0;
+  margin: 0;
+  position: relative;
+}
+.atlas-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  background: var(--plinth, #ffffff);
+  border: 1px solid var(--border, #c6ccc4);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.atlas-image > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.atlas-visual:has(.visual-toggle) .atlas-image {
+  margin-top: 8px;
+}
+.atlas-visual figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 10px;
+  justify-content: center;
+  text-align: center;
+  color: var(--muted-foreground, #3a433e);
+  font-size: 10px;
+  line-height: 1.6;
+  padding-top: 8px;
+  overflow-wrap: anywhere;
+}
+.atlas-visual figcaption > span:first-child {
+  flex-basis: 100%;
+}
+.atlas-visual figcaption a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.atlas-visual.is-compact .atlas-image {
+  border-radius: 7px;
+}
+.atlas-visual.is-compact figcaption {
+  font-size: 8px;
+  line-height: 1.4;
+}
+.visual-toggle {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+.visual-toggle button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #d8e1ec;
+  background: #fff;
+  padding: 7px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+}
+.visual-toggle button[aria-pressed="true"] {
+  background: #eaf0fc;
+  border-color: #8da4d9;
+}
+.atom-shell {
+  width: 100%;
+  max-height: 340px;
+  display: block;
+}
+.atom-nucleus {
+  fill: #edf3fc;
+  stroke: #adc1e4;
+  stroke-width: 1;
+}
+.atom-shell text {
+  fill: #31558c;
+  font: 600 22px var(--font-display);
+}
+.atom-orbit {
+  stroke: #c9d7e7;
+  stroke-width: 0.9;
+  fill: none;
+}
+.atom-electron {
+  fill: #4478b2;
+}
+.formula-fallback {
+  font: 500 clamp(22px, 4vw, 42px) var(--font-mono);
+  text-align: center;
+  color: #3d649a;
+}
+.formula-fallback small {
+  display: block;
+  font: 11px var(--font-body);
+  color: #7c8da6;
+  margin-top: 10px;
+}
+.visual-unavailable {
+  font-size: 10px;
+  color: #718096;
+}
+.atlas-element-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+  padding: 20px 0;
+}
+.atlas-element-grid .science-tile {
+  min-height: 132px;
+  align-items: flex-start;
+  padding: 20px 14px 13px;
+}
+.atlas-element-grid .science-tile > small {
+  left: auto;
+  right: 10px;
+  top: 10px;
+  font-size: 10px;
+}
+.atlas-element-grid .science-tile > strong {
+  font-size: 34px;
+}
+.atlas-element-grid .science-tile > span {
+  font-size: 12px;
+  margin-top: 7px;
+}
+.atlas-element-grid .science-tile > em {
+  font-size: 10px;
+  margin-top: 5px;
+}
+.atlas-element-grid .science-tile > svg {
+  position: absolute;
+  right: 12px;
+  bottom: 13px;
+  color: #738ba3;
+}
+.lab-notebook > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.atlas-compound {
+  padding: 16px !important;
+  background: #fff;
+  overflow: hidden;
+}
+.atlas-compound .atlas-image {
+  aspect-ratio: 1.5;
+  border: 0;
+}
+.atlas-compound .atlas-visual figcaption {
+  display: none;
+}
+.atlas-compound-copy {
+  padding-top: 15px;
+}
+.atlas-compound-copy .compound-formula {
+  font: 500 23px var(--font-mono);
+  color: #466387;
+}
+.atlas-compound-copy h2 {
+  font: 500 19px/1.3 var(--font-display);
+  margin: 7px 0;
+}
+.atlas-compound-copy > p {
+  font-size: 12px;
+  color: #697990;
+  line-height: 1.8;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.atlas-compound-copy footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  color: #657992;
+  font: 10px var(--font-mono);
+  border-top: 1px solid #e5eaf1;
+  margin-top: 15px;
+  padding-top: 12px;
+}
+.lab-invitation-marks {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-mono);
+  color: #487a86;
+  flex-shrink: 0;
+}
+.lab-invitation-marks > span {
+  background: #fff;
+  border: 1px solid #bfd8dc;
+  padding: 12px 11px;
+  border-radius: 7px;
+  font-size: 22px;
+  box-shadow: 0 1px 0 #1a2a2810;
+}
+.lab-invitation-marks > strong {
+  font-size: 20px;
+  color: #6a8a86;
+}
+/* Element / compound detail — dark mineral void (landing-coherent, readable) */
+.atlas-detail {
+  --void: #0c0f0e;
+  --void-lift: #141a18;
+  --void-panel: #1a211f;
+  --void-line: color-mix(in srgb, #f0f3f2 12%, transparent);
+  --detail-ink: #f0f3f2;
+  --detail-muted: color-mix(in srgb, #f0f3f2 68%, transparent);
+  --detail-quiet: color-mix(in srgb, #f0f3f2 48%, transparent);
+  --detail-accent: var(--brand, #812f26);
+  --radius-detail: 12px;
+  max-width: 1180px;
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 28px clamp(16px, 3.2vw, 40px) 72px;
+  color: var(--detail-ink);
+  background: transparent;
+}
+.atlas-detail--void {
+  /* Rebuild stamp: void specimen page, body >= 17px */
+}
+.workspace-body:has(.atlas-detail--void) {
+  background: var(--void, #0c0f0e);
+  color: var(--detail-ink, #f0f3f2);
+}
+.workspace-body:has(.atlas-detail--void) .workspace-footer {
+  border-top-color: var(--void-line, color-mix(in srgb, #f0f3f2 12%, transparent));
+  color: var(--detail-quiet, color-mix(in srgb, #f0f3f2 48%, transparent));
+}
+.workspace-body:has(.atlas-detail--void) .workspace-footer a,
+.workspace-body:has(.atlas-detail--void) .workspace-footer-brand,
+.workspace-body:has(.atlas-detail--void) .workspace-footer-tagline {
+  color: var(--detail-ink, #f0f3f2);
+}
+.atlas-detail.science-detail {
+  color: var(--detail-ink);
+  --ink: var(--detail-ink);
+  --quiet: var(--detail-muted);
+  --line: var(--void-line);
+  --muted-foreground: var(--detail-muted);
+  --foreground: var(--detail-ink);
+  --border: var(--void-line);
+  --card: var(--void-lift);
+  --plinth: var(--void-panel);
+  --muted: var(--void-panel);
+}
+.atlas-detail .science-breadcrumb {
+  font-size: 15px;
+  color: var(--detail-quiet);
+  margin: 0 0 28px;
+  gap: 10px;
+}
+.atlas-detail .science-breadcrumb a {
+  color: var(--detail-muted);
+  font-weight: 500;
+}
+.atlas-detail .science-breadcrumb a:hover {
+  color: var(--detail-ink);
+}
+.atlas-detail .science-meta {
+  font-size: 14px;
+  color: var(--detail-muted);
+  margin: 0 0 12px;
+}
+.atlas-detail-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: start;
+  padding: 8px 0 40px;
+  border-bottom: 3px solid var(--detail-accent, var(--brand));
+  margin-bottom: 40px;
+}
+.atlas-detail-title {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.atlas-detail-title h1 {
+  font: 650 clamp(40px, 5.2vw, 64px)/1.08 var(--font-display);
+  letter-spacing: -0.04em;
+  margin: 0;
+  color: var(--detail-ink);
+}
+.atlas-detail-title > span {
+  font: 500 clamp(28px, 3.2vw, 40px)/1 var(--font-mono);
+  color: color-mix(in srgb, var(--brand) 88%, #f0f3f2);
+  overflow-wrap: anywhere;
+}
+.atlas-english {
+  margin: 10px 0 0;
+  color: var(--detail-quiet);
+  font-size: 16px;
+  font-weight: 500;
+}
+.atlas-lead {
+  margin: 20px 0 0;
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--detail-muted);
+  max-width: 62ch;
+}
+.atlas-key-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 28px 0 0;
+}
+.atlas-key-facts div {
+  padding: 14px 16px;
+  border: 1px solid var(--void-line);
+  border-radius: var(--radius-detail);
+  background: var(--void-lift);
+  border-top: 0;
+  padding-top: 14px;
+}
+.atlas-key-facts dt {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--detail-quiet);
+  margin-bottom: 6px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.atlas-key-facts dd {
+  margin: 0;
+  color: var(--detail-ink);
+  font: 550 17px/1.35 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.atlas-resource-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+  font-size: 15px;
+  color: var(--detail-muted);
+}
+.atlas-resource-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid var(--void-line);
+  border-radius: var(--radius-detail);
+  background: var(--void-lift);
+  color: var(--detail-ink);
+  font-weight: 500;
+  transition:
+    border-color 220ms var(--ease-soft, ease),
+    background-color 220ms var(--ease-soft, ease);
+}
+.atlas-resource-links a:hover {
+  border-color: color-mix(in srgb, var(--brand) 55%, var(--void-line));
+  background: color-mix(in srgb, var(--brand) 18%, var(--void-lift));
+  color: var(--detail-ink);
+}
+.atlas-detail .atlas-visual .atlas-image {
+  background: var(--void-panel);
+  border-color: var(--void-line);
+  border-radius: var(--radius-detail);
+}
+.atlas-detail .atlas-visual figcaption {
+  font-size: 13px;
+  color: var(--detail-quiet);
+  line-height: 1.55;
+  padding-top: 12px;
+}
+.atlas-detail .visual-toggle button {
+  background: var(--void-lift);
+  border-color: var(--void-line);
+  color: var(--detail-muted);
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 10px;
+}
+.atlas-detail .visual-toggle button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--brand) 22%, var(--void-lift));
+  border-color: color-mix(in srgb, var(--brand) 55%, var(--void-line));
+  color: var(--detail-ink);
+}
+.atlas-detail .atom-nucleus {
+  fill: color-mix(in srgb, var(--brand) 28%, #1a211f);
+  stroke: color-mix(in srgb, var(--brand) 55%, #f0f3f2);
+}
+.atlas-detail .atom-shell text {
+  fill: var(--detail-ink);
+}
+.atlas-detail .science-detail-layout {
+  grid-template-columns: minmax(200px, 240px) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 48px);
+  padding-top: 8px;
+}
+.atlas-detail .science-detail-nav {
+  top: 96px;
+}
+.atlas-detail .science-detail-nav > a {
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--detail-muted);
+  padding: 12px 0;
+  border-bottom-color: var(--void-line);
+  gap: 10px;
+}
+.atlas-detail .science-detail-nav a:hover {
+  color: var(--detail-ink);
+}
+.atlas-detail .science-detail-nav a span,
+.atlas-detail .science-detail-nav a svg {
+  color: var(--detail-quiet);
+  flex-shrink: 0;
+}
+.atlas-overview {
+  padding: 0 0 36px;
+}
+.atlas-overview h2,
+.atlas-composition h2,
+.atlas-related h2,
+.atlas-data-heading h2,
+.atlas-geometry h2 {
+  font: 600 clamp(22px, 2.4vw, 28px)/1.2 var(--font-display);
+  letter-spacing: -0.025em;
+  margin: 0 0 16px;
+  color: var(--detail-ink);
+}
+.atlas-uses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin: 16px 0;
+  list-style: none;
+}
+.atlas-uses li {
+  border: 1px solid var(--void-line);
+  background: var(--void-lift);
+  padding: 12px 16px;
+  border-radius: 999px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--detail-ink);
+}
+.atlas-copy-note {
+  color: var(--detail-quiet);
+  font-size: 14px;
+  line-height: 1.65;
+  max-width: 65ch;
+}
+.atlas-story {
+  margin-top: 28px;
+  padding: 22px 24px;
+  border: 1px solid var(--void-line);
+  border-left: 4px solid var(--brand);
+  background: var(--void-lift);
+  border-radius: 0 var(--radius-detail) var(--radius-detail) 0;
+}
+.atlas-story h2 {
+  font-size: clamp(20px, 2vw, 24px);
+  margin: 0 0 10px;
+  color: var(--detail-ink);
+}
+.atlas-story p {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--detail-muted);
+  margin: 0;
+  max-width: 65ch;
+}
+.atlas-composition {
+  margin: 0 0 40px;
+}
+.atlas-composition > div {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.atlas-composition a {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid var(--void-line);
+  border-radius: var(--radius-detail);
+  min-width: 128px;
+  background: var(--void-lift);
+  color: var(--detail-ink);
+  transition: border-color 220ms var(--ease-soft, ease);
+}
+.atlas-composition a:hover {
+  border-color: color-mix(in srgb, var(--brand) 50%, var(--void-line));
+}
+.atlas-composition strong {
+  font: 600 28px/1 var(--font-display);
+  color: color-mix(in srgb, var(--brand) 75%, #f0f3f2);
+}
+.atlas-composition span {
+  font-size: 15px;
+  color: var(--detail-ink);
+}
+.atlas-composition small {
+  font-size: 13px;
+  color: var(--detail-quiet);
+}
+.atlas-composition > p {
+  font-size: 14px;
+  color: var(--detail-quiet);
+  line-height: 1.65;
+  margin-top: 14px;
+  max-width: 62ch;
+}
+.atlas-data-heading {
+  padding-top: 28px;
+  border-top: 1px solid var(--void-line);
+}
+.atlas-detail .science-data-tools {
+  font-size: 15px;
+  color: var(--detail-muted);
+  background: var(--void-lift);
+  border: 1px solid var(--void-line);
+  border-radius: var(--radius-detail);
+  padding: 12px 14px;
+  margin: 16px 0 12px;
+  border-bottom: 1px solid var(--void-line);
+}
+.atlas-detail .science-data-tools input[type="search"] {
+  color: var(--detail-ink);
+  font-size: 15px;
+  width: min(240px, 100%);
+}
+.atlas-detail .science-data-note,
+.atlas-detail .science-notice {
+  color: var(--detail-quiet);
+  font-size: 14px;
+  line-height: 1.65;
+  background: transparent;
+}
+.atlas-detail .science-notice {
+  border: 1px solid var(--void-line);
+  background: var(--void-lift);
+  color: var(--detail-muted);
+  font-size: 15px;
+  padding: 14px 16px;
+  border-radius: var(--radius-detail);
+}
+.atlas-science-section {
+  padding: 0;
+  margin-bottom: 10px;
+  border: 1px solid var(--void-line);
+  background: var(--void-lift);
+  border-radius: var(--radius-detail);
+  scroll-margin-top: 100px;
+  overflow: hidden;
+}
+.atlas-science-section > summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+}
+.atlas-science-section > summary::-webkit-details-marker {
+  display: none;
+}
+.atlas-science-section > summary h2,
+.atlas-detail .atlas-science-section [data-slot="disclosure-trigger"] h2 {
+  font: 600 18px/1.3 var(--font-display) !important;
+  margin: 0;
+  color: var(--detail-ink);
+  letter-spacing: -0.02em;
+}
+.atlas-science-section > summary > span,
+.atlas-detail .atlas-science-section [data-slot="disclosure-trigger"] > span > span {
+  font-size: 14px !important;
+  color: var(--detail-quiet) !important;
+  white-space: nowrap;
+}
+.atlas-science-section > summary > span::after {
+  content: none;
+}
+.atlas-science-section[open] {
+  padding-bottom: 0;
+}
+.atlas-detail .atlas-science-section [data-slot="disclosure-trigger"] {
+  padding: 18px 20px;
+  color: var(--detail-ink);
+}
+.atlas-detail .atlas-science-section [data-slot="disclosure-content"] {
+  padding: 0 20px 22px;
+  color: var(--detail-ink);
+}
+.atlas-science-section .science-properties {
+  overflow-wrap: anywhere;
+}
+.atlas-detail .science-properties > div {
+  grid-template-columns: minmax(160px, 38%) minmax(0, 1fr);
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom-color: var(--void-line);
+  font-size: 16px;
+}
+.atlas-detail .science-properties dt {
+  color: var(--detail-quiet);
+  font-size: 15px;
+}
+.atlas-detail .science-properties dd {
+  color: var(--detail-ink);
+  font-size: 16px;
+}
+.atlas-detail .science-property-group > dt {
+  font-size: 15px;
+  color: var(--detail-muted);
+}
+.atlas-detail .science-property-group > dd > .science-properties {
+  border-left-color: var(--void-line);
+}
+.atlas-detail .science-missing {
+  color: var(--detail-quiet);
+  font-size: 15px;
+}
+.atlas-detail .science-values > span {
+  background: var(--void-panel);
+  color: var(--detail-ink);
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 8px;
+}
+.atlas-detail .science-subrecord {
+  border-color: var(--void-line);
+  background: var(--void-panel);
+}
+.atlas-detail .science-source-link {
+  color: color-mix(in srgb, var(--brand) 70%, #f0f3f2);
+  font-size: 15px;
+}
+.atlas-related {
+  margin: 40px 0;
+}
+.atlas-related-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.atlas-related-links a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--void-lift);
+  border: 1px solid var(--void-line);
+  padding: 16px 18px;
+  border-radius: var(--radius-detail);
+  min-width: 0;
+  color: var(--detail-ink);
+  transition: border-color 220ms var(--ease-soft, ease);
+}
+.atlas-related-links a:hover {
+  border-color: color-mix(in srgb, var(--brand) 50%, var(--void-line));
+}
+.atlas-related-links strong {
+  color: color-mix(in srgb, var(--brand) 72%, #f0f3f2);
+  font: 550 18px/1.2 var(--font-mono);
+}
+.atlas-related-links span {
+  font-size: 15px;
+  color: var(--detail-muted);
+}
+.atlas-related-links svg {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--detail-quiet);
+}
+.atlas-detail .science-section {
+  background: var(--void-lift);
+  border-color: var(--void-line);
+  border-radius: var(--radius-detail);
+  padding: 24px 26px;
+}
+.atlas-detail .science-section > header {
+  border-bottom-color: var(--void-line);
+}
+.atlas-detail .science-section h2 {
+  font: 600 clamp(22px, 2.4vw, 28px)/1.2 var(--font-display);
+  color: var(--detail-ink);
+}
+.atlas-detail .science-source-cards {
+  gap: 12px;
+}
+.atlas-detail .science-source-cards > a {
+  background: var(--void-panel);
+  border: 1px solid var(--void-line);
+  border-radius: var(--radius-detail);
+  padding: 16px 18px;
+  color: var(--detail-ink);
+}
+.atlas-detail .science-source-cards strong {
+  font-size: 17px;
+  color: var(--detail-ink);
+}
+.atlas-detail .science-source-cards span {
+  font-size: 14px;
+  color: var(--detail-quiet);
+}
+.atlas-developer {
+  background: color-mix(in srgb, var(--brand) 14%, var(--void-lift));
+  border: 1px solid color-mix(in srgb, var(--brand) 35%, var(--void-line));
+  border-inline-start: 4px solid var(--brand);
+  border-radius: var(--radius-detail);
+  padding: 28px;
+  scroll-margin-top: 100px;
+  color: var(--detail-ink);
+}
+.atlas-developer > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.atlas-developer > div:first-child svg {
+  color: color-mix(in srgb, var(--brand) 80%, #f0f3f2);
+}
+.atlas-developer h2 {
+  font: 600 clamp(22px, 2.4vw, 26px)/1.2 var(--font-display);
+  margin: 0;
+  color: var(--detail-ink);
+}
+.atlas-developer > p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--detail-muted);
+  max-width: 58ch;
+}
+.atlas-detail .science-detail-actions {
+  margin: 18px 0;
+  gap: 10px;
+}
+.atlas-detail .science-detail-actions > * {
+  border: 1px solid var(--void-line);
+  border-radius: 10px;
+  padding: 11px 16px;
+  font: 500 15px var(--font-body);
+  background: var(--void-panel);
+  color: var(--detail-ink);
+}
+.atlas-detail .science-detail-actions > *:hover {
+  border-color: color-mix(in srgb, var(--brand) 50%, var(--void-line));
+}
+.atlas-developer .science-json {
+  margin-bottom: 0;
+}
+.atlas-detail .science-json [data-slot="disclosure-trigger"] {
+  color: var(--detail-ink);
+  font-size: 15px;
+}
+.atlas-detail .science-json pre.code-window,
+.atlas-detail .science-json-panel {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--brand) 7%, #0a0d0c) 0%,
+      #0a0d0c 48px
+    );
+  color: color-mix(in srgb, #f0f3f2 72%, transparent);
+  border: 1px solid var(--void-line);
+  font-size: 13px;
+  line-height: 1.55;
+  max-height: 520px;
+}
+.atlas-detail .science-text-link {
+  color: var(--detail-muted);
+  font-size: 16px;
+}
+.atlas-detail > h1 {
+  font: 650 clamp(28px, 4vw, 40px)/1.15 var(--font-display);
+  color: var(--detail-ink);
+}
+.lab-page {
+  max-width: 1440px;
+}
+.lab-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+  padding: 5px 0 28px;
+}
+.lab-heading h1 {
+  font: 650 clamp(26px, 3vw, 34px)/1.2 var(--font-display);
+  letter-spacing: -0.03em;
+  margin: 0 0 8px;
+}
+.lab-heading h1 > span {
+  color: inherit;
+}
+.lab-heading p:not(.science-eyebrow) {
+  font-size: 15px;
+  color: var(--muted-foreground, #5c636b);
+}
+.lab-modes {
+  max-width: 100%;
+}
+.lab-clues {
+  margin: 0 0 14px;
+  padding-left: 18px;
+  line-height: 1.7;
+  font-size: 15px;
+}
+.lab-guess {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.lab-guess label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  flex: 1;
+  min-width: 180px;
+}
+.lab-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+.lab-progress {
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  gap: 7px;
+}
+.lab-progress > strong {
+  font: 500 37px var(--font-mono);
+  color: var(--brand, #812f26);
+}
+.lab-progress strong span {
+  font-size: 17px;
+  color: #81939f;
+}
+.lab-progress > span {
+  font-size: 11px;
+  color: #657c91;
+}
+.lab-progress progress {
+  width: 100%;
+  height: 5px;
+  accent-color: #3d9290;
+}
+.lab-stage-path {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.lab-stage-path > div {
+  display: grid;
+  grid-template-columns: 17px 1fr;
+  gap: 6px 8px;
+  align-items: center;
+  padding: 13px 15px;
+  background: #edf0f5;
+  border: 1px solid #dce3eb;
+  border-radius: 7px;
+  color: #7c8a9f;
+}
+.lab-stage-path .is-unlocked {
+  background: #eaf4f1;
+  border-color: #c1dcd3;
+  color: #377665;
+}
+.lab-stage-path strong {
+  grid-column: 2;
+  font: 500 11px var(--font-mono);
+}
+.lab-stage-path span {
+  font-size: 10px;
+}
+.lab-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.lab-inventory {
+  border: 1px solid #dbe3ed;
+  border-radius: 10px;
+  background: #fff;
+  padding: 20px;
+}
+.lab-inventory > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 17px;
+}
+.lab-inventory h2 {
+  font: 500 21px var(--font-display);
+  margin: 0;
+}
+.lab-inventory > header > span {
+  color: #72839b;
+  font: 11px var(--font-mono);
+}
+.lab-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f5f9;
+  border: 1px solid #e1e7ef;
+  border-radius: 6px;
+  padding: 9px 10px;
+  color: #73869e;
+}
+.lab-search input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  font-size: 12px;
+  outline-offset: 5px;
+}
+.lab-filters {
+  display: flex;
+  gap: 5px;
+  margin: 13px 0;
+}
+.lab-filters button {
+  font-size: 10px;
+  padding: 6px 9px;
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 5px;
+}
+.lab-filters button[aria-pressed="true"] {
+  background: #eaf0f9;
+  color: #3b6099;
+  border-color: #d1dded;
+}
+.lab-materials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-height: 540px;
+  overflow-y: auto;
+  padding: 3px;
+}
+.lab-material {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  align-items: flex-start;
+  text-align: left;
+  min-width: 0;
+  border: 1px solid #d0d7de;
+  border-left: 3px solid var(--element-color, #4a6d8c);
+  background: #ffffff;
+  border-radius: 6px;
+  padding: 14px 12px;
+  min-height: 72px;
+  cursor: grab;
+}
+.lab-material:active {
+  cursor: grabbing;
+}
+.lab-material strong {
+  color: #456f9a;
+  font: 500 25px var(--font-mono);
+}
+.lab-material span {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.lab-material small {
+  font-size: 9px;
+  color: #7e90a4;
+}
+.lab-material.is-compound {
+  border-left-color: #86bca7;
+  background: #f2f9f5;
+}
+.lab-material.is-compound strong {
+  color: #38785c;
+}
+.lab-material.is-picked {
+  outline: 2px solid #6691b7;
+  outline-offset: -1px;
+}
+.lab-inventory-note {
+  font-size: 10px;
+  color: #7a8ca1;
+  line-height: 1.8;
+  margin-bottom: 0;
+}
+.lab-bench {
+  border: 1px solid #d9e3ee;
+  border-radius: var(--radius-soft, 14px);
+  background:
+    radial-gradient(#cbd7e550 0.8px, transparent 0.8px) 0 0 / 17px 17px,
+    #f0f5fa;
+  padding: 25px 30px;
+}
+.lab-bench-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+.lab-bench-top p {
+  margin: 0;
+}
+.lab-clear {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #62778e !important;
+  background: transparent;
+  border: 0;
+  font-size: 10px;
+  padding: 5px;
+}
+.lab-slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 37px;
+  margin: 24px auto 20px;
+  max-width: 600px;
+}
+.lab-slot-wrap {
+  position: relative;
+}
+.lab-plus {
+  position: absolute;
+  left: -30px;
+  top: calc(50% - 11px);
+  color: #94a7ba;
+}
+.lab-bag {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 88px;
+  margin: 8px 0 4px;
+}
+.lab-bag-empty {
+  margin: 18px auto;
+  color: #7a8ca1;
+  font-size: 13px;
+}
+.lab-chip {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 4px 10px;
+  align-items: center;
+  min-width: 160px;
+  padding: 8px 10px;
+  border: 1px solid #c5d5c0;
+  border-radius: 8px;
+  background: #fff;
+}
+.lab-chip strong {
+  font: 600 18px var(--font-mono);
+  color: #3d5c32;
+}
+.lab-chip span {
+  font-size: 11px;
+  color: #6d7c64;
+  grid-column: 2;
+}
+.lab-chip-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  grid-column: 1 / -1;
+}
+.lab-chip-count em {
+  font: 600 14px var(--font-mono);
+  min-width: 1.5em;
+  text-align: center;
+}
+.lab-chip-remove {
+  color: #8a9580;
+}
+.lab-preview {
+  text-align: center;
+  font: 500 28px var(--font-mono);
+  color: #3f6948;
+  margin: 8px 0 16px;
+}
+.geometry-figure {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0 4px;
+  color: #3f6948;
+}
+.geometry-figure svg {
+  width: 88px;
+  height: 62px;
+  flex-shrink: 0;
+}
+.geometry-figure figcaption strong {
+  display: block;
+  font: 500 14px var(--font-sans);
+  color: #243428;
+}
+.geometry-figure figcaption span {
+  display: block;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #62768b;
+  max-width: 42rem;
+}
+.geometry-figure.is-compact svg {
+  width: 72px;
+  height: 50px;
+}
+.atlas-geometry {
+  margin: 8px 0 28px;
+}
+.atlas-geometry h2 {
+  font: 500 20px var(--font-display);
+  margin: 0 0 8px;
+}
+.lab-uses {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: #62768b;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.lab-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 174px;
+  border: 1.5px dashed #adc1d5;
+  border-radius: 10px;
+  background: #ffffff80;
+  padding: 16px;
+}
+.lab-slot > span {
+  font-size: 12px;
+  color: #647a95;
+}
+.lab-slot > small {
+  font-size: 10px;
+  color: #8495aa;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.lab-slot > strong {
+  font: 500 38px var(--font-mono);
+  color: #3b678e;
+}
+.lab-slot.is-filled {
+  border-style: solid;
+  background: #fff;
+  border-color: #a5bed1;
+  box-shadow: 0 3px 8px #20375808;
+}
+.lab-bench-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.lab-combine,
+.lab-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 7px;
+  padding: 12px 20px;
+  font-size: 12px;
+}
+.lab-combine {
+  border: 1px solid var(--brand, #812f26);
+  background: var(--brand, #812f26);
+  color: white !important;
+  min-width: 170px;
+}
+.lab-combine:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+.lab-hint {
+  background: #fff;
+  border: 1px solid var(--border, #c2cdd7);
+  color: var(--muted-foreground, #556575);
+}
+.lab-announcement {
+  min-height: 38px;
+  text-align: center;
+  line-height: 1.8;
+  color: #44756f;
+  font-size: 12px;
+  padding: 8px;
+  margin: 13px 0;
+}
+.lab-empty-result {
+  text-align: center;
+  padding: 34px 20px;
+  background: #ffffffab;
+  border: 1px solid #e0e8f0;
+  border-radius: 9px;
+}
+.lab-empty-result > div {
+  font: 500 38px var(--font-mono);
+  color: #b3c5d7;
+  margin-bottom: 18px;
+}
+.lab-empty-result > div span {
+  margin: 0 12px;
+  color: #d0dce7;
+}
+.lab-empty-result h2 {
+  font: 500 23px var(--font-display);
+  color: #7287a0;
+}
+.lab-empty-result p {
+  font-size: 12px;
+  color: #8293a6;
+  line-height: 1.8;
+  max-width: 370px;
+  margin: 0 auto;
+}
+.lab-result {
+  background: #fff;
+  border: 1px solid #c4ded5;
+  border-radius: 9px;
+  padding: 22px 25px;
+}
+.lab-result-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+.lab-result-heading h2 {
+  font: 500 29px var(--font-display);
+  margin: 9px 0;
+}
+.lab-result-heading > div > strong {
+  color: #50816f;
+  font: 500 24px var(--font-mono);
+}
+.lab-result-heading .atlas-visual {
+  width: 115px;
+  flex-shrink: 0;
+}
+.lab-result-heading figcaption {
+  display: none;
+}
+.lab-result-heading .atlas-image {
+  border: 0;
+}
+.lab-rule-label {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.03em;
+  color: #73698b;
+  background: #f2eff8;
+  padding: 5px 8px;
+  border-radius: 4px;
+  margin-top: 7px;
+}
+.lab-rule-label.is-reaction {
+  background: #e9f4ed;
+  color: #468164;
+}
+.lab-result > p {
+  font-size: 13px;
+  line-height: 1.85;
+  color: #62768b;
+}
+.lab-reaction {
+  padding: 12px 14px;
+  background: #f4f7fb;
+  border-radius: 6px;
+}
+.lab-reaction > summary {
+  font-size: 11px;
+  cursor: pointer;
+  color: #506c87;
+}
+.lab-reaction p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #667d95;
+}
+.lab-reaction .lab-equation {
+  font: 500 19px var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.lab-reaction a {
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.lab-result-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  font-size: 11px;
+  color: #4e769a;
+}
+.lab-result-actions button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+}
+.lab-science-note {
+  font-size: 10px;
+  color: #768b9f;
+  line-height: 1.8;
+  margin: 17px 0 0;
+}
+.lab-notebook {
+  margin: 40px 0 0;
+}
+.lab-notebook h2 {
+  font: 500 27px var(--font-display);
+  margin: 8px 0;
+}
+.lab-notebook header p:not(.science-eyebrow) {
+  font-size: 12px;
+  color: #70849b;
+}
+.lab-reset {
+  font-size: 10px;
+  background: transparent;
+  border: 1px solid #d9e2ec;
+  border-radius: 5px;
+  padding: 8px;
+  color: #7b889d;
+}
+.lab-notebook-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 9px;
+}
+.lab-notebook-grid > a,
+.lab-notebook-grid > div {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 115px;
+  padding: 15px 10px;
+  border: 1px solid #c9e0d4;
+  border-radius: 7px;
+  background: #f1f8f3;
+  color: #468166;
+  text-align: center;
+}
+.lab-notebook-grid strong {
+  font: 500 25px var(--font-mono);
+}
+.lab-notebook-grid span {
+  font-size: 10px;
+}
+.lab-notebook-grid svg {
+  position: absolute;
+  right: 7px;
+  top: 7px;
+}
+.lab-notebook-grid > .is-locked {
+  color: #a0acbb;
+  border-color: #e0e6ee;
+  background: #eef2f7;
+}
+.lab-notebook-grid .is-locked span {
+  font-size: 9px;
+}
+.lab-reset-confirm {
+  margin-top: 16px;
+  border: 1px solid #d1dce9;
+  border-radius: 8px;
+  padding: 18px;
+  background: white;
+  font-size: 12px;
+}
+.lab-reset-confirm button {
+  border: 1px solid #cbd9e7;
+  border-radius: 5px;
+  padding: 8px 12px;
+  background: #eef3f9;
+  margin-right: 8px;
+}
+.atlas-science-section summary:focus-visible,
+.lab-page button:focus-visible,
+.lab-page input:focus-visible {
+  outline: 3px solid #597bb8;
+  outline-offset: 3px;
+}
+@media (max-width: 1200px) {
+  .atlas-preview.is-inset {
+    grid-template-columns: 115px minmax(0, 1fr);
+  }
+  .preview-atom {
+    display: none;
+  }
+  .lab-invitation-marks {
+    flex-wrap: wrap;
+  }
+  .atlas-detail-hero {
+    gap: 28px;
+  }
+  .lab-notebook-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px) {
+  .atlas-detail .science-detail-layout {
+    display: block;
+  }
+  .atlas-detail .science-detail-nav {
+    display: none;
+  }
+  .atlas-detail-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+    gap: 24px;
+  }
+  .lab-layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 15px;
+  }
+  .lab-bench {
+    padding: 20px;
+  }
+  .lab-result {
+    padding: 18px;
+  }
+  .lab-result-heading .atlas-visual {
+    width: 85px;
+  }
+  .lab-result-heading h2 {
+    font-size: 23px;
+  }
+  .lab-material {
+    padding: 12px 8px;
+  }
+  .lab-stage-path strong {
+    font-size: 10px;
+  }
+}
+@media (max-width: 767px) {
+  .atlas-home,
+  .atlas-detail,
+  .lab-page {
+    padding: 24px 18px;
+  }
+  .atlas-home .explorer-heading {
+    align-items: flex-start;
+    gap: 16px;
+    flex-direction: column;
+  }
+  .atlas-home .explorer-heading h1 {
+    font-size: 29px;
+  }
+  .atlas-lenses {
+    gap: 5px;
+  }
+  .atlas-lenses > span {
+    flex-basis: 100%;
+    margin-bottom: 4px;
+  }
+  .atlas-lenses small {
+    flex-basis: 100%;
+    margin: 5px 0;
+    line-height: 1.7;
+  }
+  .atlas-lenses button {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+  .atlas-element-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .atlas-element-grid .science-tile {
+    min-height: 117px;
+    padding: 18px 10px 12px;
+  }
+  .atlas-element-grid .science-tile > strong {
+    font-size: 28px;
+  }
+  .atlas-element-grid .science-tile > span {
+    font-size: 10px;
+  }
+  .atlas-element-grid .science-tile > em {
+    font-size: 9px;
+  }
+  .atlas-home .explorer-count {
+    font-size: 10px;
+  }
+  .atlas-preview {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .atlas-preview > .atlas-visual {
+    width: 190px;
+    margin: 0 auto;
+  }
+  .atlas-preview-copy > p:not(.science-eyebrow) {
+    font-size: 13px;
+  }
+  .atlas-compound {
+    padding: 12px !important;
+  }
+  .atlas-compound-copy h2 {
+    font-size: 17px;
+  }
+  .atlas-compound-copy > p {
+    font-size: 11px;
+  }
+  .atlas-detail-hero {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-top: 4px;
+  }
+  .atlas-detail-hero > .atlas-visual {
+    width: min(360px, 100%);
+    margin: 0 auto;
+  }
+  .atlas-lead {
+    font-size: 17px;
+  }
+  .atlas-detail-title {
+    gap: 12px;
+  }
+  .atlas-detail-title h1 {
+    font-size: clamp(34px, 10vw, 44px);
+  }
+  .atlas-detail-title > span {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+  .atlas-resource-links {
+    gap: 10px;
+  }
+  .atlas-key-facts {
+    gap: 10px;
+  }
+  .atlas-related-links {
+    grid-template-columns: 1fr;
+  }
+  .atlas-developer {
+    padding: 22px;
+  }
+  .atlas-developer h2 {
+    font-size: 22px;
+  }
+  .atlas-science-section {
+    padding-inline: 0;
+  }
+  .atlas-science-section > summary h2,
+  .atlas-detail .atlas-science-section [data-slot="disclosure-trigger"] h2 {
+    font-size: 17px !important;
+  }
+  .lab-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .lab-progress {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 5px 12px;
+    width: 100%;
+  }
+  .lab-progress > strong {
+    font-size: 30px;
+  }
+  .lab-progress progress {
+    flex-basis: 100%;
+  }
+  .lab-stage-path {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .lab-stage-path > div {
+    padding: 10px;
+  }
+  .lab-layout {
+    display: flex;
+    flex-direction: column;
+  }
+  .lab-inventory,
+  .lab-bench {
+    width: 100%;
+  }
+  .lab-inventory {
+    padding: 16px;
+  }
+  .lab-materials {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-height: 245px;
+  }
+  .lab-material {
+    padding: 11px 9px;
+    gap: 5px;
+  }
+  .lab-material strong {
+    font-size: 23px;
+  }
+  .lab-material span {
+    font-size: 10px;
+  }
+  .lab-material small {
+    font-size: 8px;
+  }
+  .lab-bench {
+    padding: 20px 15px;
+  }
+  .lab-slots {
+    gap: 28px;
+  }
+  .lab-slot {
+    min-height: 147px;
+    padding: 12px;
+    gap: 10px;
+  }
+  .lab-slot > span {
+    font-size: 11px;
+  }
+  .lab-slot > small {
+    font-size: 9px;
+  }
+  .lab-slot > strong {
+    font-size: 30px;
+  }
+  .lab-plus {
+    left: -25px;
+    width: 21px;
+  }
+  .lab-bench-actions {
+    gap: 8px;
+  }
+  .lab-combine,
+  .lab-hint {
+    padding: 12px 14px;
+  }
+  .lab-combine {
+    min-width: 150px;
+  }
+  .lab-result {
+    padding: 18px;
+  }
+  .lab-result-heading {
+    gap: 10px;
+  }
+  .lab-result-heading h2 {
+    font-size: 23px;
+  }
+  .lab-result-heading .atlas-visual {
+    width: 85px;
+  }
+  .lab-notebook-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .lab-notebook > header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .lab-notebook h2 {
+    font-size: 24px;
+  }
+  .lab-notebook-grid strong {
+    font-size: 21px;
+  }
+}
+@media (max-width: 360px) {
+  .atlas-home,
+  .atlas-detail,
+  .lab-page {
+    padding-inline: 14px;
+  }
+  .atlas-element-grid {
+    gap: 7px;
+  }
+  .lab-materials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lab-notebook-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .lab-bench-top {
+    flex-wrap: wrap;
+  }
+  .lab-result-heading .atlas-visual {
+    width: 64px;
+  }
+  .lab-result-heading h2 {
+    font-size: 21px;
+  }
+  .atlas-composition a {
+    min-width: 100px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atlas-home .science-tile {
+    transition: none;
+  }
+  .atlas-home .science-tile:hover {
+    transform: none;
+  }
+}

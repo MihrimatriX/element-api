@@ -1,0 +1,139 @@
+# --- Ortam & gizliler ---
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.pfx
+*.key
+secrets/
+credentials.json
+appsettings.*.local.json
+appsettings.Local.json
+
+# --- .NET ---
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+[Tt]est[Rr]esults/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.dll
+*.exe
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.rsuser
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/Properties/launchSettings.json.user
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+*.DotSettings.user
+
+# --- Node.js / frontend ---
+node_modules/
+dist/
+dist-ssr/
+build/
+.npm/
+.yarn/
+.pnp.*
+*.tsbuildinfo
+.eslintcache
+.parcel-cache/
+.vite/
+coverage/
+playwright-report/
+test-results/
+*.local
+
+# --- Java / Maven ---
+target/
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*
+
+# --- Python (varsa) ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Docker & runtime verisi ---
+docker-data/
+*.log
+docker/.jenkins-*
+docker/.jenkins-local-admin.txt
+
+# --- IDE ---
+.vs/
+.idea/
+*.sln.docstates
+*.swp
+*~
+
+# VS Code — paylaşılan ayarlar hariç
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+
+# Rider
+*.sln.iml
+.idea/
+
+# --- İşletim sistemi ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# --- Test & araç çıktıları ---
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+.nyc_output/
+BenchmarkDotNet.Artifacts/
+
+# --- Geçici ---
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.orig
+web-app/tmp-qa/
+web-app/register_payload.json
+
+
+# --- Publish / paketleme ---
+publish/
+out/
+*.zip
+*.tar.gz
+
+!web-app/src/data/coverage.json
+playwright-report-auth/
+playwright-report-live/
+/web-app/test-results-auth/
+/web-app/test-results-live/

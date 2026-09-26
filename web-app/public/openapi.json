@@ -1,0 +1,303 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ElementAPI Scientific (v2)",
+    "version": "2.0",
+    "description": "Open scientific reads: 118 elements + 214 compounds. No account or key. Mirrors the ScientificCatalog contract (view/include/fields projection, ETag/304, ProblemDetails errors). Missing values are null, never zero. Rate limit depends on host: 300/min on the atlas host (:5080), 100/10s behind the gateway (:5000). Full record shapes live in /schema/elements.schema.json and /schema/compounds.schema.json."
+  },
+  "servers": [{ "url": "/" }],
+  "paths": {
+    "/api/v2/elements": {
+      "get": {
+        "summary": "List elements",
+        "parameters": [
+          { "$ref": "#/components/parameters/View" },
+          { "$ref": "#/components/parameters/Include" },
+          { "$ref": "#/components/parameters/Fields" },
+          { "$ref": "#/components/parameters/Q" },
+          { "$ref": "#/components/parameters/Category" },
+          { "$ref": "#/components/parameters/Block" },
+          { "$ref": "#/components/parameters/Group" },
+          { "$ref": "#/components/parameters/Period" },
+          { "$ref": "#/components/parameters/Page" },
+          { "$ref": "#/components/parameters/PageSize" }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ info, results }. Default view is summary.",
+            "headers": {
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListEnvelope" }
+              }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NotModified" },
+          "400": { "$ref": "#/components/responses/InvalidQuery" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/v2/elements/{identifier}": {
+      "get": {
+        "summary": "Read one element",
+        "description": "identifier: id (fe), symbol (case-insensitive), atomic number (26) or id-number (fe-26). Default view is full.",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "fe"
+          },
+          { "$ref": "#/components/parameters/View" },
+          { "$ref": "#/components/parameters/Include" },
+          { "$ref": "#/components/parameters/Fields" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Projected record.",
+            "headers": {
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" }
+            },
+            "content": {
+              "application/json": { "schema": { "type": "object" } }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NotModified" },
+          "400": { "$ref": "#/components/responses/InvalidQuery" },
+          "404": { "$ref": "#/components/responses/RecordNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/v2/compounds": {
+      "get": {
+        "summary": "List compounds",
+        "description": "category/block/group/period are elements-only and return 400 here.",
+        "parameters": [
+          { "$ref": "#/components/parameters/View" },
+          { "$ref": "#/components/parameters/Include" },
+          { "$ref": "#/components/parameters/Fields" },
+          { "$ref": "#/components/parameters/Q" },
+          { "$ref": "#/components/parameters/Page" },
+          { "$ref": "#/components/parameters/PageSize" }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ info, results }. Default view is summary.",
+            "headers": {
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListEnvelope" }
+              }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NotModified" },
+          "400": { "$ref": "#/components/responses/InvalidQuery" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/v2/compounds/{identifier}": {
+      "get": {
+        "summary": "Read one compound",
+        "description": "identifier: id, slug (h2o, nacl, aspirin) or PubChem CID (2244), case-insensitive. Default view is full.",
+        "parameters": [
+          {
+            "name": "identifier",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "h2o"
+          },
+          { "$ref": "#/components/parameters/View" },
+          { "$ref": "#/components/parameters/Include" },
+          { "$ref": "#/components/parameters/Fields" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Projected record.",
+            "headers": {
+              "ETag": { "$ref": "#/components/headers/ETag" },
+              "Cache-Control": { "$ref": "#/components/headers/CacheControl" }
+            },
+            "content": {
+              "application/json": { "schema": { "type": "object" } }
+            }
+          },
+          "304": { "$ref": "#/components/responses/NotModified" },
+          "400": { "$ref": "#/components/responses/InvalidQuery" },
+          "404": { "$ref": "#/components/responses/RecordNotFound" },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    },
+    "/api/v2/coverage": {
+      "get": {
+        "summary": "Snapshot coverage",
+        "description": "Atlas host only (:5080); the gateway (:5000) does not proxy this path. Behind the gateway read info.count from the list endpoints instead.",
+        "responses": {
+          "200": {
+            "description": "Counts and empty sections.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Coverage" }
+              }
+            }
+          },
+          "429": { "$ref": "#/components/responses/RateLimited" }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "View": {
+        "name": "view",
+        "in": "query",
+        "schema": { "type": "string", "enum": ["summary", "full"] },
+        "description": "summary on lists, full on single records by default. Anything else is 400."
+      },
+      "Include": {
+        "name": "include",
+        "in": "query",
+        "schema": { "type": "string" },
+        "description": "Comma-separated sections added onto summary (e.g. isotopes,provenance,editorial,media). Ignored when fields is present. Unknown path is 400."
+      },
+      "Fields": {
+        "name": "fields",
+        "in": "query",
+        "schema": { "type": "string" },
+        "description": "1-32 dot paths (max 6 levels, arrays whole). Overrides view and include. Unknown path is 400."
+      },
+      "Q": {
+        "name": "q",
+        "in": "query",
+        "schema": { "type": "string", "maxLength": 120 },
+        "description": "TR/EN name, symbol, atomic number, formula or PubChem CID. Diacritics folded."
+      },
+      "Category": {
+        "name": "category",
+        "in": "query",
+        "schema": { "type": "string" },
+        "description": "Elements list only; intersected against classification."
+      },
+      "Block": {
+        "name": "block",
+        "in": "query",
+        "schema": { "type": "string" },
+        "description": "Elements list only."
+      },
+      "Group": {
+        "name": "group",
+        "in": "query",
+        "schema": { "type": "string" },
+        "description": "Elements list only."
+      },
+      "Period": {
+        "name": "period",
+        "in": "query",
+        "schema": { "type": "string" },
+        "description": "Elements list only."
+      },
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "schema": { "type": "integer", "minimum": 1, "default": 1 }
+      },
+      "PageSize": {
+        "name": "pageSize",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 30
+        }
+      }
+    },
+    "headers": {
+      "ETag": {
+        "schema": { "type": "string" },
+        "description": "Weak tag of this exact body; send back as If-None-Match for 304."
+      },
+      "CacheControl": {
+        "schema": { "type": "string" },
+        "description": "Always public, max-age=3600 on successful v2 reads."
+      }
+    },
+    "responses": {
+      "NotModified": { "description": "ETag matched; no body." },
+      "InvalidQuery": {
+        "description": "title: Invalid scientific query.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Problem" }
+          }
+        }
+      },
+      "RecordNotFound": {
+        "description": "title: Scientific record not found; detail is the requested identifier.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Problem" }
+          }
+        }
+      },
+      "RateLimited": { "description": "Too many requests; back off and retry." }
+    },
+    "schemas": {
+      "ListEnvelope": {
+        "type": "object",
+        "required": ["info", "results"],
+        "properties": {
+          "info": {
+            "type": "object",
+            "properties": {
+              "count": {
+                "type": "integer",
+                "description": "Matching records, not page size."
+              },
+              "pages": { "type": "integer" },
+              "page": { "type": "integer" },
+              "page_size": { "type": "integer" },
+              "next": { "type": "string", "nullable": true },
+              "prev": { "type": "string", "nullable": true }
+            }
+          },
+          "results": { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "Coverage": {
+        "type": "object",
+        "properties": {
+          "schemaVersion": { "type": "string", "example": "2.0" },
+          "elements": { "type": "integer", "example": 118 },
+          "compounds": { "type": "integer" },
+          "retrievedAt": { "type": "string" },
+          "unavailableElementSections": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "nullMeaning": { "type": "string" }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "integer" },
+          "title": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    }
+  }
+}

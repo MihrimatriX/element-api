@@ -1,0 +1,426 @@
+# Element Market — tüm platform (build + run)
+# Kullanım: docker compose --env-file docker/.env up -d --build
+
+name: element-market
+
+services:
+  postgres:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.postgres
+    container_name: element-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - element-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: element-redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - element-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: element-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - element-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  identity-service:
+    volumes:
+      - identity_keys:/app/keys
+    image: element-identity-service
+    build:
+      context: .
+      dockerfile: identity-service/Element.Services.Identity.API/Dockerfile
+    container_name: element-identity-service
+    ports:
+      - "5001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_identity_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      RedisConnection: redis:6379
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:-http://localhost:3000}
+      DataProtection__KeyPath: /app/keys
+      Mail__Host: ${SMTP_HOST:-}
+      Mail__Port: ${SMTP_PORT:-587}
+      Mail__From: ${SMTP_FROM:-}
+      Mail__Username: ${SMTP_USER:-}
+      Mail__Password: ${SMTP_PASSWORD:-}
+      Mail__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      # Empty = Turnstile off. Set with VITE_CAPTCHA_SITE_KEY for public prod.
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
+      JwtSettings__Secret: ${JWT_SECRET:-ChangeMeInProduction_UseLongRandomSecretKey123!}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  catalog-service:
+    image: element-catalog-service
+    build:
+      context: .
+      dockerfile: catalog-service/Element.Services.Element.API/Dockerfile
+    container_name: element-catalog-service
+    ports:
+      - "5002:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_market_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
+      RabbitMQ__Password: ${RABBITMQ_DEFAULT_PASS:-guest}
+      Market__SpreadPct: "0.008"
+      PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:5000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  compound-service:
+    image: element-compound-service
+    build:
+      context: .
+      dockerfile: compound-service/Element.Services.Compound.API/Dockerfile
+    container_name: element-compound-service
+    ports:
+      - "5007:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_compound_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:5000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 40s
+
+  order-service:
+    image: element-order-service
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: element-order-service
+    restart: on-failure
+    ports:
+      - "5003:8080"
+    environment:
+      NODE_ENV: development
+      PORT: "8080"
+      LOG_LEVEL: info
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-mysecretpassword}@postgres:5432/element_order_db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
+      CATALOG_SERVICE_URL: http://catalog-service:8080
+      COMPOUND_SERVICE_URL: http://compound-service:8080
+      WALLET_SERVICE_URL: http://wallet-service:8080
+      INVENTORY_SERVICE_URL: http://inventory-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      SAGA_TIMEOUT_SUBMITTED_SEC: "120"
+      SAGA_TIMEOUT_STOCK_RESERVED_SEC: "120"
+      SAGA_TIMEOUT_SHIPPING_SEC: "180"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+      compound-service:
+        condition: service_healthy
+      wallet-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  wallet-service:
+    image: element-wallet-service
+    build:
+      context: ./wallet-service
+      dockerfile: Dockerfile
+    container_name: element-wallet-service
+    restart: on-failure
+    ports:
+      - "5005:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/element_wallet_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
+      CATALOG_SERVICE_URL: http://catalog-service:8080
+      COMPOUND_SERVICE_URL: http://compound-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  inventory-service:
+    image: element-inventory-service
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: element-inventory-service
+    restart: on-failure
+    ports:
+      - "5008:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/element_inventory_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
+      DEFAULT_STOCK_GRAMS: "100000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  shipment-service:
+    image: element-shipment-service
+    build:
+      context: .
+      dockerfile: shipment-service/Dockerfile
+    container_name: element-shipment-service
+    ports:
+      - "5004:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_shipment_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
+      RabbitMQ__Password: ${RABBITMQ_DEFAULT_PASS:-guest}
+      Shipment__FailQuantityGte: "0"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  notification-service:
+    image: element-notification-service
+    build:
+      context: .
+      dockerfile: notification-service/Element.Services.Notification.API/Dockerfile
+    container_name: element-notification-service
+    ports:
+      - "5006:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
+      RabbitMQ__Password: ${RABBITMQ_DEFAULT_PASS:-guest}
+      IdentityServiceInternalUrl: http://identity-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:-http://localhost:3000}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  gateway-service:
+    image: element-gateway-service
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    container_name: element-gateway-service
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      RedisConnection: redis:6379
+      IdentityServiceInternalUrl: http://identity-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:-http://localhost:3000}
+      # Empty = RFC1918+loopback (ClientIp). Set CIDRs on shared overlays.
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address: http://identity-service:8080
+      ReverseProxy__Clusters__element-cluster__Destinations__destination1__Address: http://catalog-service:8080
+      ReverseProxy__Clusters__compound-cluster__Destinations__destination1__Address: http://compound-service:8080
+      ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address: http://order-service:8080
+      ReverseProxy__Clusters__wallet-cluster__Destinations__destination1__Address: http://wallet-service:8080
+      ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address: http://inventory-service:8080
+      ReverseProxy__Clusters__shipment-cluster__Destinations__destination1__Address: http://shipment-service:8080
+      Cors__AllowedOrigins__0: http://localhost:3000
+      Cors__AllowedOrigins__1: http://localhost:5173
+      Cors__AllowedOrigins__2: http://127.0.0.1:3000
+    depends_on:
+      redis:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+      catalog-service:
+        condition: service_healthy
+      compound-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      wallet-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      shipment-service:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  web-app:
+    image: element-web-app
+    build:
+      context: .
+      dockerfile: web-app/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5000/api/v1}
+        VITE_PUBLIC_SITE_URL: ${VITE_PUBLIC_SITE_URL:-http://localhost:3000}
+        VITE_CAPTCHA_SITE_KEY: ${VITE_CAPTCHA_SITE_KEY:-}
+    environment:
+      PUBLIC_SITE_URL: ${VITE_PUBLIC_SITE_URL:-http://localhost:3000}
+    container_name: element-web-app
+    ports:
+      - "3000:80"
+    depends_on:
+      gateway-service:
+        condition: service_healthy
+    networks:
+      - element-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health | grep -q Healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  identity_keys:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  element-network:
+    driver: bridge

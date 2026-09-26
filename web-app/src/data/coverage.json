@@ -1,0 +1,13 @@
+{
+  "unavailableElementSections": [
+    "electromagnetic_and_optical",
+    "crystallography",
+    "abundance"
+  ],
+  "elements": 118,
+  "compounds": 214,
+  "editorial": 332,
+  "photos": 75,
+  "structures": 214,
+  "retrievedAt": "2026-09-05 / 2026-09-17 / 2026-09-20"
+}

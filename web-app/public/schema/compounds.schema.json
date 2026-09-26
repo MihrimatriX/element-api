@@ -1,0 +1,839 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ElementAPI v2 full compounds snapshot",
+  "description": "Schema for unprojected full records in the bundled snapshot. Summary/fields/include projections do not necessarily satisfy required fields. Entirely null fields intentionally do not assert an unverified type.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "names": {
+      "type": "object",
+      "properties": {
+        "tr": {
+          "type": "string"
+        },
+        "en": {
+          "type": "string"
+        },
+        "iupac": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "tr",
+        "en",
+        "iupac"
+      ],
+      "additionalProperties": false
+    },
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "pubchem_cid": {
+          "type": "number"
+        },
+        "cas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inchi": {
+          "type": "string"
+        },
+        "inchi_key": {
+          "type": "string"
+        },
+        "smiles": {
+          "type": "string"
+        },
+        "connectivity_smiles": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pubchem_cid",
+        "cas",
+        "inchi",
+        "inchi_key",
+        "smiles",
+        "connectivity_smiles"
+      ],
+      "additionalProperties": false
+    },
+    "molecular_properties": {
+      "type": "object",
+      "properties": {
+        "molecular_formula": {
+          "type": "string"
+        },
+        "molecular_weight_g_mol": {
+          "type": "number"
+        },
+        "exact_mass_da": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "monoisotopic_mass_da": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "formal_charge": {
+          "type": "number"
+        },
+        "xlogp": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "topological_polar_surface_area_a2": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hydrogen_bond_donors": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hydrogen_bond_acceptors": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rotatable_bonds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "complexity": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "molecular_formula",
+        "molecular_weight_g_mol",
+        "exact_mass_da",
+        "monoisotopic_mass_da",
+        "formal_charge",
+        "xlogp",
+        "topological_polar_surface_area_a2",
+        "hydrogen_bond_donors",
+        "hydrogen_bond_acceptors",
+        "rotatable_bonds",
+        "complexity"
+      ],
+      "additionalProperties": false
+    },
+    "physical_properties": {
+      "type": "object",
+      "properties": {
+        "melting_point": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "boiling_point": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "density": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "solubility": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "dissociation_constants": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "melting_point",
+        "boiling_point",
+        "density",
+        "solubility",
+        "dissociation_constants"
+      ],
+      "additionalProperties": false
+    },
+    "safety": {
+      "type": "object",
+      "properties": {
+        "ghs": {
+          "type": "object",
+          "properties": {
+            "hazard_codes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "precautionary_codes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "signal_words": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "pictograms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "source_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "source",
+                  "source_url"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "note": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "hazard_codes",
+            "precautionary_codes",
+            "signal_words",
+            "pictograms",
+            "sources",
+            "note"
+          ],
+          "additionalProperties": false
+        },
+        "nfpa_704": {
+          "type": "object",
+          "properties": {
+            "health": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "flammability": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "instability": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "special": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            }
+          },
+          "required": [
+            "health",
+            "flammability",
+            "instability",
+            "special"
+          ],
+          "additionalProperties": false
+        },
+        "toxicology": {
+          "type": "object",
+          "properties": {
+            "ld50_oral_rat_mg_kg": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "ld50_oral_mouse_mg_kg": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "reported_values": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  },
+                  "source_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "source",
+                  "source_url"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "occupational_exposure_limits": {
+              "type": "object",
+              "properties": {
+                "osha_pel_mg_m3": {
+                  "description": "No populated value in this snapshot. Null means unavailable, not zero."
+                },
+                "acgih_tlv_mg_m3": {
+                  "description": "No populated value in this snapshot. Null means unavailable, not zero."
+                }
+              },
+              "required": [
+                "osha_pel_mg_m3",
+                "acgih_tlv_mg_m3"
+              ],
+              "additionalProperties": false
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string"
+                  },
+                  "source_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "source",
+                  "source_url"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "ld50_oral_rat_mg_kg",
+            "ld50_oral_mouse_mg_kg",
+            "reported_values",
+            "occupational_exposure_limits",
+            "sources"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "ghs",
+        "nfpa_704",
+        "toxicology"
+      ],
+      "additionalProperties": false
+    },
+    "bioactivity_and_pharmacology": {
+      "type": "object",
+      "properties": {
+        "target_proteins": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "uniprot_id": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "source_url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "uniprot_id",
+                  "action",
+                  "source_url"
+                ],
+                "additionalProperties": false
+              }
+            }
+          ]
+        },
+        "mechanism_of_action": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "metabolism": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "elimination_half_life_hours": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "mechanism_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "metabolism_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "half_life_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string"
+              },
+              "source_url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "source",
+              "source_url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "target_proteins",
+        "mechanism_of_action",
+        "metabolism",
+        "elimination_half_life_hours",
+        "mechanism_sources",
+        "metabolism_sources",
+        "half_life_sources"
+      ],
+      "additionalProperties": false
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "retrieved_at": {
+          "type": "string"
+        },
+        "null_meaning": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "retrieved_at": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "url",
+              "retrieved_at",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "editorial_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "measurement_policy": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "retrieved_at",
+        "null_meaning",
+        "sources",
+        "editorial_fields",
+        "measurement_policy"
+      ],
+      "additionalProperties": false
+    },
+    "editorial": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "uses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "story": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "summary",
+        "uses",
+        "story",
+        "sources"
+      ],
+      "additionalProperties": false
+    },
+    "media": {
+      "type": "object",
+      "properties": {
+        "photo": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "structure": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "caption": {
+              "type": "string"
+            },
+            "source_url": {
+              "type": "string"
+            },
+            "creator": {
+              "type": "string"
+            },
+            "license": {
+              "type": "string"
+            },
+            "license_url": {
+              "type": "string"
+            },
+            "retrieved_at": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "caption",
+            "source_url",
+            "creator",
+            "license",
+            "license_url",
+            "retrieved_at"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "photo",
+        "structure"
+      ],
+      "additionalProperties": false
+    },
+    "external_links": {
+      "type": "object",
+      "properties": {
+        "wikipedia": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url",
+                "language"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pubchem": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "wikipedia",
+        "pubchem"
+      ],
+      "additionalProperties": false
+    },
+    "display_formula": {
+      "type": "string"
+    },
+    "composition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "count": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "symbol",
+          "count"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "slug",
+    "names",
+    "identifiers",
+    "molecular_properties",
+    "physical_properties",
+    "safety",
+    "bioactivity_and_pharmacology",
+    "provenance",
+    "editorial",
+    "media",
+    "external_links",
+    "display_formula",
+    "composition"
+  ],
+  "additionalProperties": false
+}

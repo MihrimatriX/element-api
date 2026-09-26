@@ -1,0 +1,345 @@
+import { Badge } from "@/components/ui/badge";
+import {
+  Disclosure,
+  DisclosureTrigger,
+  DisclosureContent,
+} from "@/components/ui/disclosure";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { track } from "../services/diagnostics";
+import { useState, type CSSProperties } from "react";
+import { Link } from "react-router-dom";
+import { BookOpen, Check, Download, FlaskConical } from "lucide-react";
+import { ACCOUNTS_ENABLED } from "../config";
+import Seo from "../components/Seo";
+import { catalogSize, materialById, formulaText } from "../services/lab";
+import { WorkshopMarks } from "../components/AtlasVisual";
+import {
+  lessons,
+  mergeLearning,
+  normalizeLearning,
+  type LearningProgress,
+} from "../services/lessons";
+import { useLearning } from "../services/useLearning";
+
+const LESSON_TINT: Record<string, string> = {
+  everyday: "var(--cat-nonmetal)",
+  salts: "var(--cat-alkali)",
+  oxides: "var(--cat-transition)",
+  acids: "var(--cat-halogen)",
+  organics: "var(--cat-post)",
+  environment: "var(--cat-alkaline)",
+};
+
+function Lesson({
+  lesson,
+  progress,
+  save,
+}: {
+  lesson: (typeof lessons)[number];
+  progress: LearningProgress;
+  save: (p: LearningProgress) => void;
+}) {
+  const [answer, setAnswer] = useState<number | null>(null);
+  const [step, setStep] = useState(0);
+  const completed = progress.lessons.includes(lesson.id);
+  const count = lesson.discoveries.filter((id) =>
+    progress.discoveries.includes(id),
+  ).length;
+  const ready = count === lesson.discoveries.length;
+  const current = lesson.questions[Math.min(step, lesson.questions.length - 1)];
+  return (
+    <Card asChild className="gap-0 py-0 shadow-none">
+      <article
+        className="learning-card"
+        style={
+          {
+            "--lesson-tint": LESSON_TINT[lesson.id] ?? "var(--cat-nonmetal)",
+          } as CSSProperties
+        }
+      >
+        <div className="learning-card-heading">
+          <BookOpen size={21} />
+          <Badge variant="secondary">
+            {completed
+              ? "Tamamlandı"
+              : `${count} / ${lesson.discoveries.length} keşif`}
+          </Badge>
+        </div>
+        <h2>{lesson.title}</h2>
+        <p>{lesson.description}</p>
+        <div className="lesson-materials">
+          {lesson.discoveries.map((id) => (
+            <Link
+              key={id}
+              to={`/compound/${id}`}
+              className={progress.discoveries.includes(id) ? "found" : ""}
+            >
+              {formulaText(materialById[id].formula)}
+              {progress.discoveries.includes(id) && <Check size={14} />}
+            </Link>
+          ))}
+        </div>
+        {!ready ? (
+          <Button asChild variant="outline">
+            <Link to={`/lab?lesson=${lesson.id}`}>Keşiflere devam et</Link>
+          </Button>
+        ) : completed ? (
+          <p className="learning-success">
+            <Check size={18} /> {lesson.questions[0].explanation}
+          </p>
+        ) : (
+          <fieldset className="lesson-question">
+            <legend>
+              {lesson.questions.length > 1
+                ? `${step + 1}/${lesson.questions.length} · ${current.question}`
+                : current.question}
+            </legend>
+            {current.choices.map((choice, i) => (
+              <Button
+                variant="plain"
+                size="none"
+                key={choice}
+                type="button"
+                aria-pressed={answer === i}
+                onClick={() => {
+                  setAnswer(i);
+                  if (i !== current.answer) return;
+                  if (step + 1 < lesson.questions.length) {
+                    setStep(step + 1);
+                    setAnswer(null);
+                    return;
+                  }
+                  track("lesson_completed", lesson.id);
+                  save({
+                    ...progress,
+                    lessons: [...progress.lessons, lesson.id],
+                  });
+                }}
+              >
+                {choice}
+              </Button>
+            ))}
+            {answer !== null && answer !== current.answer && (
+              <p role="status">
+                Bir daha düşün. İlgili bilimsel kayıtlardaki formül
+                açıklamalarından yararlanabilirsin.
+              </p>
+            )}
+          </fieldset>
+        )}
+      </article>
+    </Card>
+  );
+}
+
+export default function Collection() {
+  const learning = useLearning();
+  const { progress } = learning;
+  const [imported, setImported] = useState(false);
+  const [importMessage, setImportMessage] = useState("");
+  async function restore(file?: File) {
+    if (!file) return;
+    try {
+      if (file.size > 32768) throw Error();
+      const parsed = JSON.parse(await file.text());
+      if (
+        parsed.version !== 1 ||
+        !Array.isArray(parsed.discoveries) ||
+        !Array.isArray(parsed.lessons)
+      )
+        throw Error();
+      const incoming = normalizeLearning(parsed);
+      learning.save(mergeLearning(progress, incoming));
+      setImportMessage(
+        "Dosyadaki geçerli keşifler mevcut koleksiyonuna eklendi.",
+      );
+    } catch {
+      setImportMessage(
+        "Bu dosya geçerli bir koleksiyon kaydı değil. ElementAPI’den indirdiğin JSON dosyasını seç.",
+      );
+    }
+  }
+  function download() {
+    const url = URL.createObjectURL(
+      new Blob([JSON.stringify({ version: 1, ...progress }, null, 2)], {
+        type: "application/json",
+      }),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "elementapi-koleksiyon.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  return (
+    <main className="science-detail collection-page void-page void-enter">
+      <Seo
+        title="Defterim · ElementAPI"
+        description="Keşif defterim ve altı rota. Su, tuz, pas; oyun skorları burada yok."
+        path="/collection"
+        noIndex
+      />
+      <header className="explorer-heading collection-header">
+        <div>
+          <p className="void-kicker">Defter</p>
+          <h1>Keşif defterim</h1>
+          <p>
+            {progress.discoveries.length} / {catalogSize} bileşik ·{" "}
+            {progress.lessons.length} / {lessons.length} rota. Laboratuvarda
+            bulduklarını burada tut.
+          </p>
+        </div>
+        <Link to="/lab" className="science-text-link">
+          Laboratuvar <FlaskConical size={15} />
+        </Link>
+      </header>
+      <div
+        className="collection-progress"
+        style={
+          {
+            "--pct": Math.round(
+              (progress.discoveries.length / Math.max(1, catalogSize)) * 100,
+            ),
+          } as CSSProperties
+        }
+      >
+        <div
+          className="collection-progress-ring"
+          aria-hidden="true"
+          style={
+            {
+              "--pct": Math.round(
+                (progress.discoveries.length / Math.max(1, catalogSize)) * 100,
+              ),
+            } as CSSProperties
+          }
+        >
+          %{Math.round(
+            (progress.discoveries.length / Math.max(1, catalogSize)) * 100,
+          )}
+        </div>
+        <div>
+          <strong>
+            {progress.discoveries.length} keşif · {progress.lessons.length} rota
+          </strong>
+          <p>
+            {progress.discoveries.length === 0
+              ? "İlk molekülü laboratuvarda kaydet; defter burada dolacak."
+              : `${catalogSize - progress.discoveries.length} bileşik ve ${lessons.length - progress.lessons.length} rota kaldı.`}
+          </p>
+        </div>
+      </div>
+      <div className="learning-storage">
+        <p role="status">{learning.status}</p>
+        {learning.user ? (
+          <Button variant="outline" className="btn" onClick={learning.retry}>
+            Yeniden eşitle
+          </Button>
+        ) : ACCOUNTS_ENABLED ? (
+          <Link to="/register?returnTo=/collection">
+            İlerlemeyi cihazlar arasında sürdürmek için hesap aç
+          </Link>
+        ) : (
+          <span>Bu kurulumda hesap eşitleme kapalı.</span>
+        )}
+      </div>
+      {learning.user && learning.guest.discoveries.length > 0 && !imported && (
+        <div className="science-notice">
+          <p>
+            <strong>
+              Bu cihazda {learning.guest.discoveries.length} misafir keşfi
+              duruyor.
+            </strong>{" "}
+            Sana aitse tek tıkla hesabına taşı; taşımazsan bu cihazda kalır,
+            silinmez.
+          </p>
+          <Button
+            variant="outline"
+            className="btn"
+            onClick={() => {
+              learning.importGuest();
+              setImported(true);
+            }}
+          >
+            Misafir keşiflerimi hesabıma ekle
+          </Button>
+        </div>
+      )}
+      <section aria-label="Öğrenme rotaları">
+        <h2 className="section-title">Öğrenme rotaları</h2>
+        <p>
+          Altı rota. Önce bileşikleri laboratuvarda kaydet, sonra soruyu aç.
+          Günlük maddeler hâlâ su, karbondioksit ve amonyak ister.
+        </p>
+        <div className="learning-grid void-stagger">
+          {lessons.map((lesson) => (
+            <Lesson
+              key={lesson.id}
+              lesson={lesson}
+              progress={progress}
+              save={learning.save}
+            />
+          ))}
+        </div>
+      </section>
+      <section className="collection-discoveries">
+        <header>
+          <h2>Keşif defterin</h2>
+          {progress.discoveries.length > 0 && (
+            <Button variant="outline" className="btn" onClick={download}>
+              <Download size={16} /> Kaydımı indir
+            </Button>
+          )}
+        </header>
+        {!progress.discoveries.length ? (
+          <div className="learning-empty">
+            <WorkshopMarks beat="water" />
+            <FlaskConical size={30} />
+            <h3>Defterin boş, panelin hazır.</h3>
+            <p>
+              İki hidrojen, bir oksijen. Su burada görününce tuzu dene.{" "}
+              <Link to="/nasil">El kitabı</Link>
+            </p>
+            <Button asChild variant="default">
+              <Link className="btn primary" to="/lab">
+                İlk keşfimi yap
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="lab-notebook-grid">
+            {progress.discoveries.map((id) => (
+              <Link key={id} to={`/compound/${id}`}>
+                <strong>{formulaText(materialById[id].formula)}</strong>
+                <span>{materialById[id].name}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+      <Disclosure className="collection-transfer">
+        <DisclosureTrigger>Koleksiyon dosyası aktar</DisclosureTrigger>
+        <DisclosureContent>
+          <p>
+            İndirdiğin JSON dosyasındaki keşifler mevcut ilerlemene eklenir.
+          </p>
+          <label className="btn file-input">
+            JSON dosyası seç
+            <input
+              className="sr-only"
+              aria-label="İndirdiğin koleksiyonu geri yükle"
+              type="file"
+              accept=".json,application/json"
+              onChange={(e) => {
+                void restore(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+          </label>
+          {importMessage && <p role="status">{importMessage}</p>}
+        </DisclosureContent>
+      </Disclosure>
+    </main>
+  );
+}

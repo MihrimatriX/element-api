@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="FluentAssertions" Version="8.10.0" />
+    <PackageReference Include="MassTransit.TestFramework" Version="8.3.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Content Include="..\..\..\catalog-service\Element.Services.Element.Infrastructure\Data\scientific-elements.json" Link="Data\scientific-elements.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\..\compound-service\Element.Services.Compound.Infrastructure\Data\scientific-compounds.json" Link="Data\scientific-compounds.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\catalog-service\Element.Services.Element.Infrastructure\Element.Services.Element.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\identity-service\Element.Services.Identity.Infrastructure\Element.Services.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\shipment-service\Element.Services.Shipment.Infrastructure\Element.Services.Shipment.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\notification-service\Element.Services.Notification.API\Element.Services.Notification.API.csproj" />
+  </ItemGroup>
+
+</Project>

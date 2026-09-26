@@ -1,0 +1,25 @@
+# Optional local/CI Jenkins controller (LTS).
+# Start: pwsh -File deploy/scripts/jenkins-up.ps1
+# UI:    http://127.0.0.1:8085
+# Docs:  docs/CI-JENKINS.md
+#
+# Agent toolchains (Node/.NET/JDK/Maven/pwsh) are NOT in this image —
+# Multibranch builds need a properly provisioned agent or a custom agent image.
+# This compose only gets you a controller + Job DSL paste path on a real host.
+
+services:
+  jenkins:
+    image: jenkins/jenkins:lts-jdk21
+    container_name: element-jenkins
+    restart: unless-stopped
+    ports:
+      - "8085:8080"
+      - "50000:50000"
+    volumes:
+      - element-jenkins-home:/var/jenkins_home
+      - ./deploy/jenkins:/var/jenkins_casc_hints:ro
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=true"
+
+volumes:
+  element-jenkins-home:

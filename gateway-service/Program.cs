@@ -1,0 +1,135 @@
+using System;
+using System.Threading.RateLimiting;
+using Element.Gateway;
+using Element.Gateway.Middleware;
+using Element.Shared.Extensions;
+using Element.Shared.Middleware;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
+using StackExchange.Redis;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Console logging
+builder.AddConsoleLogging("Element.Gateway");
+
+// Add HttpClient for identity API-key validate
+builder.Services.AddHttpClient();
+
+// Add Redis
+var redisConn = builder.Configuration.GetValue<string>("RedisConnection") ?? "localhost:6379";
+var redisOptions = ConfigurationOptions.Parse(redisConn);
+redisOptions.AbortOnConnectFail = false;
+builder.Services.AddSingleton<IConnectionMultiplexer>(_ => ConnectionMultiplexer.Connect(redisOptions));
+
+// Add YARP
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+builder.Services.AddHealthChecks()
+    .AddRedis(redisConn, name: "Redis", failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded);
+
+// Add Rate Limiting — see RateLimitPolicy for numbers (register / auth / public).
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        // Behind Caddy (loopback or Docker private), ClientIp uses first X-Forwarded-For hop.
+        var (key, permit, window) = RateLimitPolicy.Resolve(context);
+        return RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = permit,
+            Window = window,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 0
+        });
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/json";
+        var path = context.HttpContext.Request.Path;
+        var register = HttpMethods.IsPost(context.HttpContext.Request.Method)
+            && path.StartsWithSegments("/api/v1/auth/register");
+        var problemDetails = new
+        {
+            Type = "https://httpstatuses.com/429",
+            Title = "Rate Limit Exceeded",
+            Status = StatusCodes.Status429TooManyRequests,
+            Detail = register
+                ? "Too many sign-up attempts from this address. Wait a minute and try again."
+                : "Too many requests. Please try again later.",
+            Instance = path
+        };
+        await context.HttpContext.Response.WriteAsJsonAsync(problemDetails, token);
+    };
+});
+
+// Add CORS
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()?.ToList()
+    ?? ["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"];
+var publicOrigin = builder.Configuration["PUBLIC_WEB_ORIGIN"]
+    ?? Environment.GetEnvironmentVariable("PUBLIC_WEB_ORIGIN");
+if (!string.IsNullOrWhiteSpace(publicOrigin))
+{
+    var origin = publicOrigin.Trim().TrimEnd('/');
+    if (!corsOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
+        corsOrigins.Add(origin);
+}
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PublicScience", policy => policy.AllowAnyOrigin().WithMethods("GET", "OPTIONS").AllowAnyHeader().WithExposedHeaders("ETag"));
+    options.AddPolicy("ElementCors",
+        policy =>
+        {
+            policy.WithOrigins(corsOrigins.ToArray())
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
+
+builder.Services.AddResponseCompression(options => { options.EnableForHttps = true; });
+var app = builder.Build();
+
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseRequestLogging();
+app.UseGlobalExceptionHandling();
+
+app.UseRouting();
+app.UseCors("ElementCors");
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/api/v2"), branch => branch.UseResponseCompression());
+
+app.UseRateLimiter();
+
+// Add API Key validation before YARP proxies requests
+app.UseMiddleware<ApiKeyValidationMiddleware>();
+
+app.MapReverseProxy();
+app.MapStandardOpsEndpoints("Element.Gateway", new Dictionary<string, string>
+{
+    ["catalog"] = "/api/v1",
+    ["auth"] = "/api/v1/auth/login",
+    ["orders"] = "/api/v1/orders",
+});
+
+try
+{
+    Log.Information("Starting Element Gateway Proxy...");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Gateway host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+
+public partial class Program { }

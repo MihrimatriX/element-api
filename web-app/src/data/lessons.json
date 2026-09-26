@@ -1,0 +1,140 @@
+[
+  {
+    "id": "everyday",
+    "title": "Günlük maddeler",
+    "description": "Su, karbondioksit ve amonyakta aynı elementin farklı bağlarını keşfet.",
+    "discoveries": ["h2o", "co2", "nh3"],
+    "questions": [
+      {
+        "question": "H₂O formülü bize ne söyler?",
+        "choices": [
+          "İki hidrojen ve bir oksijen atomu",
+          "İki oksijen ve bir hidrojen atomu",
+          "Hidrojen ve oksijenin eşit kütleleri"
+        ],
+        "answer": 0,
+        "explanation": "Alt indis atom sayısını belirtir. Atom sayısı oranı, kütle oranı değildir."
+      }
+    ]
+  },
+  {
+    "id": "salts",
+    "title": "Tuzlar ve iyonlar",
+    "description": "Sodyum klorür, potasyum klorür ve hidrojen klorür arasındaki bağlantıları incele.",
+    "discoveries": ["nacl", "hcl", "kcl"],
+    "questions": [
+      {
+        "question": "NaCl kristalindeki 1:1 oranı neyi anlatır?",
+        "choices": [
+          "Ayrı NaCl moleküllerini",
+          "Sodyum ve klorür iyonlarının oranını",
+          "Eşit gram sodyum ve kloru"
+        ],
+        "answer": 1,
+        "explanation": "İyonik kristalde formül birimi iyon oranını gösterir; ayrı bir molekülü temsil etmez."
+      }
+    ]
+  },
+  {
+    "id": "oxides",
+    "title": "Metaller ve oksitler",
+    "description": "Magnezyum, kalsiyum ve demirin oksijenle bağlantılarını kur.",
+    "discoveries": ["mgo", "cao", "fe2o3"],
+    "questions": [
+      {
+        "question": "Gerçek pas için hangi ifade doğrudur?",
+        "choices": [
+          "Her zaman tek ve saf bir bileşiktir",
+          "Yalnız demir metalinden oluşur",
+          "Farklı oksit ve hidroksitler içerebilir"
+        ],
+        "answer": 2,
+        "explanation": "Oyunda hematiti keşfediyoruz. Gerçek pasın bileşimi ortam koşullarına göre değişir."
+      }
+    ]
+  },
+  {
+    "id": "acids",
+    "title": "Oksiasitler",
+    "description": "Sülfürik, nitrik ve fosforik asitte hidrojen, ametal ve oksijenin birlikte durduğunu gör.",
+    "discoveries": ["h2so4", "hno3", "h3po4"],
+    "questions": [
+      {
+        "question": "H₂SO₄ formülü hangi atom sayılarını verir?",
+        "choices": [
+          "İki hidrojen, bir kükürt, dört oksijen",
+          "Dört hidrojen ve bir sülfat molekülü",
+          "Eşit kütlede hidrojen ve kükürt"
+        ],
+        "answer": 0,
+        "explanation": "Alt indisler atom sayısını sayar. Bu kayıt derişik asit kullanma tarifi değildir."
+      },
+      {
+        "question": "Bu üç kayıt neden aynı rotada?",
+        "choices": [
+          "Hepsi bir metal oksididir",
+          "Hepsi oksijen içeren asit formülleridir",
+          "Hepsi sofra tuzudur"
+        ],
+        "answer": 1,
+        "explanation": "Oksiasit formülünde H, merkez ametal ve O birlikte bulunur."
+      }
+    ]
+  },
+  {
+    "id": "organics",
+    "title": "Karbon iskeleti",
+    "description": "Metan, etanol ve glikozda karbonun dört bağını ve günlük karbon bileşiklerini incele.",
+    "discoveries": ["ch4", "c2h5oh", "c6h12o6"],
+    "questions": [
+      {
+        "question": "CH₄ kaydı neyi gösterir?",
+        "choices": [
+          "Karbonun dört hidrojenle dört tek bağ yaptığı molekülü",
+          "Karbon dioksitin izomerini",
+          "İyonik bir tuz kristalini"
+        ],
+        "answer": 0,
+        "explanation": "Metan tetrahedral bir moleküldür; karbon dört tek bağ yapar."
+      },
+      {
+        "question": "C₂H₆O brüt formülü bu katalogda neden etanol olarak durur?",
+        "choices": [
+          "Aynı atom sayısına sahip bütün izomerler tek kayıttır; burada etanol seçilmiştir",
+          "Eter diye bir molekül yoktur",
+          "Formül her zaman yapısal formüldür"
+        ],
+        "answer": 0,
+        "explanation": "İzomerler (etanol / dimetil eter) aynı brüt formülü paylaşır; bu katalog tek anahtar kullanır."
+      }
+    ]
+  },
+  {
+    "id": "environment",
+    "title": "Hava ve kaya",
+    "description": "Kükürt dioksit, azot dioksit ve kalsiyum karbonatla atmosfer ve mineral kaydını ayır.",
+    "discoveries": ["so2", "no2", "caco3"],
+    "questions": [
+      {
+        "question": "SO₂ kaydı bir tuz mudur?",
+        "choices": [
+          "Evet, sofra tuzuyla aynı sınıftandır",
+          "Hayır, kükürt ve oksijenin moleküler oksididir",
+          "Yalnız kireçtaşının diğer adıdır"
+        ],
+        "answer": 1,
+        "explanation": "SO₂ moleküler bir oksittir; asit yağmuru kimyasında yer alır. Bu bir emisyon tarifi değildir."
+      },
+      {
+        "question": "CaCO₃ kireçtaşı kaydı neyi temsil eder?",
+        "choices": [
+          "Serbest CaCO₃ moleküllerini",
+          "Ca²⁺ ve CO₃²⁻ iyonlarının formül birimini",
+          "Saf karbon elementini"
+        ],
+        "answer": 1,
+        "explanation": "Kireçtaşı iyon örgüsüdür; formül birimi molekül anlamına gelmez."
+      }
+    ]
+  }
+]

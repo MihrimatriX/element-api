@@ -1,0 +1,745 @@
+import {
+  Disclosure,
+  DisclosureTrigger,
+  DisclosureContent,
+} from "@/components/ui/disclosure";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Download,
+  FileJson,
+  Search,
+  FlaskConical,
+} from "lucide-react";
+import {
+  scienceUrl,
+  useScience,
+  type JsonValue,
+  type ScientificRecord,
+} from "../services/science";
+import Seo from "./Seo";
+import AtlasVisual from "./AtlasVisual";
+import {
+  categoryLabels,
+  categorySwatches,
+  STATIC_ELEMENTS,
+} from "../services/elementData";
+import {
+  displayFormula,
+  formatScience,
+  phaseLabels,
+  type AtlasFields,
+  type ScientificElement,
+  type ScientificCompound,
+} from "../services/science";
+import { labElements, geometryOf } from "../services/chemistry";
+import { compoundBySlug } from "../services/lab";
+import { highlightJson, jsonSource } from "../lib/highlightJson";
+import GeometryFigure from "./GeometryFigure";
+
+const labels: Record<string, string> = {
+  precautionary_codes: "Önlem kodları",
+  signal_words: "Uyarı sözcükleri",
+  names: "Adlandırma",
+  tr: "Türkçe",
+  en: "İngilizce",
+  la: "Latince",
+  de: "Almanca",
+  iupac: "IUPAC adı",
+  classification: "Sınıflandırma",
+  period: "Periyot",
+  group: "Grup",
+  block: "Blok",
+  series: "Seri",
+  category: "Kategori",
+  cas_number: "CAS numarası",
+  appearance: "Görünüm",
+  atomic_properties: "Atomik özellikler",
+  atomic_mass: "Atom kütlesi (u)",
+  standard_atomic_weight_reported: "Standart atom ağırlığı · kaynak gösterimi",
+  standard_atomic_weight_uncertainty: "Atom ağırlığı belirsizliği",
+  electron_configuration: "Elektron dizilimi",
+  short: "Kısa gösterim",
+  full: "Tam gösterim",
+  term_symbol: "Terim sembolü",
+  electrons_per_shell: "Kabuk başına elektron",
+  valence_electrons: "Değerlik elektronları",
+  oxidation_states: "Yükseltgenme basamakları",
+  common: "Yaygın",
+  rare: "Nadir",
+  electronegativity: "Elektronegatiflik",
+  pauling: "Pauling",
+  allen: "Allen",
+  allred_rochow: "Allred–Rochow",
+  mulliken: "Mulliken",
+  ionization_energies_kj_mol: "İyonlaşma enerjileri (kJ/mol)",
+  electron_affinity_kj_mol: "Elektron ilgisi (kJ/mol)",
+  radii_pm: "Yarıçaplar (pm)",
+  atomic_empirical: "Atomik · deneysel",
+  atomic_calculated: "Atomik · hesaplanan",
+  covalent_single_bond: "Kovalent · tek bağ",
+  covalent_double_bond: "Kovalent · çift bağ",
+  covalent_triple_bond: "Kovalent · üçlü bağ",
+  van_der_waals: "Van der Waals",
+  thermodynamic_properties: "Termodinamik",
+  standard_state: "Standart hâl",
+  melting_point: "Erime noktası",
+  boiling_point: "Kaynama noktası",
+  k: "Kelvin (K)",
+  c: "Santigrat (°C)",
+  triple_point: "Üçlü nokta",
+  critical_point: "Kritik nokta",
+  temperature_k: "Sıcaklık (K)",
+  pressure_kpa: "Basınç (kPa)",
+  pressure_mpa: "Basınç (MPa)",
+  density_g_cm3: "Yoğunluk (g/cm³)",
+  reported: "Kaynakta bildirilen",
+  conditions: "Ölçüm koşulları",
+  stp: "STP koşullarında",
+  liquid_at_mp: "Erime noktasında sıvı",
+  enthalpy_of_fusion_kj_mol: "Erime entalpisi (kJ/mol)",
+  enthalpy_of_vaporization_kj_mol: "Buharlaşma entalpisi (kJ/mol)",
+  specific_heat_capacity_j_g_k: "Özgül ısı kapasitesi (J/g·K)",
+  molar_heat_capacity_j_mol_k: "Molar ısı kapasitesi (J/mol·K)",
+  mechanical_properties: "Mekanik özellikler",
+  mohs_hardness: "Mohs sertliği",
+  vickers_hardness_mpa: "Vickers sertliği (MPa)",
+  brinell_hardness_mpa: "Brinell sertliği (MPa)",
+  youngs_modulus_gpa: "Young modülü (GPa)",
+  youngs_modulus_reported: "Young modülü · koşullarıyla (GPa)",
+  shear_modulus_gpa: "Kayma modülü (GPa)",
+  shear_modulus_reported: "Kayma modülü · koşullarıyla (GPa)",
+  bulk_modulus_gpa: "Hacim modülü (GPa)",
+  poissons_ratio: "Poisson oranı",
+  speed_of_sound_m_s: "Ses hızı (m/s)",
+  electromagnetic_and_optical: "Elektromanyetik ve optik",
+  electrical_resistivity_ohm_m: "Elektrik özdirenci (Ω·m)",
+  electrical_conductivity_s_m: "Elektrik iletkenliği (S/m)",
+  thermal_conductivity_w_m_k: "Isıl iletkenlik (W/m·K)",
+  thermal_expansion_coefficient_um_m_k: "Isıl genleşme (µm/m·K)",
+  magnetic_ordering: "Manyetik düzen",
+  curie_temperature_k: "Curie sıcaklığı (K)",
+  refractive_index: "Kırılma indisi",
+  crystallography: "Kristal yapı",
+  structure_name: "Yapı adı",
+  space_group_number: "Uzay grubu numarası",
+  space_group_symbol: "Uzay grubu sembolü",
+  lattice_parameters_pm: "Örgü parametreleri (pm; açılar °)",
+  a: "a",
+  b: "b",
+  alpha: "α",
+  beta: "β",
+  gamma: "γ",
+  abundance: "Doğada bulunma",
+  universe_mass_percent: "Evrende kütlece (%)",
+  solar_system_mass_percent: "Güneş sisteminde kütlece (%)",
+  crust_mg_kg: "Yer kabuğunda (mg/kg)",
+  ocean_mg_l: "Okyanusta (mg/L)",
+  human_body_mass_percent: "İnsan vücudunda kütlece (%)",
+  history: "Tarihçe",
+  discovered_year: "Keşif yılı",
+  discovery_reported: "Kaynakta keşif bilgisi",
+  discoverers: "Keşfedenler",
+  etymology: "Köken",
+  isotopes: "İzotoplar",
+  mass_number: "Kütle numarası",
+  exact_mass_da: "Kesin kütle (Da)",
+  exact_mass_reported: "Kesin kütle · belirsizliğiyle",
+  abundance_percent: "Doğal bolluk (%)",
+  abundance_fraction_reported: "Bolluk oranı · belirsizliğiyle",
+  half_life: "Yarı ömür",
+  spin_parity: "Spin / parite",
+  decay_mode: "Bozunma biçimi",
+  identifiers: "Kimlik ve yapı",
+  pubchem_cid: "PubChem CID",
+  cas: "CAS",
+  inchi: "InChI",
+  inchi_key: "InChIKey",
+  smiles: "SMILES",
+  connectivity_smiles: "Bağlantı SMILES",
+  molecular_properties: "Moleküler özellikler",
+  molecular_formula: "Molekül formülü",
+  molecular_weight_g_mol: "Molar kütle (g/mol)",
+  monoisotopic_mass_da: "Monoizotopik kütle (Da)",
+  formal_charge: "Formal yük",
+  xlogp: "XLogP",
+  topological_polar_surface_area_a2: "Topolojik polar yüzey alanı (Å²)",
+  hydrogen_bond_donors: "Hidrojen bağı vericileri",
+  hydrogen_bond_acceptors: "Hidrojen bağı alıcıları",
+  rotatable_bonds: "Dönebilen bağlar",
+  complexity: "Moleküler karmaşıklık",
+  physical_properties: "Fiziksel özellikler",
+  density: "Yoğunluk",
+  solubility: "Çözünürlük",
+  dissociation_constants: "Ayrışma sabitleri",
+  safety: "Güvenlik ve toksikoloji",
+  ghs: "GHS sınıflandırması",
+  hazard_codes: "Tehlike kodları",
+  pictograms: "Piktogram kodları",
+  nfpa_704: "NFPA 704",
+  health: "Sağlık",
+  flammability: "Yanıcılık",
+  instability: "Kararsızlık",
+  special: "Özel",
+  toxicology: "Toksikoloji",
+  ld50_oral_rat_mg_kg: "LD₅₀ · sıçan, oral (mg/kg)",
+  ld50_oral_mouse_mg_kg: "LD₅₀ · fare, oral (mg/kg)",
+  reported_values: "Kaynaklarda bildirilen deneyler",
+  occupational_exposure_limits: "Mesleki maruziyet sınırları",
+  osha_pel_mg_m3: "OSHA PEL (mg/m³)",
+  acgih_tlv_mg_m3: "ACGIH TLV (mg/m³)",
+  bioactivity_and_pharmacology: "Biyoaktivite ve farmakoloji",
+  target_proteins: "Hedef proteinler",
+  mechanism_of_action: "Etki mekanizması",
+  metabolism: "Metabolizma",
+  elimination_half_life_hours: "Eliminasyon yarı ömrü (saat)",
+  mechanism_sources: "Etki mekanizması kaynakları",
+  metabolism_sources: "Metabolizma kaynakları",
+  half_life_sources: "Yarı ömür kaynakları",
+  sources: "Kaynaklar",
+  note: "Veri notu",
+  value: "Bildirilen değer",
+  source: "Kaynak",
+  source_url: "Kaynağı aç",
+  name: "Ad",
+  uniprot_id: "UniProt",
+  action: "Etki",
+};
+const populated = (v: JsonValue): boolean =>
+  v !== null &&
+  (Array.isArray(v)
+    ? v.some(populated)
+    : typeof v === "object"
+      ? Object.values(v).some(populated)
+      : v !== "");
+const textValue = (v: JsonValue) =>
+  typeof v === "number"
+    ? new Intl.NumberFormat("tr-TR", { maximumSignificantDigits: 14 }).format(v)
+    : String(v);
+function Value({
+  value,
+  showMissing,
+  context,
+}: {
+  value: JsonValue;
+  showMissing: boolean;
+  context?: string;
+}) {
+  if (value === null) return <span className="science-missing">Veri yok</span>;
+  if (typeof value !== "object") {
+    if (typeof value === "string" && /^https?:\/\//.test(value))
+      return (
+        <a
+          className="science-source-link"
+          href={value}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Kaynağı incele <ArrowUpRight size={12} />
+        </a>
+      );
+    return <>{textValue(value)}</>;
+  }
+  if (Array.isArray(value)) {
+    if (!value.length)
+      return (
+        <span className="science-missing">Bu kayıtta veri bulunmuyor</span>
+      );
+    if (value.every((v) => v === null || typeof v !== "object"))
+      return (
+        <span className="science-values">
+          {value.map((v, i) => (
+            <span key={i}>{v == null ? "—" : textValue(v)}</span>
+          ))}
+        </span>
+      );
+    return (
+      <div className="science-records">
+        {value.map((v, i) => (
+          <div key={i} className="science-subrecord">
+            <Value value={v} showMissing={showMissing} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  const entries = Object.entries(value).filter(
+    ([, v]) => showMissing || populated(v),
+  );
+  if (!entries.length)
+    return (
+      <p className="science-missing">
+        Bu bölüm için doğrulanmış veri henüz eklenmedi.
+      </p>
+    );
+  return (
+    <dl className="science-properties">
+      {entries.map(([key, v]) => (
+        <div
+          key={key}
+          className={v && typeof v === "object" ? "science-property-group" : ""}
+        >
+          <dt>
+            {context === "lattice_parameters_pm" && key === "c"
+              ? "c"
+              : (labels[key] ?? key.replace(/_/g, " "))}
+          </dt>
+          <dd>
+            <Value value={v} showMissing={showMissing} context={key} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+function RelatedCompounds({ symbol }: { symbol: string }) {
+  const { data } = useScience<ScientificCompound[]>("compounds");
+  const related =
+    data?.filter((c) => c.composition?.some((p) => p.symbol === symbol)) ?? [];
+  return (
+    <section className="atlas-related">
+      <h2>Bu elementin bileşikleri</h2>
+      {related.length ? (
+        <div className="atlas-related-links">
+          {related.map((c) => (
+            <Link key={c.slug} to={`/compound/${c.slug}`}>
+              <strong>{displayFormula(c.display_formula)}</strong>
+              <span>{c.names.tr}</span>
+              <ArrowUpRight size={14} />
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p>Bu katalogda henüz ilişkili bileşik bulunmuyor.</p>
+      )}
+    </section>
+  );
+}
+export default function ScientificDetail({
+  kind,
+}: {
+  kind: "elements" | "compounds";
+}) {
+  const params = useParams();
+  const id = (params.symbol ?? params.slug ?? "").toLowerCase();
+  const { data, error, retry } = useScience<ScientificRecord>(kind, id);
+  const [missing, setMissing] = useState(false);
+  const [filter, setFilter] = useState("");
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const back = kind === "elements" ? "/periodic" : "/compounds";
+  if (!data)
+    return (
+      <main className="science-detail atlas-detail atlas-detail--void">
+        <Link to={back} className="science-text-link">
+          <ArrowLeft size={16} /> Keşfe dön
+        </Link>
+        <h1>{error ?? "Bilimsel kayıt yükleniyor…"}</h1>
+        {error && (
+          <Button variant="outline" className="btn" onClick={retry}>
+            Yeniden dene
+          </Button>
+        )}
+      </main>
+    );
+  const names = data.names as Record<string, string>;
+  const atlas = data as unknown as AtlasFields;
+  const element =
+    kind === "elements" ? (data as unknown as ScientificElement) : null;
+  const compound =
+    kind === "compounds" ? (data as unknown as ScientificCompound) : null;
+  const mark =
+    element?.symbol ??
+    displayFormula(
+      compound?.display_formula ??
+        compound?.molecular_properties.molecular_formula ??
+        "",
+    );
+  const provenance = data.provenance as ScientificRecord;
+  const sections = Object.entries(data).filter(
+    ([key, value]) => labels[key] && (missing || populated(value)),
+  );
+  const visible = sections.filter(
+    ([key]) =>
+      !filter ||
+      (labels[key] ?? key)
+        .toLocaleLowerCase("tr")
+        .includes(filter.toLocaleLowerCase("tr")),
+  );
+  const inLab = element
+    ? labElements.includes(mark)
+    : Boolean(compound && compoundBySlug[compound.slug]);
+  const geometry =
+    compound && compoundBySlug[compound.slug]
+      ? geometryOf(compoundBySlug[compound.slug])
+      : undefined;
+  const download = () => {
+    const url = URL.createObjectURL(
+      new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${data.id}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+  const reveal = (key: string) => {
+    setFilter("");
+    setExpanded((current) => ({ ...current, [`${id}-${key}`]: true }));
+    requestAnimationFrame(() =>
+      document.getElementById(key)?.scrollIntoView({ block: "start" }),
+    );
+  };
+  return (
+    <main className="science-detail atlas-detail atlas-detail--void">
+      <Seo
+        title={`${names.tr} (${mark}) · ElementAPI`}
+        description={
+          atlas.editorial?.summary ??
+          `${names.tr}: kaynaklı bilimsel özellikler.`
+        }
+        path={`/${element ? "element" : "compound"}/${id}`}
+      />
+      <nav className="science-breadcrumb">
+        <Link to={back}>
+          <ArrowLeft size={16} />
+          {element ? "Elementler" : "Bileşikler"}
+        </Link>
+        <span>/</span>
+        <span>{names.tr}</span>
+      </nav>
+      <header
+        className="atlas-detail-hero"
+        style={
+          element
+            ? {
+                ["--detail-accent" as string]:
+                  categorySwatches[element.classification.category],
+              }
+            : undefined
+        }
+      >
+        <div className="atlas-detail-intro">
+          <p className="science-meta">
+            {element
+              ? `${categoryLabels[element.classification.category] ?? "Element"} · atom numarası ${element.atomic_number}`
+              : `Bileşik · PubChem ${compound!.identifiers.pubchem_cid}`}
+          </p>
+          <div className="atlas-detail-title">
+            <h1>{names.tr}</h1>
+            <span>{mark}</span>
+          </div>
+          <p className="atlas-english">{names.en}</p>
+          <p className="atlas-lead">{atlas.editorial?.summary}</p>
+          <dl className="atlas-key-facts">
+            {(element
+              ? [
+                  [
+                    "Atom kütlesi",
+                    formatScience(element.atomic_properties.atomic_mass, "u"),
+                  ],
+                  [
+                    "Fiziksel hâl",
+                    phaseLabels[
+                      element.thermodynamic_properties.standard_state ??
+                        "unknown"
+                    ] ?? "Bilinmiyor",
+                  ],
+                  [
+                    "Elektronegatiflik",
+                    formatScience(
+                      element.atomic_properties.electronegativity.pauling,
+                    ),
+                  ],
+                  [
+                    "Elektron dizilimi",
+                    element.atomic_properties.electron_configuration.short ??
+                      "—",
+                  ],
+                ]
+              : [
+                  [
+                    "Molar kütle",
+                    formatScience(
+                      compound!.molecular_properties.molecular_weight_g_mol,
+                      "g/mol",
+                    ),
+                  ],
+                  ["Gösterim formülü", mark],
+                  ["PubChem CID", String(compound!.identifiers.pubchem_cid)],
+                  [
+                    "Bileşen element",
+                    String(compound!.composition?.length ?? "—"),
+                  ],
+                  ...(geometry
+                    ? [["Geometri", geometry.nameTr] as [string, string]]
+                    : []),
+                ]
+            ).map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="atlas-resource-links">
+            {atlas.external_links?.wikipedia && (
+              <a
+                href={atlas.external_links.wikipedia.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Wikipedia{" "}
+                {atlas.external_links.wikipedia.language === "en" ? "(EN)" : ""}{" "}
+                <ArrowUpRight size={14} />
+              </a>
+            )}
+            <a
+              href={atlas.external_links?.pubchem}
+              target="_blank"
+              rel="noreferrer"
+            >
+              PubChem <ArrowUpRight size={14} />
+            </a>
+            {inLab && (
+              <Link
+                to={
+                  compound
+                    ? `/lab/formula?compound=${encodeURIComponent(compound.slug)}`
+                    : `/lab?material=${encodeURIComponent(element!.symbol)}`
+                }
+              >
+                <FlaskConical size={15} />{" "}
+                {compound ? "Formülü kur" : "Laboratuvarda keşfet"}
+              </Link>
+            )}
+          </div>
+        </div>
+        <AtlasVisual
+          key={id}
+          symbol={element?.symbol}
+          formula={mark}
+          shells={element?.atomic_properties.electrons_per_shell}
+          photo={atlas.media?.photo}
+          structure={atlas.media?.structure}
+        />
+      </header>
+      <div className="science-detail-layout">
+        <aside className="science-detail-nav">
+          <a href="#overview">
+            Nedir, nerede kullanılır? <ArrowUpRight size={13} />
+          </a>
+          {compound && (
+            <a href="#geometry">
+              Molekül geometrisi <ArrowUpRight size={13} />
+            </a>
+          )}
+          {sections.map(([key]) => (
+            <a key={key} href={`#${key}`} onClick={() => reveal(key)}>
+              {labels[key]}
+              <span>↗</span>
+            </a>
+          ))}
+          <a href="#sources">
+            Kaynaklar <ArrowUpRight size={13} />
+          </a>
+          <a href="#developer">
+            API ve JSON <FileJson size={13} />
+          </a>
+        </aside>
+        <div className="science-detail-content">
+          <section className="atlas-overview" id="overview">
+            <div>
+              <h2>Nerelerde kullanılır?</h2>
+              <ul className="atlas-uses">
+                {atlas.editorial?.uses.map((use) => (
+                  <li key={use}>{use}</li>
+                ))}
+              </ul>
+              <p className="atlas-copy-note">
+                Kullanım alanları saf maddeyi, bileşiklerini veya özel malzeme
+                biçimlerini kapsayabilir; ürünün kimyasal biçimi belirleyicidir.
+              </p>
+            </div>
+            {atlas.editorial?.story && (
+              <div className="atlas-story">
+                <h2>Kısa hikâyesi</h2>
+                <p>{atlas.editorial.story}</p>
+              </div>
+            )}
+          </section>
+          {compound && geometry && (
+            <section className="atlas-geometry" id="geometry">
+              <h2>Molekül geometrisi</h2>
+              <GeometryFigure geometry={geometry} />
+            </section>
+          )}
+          {compound && (
+            <section className="atlas-composition">
+              <h2>İçindeki elementler</h2>
+              <div>
+                {compound.composition?.map((part) => (
+                  <Link
+                    key={part.symbol}
+                    to={`/element/${part.symbol.toLowerCase()}`}
+                  >
+                    <strong>{part.symbol}</strong>
+                    <span>
+                      {STATIC_ELEMENTS.find((e) => e.symbol === part.symbol)
+                        ?.name ?? part.symbol}
+                    </span>
+                    <small>{part.count} atom / formül birimi</small>
+                  </Link>
+                ))}
+              </div>
+              <p>
+                Formül bileşimi gösterilir. İyonik ve ağ yapılı katılarda bu
+                oran, ayrı bir molekül anlamına gelmez.
+              </p>
+            </section>
+          )}
+          <div className="atlas-data-heading">
+            <h2>Bilimsel özellikler</h2>
+          </div>
+          <div className="science-data-tools">
+            <label>
+              <Search size={16} />
+              <Input
+                className="pl-9"
+                type="search"
+                placeholder="Bölüm ara…"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                aria-label="Bilimsel bölüm ara"
+              />
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={missing}
+                onChange={(e) => setMissing(e.target.checked)}
+              />{" "}
+              Eksik alanları göster
+            </label>
+          </div>
+          <p className="science-data-note">
+            “Veri yok”, kaynak sürümünde doğrulanmış değer bulunmadığını
+            belirtir. Sıfır anlamına gelmez; ölçüm koşulları ve belirsizlikler
+            korunur.
+          </p>
+          {!visible.length && (
+            <p className="science-notice">Eşleşen bölüm bulunamadı.</p>
+          )}
+          {visible.map(([key, value]) => (
+            <Disclosure
+              className="science-section atlas-science-section"
+              id={key}
+              key={`${id}-${key}`}
+              open={!!filter || !!expanded[`${id}-${key}`]}
+              onOpenChange={(open) =>
+                setExpanded((current) => ({
+                  ...current,
+                  [`${id}-${key}`]: open,
+                }))
+              }
+            >
+              <DisclosureTrigger>
+                <h2>{labels[key]}</h2>
+                <span>{populated(value) ? "İncele" : "Veri yok"}</span>
+              </DisclosureTrigger>
+              <DisclosureContent>
+                {key === "isotopes" && (
+                  <p className="science-data-note">
+                    NIST referans izotop bileşimleri. Doğal bolluk, kararlılık
+                    veya yarı ömür anlamına gelmez. Parantezli sayılar kaynak
+                    belirsizliğini korur.
+                  </p>
+                )}
+                {key === "safety" && (
+                  <p className="science-data-note">
+                    Farklı derişim ve deney koşullarına ait raporlar birlikte
+                    bulunabilir. Kaynak ve ürün güvenlik bilgi formundaki
+                    koşulları inceleyin.
+                  </p>
+                )}
+                {key === "thermodynamic_properties" && (
+                  <p className="science-data-note">
+                    Kaynakta belirtilmeyen yoğunluk ölçüm koşulu varsayılmaz. °C
+                    = K − 273,15.
+                  </p>
+                )}
+                <Value value={value} showMissing={missing} />
+              </DisclosureContent>
+            </Disclosure>
+          ))}
+          {element && <RelatedCompounds symbol={element.symbol} />}
+          <section className="science-section" id="sources">
+            <header>
+              <h2>Kaynaklar ve veri kapsamı</h2>
+            </header>
+            <p className="science-data-note">
+              Bilimsel veri alım tarihi: {String(provenance.retrieved_at)}.
+              Türkçe anlatım editöryeldir; sayısal verinin kaynakları
+              aşağıdadır.
+            </p>
+            <div className="science-source-cards">
+              {[
+                ...(provenance.sources as ScientificRecord[]).map((s) => ({
+                  name: String(s.name),
+                  url: String(s.url),
+                })),
+                ...(atlas.editorial?.sources ?? []),
+              ]
+                .filter(
+                  (s, i, all) => all.findIndex((o) => o.url === s.url) === i,
+                )
+                .map((s) => (
+                  <a key={s.url} href={s.url} target="_blank" rel="noreferrer">
+                    <strong>
+                      {s.name}
+                      <ArrowUpRight size={15} />
+                    </strong>
+                    <span>Kaynağı incele</span>
+                  </a>
+                ))}
+            </div>
+          </section>
+          <section id="developer" className="atlas-developer">
+            <div>
+              <FileJson size={24} />
+              <h2>Bu veriyi projende kullan</h2>
+            </div>
+            <p>
+              Bilimsel kayıt herkese açık. Alan seçimi, özet yanıt ve önbellek
+              desteğiyle.
+            </p>
+            <div className="science-detail-actions">
+              <Button variant="plain" size="none" onClick={download}>
+                <Download size={15} /> JSON indir
+              </Button>
+              <a
+                href={scienceUrl(`${kind}/${id}`)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                API kaydı <ArrowUpRight size={14} />
+              </a>
+              <Link to="/docs">Dokümantasyon</Link>
+            </div>
+            <Disclosure className="science-json">
+              <DisclosureTrigger>JSON kaydını görüntüle</DisclosureTrigger>
+              <DisclosureContent>
+                <pre className="code-window science-json-panel">
+                  <code>{highlightJson(jsonSource(data))}</code>
+                </pre>
+              </DisclosureContent>
+            </Disclosure>
+          </section>
+        </div>
+      </div>
+    </main>
+  );
+}

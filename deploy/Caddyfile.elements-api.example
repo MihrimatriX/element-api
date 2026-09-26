@@ -1,0 +1,47 @@
+# Host Caddy (optional). Prefer in-compose Caddy — see docker-compose.public.yml
+# and docs/PUBLIC-HOST.md. Use this file only when TLS terminates on the host
+# and compose binds web/gateway to loopback (legacy overlay without the caddy service).
+#
+# Abuse: security headers + body cap here; rate limits in gateway (register 5/min,
+# auth POST 15/min, else 60/10s). Stock Caddy has no rate_limit plugin.
+# Optional: Cloudflare orange cloud after DNS = real WAF.
+#
+# DNS A/AAAA for elements-api.ahmetfuzunkaya.com → this machine, then:
+#   caddy run --config deploy/Caddyfile.elements-api.example
+#
+# Path map (single host):
+#   /api* /hub* /swagger*  → gateway :5000
+#   everything else        → web :3000
+
+elements-api.ahmetfuzunkaya.com {
+	encode gzip
+
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Content-Security-Policy "frame-ancestors 'none'"
+		-Server
+	}
+
+	request_body {
+		max_size 1MB
+	}
+
+	handle /api* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	handle /hub* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	handle /swagger* {
+		reverse_proxy 127.0.0.1:5000
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+}

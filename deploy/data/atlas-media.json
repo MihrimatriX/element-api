@@ -1,0 +1,4481 @@
+{
+  "H": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Hidrojen",
+      "language": "tr"
+    }
+  },
+  "He": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Helyum",
+      "language": "tr"
+    }
+  },
+  "Li": {
+    "photo": {
+      "url": "/media/atlas/li.png",
+      "caption": "Lityum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Purified_lithium_in_an_ampoule_under_argon,_dark_background.png",
+      "creator": "AdvancedTinkering",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Lityum",
+      "language": "tr"
+    }
+  },
+  "Be": {
+    "photo": {
+      "url": "/media/atlas/be.jpg",
+      "caption": "Berilyum · metal numunesi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Be-140g.jpg",
+      "creator": "Alchemist-hp = Alchemist-hp (pse-mendelejew.de)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Berilyum",
+      "language": "tr"
+    }
+  },
+  "B": {
+    "photo": {
+      "url": "/media/atlas/b.jpg",
+      "caption": "Bor · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Boron_R105.jpg",
+      "creator": "James L Marshall",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Bor",
+      "language": "tr"
+    }
+  },
+  "C": {
+    "photo": {
+      "url": "/media/atlas/c.jpg",
+      "caption": "Karbon · camsı karbon ve 1 cm³ grafit küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Glassy_carbon_and_a_1cm3_graphite_cube_HP68-79.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Karbon",
+      "language": "tr"
+    }
+  },
+  "N": {
+    "photo": {
+      "url": "/media/atlas/n.jpg",
+      "caption": "Azot · sıvı azot (yoğunlaşmış element)",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Fluessiger_Stickstoff.jpg",
+      "creator": "Robin Müller",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Azot",
+      "language": "tr"
+    }
+  },
+  "O": {
+    "photo": {
+      "url": "/media/atlas/o.jpg",
+      "caption": "Oksijen · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Liquid_oxygen_in_a_beaker_(cropped_and_retouched).jpg",
+      "creator": "Staff Sgt. Nika Glover, U.S. Air Force",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Oksijen",
+      "language": "tr"
+    }
+  },
+  "F": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Flor",
+      "language": "tr"
+    }
+  },
+  "Ne": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Neon",
+      "language": "tr"
+    }
+  },
+  "Na": {
+    "photo": {
+      "url": "/media/atlas/na.jpg",
+      "caption": "Sodyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Na_(Sodium).jpg",
+      "creator": "The original uploader was Dnn87 at English Wikipedia.",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Sodyum",
+      "language": "tr"
+    }
+  },
+  "Mg": {
+    "photo": {
+      "url": "/media/atlas/mg.jpg",
+      "caption": "Magnezyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:CSIRO_ScienceImage_2893_Crystalised_magnesium.jpg",
+      "creator": "Mark Fergus, CSIRO",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Magnezyum",
+      "language": "tr"
+    }
+  },
+  "Al": {
+    "photo": {
+      "url": "/media/atlas/al.jpg",
+      "caption": "Alüminyum · metal numunesi",
+      "source_url": "https://images-of-elements.com/aluminium.php",
+      "creator": "Chemical Elements — A Virtual Museum (Jumk.de Webprojects)",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Al%C3%BCminyum",
+      "language": "tr"
+    }
+  },
+  "Si": {
+    "photo": {
+      "url": "/media/atlas/si.jpg",
+      "caption": "Silisyum · saflaştırılmış numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:SiliconCroda.jpg",
+      "creator": "Enricoros at English Wikipedia",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Silisyum",
+      "language": "tr"
+    }
+  },
+  "P": {
+    "photo": {
+      "url": "/media/atlas/p.jpg",
+      "caption": "Fosfor · kırmızı fosfor numunesi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Phosphor_rot.jpg",
+      "creator": "Tomihahndorf",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Fosfor",
+      "language": "tr"
+    }
+  },
+  "S": {
+    "photo": {
+      "url": "/media/atlas/s.jpg",
+      "caption": "Kükürt · saf numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Sulfur-sample.jpg",
+      "creator": "Ben Mills",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/K%C3%BCk%C3%BCrt",
+      "language": "tr"
+    }
+  },
+  "Cl": {
+    "photo": {
+      "url": "/media/atlas/cl.jpg",
+      "caption": "Klor · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Chlorine_in_bottle.jpg",
+      "creator": "W. Oelen",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Klor",
+      "language": "tr"
+    }
+  },
+  "Ar": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Argon",
+      "language": "tr"
+    }
+  },
+  "K": {
+    "photo": {
+      "url": "/media/atlas/k.jpg",
+      "caption": "Potasyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Potassium-2.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Potasyum",
+      "language": "tr"
+    }
+  },
+  "Ca": {
+    "photo": {
+      "url": "/media/atlas/ca.jpg",
+      "caption": "Kalsiyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Calcium_unter_Argon_Schutzgasatmosph%C3%A4re.jpg",
+      "creator": "Matthias Zepper",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kalsiyum",
+      "language": "tr"
+    }
+  },
+  "Sc": {
+    "photo": {
+      "url": "/media/atlas/sc.jpg",
+      "caption": "Skandiyum · süblime dendrit ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Scandium_sublimed_dendritic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Skandiyum",
+      "language": "tr"
+    }
+  },
+  "Ti": {
+    "photo": {
+      "url": "/media/atlas/ti.jpg",
+      "caption": "Titanyum · kristal çubuk numunesi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Titanium_crystal_bar.jpg",
+      "creator": "Warut Roonguthai",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Titanyum",
+      "language": "tr"
+    }
+  },
+  "V": {
+    "photo": {
+      "url": "/media/atlas/v.jpg",
+      "caption": "Vanadyum · kristal çubuk ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Vanadium_crystal_bar_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (pse-mendelejew.de).",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Vanadyum",
+      "language": "tr"
+    }
+  },
+  "Cr": {
+    "photo": {
+      "url": "/media/atlas/cr.jpg",
+      "caption": "Krom · kristaller ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Chromium_crystals_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Krom",
+      "language": "tr"
+    }
+  },
+  "Mn": {
+    "photo": {
+      "url": "/media/atlas/mn.jpg",
+      "caption": "Manganez · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Manganese_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Manganez",
+      "language": "tr"
+    }
+  },
+  "Fe": {
+    "photo": {
+      "url": "/media/atlas/fe.jpg",
+      "caption": "Demir · elektrolitik numune ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Iron_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Demir",
+      "language": "tr"
+    }
+  },
+  "Co": {
+    "photo": {
+      "url": "/media/atlas/co.jpg",
+      "caption": "Kobalt · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Kobalt_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kobalt",
+      "language": "tr"
+    }
+  },
+  "Ni": {
+    "photo": {
+      "url": "/media/atlas/ni.jpg",
+      "caption": "Nikel · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Nickel_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Nikel",
+      "language": "tr"
+    }
+  },
+  "Cu": {
+    "photo": {
+      "url": "/media/atlas/cu.jpg",
+      "caption": "Bakır · kristal numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:NatCopper.jpg",
+      "creator": "Native_Copper_Macro_Digon3.jpg: “Jonathan Zander (Digon3)\"\nderivative work: Materialscientist (talk)",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Bak%C4%B1r",
+      "language": "tr"
+    }
+  },
+  "Zn": {
+    "photo": {
+      "url": "/media/atlas/zn.jpg",
+      "caption": "Çinko · kristal parça, dendrit ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Zinc_fragment_sublimed_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/%C3%87inko",
+      "language": "tr"
+    }
+  },
+  "Ga": {
+    "photo": {
+      "url": "/media/atlas/ga.jpg",
+      "caption": "Galyum · erimiş ve katı numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Gallium_crystals.jpg",
+      "creator": "en:user:foobar",
+      "license": "CC BY-SA 3.0",
+      "license_url": "http://creativecommons.org/licenses/by-sa/3.0/",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Galyum",
+      "language": "tr"
+    }
+  },
+  "Ge": {
+    "photo": {
+      "url": "/media/atlas/ge.jpg",
+      "caption": "Germanyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Polycrystalline-germanium.jpg",
+      "creator": "Jurii",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Germanyum",
+      "language": "tr"
+    }
+  },
+  "As": {
+    "photo": {
+      "url": "/media/atlas/as.jpg",
+      "caption": "Arsenik · numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Arsenic-1.jpg",
+      "creator": "Hi-Res Images of\n\nChemical Elements",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Arsenik",
+      "language": "tr"
+    }
+  },
+  "Se": {
+    "photo": {
+      "url": "/media/atlas/se.jpg",
+      "caption": "Selenyum · siyah allotrop",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selenium_black.jpg",
+      "creator": "W. Oelen",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Selenyum",
+      "language": "tr"
+    }
+  },
+  "Br": {
+    "photo": {
+      "url": "/media/atlas/br.jpg",
+      "caption": "Brom · sıvı numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Bromine.jpg",
+      "creator": "Greenhorn1",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Brom",
+      "language": "tr"
+    }
+  },
+  "Kr": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kripton",
+      "language": "tr"
+    }
+  },
+  "Rb": {
+    "photo": {
+      "url": "/media/atlas/rb.jpg",
+      "caption": "Rubidyum · metal numunesi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:RbMetal.JPG",
+      "creator": "Dnn87",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Rubidyum",
+      "language": "tr"
+    }
+  },
+  "Sr": {
+    "photo": {
+      "url": "/media/atlas/sr.jpg",
+      "caption": "Stronsiyum · argon altında saf metal",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Strontium.jpg",
+      "creator": "Strontium unter Argon Schutzgas Atmosphäre.jpg Matthias Zepper\nderivative work: Materialscientist",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Stronsiyum",
+      "language": "tr"
+    }
+  },
+  "Y": {
+    "photo": {
+      "url": "/media/atlas/y.jpg",
+      "caption": "İtriyum · süblime dendrit ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Yttrium_sublimed_dendritic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/%C4%B0triyum",
+      "language": "tr"
+    }
+  },
+  "Zr": {
+    "photo": {
+      "url": "/media/atlas/zr.jpg",
+      "caption": "Zirkonyum · kristal çubuk ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Zirconium_crystal_bar_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (pse-mendelejew.de).",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Zirkonyum",
+      "language": "tr"
+    }
+  },
+  "Nb": {
+    "photo": {
+      "url": "/media/atlas/nb.jpg",
+      "caption": "Niyobyum · kristaller ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Niobium_crystals_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Niyobyum",
+      "language": "tr"
+    }
+  },
+  "Mo": {
+    "photo": {
+      "url": "/media/atlas/mo.jpg",
+      "caption": "Molibden · kristal parça ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Molybdenum_crystaline_fragment_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Molibden",
+      "language": "tr"
+    }
+  },
+  "Tc": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Teknesyum",
+      "language": "tr"
+    }
+  },
+  "Ru": {
+    "photo": {
+      "url": "/media/atlas/ru.jpg",
+      "caption": "Rutenyum · kristal numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Ruthenium_crystals.jpg",
+      "creator": "Periodictableru",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Rutenyum",
+      "language": "tr"
+    }
+  },
+  "Rh": {
+    "photo": {
+      "url": "/media/atlas/rh.jpg",
+      "caption": "Rodyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Rhodium_powder_pressed_melted.jpg",
+      "creator": "Alchemist-hp (talk) www.pse-mendelejew.de\nderivative work: Purpy Pupple (talk)",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Rodyum",
+      "language": "tr"
+    }
+  },
+  "Pd": {
+    "photo": {
+      "url": "/media/atlas/pd.jpg",
+      "caption": "Paladyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Palladium_(46_Pd).jpg",
+      "creator": "Hi-Res Images of\n\nChemical Elements",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Paladyum",
+      "language": "tr"
+    }
+  },
+  "Ag": {
+    "photo": {
+      "url": "/media/atlas/ag.jpg",
+      "caption": "Gümüş · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Silver_crystal.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/G%C3%BCm%C3%BC%C5%9F",
+      "language": "tr"
+    }
+  },
+  "Cd": {
+    "photo": {
+      "url": "/media/atlas/cd.jpg",
+      "caption": "Kadmiyum · kristal çubuk ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cadmium.jpg",
+      "creator": "Choij (talk)",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kadmiyum",
+      "language": "tr"
+    }
+  },
+  "In": {
+    "photo": {
+      "url": "/media/atlas/in.jpg",
+      "caption": "İndiyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Indium.jpg",
+      "creator": "Nerdtalker",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/%C4%B0ndiyum",
+      "language": "tr"
+    }
+  },
+  "Sn": {
+    "photo": {
+      "url": "/media/atlas/sn.jpg",
+      "caption": "Kalay · alfa ve beta allotrop numuneleri",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Sn-Alpha-Beta.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kalay",
+      "language": "tr"
+    }
+  },
+  "Sb": {
+    "photo": {
+      "url": "/media/atlas/sb.jpg",
+      "caption": "Antimon · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Antimony-4.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Antimon",
+      "language": "tr"
+    }
+  },
+  "Te": {
+    "photo": {
+      "url": "/media/atlas/te.jpg",
+      "caption": "Tellür · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Tellurium2.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Tell%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "I": {
+    "photo": {
+      "url": "/media/atlas/i.jpg",
+      "caption": "İyot · kristal numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Iodine-sample.jpg",
+      "creator": "Benjah-bmm27",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/%C4%B0yot",
+      "language": "tr"
+    }
+  },
+  "Xe": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Ksenon",
+      "language": "tr"
+    }
+  },
+  "Cs": {
+    "photo": {
+      "url": "/media/atlas/cs.jpg",
+      "caption": "Sezyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cesium.jpg",
+      "creator": "Dnn87 Contact email: Dnn87yahoo.dk",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Sezyum",
+      "language": "tr"
+    }
+  },
+  "Ba": {
+    "photo": {
+      "url": "/media/atlas/ba.jpg",
+      "caption": "Baryum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Barium_unter_Argon_Schutzgas_Atmosph%C3%A4re.jpg",
+      "creator": "Matthias Zepper",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Baryum",
+      "language": "tr"
+    }
+  },
+  "La": {
+    "photo": {
+      "url": "/media/atlas/la.jpg",
+      "caption": "Lantan · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lanthanum-2.jpg",
+      "creator": "Jurii (Original uploader was Lanthanum-138 at en.wikipedia",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Lantan",
+      "language": "tr"
+    }
+  },
+  "Ce": {
+    "photo": {
+      "url": "/media/atlas/ce.jpg",
+      "caption": "Seryum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cerium2.jpg",
+      "creator": "Jurii",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Seryum",
+      "language": "tr"
+    }
+  },
+  "Pr": {
+    "photo": {
+      "url": "/media/atlas/pr.jpg",
+      "caption": "Praseodim · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Praseodymium.jpg",
+      "creator": "Jurii",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Praseodim",
+      "language": "tr"
+    }
+  },
+  "Nd": {
+    "photo": {
+      "url": "/media/atlas/nd.jpg",
+      "caption": "Neodim · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Neodymium2.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Neodimyum",
+      "language": "tr"
+    }
+  },
+  "Pm": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Prometyum",
+      "language": "tr"
+    }
+  },
+  "Sm": {
+    "photo": {
+      "url": "/media/atlas/sm.jpg",
+      "caption": "Samaryum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Samarium-2.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Samaryum",
+      "language": "tr"
+    }
+  },
+  "Eu": {
+    "photo": {
+      "url": "/media/atlas/eu.jpg",
+      "caption": "Evropiyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Europium.jpg",
+      "creator": "Jurii",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Evropiyum",
+      "language": "tr"
+    }
+  },
+  "Gd": {
+    "photo": {
+      "url": "/media/atlas/gd.jpg",
+      "caption": "Gadolinyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Gadolinium-4.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Gadolinyum",
+      "language": "tr"
+    }
+  },
+  "Tb": {
+    "photo": {
+      "url": "/media/atlas/tb.jpg",
+      "caption": "Terbiyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Terbium-2.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Terbiyum",
+      "language": "tr"
+    }
+  },
+  "Dy": {
+    "photo": {
+      "url": "/media/atlas/dy.jpg",
+      "caption": "Disprozyum · ultrapure dendritler",
+      "source_url": "https://images-of-elements.com/dysprosium.php",
+      "creator": "Chemical Elements — A Virtual Museum (Jumk.de Webprojects)",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Disprozyum",
+      "language": "tr"
+    }
+  },
+  "Ho": {
+    "photo": {
+      "url": "/media/atlas/ho.jpg",
+      "caption": "Holmiyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Holmium2.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Holmiyum",
+      "language": "tr"
+    }
+  },
+  "Er": {
+    "photo": {
+      "url": "/media/atlas/er.jpg",
+      "caption": "Erbiyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Erbium_(68_Er).jpg",
+      "creator": "Hi-Res Images of\n\nChemical Elements",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Erbiyum",
+      "language": "tr"
+    }
+  },
+  "Tm": {
+    "photo": {
+      "url": "/media/atlas/tm.jpg",
+      "caption": "Tulyum · süblime dendrit ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Thulium_sublimed_dendritic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Tulyum",
+      "language": "tr"
+    }
+  },
+  "Yb": {
+    "photo": {
+      "url": "/media/atlas/yb.jpg",
+      "caption": "İterbiyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Ytterbium-3.jpg",
+      "creator": "Jurii",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/%C4%B0terbiyum",
+      "language": "tr"
+    }
+  },
+  "Lu": {
+    "photo": {
+      "url": "/media/atlas/lu.jpg",
+      "caption": "Lütesyum · süblime dendrit ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lutetium_sublimed_dendritic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Lutesyum",
+      "language": "tr"
+    }
+  },
+  "Hf": {
+    "photo": {
+      "url": "/media/atlas/hf.jpg",
+      "caption": "Hafniyum · kristal çubuk ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Hafnium.jpg",
+      "creator": "Choij (talk)",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Hafniyum",
+      "language": "tr"
+    }
+  },
+  "Ta": {
+    "photo": {
+      "url": "/media/atlas/ta.jpg",
+      "caption": "Tantal · tek kristal ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Tantalum_single_crystal_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Tantal",
+      "language": "tr"
+    }
+  },
+  "W": {
+    "photo": {
+      "url": "/media/atlas/w.jpg",
+      "caption": "Tungsten · buharlaştırılmış kristaller ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Wolfram_evaporated_crystals_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Tungsten",
+      "language": "tr"
+    }
+  },
+  "Re": {
+    "photo": {
+      "url": "/media/atlas/re.jpg",
+      "caption": "Renyum · tek kristal çubuk ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Rhenium_single_crystal_bar_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Renyum",
+      "language": "tr"
+    }
+  },
+  "Os": {
+    "photo": {
+      "url": "/media/atlas/os.jpg",
+      "caption": "Osmiyum · kristal numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Osmium_crystals.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Osmiyum",
+      "language": "tr"
+    }
+  },
+  "Ir": {
+    "photo": {
+      "url": "/media/atlas/ir.jpg",
+      "caption": "İridyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Iridium_(77_Ir)_(cropped).jpg",
+      "creator": "Hi-Res Images of\n\nChemical Elements",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/%C4%B0ridyum",
+      "language": "tr"
+    }
+  },
+  "Pt": {
+    "photo": {
+      "url": "/media/atlas/pt.jpg",
+      "caption": "Platin · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Platinum_crystals.jpg",
+      "creator": "Periodictableru",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Platin",
+      "language": "tr"
+    }
+  },
+  "Au": {
+    "photo": {
+      "url": "/media/atlas/au.jpg",
+      "caption": "Altın · kristal numune",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Gold-crystals.jpg",
+      "creator": "Alchemist-hp (talk) www.pse-mendelejew.de",
+      "license": "CC BY-SA 3.0 de",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Alt%C4%B1n",
+      "language": "tr"
+    }
+  },
+  "Hg": {
+    "photo": {
+      "url": "/media/atlas/hg.jpg",
+      "caption": "Cıva · sıvı metal numunesi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Pouring_liquid_mercury_bionerd.jpg",
+      "creator": "Bionerd",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Mercury",
+      "language": "tr"
+    }
+  },
+  "Tl": {
+    "photo": {
+      "url": "/media/atlas/tl.jpg",
+      "caption": "Talyum · madde fotoğrafı",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Thallium_pieces_in_ampoule.jpg",
+      "creator": "W. Oelen",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "retrieved_at": "2026-09-06"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Talyum",
+      "language": "tr"
+    }
+  },
+  "Pb": {
+    "photo": {
+      "url": "/media/atlas/pb.jpg",
+      "caption": "Kurşun · elektrolitik parçalar ve karşılaştırma küpü",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lead_electrolytic_and_1cm3_cube.jpg",
+      "creator": "Alchemist-hp (talk) (www.pse-mendelejew.de)",
+      "license": "FAL",
+      "license_url": "http://artlibre.org/licence/lal/en",
+      "retrieved_at": "2026-09-15"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kur%C5%9Fun",
+      "language": "tr"
+    }
+  },
+  "Bi": {
+    "photo": {
+      "url": "/media/atlas/bi.jpg",
+      "caption": "Bizmut · kristal numune ve 1 cm³ küp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Bismuth-2.jpg",
+      "creator": "Jurii",
+      "license": "CC BY 3.0",
+      "license_url": "https://creativecommons.org/licenses/by/3.0",
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Bizmut",
+      "language": "tr"
+    }
+  },
+  "Po": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Polonyum",
+      "language": "tr"
+    }
+  },
+  "At": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Astatin",
+      "language": "tr"
+    }
+  },
+  "Rn": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Radon",
+      "language": "tr"
+    }
+  },
+  "Fr": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Fransiyum",
+      "language": "tr"
+    }
+  },
+  "Ra": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Radyum",
+      "language": "tr"
+    }
+  },
+  "Ac": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Aktinyum",
+      "language": "tr"
+    }
+  },
+  "Th": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Toryum",
+      "language": "tr"
+    }
+  },
+  "Pa": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Protaktinyum",
+      "language": "tr"
+    }
+  },
+  "U": {
+    "photo": {
+      "url": "/media/atlas/u.jpg",
+      "caption": "Uranyum · Ames süreci metal bisküvisi",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Ames_Process_uranium_biscuit.jpg",
+      "creator": "Unknown authorUnknown author",
+      "license": "Public domain",
+      "license_url": null,
+      "retrieved_at": "2026-09-20"
+    },
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Uranyum",
+      "language": "tr"
+    }
+  },
+  "Np": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Nept%C3%BCnyum",
+      "language": "tr"
+    }
+  },
+  "Pu": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Pl%C3%BCtonyum",
+      "language": "tr"
+    }
+  },
+  "Am": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Amerikyum",
+      "language": "tr"
+    }
+  },
+  "Cm": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/K%C3%BCriyum",
+      "language": "tr"
+    }
+  },
+  "Bk": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Berkelyum",
+      "language": "tr"
+    }
+  },
+  "Cf": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kaliforniyum",
+      "language": "tr"
+    }
+  },
+  "Es": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Ayn%C5%9Ftaynyum",
+      "language": "tr"
+    }
+  },
+  "Fm": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Fermiyum",
+      "language": "tr"
+    }
+  },
+  "Md": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Mendelevyum",
+      "language": "tr"
+    }
+  },
+  "No": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Nobelyum",
+      "language": "tr"
+    }
+  },
+  "Lr": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Lavrensiyum",
+      "language": "tr"
+    }
+  },
+  "Rf": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Rutherfordyum",
+      "language": "tr"
+    }
+  },
+  "Db": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Dubniyum",
+      "language": "tr"
+    }
+  },
+  "Sg": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Seaborgiyum",
+      "language": "tr"
+    }
+  },
+  "Bh": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Bohriyum",
+      "language": "tr"
+    }
+  },
+  "Hs": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Hassiyum",
+      "language": "tr"
+    }
+  },
+  "Mt": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Meitneriyum",
+      "language": "tr"
+    }
+  },
+  "Ds": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Darmstadtiyum",
+      "language": "tr"
+    }
+  },
+  "Rg": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/R%C3%B6ntgenyum",
+      "language": "tr"
+    }
+  },
+  "Cn": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kopernikyum",
+      "language": "tr"
+    }
+  },
+  "Nh": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Nihonyum",
+      "language": "tr"
+    }
+  },
+  "Fl": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Flerovyum",
+      "language": "tr"
+    }
+  },
+  "Mc": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Moskovyum",
+      "language": "tr"
+    }
+  },
+  "Lv": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Livermoryum",
+      "language": "tr"
+    }
+  },
+  "Ts": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Tennesin",
+      "language": "tr"
+    }
+  },
+  "Og": {
+    "photo": null,
+    "structure": null,
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Oganesson",
+      "language": "tr"
+    }
+  },
+  "h2o": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/h2o-structure.png",
+      "caption": "Su · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/962",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Su",
+      "language": "tr"
+    }
+  },
+  "licl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/licl-structure.png",
+      "caption": "Lityum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/433294",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Lithium%20chloride",
+      "language": "en"
+    }
+  },
+  "li2co3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/li2co3-structure.png",
+      "caption": "Lityum karbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/11125",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Lityum%20karbonat",
+      "language": "tr"
+    }
+  },
+  "b2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/b2o3-structure.png",
+      "caption": "Bor trioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/518682",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Boron%20trioxide",
+      "language": "en"
+    }
+  },
+  "co2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/co2-structure.png",
+      "caption": "Karbondioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/280",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Karbondioksit",
+      "language": "tr"
+    }
+  },
+  "nh3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nh3-structure.png",
+      "caption": "Amonyak · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/222",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Amonyak",
+      "language": "tr"
+    }
+  },
+  "hf": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hf-structure.png",
+      "caption": "Hidrojen florür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14917",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Hidrojen%20flor%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "nacl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nacl-structure.png",
+      "caption": "Sodyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5234",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Sodyum%20klor%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "naoh": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/naoh-structure.png",
+      "caption": "Sodyum hidroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14798",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Sodyum%20hidroksit",
+      "language": "tr"
+    }
+  },
+  "mgo": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/mgo-structure.png",
+      "caption": "Magnezyum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14792",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Magnesium%20oxide",
+      "language": "en"
+    }
+  },
+  "al2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/al2o3-structure.png",
+      "caption": "Alüminyum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/9989226",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Al%C3%BCminyum%20oksit",
+      "language": "tr"
+    }
+  },
+  "sio2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sio2-structure.png",
+      "caption": "Silisyum dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24261",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Silisyum%20dioksit",
+      "language": "tr"
+    }
+  },
+  "h2so4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/h2so4-structure.png",
+      "caption": "Sülfürik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1118",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/S%C3%BClf%C3%BCrik%20asit",
+      "language": "tr"
+    }
+  },
+  "hcl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hcl-structure.png",
+      "caption": "Hidrojen klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/313",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Hidrojen%20klor%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "kcl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/kcl-structure.png",
+      "caption": "Potasyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/4873",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Potasyum%20klor%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "koh": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/koh-structure.png",
+      "caption": "Potasyum hidroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14797",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Potasyum%20hidroksit",
+      "language": "tr"
+    }
+  },
+  "caco3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/caco3-structure.png",
+      "caption": "Kalsiyum karbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/10112",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kalsiyum%20karbonat",
+      "language": "tr"
+    }
+  },
+  "cao": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cao-structure.png",
+      "caption": "Kalsiyum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14778",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kalsiyum%20oksit",
+      "language": "tr"
+    }
+  },
+  "tio2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/tio2-structure.png",
+      "caption": "Titanyum dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/26042",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Titanyum%20dioksit",
+      "language": "tr"
+    }
+  },
+  "v2o5": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/v2o5-structure.png",
+      "caption": "Vanadyum pentoksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14814",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Vanadyum%20pentoksit",
+      "language": "tr"
+    }
+  },
+  "cr2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cr2o3-structure.png",
+      "caption": "Krom(III) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/517277",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Chromium(III)%20oxide",
+      "language": "en"
+    }
+  },
+  "mno2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/mno2-structure.png",
+      "caption": "Manganez dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14801",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Manganese%20dioxide",
+      "language": "en"
+    }
+  },
+  "fe2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/fe2o3-structure.png",
+      "caption": "Demir(III) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/518696",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Demir(III)%20oksit",
+      "language": "tr"
+    }
+  },
+  "fe3o4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/fe3o4-structure.png",
+      "caption": "Manyetit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/16211978",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Manyetit",
+      "language": "tr"
+    }
+  },
+  "cocl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cocl2-structure.png",
+      "caption": "Kobalt(II) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3032536",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Cobalt(II)%20chloride",
+      "language": "en"
+    }
+  },
+  "niso4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/niso4-structure.png",
+      "caption": "Nikel sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24586",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Nikel(II)%20s%C3%BClfat",
+      "language": "tr"
+    }
+  },
+  "cuso4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cuso4-structure.png",
+      "caption": "Bakır sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24462",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Copper%20sulfate",
+      "language": "en"
+    }
+  },
+  "cu2o": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cu2o-structure.png",
+      "caption": "Bakır(I) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/18346908",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Bak%C4%B1r(I)%20oksit",
+      "language": "tr"
+    }
+  },
+  "zno": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/zno-structure.png",
+      "caption": "Çinko oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3007857",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/%C3%87inko%20oksit",
+      "language": "tr"
+    }
+  },
+  "geo2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/geo2-structure.png",
+      "caption": "Germanyum dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/90478414",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Germanium%20dioxide",
+      "language": "en"
+    }
+  },
+  "as2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/as2o3-structure.png",
+      "caption": "Arsenik trioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14888",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Arsenik%20trioksit",
+      "language": "tr"
+    }
+  },
+  "mos2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/mos2-structure.png",
+      "caption": "Molibden disülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14823",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Molybdenum%20disulfide",
+      "language": "en"
+    }
+  },
+  "pdcl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pdcl2-structure.png",
+      "caption": "Paladyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24290",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Palladium(II)%20chloride",
+      "language": "en"
+    }
+  },
+  "agno3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/agno3-structure.png",
+      "caption": "Gümüş nitrat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24470",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/G%C3%BCm%C3%BC%C5%9F%20nitrat",
+      "language": "tr"
+    }
+  },
+  "agcl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/agcl-structure.png",
+      "caption": "Gümüş klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24561",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/G%C3%BCm%C3%BC%C5%9F%20klor%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "cds": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cds-structure.png",
+      "caption": "Kadmiyum sülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14783",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Cadmium%20sulfide",
+      "language": "en"
+    }
+  },
+  "in2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/in2o3-structure.png",
+      "caption": "İndiyum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/150905",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Indium(III)%20oxide",
+      "language": "en"
+    }
+  },
+  "sno2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sno2-structure.png",
+      "caption": "Kalay dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/16747781",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Tin(IV)%20oxide",
+      "language": "en"
+    }
+  },
+  "sb2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sb2o3-structure.png",
+      "caption": "Antimon trioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14794",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Antimony%20trioxide",
+      "language": "en"
+    }
+  },
+  "teo2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/teo2-structure.png",
+      "caption": "Tellür dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/62638",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Tellurium%20dioxide",
+      "language": "en"
+    }
+  },
+  "cscl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cscl-structure.png",
+      "caption": "Sezyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24293",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Sezyum%20klor%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "baso4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/baso4-structure.png",
+      "caption": "Baryum sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24414",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Baryum%20s%C3%BClfat",
+      "language": "tr"
+    }
+  },
+  "wo3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/wo3-structure.png",
+      "caption": "Tungsten trioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14811",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Tungsten%20trioxide",
+      "language": "en"
+    }
+  },
+  "wc": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/wc-structure.png",
+      "caption": "Tungsten karbür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/2724274",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Tungsten%20karb%C3%BCr",
+      "language": "tr"
+    }
+  },
+  "ptcl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ptcl2-structure.png",
+      "caption": "Platin(II) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/2770",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Platinum(II)%20chloride",
+      "language": "en"
+    }
+  },
+  "aucl3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/aucl3-structure.png",
+      "caption": "Altın(III) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/26030",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://en.wikipedia.org/wiki/Gold(III)%20chloride",
+      "language": "en"
+    }
+  },
+  "hgs": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hgs-structure.png",
+      "caption": "Zinober · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/62402",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Zincifre",
+      "language": "tr"
+    }
+  },
+  "pbo": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pbo-structure.png",
+      "caption": "Kurşun(II) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14827",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Kur%C5%9Fun(II)%20oksit",
+      "language": "tr"
+    }
+  },
+  "bi2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/bi2o3-structure.png",
+      "caption": "Bizmut oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/160977",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Bizmut(III)%20oksit",
+      "language": "tr"
+    }
+  },
+  "uo2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/uo2-structure.png",
+      "caption": "Uranyum dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/51003830",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Uranyum%20dioksit",
+      "language": "tr"
+    }
+  },
+  "aspirin": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/aspirin-structure.png",
+      "caption": "Aspirin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/2244",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-06"
+    },
+    "wikipedia": {
+      "url": "https://tr.wikipedia.org/wiki/Aspirin",
+      "language": "tr"
+    }
+  },
+  "ch4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ch4-structure.png",
+      "caption": "Metan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/297",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "co": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/co-structure.png",
+      "caption": "Karbon monoksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/281",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "so2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/so2-structure.png",
+      "caption": "Kükürt dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1119",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "so3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/so3-structure.png",
+      "caption": "Kükürt trioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24682",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "no": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/no-structure.png",
+      "caption": "Azot monoksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/145068",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "no2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/no2-structure.png",
+      "caption": "Azot dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3032552",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "n2o": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/n2o-structure.png",
+      "caption": "Diazot monoksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/948",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "h2s": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/h2s-structure.png",
+      "caption": "Hidrojen sülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/402",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "h2o2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/h2o2-structure.png",
+      "caption": "Hidrojen peroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/784",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hno3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hno3-structure.png",
+      "caption": "Nitrik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/944",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "h3po4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/h3po4-structure.png",
+      "caption": "Fosforik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1004",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "h2co3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/h2co3-structure.png",
+      "caption": "Karbonik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/767",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hcn": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hcn-structure.png",
+      "caption": "Hidrojen siyanür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/768",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hbr": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hbr-structure.png",
+      "caption": "Hidrojen bromür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/260",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hi": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hi-structure.png",
+      "caption": "Hidrojen iyodür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24841",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hclo": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hclo-structure.png",
+      "caption": "Hipokloröz asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24341",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hclo4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hclo4-structure.png",
+      "caption": "Perklorik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24247",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "h3bo3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/h3bo3-structure.png",
+      "caption": "Borik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/7628",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "na2o": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/na2o-structure.png",
+      "caption": "Sodyum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/73963",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "na2co3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/na2co3-structure.png",
+      "caption": "Sodyum karbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/10340",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nahco3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nahco3-structure.png",
+      "caption": "Sodyum bikarbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/516892",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "na2so4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/na2so4-structure.png",
+      "caption": "Sodyum sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24436",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nano3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nano3-structure.png",
+      "caption": "Sodyum nitrat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24268",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "naf": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/naf-structure.png",
+      "caption": "Sodyum florür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5235",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nabr": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nabr-structure.png",
+      "caption": "Sodyum bromür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/253881",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nai": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nai-structure.png",
+      "caption": "Sodyum iyodür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5238",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "naclo": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/naclo-structure.png",
+      "caption": "Sodyum hipoklorit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/23665760",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "k2co3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/k2co3-structure.png",
+      "caption": "Potasyum karbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/11430",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "kno3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/kno3-structure.png",
+      "caption": "Potasyum nitrat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24434",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "k2so4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/k2so4-structure.png",
+      "caption": "Potasyum sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24507",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "kbr": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/kbr-structure.png",
+      "caption": "Potasyum bromür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/253877",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ki": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ki-structure.png",
+      "caption": "Potasyum iyodür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/4875",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "kmno4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/kmno4-structure.png",
+      "caption": "Potasyum permanganat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/516875",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cacl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cacl2-structure.png",
+      "caption": "Kalsiyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5284359",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "caso4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/caso4-structure.png",
+      "caption": "Kalsiyum sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24497",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "caoh2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/caoh2-structure.png",
+      "caption": "Kalsiyum hidroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14777",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "mgcl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/mgcl2-structure.png",
+      "caption": "Magnezyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5360315",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "mgso4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/mgso4-structure.png",
+      "caption": "Magnezyum sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24083",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "mgoh2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/mgoh2-structure.png",
+      "caption": "Magnezyum hidroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14791",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "mgco3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/mgco3-structure.png",
+      "caption": "Magnezyum karbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/11029",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "alcl3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/alcl3-structure.png",
+      "caption": "Alüminyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24012",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "aloh3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/aloh3-structure.png",
+      "caption": "Alüminyum hidroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/10176082",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nh4cl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nh4cl-structure.png",
+      "caption": "Amonyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/25517",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nh4no3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nh4no3-structure.png",
+      "caption": "Amonyum nitrat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/22985",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nh42so4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nh42so4-structure.png",
+      "caption": "Amonyum sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6097028",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "feo": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/feo-structure.png",
+      "caption": "Demir(II) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14945",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "fecl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/fecl2-structure.png",
+      "caption": "Demir(II) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24458",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "fecl3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/fecl3-structure.png",
+      "caption": "Demir(III) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24380",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "feso4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/feso4-structure.png",
+      "caption": "Demir(II) sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24393",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cuo": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cuo-structure.png",
+      "caption": "Bakır(II) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14829",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cucl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cucl2-structure.png",
+      "caption": "Bakır(II) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24014",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "zncl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/zncl2-structure.png",
+      "caption": "Çinko klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5727",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "zns": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/zns-structure.png",
+      "caption": "Çinko sülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14821",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "znso4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/znso4-structure.png",
+      "caption": "Çinko sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24424",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "agbr": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/agbr-structure.png",
+      "caption": "Gümüş bromür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/66199",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "bacl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/bacl2-structure.png",
+      "caption": "Baryum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/25204",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "bao": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/bao-structure.png",
+      "caption": "Baryum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/62392",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "pbo2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pbo2-structure.png",
+      "caption": "Kurşun(IV) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14793",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "caf2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/caf2-structure.png",
+      "caption": "Kalsiyum florür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24511",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "sic": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sic-structure.png",
+      "caption": "Silisyum karbür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/9863",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "bn": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/bn-structure.png",
+      "caption": "Bor nitrür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/66227",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "sf6": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sf6-structure.png",
+      "caption": "Kükürt hekzaflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/17358",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "pcl3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pcl3-structure.png",
+      "caption": "Fosfor triklorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24387",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "pcl5": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pcl5-structure.png",
+      "caption": "Fosfor pentaklorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24819",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ccl4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ccl4-structure.png",
+      "caption": "Karbon tetraklorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/7603",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "chcl3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/chcl3-structure.png",
+      "caption": "Kloroform · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6212",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ch2cl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ch2cl2-structure.png",
+      "caption": "Diklorometan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6344",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cf4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cf4-structure.png",
+      "caption": "Karbon tetraflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6393",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ch3cl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ch3cl-structure.png",
+      "caption": "Klorometan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6327",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "xef2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/xef2-structure.png",
+      "caption": "Ksenon diflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24547",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c2h6": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c2h6-structure.png",
+      "caption": "Etan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6324",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c2h4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c2h4-structure.png",
+      "caption": "Eten · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6325",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c2h2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c2h2-structure.png",
+      "caption": "Etin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6326",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c3h8": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c3h8-structure.png",
+      "caption": "Propan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6334",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c4h10": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c4h10-structure.png",
+      "caption": "Bütan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/7843",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c6h6": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c6h6-structure.png",
+      "caption": "Benzen · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/241",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c7h8": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c7h8-structure.png",
+      "caption": "Toluen · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1140",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ch3oh": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ch3oh-structure.png",
+      "caption": "Metanol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/887",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c2h5oh": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c2h5oh-structure.png",
+      "caption": "Etanol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/702",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c3h8o": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c3h8o-structure.png",
+      "caption": "Propan-2-ol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3776",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hcooh": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hcooh-structure.png",
+      "caption": "Formik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/284",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "acetic": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/acetic-structure.png",
+      "caption": "Asetik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/176",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hcho": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hcho-structure.png",
+      "caption": "Metanal · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/712",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "acetone": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/acetone-structure.png",
+      "caption": "Aseton · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/180",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c6h12o6": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c6h12o6-structure.png",
+      "caption": "Glikoz · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5793",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "c12h22o11": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/c12h22o11-structure.png",
+      "caption": "Sakkaroz · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5988",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "urea": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/urea-structure.png",
+      "caption": "Üre · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1176",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "glycine": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/glycine-structure.png",
+      "caption": "Glisin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/750",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "oxalic": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/oxalic-structure.png",
+      "caption": "Oksalik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/971",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "lactic": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/lactic-structure.png",
+      "caption": "Laktik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/612",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "citric": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/citric-structure.png",
+      "caption": "Sitrik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/311",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "phenol": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/phenol-structure.png",
+      "caption": "Fenol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/996",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "aniline": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/aniline-structure.png",
+      "caption": "Anilin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6115",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "glycol": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/glycol-structure.png",
+      "caption": "Etan-1,2-diol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/174",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "glycerol": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/glycerol-structure.png",
+      "caption": "Gliserol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/753",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ether": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ether-structure.png",
+      "caption": "Dietil eter · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3283",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ethylacetate": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ethylacetate-structure.png",
+      "caption": "Etil asetat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/8857",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "acetonitrile": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/acetonitrile-structure.png",
+      "caption": "Asetonitril · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6342",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "caffeine": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/caffeine-structure.png",
+      "caption": "Kafein · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/2519",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ascorbic": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ascorbic-structure.png",
+      "caption": "Askorbik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/54670067",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "paracetamol": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/paracetamol-structure.png",
+      "caption": "Parasetamol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1983",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "sih4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sih4-structure.png",
+      "caption": "Silan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/23953",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ph3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ph3-structure.png",
+      "caption": "Fosfin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24404",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "naclo3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/naclo3-structure.png",
+      "caption": "Sodyum klorat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/516902",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "kclo3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/kclo3-structure.png",
+      "caption": "Potasyum klorat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6426889",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "lioh": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/lioh-structure.png",
+      "caption": "Lityum hidroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3939",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "beo": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/beo-structure.png",
+      "caption": "Berilyum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14775",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cro3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cro3-structure.png",
+      "caption": "Krom trioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14952",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nio": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nio-structure.png",
+      "caption": "Nikel(II) oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14805",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "sro": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sro-structure.png",
+      "caption": "Stronsiyum oksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/62527",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "rbcl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/rbcl-structure.png",
+      "caption": "Rubidyum klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/62683",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "pbcl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pbcl2-structure.png",
+      "caption": "Kurşun(II) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24459",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "sncl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sncl2-structure.png",
+      "caption": "Kalay(II) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24479",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "al2so43": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/al2so43-structure.png",
+      "caption": "Alüminyum sülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24850",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cano32": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cano32-structure.png",
+      "caption": "Kalsiyum nitrat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24963",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nh42co3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nh42co3-structure.png",
+      "caption": "Amonyum karbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/517111",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "n2h4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/n2h4-structure.png",
+      "caption": "Hidrazin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/9321",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "formaldehyde": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/formaldehyde-structure.png",
+      "caption": "Formaldehit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/712",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "acetaldehyde": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/acetaldehyde-structure.png",
+      "caption": "Asetaldehit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/177",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "dmf": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/dmf-structure.png",
+      "caption": "Dimetilformamid · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6228",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "dmso": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/dmso-structure.png",
+      "caption": "Dimetil sülfoksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/679",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "thf": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/thf-structure.png",
+      "caption": "Tetrahidrofurán · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/8028",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "pyridine": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pyridine-structure.png",
+      "caption": "Piridin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/1049",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "benzoic": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/benzoic-structure.png",
+      "caption": "Benzoik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/243",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "salicylic": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/salicylic-structure.png",
+      "caption": "Salisilik asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/338",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "ibuprofen": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/ibuprofen-structure.png",
+      "caption": "İbuprofen · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/3672",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "naphthalene": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/naphthalene-structure.png",
+      "caption": "Naftalin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/931",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "anthracene": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/anthracene-structure.png",
+      "caption": "Antrasen · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/8418",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cs2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cs2-structure.png",
+      "caption": "Karbon disülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6348",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "k2cr2o7": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/k2cr2o7-structure.png",
+      "caption": "Potasyum dikromat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24502",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "na2s2o3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/na2s2o3-structure.png",
+      "caption": "Sodyum tiyosülfat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24477",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "b2h6": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/b2h6-structure.png",
+      "caption": "Diboran · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/12544637",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "baoh2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/baoh2-structure.png",
+      "caption": "Baryum hidroksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/6093286",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "khco3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/khco3-structure.png",
+      "caption": "Potasyum bikarbonat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/516893",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "n2o4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/n2o4-structure.png",
+      "caption": "Diazot tetraoksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/25352",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hno2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hno2-structure.png",
+      "caption": "Nitröz asit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24529",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "so2cl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/so2cl2-structure.png",
+      "caption": "Sülfüryl klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24648",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "furan": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/furan-structure.png",
+      "caption": "Furan · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/8029",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "thiophene": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/thiophene-structure.png",
+      "caption": "Tiyofen · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/8030",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "pyrrole": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pyrrole-structure.png",
+      "caption": "Pirol · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/8027",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hydroquinone": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hydroquinone-structure.png",
+      "caption": "Hidrokinon · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/785",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nicotine": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nicotine-structure.png",
+      "caption": "Nikotin · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/89594",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "acetic_anhydride": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/acetic_anhydride-structure.png",
+      "caption": "Asetik anhidrit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/7918",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "na2s": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/na2s-structure.png",
+      "caption": "Sodyum sülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14804",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cabr2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cabr2-structure.png",
+      "caption": "Kalsiyum bromür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/5360316",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "aln": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/aln-structure.png",
+      "caption": "Alüminyum nitrür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/90455",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "fes2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/fes2-structure.png",
+      "caption": "Demir disülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/14788",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "cus": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/cus-structure.png",
+      "caption": "Bakır(II) sülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/165914",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "pbs": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/pbs-structure.png",
+      "caption": "Kurşun(II) sülfür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/9794739",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hgi2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hgi2-structure.png",
+      "caption": "Cıva(II) iyodür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24485",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "hgcl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/hgcl2-structure.png",
+      "caption": "Cıva(II) klorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24085",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "agno2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/agno2-structure.png",
+      "caption": "Gümüş nitrit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/160904",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "naocl": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/naocl-structure.png",
+      "caption": "Sodyum hipoklorit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/23665760",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "caocl2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/caocl2-structure.png",
+      "caption": "Kalsiyum hipoklorit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24504",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "kclo4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/kclo4-structure.png",
+      "caption": "Potasyum perklorat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/516900",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "naclo4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/naclo4-structure.png",
+      "caption": "Sodyum perklorat · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/522606",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "clo2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/clo2-structure.png",
+      "caption": "Klor dioksit · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24870",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "of2": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/of2-structure.png",
+      "caption": "Oksijen diflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24547",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "nf3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/nf3-structure.png",
+      "caption": "Azot triflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24553",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "sf4": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/sf4-structure.png",
+      "caption": "Kükürt tetraflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24555",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "if5": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/if5-structure.png",
+      "caption": "İyot pentaflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/522683",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "brf3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/brf3-structure.png",
+      "caption": "Brom triflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24594",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  },
+  "clf3": {
+    "photo": null,
+    "structure": {
+      "url": "/media/atlas/clf3-structure.png",
+      "caption": "Klor triflorür · PubChem 2D yapı gösterimi",
+      "source_url": "https://pubchem.ncbi.nlm.nih.gov/compound/24637",
+      "creator": "PubChem / NCBI",
+      "license": "PubChem generated structure depiction",
+      "license_url": "https://pubchem.ncbi.nlm.nih.gov/docs/usage-guidelines",
+      "retrieved_at": "2026-09-20"
+    },
+    "wikipedia": null
+  }
+}

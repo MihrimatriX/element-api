@@ -1,0 +1,9 @@
+@layer theme, base, legacy, components, utilities;
+@import "tailwindcss" source(".");
+@import "tw-animate-css";
+@import "./index.css" layer(legacy);
+@import "./science.css" layer(legacy);
+@import "./atlas.css" layer(legacy);
+@import "./design-system.css";
+/* After design-system so landing/API product rules beat base h1/h2 in @layer components. */
+@import "./product.css" layer(components);
