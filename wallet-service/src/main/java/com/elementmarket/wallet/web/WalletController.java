@@ -2,9 +2,12 @@ package com.elementmarket.wallet.web;
 
 import com.elementmarket.wallet.config.RabbitConfig.WalletSettings;
 import com.elementmarket.wallet.ledger.LedgerRepository;
+import com.elementmarket.wallet.ledger.LedgerRules;
 import com.elementmarket.wallet.messaging.EventPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,8 @@ import java.util.*;
 
 @RestController
 public class WalletController {
+
+    private static final Logger log = LoggerFactory.getLogger(WalletController.class);
 
     private final LedgerRepository ledger;
     private final WalletSettings settings;
@@ -76,14 +81,17 @@ public class WalletController {
         if (!(symbolObj instanceof String symbol) || !(gramsObj instanceof Number gramsNum)) {
             return ResponseEntity.badRequest().body(Map.of("error", "symbol and grams are required."));
         }
-        String compoundSlug = body.get("compoundSlug") instanceof String s ? s : null;
-        if (!symbol.matches("(?i)^[a-z]{1,3}$")) {
+        String compoundSlug = body.get("compoundSlug") instanceof String s && !s.isBlank() ? s : null;
+        // Slug goes into the compound-service URL path: same shape order-service accepts, no '/', '.', '%'.
+        if (!symbol.matches("(?i)^[a-z]{1,3}$")
+                || (compoundSlug != null && !compoundSlug.matches("(?i)^[a-z0-9-]{1,64}$"))) {
             return ResponseEntity.badRequest().body(Map.of("error", "symbol and grams are required."));
         }
         double grams = gramsNum.doubleValue();
         if (!(grams >= 0.0001 && grams <= 1_000_000)) {
             return ResponseEntity.badRequest().body(Map.of("error", "symbol and grams are required."));
         }
+        BigDecimal qty = BigDecimal.valueOf(grams).setScale(4, RoundingMode.HALF_UP);
         String sym = symbol.toUpperCase(Locale.ROOT);
         var bidOpt = market.resolveBid(sym);
         if (bidOpt.isEmpty() || bidOpt.get().signum() <= 0) {
@@ -95,15 +103,10 @@ public class WalletController {
         }
         var sku = skuOpt.get();
         BigDecimal bid = bidOpt.get().multiply(BigDecimal.valueOf(sku.priceMult())).setScale(4, RoundingMode.HALF_UP);
-        if (bid.multiply(BigDecimal.valueOf(grams)).setScale(4, RoundingMode.HALF_UP).signum() <= 0) {
+        if (LedgerRules.proceeds(bid, qty).signum() <= 0) {
             return ResponseEntity.badRequest().body(Map.of("error", "Sale amount is too small."));
         }
-        var result = ledger.sellAtBid(
-                UUID.fromString(userId),
-                sym,
-                BigDecimal.valueOf(grams).setScale(4, RoundingMode.HALF_UP),
-                bid,
-                sku.slug());
+        var result = ledger.sellAtBid(UUID.fromString(userId), sym, qty, bid, sku.slug());
         if (!result.ok()) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error",
@@ -112,9 +115,15 @@ public class WalletController {
         }
         ObjectNode sold = objectMapper.createObjectNode();
         sold.put("elementSymbol", sym);
-        sold.put("grams", grams);
+        sold.put("grams", result.grams());
         sold.put("customerId", userId);
-        publisher.publish("ElementSoldEvent", sold);
+        try {
+            publisher.publish("ElementSoldEvent", sold);
+        } catch (Exception e) {
+            // The sale is already committed. A 500 here makes clients retry and sell twice; restock and
+            // price nudge are best-effort. ponytail: no outbox — add one if restock accuracy starts to matter.
+            log.warn("ElementSoldEvent publish failed after committed sale {} {}g: {}", sym, result.grams(), e.toString());
+        }
         return ResponseEntity.ok(Map.of(
                 "symbol", result.symbol(),
                 "grams", result.grams().doubleValue(),

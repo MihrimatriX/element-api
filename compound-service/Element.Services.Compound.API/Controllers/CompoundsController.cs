@@ -7,6 +7,7 @@ namespace Element.Services.Compound.API.Controllers;
 
 [ApiController]
 [Route("api/v1/compounds")]
+[ResponseCache(Duration = 300)] // rows are seeded from compounds.json at startup; no live prices here
 public class CompoundsController : ControllerBase
 {
     private readonly EfCompoundRepository _repository;
@@ -29,13 +30,14 @@ public class CompoundsController : ControllerBase
         [FromQuery] int pageSize = 40,
         CancellationToken ct = default)
     {
+        if (q?.Length > 120) return BadRequest("q must not exceed 120 characters.");
         if (page < 1) page = 1;
         if (pageSize is < 1 or > 100) pageSize = pageSize < 1 ? 40 : 100;
 
         var all = await _repository.QueryAsync(element, kind, q, ct);
         var total = all.Count;
         var pages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
-        var slice = all.Skip((page - 1) * pageSize).Take(pageSize).Select(Map).ToList();
+        var slice = all.Skip((int)Math.Min((long)(page - 1) * pageSize, int.MaxValue)).Take(pageSize).Select(Map).ToList();
         var baseUrl = PublicBaseUrl.Resolve(Request, _configuration);
         var qs = new List<string>();
         if (!string.IsNullOrWhiteSpace(element)) qs.Add($"element={Uri.EscapeDataString(element)}");

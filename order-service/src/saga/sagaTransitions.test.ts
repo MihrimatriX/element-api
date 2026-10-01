@@ -13,6 +13,13 @@ describe("sagaAccepts", () => {
     assert.equal(sagaAccepts("Completed", "PaymentProcessedEvent"), false);
     assert.equal(sagaAccepts("Submitted", "ShipmentDispatchedEvent"), false);
   });
+
+  it("compensates late reservation/debit on a failed order without reviving it", () => {
+    assert.equal(sagaAccepts("Failed", "StockReservedEvent"), true);
+    assert.equal(sagaAccepts("Failed", "PaymentProcessedEvent"), true);
+    assert.equal(sagaNextStatus("Failed", "PaymentProcessedEvent"), null);
+    assert.equal(sagaAccepts("Failed", "ShipmentDispatchedEvent"), false);
+  });
 });
 
 describe("sagaNextStatus", () => {

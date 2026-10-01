@@ -4,6 +4,14 @@ using System.Threading.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
+// Same policy as web-app/nginx.conf. Without it index.html gets heuristic caching and can point at deleted /assets after a redeploy.
+builder.Services.Configure<StaticFileOptions>(options => options.OnPrepareResponse = file =>
+{
+    var path = file.Context.Request.Path;
+    file.Context.Response.Headers.CacheControl = path.StartsWithSegments("/assets") ? "public, max-age=31536000, immutable"
+        : path.StartsWithSegments("/media") || path.StartsWithSegments("/brand") ? "public, max-age=604800"
+        : "no-cache";
+});
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().WithMethods("GET", "OPTIONS").AllowAnyHeader().WithExposedHeaders("ETag")));
 builder.Services.AddRateLimiter(options =>
 {
@@ -37,8 +45,9 @@ app.MapGet("/health", () => Results.Json(new { status = "Healthy", service = "El
 app.MapGet("/health/live", () => Results.Json(new { status = "Healthy" }));
 app.MapGet("/health/ready", () => Results.Json(new { status = "Healthy" }));
 app.MapGet("/info", () => Results.Json(new { name = "Element.Science", version = "2.0", dependencies = Array.Empty<string>(), api = "/api/v2/elements" }));
-app.MapGet("/api/v2/coverage", () =>
+app.MapGet("/api/v2/coverage", (HttpResponse response) =>
 {
+    response.Headers.CacheControl = "public, max-age=3600"; // snapshot-derived, same policy as the v2 catalog
     return Results.Json(new { schemaVersion = "2.0", elements = elements.Count, compounds = compounds.Count, retrievedAt = elements[0]!["provenance"]!["retrieved_at"]!.ToString(), unavailableElementSections = unavailable, nullMeaning = "Not available in this snapshot; not zero." });
 });
 // API misses must stay JSON 404s; they must never fall through to the SPA.

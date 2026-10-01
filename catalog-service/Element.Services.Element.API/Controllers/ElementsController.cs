@@ -14,9 +14,11 @@ namespace Element.Services.Element.API.Controllers;
 /// Chemical elements: catalogue listing, filtering, search, comparison, periodic
 /// neighbours and price history. Data access goes through <see cref="EfElementRepository"/>;
 /// all ranking/aggregation is delegated to the <see cref="ElementAnalytics"/> domain service.
+/// Responses carry live prices (15 s tick): shared caches may keep them 5 s.
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[ResponseCache(Duration = 5)]
 public class ElementsController : ControllerBase
 {
     private readonly EfElementRepository _repository;
@@ -35,12 +37,19 @@ public class ElementsController : ControllerBase
     private ElementResponseDto MapToDto(ChemicalElement element) => ElementDtoMapper.ToDto(element, GetBaseUrl());
 
     private PaginatedResponse<ElementResponseDto> Paginate(
-        IReadOnlyList<ChemicalElement> source, int page, int pageSize, string pathAndFixedQuery)
+        IReadOnlyList<ChemicalElement> source, int page, int pageSize, string path)
     {
         var totalCount = source.Count;
         var totalPages = Math.Max(1, (int)Math.Ceiling((double)totalCount / pageSize));
-        var slice = source.Skip((page - 1) * pageSize).Take(pageSize).Select(MapToDto).ToList();
+        // long math: (page - 1) * pageSize overflows for huge page values.
+        var slice = source.Skip((int)Math.Min((long)(page - 1) * pageSize, int.MaxValue)).Take(pageSize).Select(MapToDto).ToList();
         var baseUrl = GetBaseUrl();
+        // Echo the caller's other params (escaped) so next/prev keep the same filters and sort.
+        var kept = Request.Query
+            .Where(p => !p.Key.Equals("page", StringComparison.OrdinalIgnoreCase) && !p.Key.Equals("pageSize", StringComparison.OrdinalIgnoreCase))
+            .SelectMany(p => p.Value.Select(v => KeyValuePair.Create(p.Key, v)));
+        string Link(int p) => baseUrl + path + QueryString.Create(kept.Concat(
+            [KeyValuePair.Create("page", (string?)p.ToString()), KeyValuePair.Create("pageSize", (string?)pageSize.ToString())]));
 
         return new PaginatedResponse<ElementResponseDto>
         {
@@ -48,8 +57,8 @@ public class ElementsController : ControllerBase
             {
                 Count = totalCount,
                 Pages = totalPages,
-                Next = page < totalPages ? $"{baseUrl}{pathAndFixedQuery}&page={page + 1}&pageSize={pageSize}" : null,
-                Prev = page > 1 ? $"{baseUrl}{pathAndFixedQuery}&page={page - 1}&pageSize={pageSize}" : null
+                Next = page < totalPages ? Link(page + 1) : null,
+                Prev = page > 1 ? Link(page - 1) : null
             },
             Results = slice
         };
@@ -98,8 +107,7 @@ public class ElementsController : ControllerBase
         var all = await _repository.GetAllAsync(ct);
         var filtered = ElementAnalytics.Query(all, filter);
 
-        var fixedQuery = $"/api/v1/elements?sort={sort}&order={order}&category={Uri.EscapeDataString(category ?? "")}";
-        return Ok(Paginate(filtered, page, pageSize, fixedQuery));
+        return Ok(Paginate(filtered, page, pageSize, "/api/v1/elements"));
     }
 
     /// <summary>Searches elements by name, Turkish name, symbol or atomic number.</summary>
@@ -108,14 +116,14 @@ public class ElementsController : ControllerBase
     public async Task<IActionResult> Search([FromQuery] string q, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(q)) return BadRequest("Search query 'q' is required.");
+        if (q.Length > 120) return BadRequest("Search query 'q' must not exceed 120 characters.");
         if (page < 1) page = 1;
         if (pageSize is < 1 or > 100) pageSize = pageSize < 1 ? 20 : 100;
 
         var all = await _repository.GetAllAsync(ct);
         var matched = ElementAnalytics.Query(all, new ElementFilter { Search = q });
 
-        var fixedQuery = $"/api/v1/elements/search?q={Uri.EscapeDataString(q)}";
-        return Ok(Paginate(matched, page, pageSize, fixedQuery));
+        return Ok(Paginate(matched, page, pageSize, "/api/v1/elements/search"));
     }
 
     /// <summary>Retrieves a specific element by symbol (e.g. 'Au').</summary>
@@ -134,6 +142,7 @@ public class ElementsController : ControllerBase
 
     /// <summary>Returns a random element from the periodic table.</summary>
     [HttpGet("random")]
+    [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
     [ProducesResponseType(typeof(ElementResponseDto), 200)]
     public async Task<IActionResult> GetRandom(CancellationToken ct = default)
     {
@@ -207,6 +216,7 @@ public class ElementsController : ControllerBase
 
     /// <summary>Retrieves the price history for an element (API key required at the gateway).</summary>
     [HttpGet("{symbol}/history")]
+    [ResponseCache(Duration = 5, Location = ResponseCacheLocation.Client)] // key-gated: never from a shared cache
     [ProducesResponseType(typeof(IEnumerable<ElementPriceHistory>), 200)]
     public async Task<IActionResult> GetPriceHistory(string symbol, [FromQuery] int limit = 20, CancellationToken ct = default)
     {
@@ -232,17 +242,14 @@ public class ElementsController : ControllerBase
         var last = element.PricePerGram;
         var (bid, ask) = MarketMaker.Quotes(last, spread);
         var cutoff = DateTime.UtcNow.AddHours(-24);
-        var since = await _repository.GetPriceHistorySinceAsync(symbol, cutoff, ct);
+        var (first24, high24, low24) = await _repository.GetPriceRangeSinceAsync(symbol, cutoff, ct);
         var spark = (await _repository.GetPriceHistoryAsync(symbol, 24, ct))
             .Reverse()
             .Select(h => new { t = h.Timestamp, price = h.Price })
             .ToList();
 
-        decimal? first24 = since.Count > 0 ? since[0].Price : null;
-        var high = since.Count > 0 ? since.Max(h => h.Price) : last;
-        var low = since.Count > 0 ? since.Min(h => h.Price) : last;
-        if (last > high) high = last;
-        if (last < low) low = last;
+        var high = Math.Max(high24 ?? last, last);
+        var low = Math.Min(low24 ?? last, last);
 
         var volume = await _repository.GetFulfilledVolumeSinceAsync(symbol, cutoff, ct);
 

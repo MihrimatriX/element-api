@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -87,6 +88,23 @@ public class IdentityServiceIntegrationTests : IClassFixture<IntegrationTestCont
         (await client.DeleteAsync($"/api/v1/webhooks/{hookId}")).EnsureSuccessStatusCode();
         hooks = await client.GetFromJsonAsync<JsonElement>("/api/v1/webhooks");
         Assert.Empty(hooks.EnumerateArray());
+        Assert.Equal(HttpStatusCode.NotFound, (await client.DeleteAsync($"/api/v1/webhooks/{hookId}")).StatusCode);
+
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/v1/webhooks",
+            new { url = "https://identity-service:8080/api/v1/internal/webhooks", events = new[] { "order.updated" }, secret = "s" })).StatusCode);
+        var burst = await Task.WhenAll(Enumerable.Range(0, 11).Select(i => client.PostAsJsonAsync("/api/v1/webhooks",
+            new { url = $"https://example.test/hook-{i}", events = new[] { "order.updated" }, secret = "s" })));
+        Assert.Equal(10, burst.Count(r => r.IsSuccessStatusCode));
+        Assert.Single(burst, r => r.StatusCode == HttpStatusCode.Conflict);
+
+        var internalList = $"/api/v1/internal/webhooks?event=order.updated&customerId={dto.UserId}";
+        var wrongKey = new HttpRequestMessage(HttpMethod.Get, internalList);
+        wrongKey.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", "test-internal-kez");
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.SendAsync(wrongKey)).StatusCode);
+        var listForNotification = new HttpRequestMessage(HttpMethod.Get, internalList);
+        listForNotification.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", "test-internal-key");
+        var delivered = await (await client.SendAsync(listForNotification)).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(10, delivered.GetArrayLength());
     }
 
     private string BuildConnectionString(string database)

@@ -18,13 +18,4 @@ public static class RabbitMqExtensions
             h.Password(pass);
         });
     }
-
-    public static string GetRabbitMqConnectionUri(IConfiguration configuration)
-    {
-        var host = configuration["RabbitMQ:Host"] ?? "localhost";
-        var port = configuration["RabbitMQ:Port"] ?? "5672";
-        var user = configuration["RabbitMQ:Username"] ?? "guest";
-        var pass = configuration["RabbitMQ:Password"] ?? "guest";
-        return $"amqp://{user}:{pass}@{host}:{port}/";
-    }
 }

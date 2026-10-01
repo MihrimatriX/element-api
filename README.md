@@ -10,7 +10,7 @@ Türkçe kimya atlası, altı öğrenme rotası ve kişisel keşif koleksiyonu. 
 ./deploy/scripts/present-platform.ps1
 ```
 
-**http://localhost:3000** — her servis kendi konteynerinde (gateway, identity, catalog, compound, order, wallet `:5005`, inventory `:5008`, shipment, notification, web + PostgreSQL/Redis/RabbitMQ). Durdur: `./deploy/scripts/stop-local.ps1`.
+**http://localhost:6241** — her servis kendi konteynerinde (gateway, identity, catalog, compound, order, wallet `:5005`, inventory `:5008`, shipment, notification, web + PostgreSQL/Redis/RabbitMQ). Durdur: `./deploy/scripts/stop-local.ps1`.
 
 **Yalnız atlas (DB/broker yok):** `./deploy/scripts/present-local.ps1` → **http://127.0.0.1:5080** · hesap ve ticaret kapalı; misafir koleksiyonu çalışır.
 
@@ -20,7 +20,7 @@ Hangi kutu ne işe yarar → [servis kılavuzu](docs/SERVIS-KILAVUZU.md) (samimi
 
 Para birimi ekranda **KREDI**. Piyasa, stok, ödeme ve kargo simülasyon; gerçek borsa / tahsilat / fiziksel teslimat yok. Kablodaki `*Elx` alan adları bilinçli eski isimlerdir (aşağıdaki sözleşme).
 
-Yerel geliştirme: **[localhost:5173](http://localhost:5173)** · API kapısı: **[localhost:5000](http://localhost:5000)**. Docker web sürümü `:3000`.
+Yerel geliştirme: **[localhost:5173](http://localhost:5173)** · API kapısı: **[localhost:5000](http://localhost:5000)**. Docker web sürümü `:6241` (`WEB_HOST_PORT`).
 
 MIT lisansı: [LICENSE](./LICENSE).
 
@@ -46,7 +46,7 @@ docker compose --env-file docker/.env up -d --build
 
 | Adres | Ne için? |
 |-------|----------|
-| **[localhost:3000](http://localhost:3000)** | Tablo · Bileşikler · Laboratuvar (`/lab`) · Piyasa · Mağaza · API |
+| **[localhost:6241](http://localhost:6241)** | Tablo · Bileşikler · Laboratuvar (`/lab`) · Piyasa · Mağaza · API |
 | [localhost:5000](http://localhost:5000) | API Gateway |
 | [localhost:5000/swagger](http://localhost:5000/swagger) | Catalog OpenAPI (proxy) |
 
@@ -90,9 +90,9 @@ npm --prefix web-app run build
 npm --prefix web-app run lint
 ```
 
-`test-saga.ps1`, gerçek PostgreSQL üzerinde geçici ve ayrı bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar; sonunda kendi şemasını kaldırır. `test-e2e.mjs` ve smoke testi çalışan yerel servislere bağlanır, ayrı deneme hesapları açar. Docker web sürümünü denemek için smoke testine `-WebBase http://localhost:3000` ver.
+`test-saga.ps1`, gerçek PostgreSQL üzerinde geçici ve ayrı bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar; sonunda kendi şemasını kaldırır. `test-e2e.mjs` ve smoke testi çalışan yerel servislere bağlanır, ayrı deneme hesapları açar. Docker web sürümünü denemek için smoke testine `-WebBase http://localhost:6241` ver.
 
-Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, backend servislerinin sağlık uçlarını, derlenmiş web sayfalarını (`/lab` dahil) ve REST ticker fiyatını doğrular. Varsayılan web adresi `http://localhost:3000`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
+Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, backend servislerinin sağlık uçlarını, derlenmiş web sayfalarını (`/lab` dahil) ve REST ticker fiyatını doğrular. Varsayılan web adresi `http://localhost:6241`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
 
 ### Bilimsel veri ve alışveriş sözleşmesi
 
@@ -123,7 +123,7 @@ Kayıt → `GET /api/v1/me/wallet` hoş geldin grant (`WALLET_WELCOME_GRANT`; ye
 ```mermaid
 flowchart TB
     subgraph clients [İstemciler]
-        Web[web-app :3000]
+        Web[web-app :6241]
         API[REST]
     end
 
@@ -203,7 +203,7 @@ Hangi kutu ne işe yarar: **[servis kılavuzu](docs/SERVIS-KILAVUZU.md)**. Her k
 | **inventory-service** | 5008 | Java 21 Spring | Stok ayırma / serbest / düşüm | [README](./inventory-service/README.md) |
 | **shipment-service** | 5004 | .NET 10 | Sahte kargo + takip | [README](./shipment-service/README.md) |
 | **notification-service** | 5006 | .NET 10 | Sipariş webhook’u | [README](./notification-service/README.md) |
-| **web-app** | 3000 / 5173 | React + Vite | Tablo · laboratuvar · mağaza | [README](./web-app/README.md) |
+| **web-app** | 6241 / 5173 | React + Vite | Tablo · laboratuvar · mağaza | [README](./web-app/README.md) |
 | **shared-lib** | — | .NET 10 lib | Ortak olay ve sağlık uçları | [README](./shared-lib/README.md) |
 
 ---
@@ -302,7 +302,7 @@ TLS Caddy konteynerinde (`deploy/Caddyfile.elements-api`). DNS A/AAAA sunucuya i
 
 JWT `localStorage`’da; origin-scoped. Cookie auth yok.
 
-**Tek host** (bu repo: `https://elements-api.ahmetfuzunkaya.com` → UI `/`, API `/api` + `/hub`; ayrıntı [PUBLIC-HOST.md](docs/PUBLIC-HOST.md)):
+**Tek host** (bu repo: `https://elements-api.ahmetfuzunkaya.com` → UI `/`, API `/api` + `/swagger`; ayrıntı [PUBLIC-HOST.md](docs/PUBLIC-HOST.md)):
 
 ```
 PUBLIC_WEB_ORIGIN=https://elements-api.ahmetfuzunkaya.com

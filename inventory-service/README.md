@@ -17,7 +17,7 @@ Kapı: `GET /api/v1/stock/{symbol}` herkese açık. İçerde order, stok için H
 
 ## Bu kutu ne yapar?
 
-Sembol bazlı stok tutar. İlk dokunuşta sembol yoksa simülasyon için varsayılan **100.000 g** seed eder.
+Sembol bazlı stok tutar. İlk rezervasyonda sembol yoksa simülasyon için varsayılan **100.000 g** seed eder. Herkese açık `GET` salt okur: satır yazmaz, kilit almaz (görülmemiş sembol = varsayılan seed değeri).
 
 Sipariş gelince şöyle akar:
 
@@ -79,5 +79,6 @@ Doğrudan: `http://localhost:5008/api/v1/stock/au`.
 | Sipariş stokta takılı | Bu worker veya Rabbit; catalog eski stok consumer’ı artık kayıtlı değil |
 | Ön-kontrol OK, saga fail | İki istek arası stok değişti; yeniden dene |
 | `availableGrams` 0 | Seed yok veya tamamlanmış siparişler eritmiş |
+| Olay hiç işlenmedi | 5 denemede (≈15 sn backoff) düşen mesaj `inventory-service_failed` kuyruğunda — Rabbit UI’dan bak / geri taşı |
 
 [← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

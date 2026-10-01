@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.Identity.Infrastructure.Services;
@@ -22,10 +24,7 @@ public class InternalKeysController : ControllerBase
     [HttpPost("validate")]
     public async Task<IActionResult> ValidateKey([FromBody] ValidateKeyRequest request)
     {
-        var expected = _configuration["INTERNAL_API_KEY"];
-        if (string.IsNullOrEmpty(expected) ||
-            !Request.Headers.TryGetValue("INTERNAL_API_KEY", out var got) ||
-            got != expected)
+        if (!InternalKey.Matches(Request, _configuration))
         {
             return Unauthorized("INTERNAL_API_KEY required.");
         }
@@ -45,5 +44,17 @@ public class InternalKeysController : ControllerBase
             CreatedAt: apiKeyRecord.CreatedAt,
             RateLimitTps: apiKeyRecord.RateLimitTps
         ));
+    }
+}
+
+internal static class InternalKey
+{
+    /// <summary>Constant-time check of the service-to-service header; empty config never matches.</summary>
+    public static bool Matches(HttpRequest request, IConfiguration configuration)
+    {
+        var expected = configuration["INTERNAL_API_KEY"];
+        return !string.IsNullOrEmpty(expected)
+            && request.Headers.TryGetValue("INTERNAL_API_KEY", out var got)
+            && CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(got.ToString()), Encoding.UTF8.GetBytes(expected));
     }
 }

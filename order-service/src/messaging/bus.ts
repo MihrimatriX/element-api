@@ -1,17 +1,14 @@
 import amqp from "amqplib";
 import { config } from "../config.js";
-import {
-  exchangeName,
-  MessageType,
-  wrapEnvelope,
-  wrapHeaders,
-} from "./massTransit.js";
+import { logger } from "../observability.js";
+import { exchangeName, MessageType } from "./massTransit.js";
 
 type AmqpConnection = Awaited<ReturnType<typeof amqp.connect>>;
 
 let connection: AmqpConnection;
 let channel: amqp.ConfirmChannel;
 let connected = false;
+let closing = false;
 
 const sagaEventTypes: MessageType[] = [
   "StockReservedEvent",
@@ -25,23 +22,24 @@ const sagaEventTypes: MessageType[] = [
 export async function connectMessaging(): Promise<amqp.ConfirmChannel> {
   const url = `amqp://${encodeURIComponent(config.rabbitUser)}:${encodeURIComponent(config.rabbitPass)}@${config.rabbitHost}:${config.rabbitPort}`;
   connection = await amqp.connect(url);
+  // No in-process reconnect: a lost connection/channel exits so Docker restarts us cleanly.
+  const onClose = (err?: Error) => {
+    connected = false;
+    if (closing) return;
+    logger.fatal({ err }, "RabbitMQ connection closed; exiting for restart");
+    process.exit(1);
+  };
   connection.on("error", () => {
     connected = false;
     console.error("RabbitMQ connection failed.");
   });
-  connection.on("close", () => {
-    connected = false;
-    process.exit(1);
-  });
+  connection.on("close", onClose);
   channel = await connection.createConfirmChannel();
   channel.on("error", () => {
     connected = false;
     console.error("RabbitMQ channel failed.");
   });
-  channel.on("close", () => {
-    connected = false;
-    process.exit(1);
-  });
+  channel.on("close", onClose);
   await channel.prefetch(16);
 
   await channel.assertQueue(config.sagaQueue, { durable: true });
@@ -62,15 +60,9 @@ export function getChannel(): amqp.ConfirmChannel {
   return channel;
 }
 
-export async function publishEvent(
-  type: MessageType,
-  message: object,
-): Promise<void> {
-  const ex = exchangeName(type);
-  await channel.assertExchange(ex, "fanout", { durable: true });
-  channel.publish(ex, "", wrapEnvelope(type, message), {
-    headers: wrapHeaders(type),
-    contentType: "application/vnd.masstransit+json",
-  });
+/** Deliberate close (shutdown): the close handlers must not treat it as a failure. */
+export async function closeMessaging(): Promise<void> {
+  closing = true;
+  await connection.close();
 }
 

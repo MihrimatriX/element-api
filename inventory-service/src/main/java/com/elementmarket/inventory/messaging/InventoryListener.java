@@ -2,14 +2,17 @@ package com.elementmarket.inventory.messaging;
 
 import com.elementmarket.inventory.config.RabbitConfig;
 import com.elementmarket.inventory.stock.StockRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -29,8 +32,21 @@ public class InventoryListener {
         this.publisher = publisher;
     }
 
+    // One tx per delivery (same as wallet): processed_messages mark + stock work commit together, so a crash
+    // or DB blip mid-handler means redelivery re-applies the event instead of skipping it as a duplicate.
+    // Publishes happen inside the tx (no outbox): a failed commit re-publishes on retry; the saga dedupes by state.
+    @Transactional(rollbackFor = Exception.class)
     @RabbitListener(queues = RabbitConfig.INVENTORY_QUEUE)
     public void onMessage(Message message) throws Exception {
+        try {
+            handle(message);
+        } catch (JsonProcessingException | IllegalArgumentException e) {
+            // Bad JSON / bad UUID never succeeds; the default requeue would redeliver it in a hot loop.
+            throw new AmqpRejectAndDontRequeueException("Dropping malformed inventory message", e);
+        }
+    }
+
+    private void handle(Message message) throws Exception {
         byte[] body = message.getBody();
         String type = MassTransitMessage.typeOf(body, objectMapper);
         JsonNode msg = MassTransitMessage.messageOf(body, objectMapper);
@@ -61,10 +77,7 @@ public class InventoryListener {
             }
             case "OrderCompletedEvent" -> {
                 if (orderId == null) return;
-                stock.fulfill(
-                        orderId,
-                        MassTransitMessage.text(msg, "elementSymbol", "ElementSymbol"),
-                        BigDecimal.valueOf(MassTransitMessage.number(msg, "quantity", "Quantity")));
+                stock.fulfill(orderId);
             }
             case "ElementSoldEvent" -> stock.restock(
                     saleKey,

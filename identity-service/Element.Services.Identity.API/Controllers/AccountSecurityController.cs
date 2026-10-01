@@ -14,19 +14,40 @@ namespace Element.Services.Identity.API.Controllers;
 [ApiController]
 [Route("api/v1/auth")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public sealed class AccountSecurityController(UserManager<ApplicationUser> users, IAccountMailer mailer, IConfiguration configuration,
-    IdentityAppDbContext database, ICaptchaVerifier captcha) : ControllerBase
+public sealed class AccountSecurityController(UserManager<ApplicationUser> users, SignInManager<ApplicationUser> signIn, IAccountMailer mailer, IConfiguration configuration,
+    IdentityAppDbContext database, ICaptchaVerifier captcha, ILogger<AccountSecurityController> logger) : ControllerBase
 {
-    public sealed record DeleteRequest([Required] string Password, [Required] string Confirmation);
-    public sealed record EmailRequest([Required, EmailAddress] string Email);
-    public sealed record VerifyRequest([Required, EmailAddress] string Email, [Required] string Token);
-    public sealed record ResetRequest([Required, EmailAddress] string Email, [Required] string Token, [Required, MinLength(10)] string Password);
-    public sealed record ChangeRequest([Required] string CurrentPassword, [Required, MinLength(10)] string Password);
+    // Bounds match RegisterRequest/LoginRequest (email 254, password 1024).
+    public sealed record DeleteRequest([Required, MaxLength(1024)] string Password, [Required, MaxLength(64)] string Confirmation);
+    public sealed record EmailRequest([Required, EmailAddress, MaxLength(254)] string Email);
+    public sealed record VerifyRequest([Required, EmailAddress, MaxLength(254)] string Email, [Required, MaxLength(2048)] string Token);
+    public sealed record ResetRequest([Required, EmailAddress, MaxLength(254)] string Email, [Required, MaxLength(2048)] string Token, [Required, MinLength(10), MaxLength(1024)] string Password);
+    public sealed record ChangeRequest([Required, MaxLength(1024)] string CurrentPassword, [Required, MinLength(10), MaxLength(1024)] string Password);
     private string Site => (configuration["PUBLIC_WEB_ORIGIN"] ?? "http://localhost:5173").TrimEnd('/');
     private async Task<ApplicationUser?> Current() => await users.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub") ?? "");
     private async Task RevokeKeys(ApplicationUser user)
     {
         await database.ApiKeys.Where(k => k.UserId == user.Id && k.IsActive).ExecuteUpdateAsync(update => update.SetProperty(k => k.IsActive, false));
+    }
+    // Same 5-try lockout as login, so a stolen JWT is not an unlimited password oracle. Must run outside
+    // any transaction that a failure rolls back, or the failed-attempt count is rolled back with it.
+    private async Task<IActionResult?> ConfirmPassword(ApplicationUser user, string password, string wrong)
+    {
+        var check = await signIn.CheckPasswordSignInAsync(user, password, lockoutOnFailure: true);
+        if (check.IsLockedOut) return StatusCode(StatusCodes.Status429TooManyRequests, new { message = "Çok fazla hatalı şifre denemesi. Yaklaşık 15 dakika sonra yeniden dene." });
+        return check.Succeeded ? null : BadRequest(new { message = wrong });
+    }
+    // One mail per account and purpose per 2 minutes: caps mail-bombing a victim's inbox and SMTP quota burn.
+    // Atomic upsert in the Identity token table (like learning); 0 rows = a mail already went out in the window.
+    // Fixed-width tick strings compare correctly as text. Not exported (export reads ElementLearning.v1 only).
+    private async Task<bool> MailSlot(ApplicationUser user, string purpose)
+    {
+        var now = DateTime.UtcNow;
+        string stamp = now.Ticks.ToString("D19"), cutoff = now.AddMinutes(-2).Ticks.ToString("D19");
+        return await database.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO "AspNetUserTokens" ("UserId", "LoginProvider", "Name", "Value") VALUES ({user.Id}, 'ElementMail.v1', {purpose}, {stamp})
+            ON CONFLICT ("UserId", "LoginProvider", "Name") DO UPDATE SET "Value" = EXCLUDED."Value" WHERE "AspNetUserTokens"."Value" < {cutoff}
+            """) == 1;
     }
     [Authorize, HttpGet("export")]
     public async Task<IActionResult> Export()
@@ -44,8 +65,8 @@ public sealed class AccountSecurityController(UserManager<ApplicationUser> users
     {
         var user = await Current();
         if (user is null) return Unauthorized();
-        if (request.Confirmation != "HESABIMI SİL" || !await users.CheckPasswordAsync(user, request.Password))
-            return BadRequest(new { message = "Şifre veya silme onayı yanlış." });
+        if (request.Confirmation != "HESABIMI SİL") return BadRequest(new { message = "Şifre veya silme onayı yanlış." });
+        if (await ConfirmPassword(user, request.Password, "Şifre veya silme onayı yanlış.") is { } problem) return problem;
         var result = await users.DeleteAsync(user);
         if (!result.Succeeded) return Conflict(new { message = "Hesap silinemedi. Yeniden deneyebilirsin." });
         return Ok(new { message = "Hesabın ve öğrenme kayıtların silindi. Oturumların ve API anahtarların kapatıldı." });
@@ -59,15 +80,17 @@ public sealed class AccountSecurityController(UserManager<ApplicationUser> users
     });
 
     [HttpPost("password/forgot")]
-    public async Task<IActionResult> Forgot(EmailRequest request, CancellationToken ct)
+    public async Task<IActionResult> Forgot(EmailRequest request)
     {
         if (!mailer.Enabled) return StatusCode(503, new { message = "E-postasız beta: e-posta ile şifre kurtarma henüz yapılandırılmadı." });
         var user = await users.FindByEmailAsync(request.Email);
-        if (user is not null)
+        if (user is not null && await MailSlot(user, "reset"))
         {
             var token = await users.GeneratePasswordResetTokenAsync(user);
             var url = $"{Site}/reset-password#email={Uri.EscapeDataString(user.Email!)}&token={Uri.EscapeDataString(token)}";
-            await mailer.SendAsync(user.Email!, "ElementAPI şifre yenileme", $"Şifreni yenilemek için bağlantıyı aç:\n{url}\n\nBu isteği sen yapmadıysan bağlantıyı kullanma.", ct);
+            // Not awaited: SMTP latency or failure would otherwise tell which addresses have accounts.
+            _ = mailer.SendAsync(user.Email!, "ElementAPI şifre yenileme", $"Şifreni yenilemek için bağlantıyı aç:\n{url}\n\nBu isteği sen yapmadıysan bağlantıyı kullanma.", CancellationToken.None)
+                .ContinueWith(task => logger.LogWarning(task.Exception, "Password reset mail failed or timed out"), TaskContinuationOptions.NotOnRanToCompletion);
         }
         return Accepted(new { message = "Bu adresle bir hesap varsa şifre yenileme bağlantısı gönderildi." });
     }
@@ -90,6 +113,7 @@ public sealed class AccountSecurityController(UserManager<ApplicationUser> users
     {
         var user = await Current();
         if (user is null) return Unauthorized();
+        if (await ConfirmPassword(user, request.CurrentPassword, "Mevcut şifre yanlış veya yeni şifre koşulları sağlanmıyor.") is { } problem) return problem;
         await using var transaction = await database.Database.BeginTransactionAsync();
         var result = await users.ChangePasswordAsync(user, request.CurrentPassword, request.Password);
         if (!result.Succeeded) return BadRequest(new { message = "Mevcut şifre yanlış veya yeni şifre koşulları sağlanmıyor." });
@@ -109,7 +133,7 @@ public sealed class AccountSecurityController(UserManager<ApplicationUser> users
         if (!mailer.Enabled) return StatusCode(503, new { message = "E-posta doğrulama bu kurulumda yapılandırılmadı." });
         var user = await Current();
         if (user is null) return Unauthorized();
-        if (!user.EmailConfirmed)
+        if (!user.EmailConfirmed && await MailSlot(user, "verify"))
         {
             var token = await users.GenerateEmailConfirmationTokenAsync(user);
             await mailer.SendAsync(user.Email!, "ElementAPI e-posta doğrulama", $"Adresini doğrulamak için bağlantıyı aç:\n{Site}/verify-email#email={Uri.EscapeDataString(user.Email!)}&token={Uri.EscapeDataString(token)}", ct);

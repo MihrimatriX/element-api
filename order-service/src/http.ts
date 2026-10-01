@@ -81,5 +81,7 @@ export const httpErrorHandler: ErrorRequestHandler = (err, _req, res, next) => {
       : status === 413
         ? "Request body too large."
         : "Service temporarily unavailable. Please retry.";
+  // pino-http logs res.err (with stack) server-side; the client only sees the generic detail.
+  if (status === 503) res.err = err;
   problem(res, status, detail);
 };

@@ -28,6 +28,7 @@
     <ProjectReference Include="..\..\..\catalog-service\Element.Services.Element.Infrastructure\Element.Services.Element.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\identity-service\Element.Services.Identity.Infrastructure\Element.Services.Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\shipment-service\Element.Services.Shipment.Infrastructure\Element.Services.Shipment.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\shipment-service\Element.Services.Shipment.API\Element.Services.Shipment.API.csproj" />
     <ProjectReference Include="..\..\..\notification-service\Element.Services.Notification.API\Element.Services.Notification.API.csproj" />
   </ItemGroup>
 

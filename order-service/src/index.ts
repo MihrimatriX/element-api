@@ -2,7 +2,11 @@ import express from "express";
 import helmet from "helmet";
 import { config } from "./config.js";
 import { initDb, pool } from "./db/pool.js";
-import { connectMessaging, getChannel } from "./messaging/bus.js";
+import {
+  closeMessaging,
+  connectMessaging,
+  getChannel,
+} from "./messaging/bus.js";
 import { handleSagaMessage } from "./saga/orchestrator.js";
 import { startOutboxDispatcher } from "./messaging/outboxDispatcher.js";
 import { startTimeoutSweeper } from "./saga/timeoutSweeper.js";
@@ -10,7 +14,7 @@ import { ordersRouter } from "./routes/orders.js";
 import { apiInfoRouter } from "./routes/apiInfo.js";
 import { logger, requestLogger } from "./observability.js";
 import { registerOpsEndpoints } from "./ops.js";
-import { httpErrorHandler } from "./http.js";
+import { httpErrorHandler, problem } from "./http.js";
 
 async function checkHealth(): Promise<{
   ok: boolean;
@@ -70,7 +74,7 @@ async function main() {
   await connectMessaging();
 
   const ch = getChannel();
-  ch.consume(config.sagaQueue, (msg) => {
+  const { consumerTag } = await ch.consume(config.sagaQueue, (msg) => {
     if (!msg) return;
     handleSagaMessage(msg.content)
       .then(() => ch.ack(msg))
@@ -100,8 +104,7 @@ async function main() {
       });
   });
 
-  startOutboxDispatcher();
-  startTimeoutSweeper();
+  const timers = [startOutboxDispatcher(), startTimeoutSweeper()];
 
   const app = express();
   app.use(
@@ -116,11 +119,34 @@ async function main() {
   registerOpsEndpoints(app, checkHealth);
   app.use("/api/v1", apiInfoRouter);
   app.use("/api/v1/orders", ordersRouter);
+  // JSON 404 instead of Express's HTML "Cannot GET …" page (public API surface).
+  app.use((_req, res) => problem(res, 404, "Not found."));
   app.use(httpErrorHandler);
 
-  app.listen(config.port, () => {
+  const server = app.listen(config.port, () => {
     logger.info({ port: config.port }, "order-service listening");
   });
+
+  // docker stop: drain, then exit. Unacked saga messages are redelivered and deduped
+  // via processed_messages, so anything cut off here is safe to replay.
+  const shutdown = (signal: NodeJS.Signals) => {
+    logger.info({ signal }, "order-service shutting down");
+    setTimeout(() => process.exit(1), 8000);
+    timers.forEach(clearInterval);
+    ch.cancel(consumerTag)
+      .then(() => new Promise((resolve) => server.close(resolve)))
+      .then(closeMessaging)
+      .then(() => pool.end())
+      .then(
+        () => process.exit(0),
+        (err) => {
+          logger.error({ err }, "Shutdown failed");
+          process.exit(1);
+        },
+      );
+  };
+  process.once("SIGTERM", shutdown);
+  process.once("SIGINT", shutdown);
 }
 
 main().catch((err) => {

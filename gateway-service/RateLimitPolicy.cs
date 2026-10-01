@@ -5,7 +5,7 @@ namespace Element.Gateway;
 /// <summary>
 /// Per-IP fixed-window quotas at the gateway edge.
 /// Numbers (document + change together):
-///   POST /api/v1/auth/register → 5 / min  (signup spam)
+///   POST /api/v1/auth/register, password/forgot, email/send-verification → 5 / min (signup spam, mail bombing)
 ///   other POST /api/v1/auth/*  → 15 / min (login; identity also locks 5 fails / 15 min)
 ///   everything else            → 60 / 10s (anonymous scrape; was 100/10s)
 /// API-key Redis TPS is separate (ApiKeyValidator).
@@ -28,7 +28,10 @@ public static class RateLimitPolicy
         var path = context.Request.Path;
         var post = HttpMethods.IsPost(context.Request.Method);
 
-        if (post && path.StartsWithSegments("/api/v1/auth/register"))
+        // Anonymous endpoints that create accounts or send mail share the tight bucket (signup spam, mail bombing).
+        if (post && (path.StartsWithSegments("/api/v1/auth/register")
+                     || path.StartsWithSegments("/api/v1/auth/password/forgot")
+                     || path.StartsWithSegments("/api/v1/auth/email/send-verification")))
             return ($"register:{ip}", RegisterPermitLimit, RegisterWindow);
 
         if (post && path.StartsWithSegments("/api/v1/auth"))

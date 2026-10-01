@@ -20,7 +20,7 @@ public class InternalWebhooksController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? @event, [FromQuery] Guid? customerId)
     {
-        if (!InternalKeyOk()) return Unauthorized();
+        if (!InternalKey.Matches(Request, _configuration)) return Unauthorized();
 
         var query = _db.WebhookSubscriptions.AsNoTracking().Where(w => w.IsActive);
         if (@event == "order.updated")
@@ -34,19 +34,14 @@ public class InternalWebhooksController : ControllerBase
             query = query.Where(w => w.Events.ToLower().Contains(ev));
         }
 
-        var rows = await query.Select(w => new
+        // notification delivers to at most 10 hooks per event. ponytail: for broadcast price.updated this is
+        // 10 platform-wide (oldest first); page or fan out per user before price.updated is ever published.
+        var rows = await query.OrderBy(w => w.CreatedAt).Take(10).Select(w => new
         {
             w.Url,
             w.Secret,
             events = w.Events
         }).ToListAsync();
         return Ok(rows);
-    }
-
-    private bool InternalKeyOk()
-    {
-        var expected = _configuration["INTERNAL_API_KEY"];
-        if (string.IsNullOrEmpty(expected)) return false;
-        return Request.Headers.TryGetValue("INTERNAL_API_KEY", out var got) && got == expected;
     }
 }

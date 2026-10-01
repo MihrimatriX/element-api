@@ -27,16 +27,18 @@ export function clearSession() {
   }
   window.dispatchEvent(new Event("element:session"));
 }
+/** Same-origin path only. Parse like the browser does: "/\t/evil.com" strips to "//evil.com". */
 export function safeReturnTo(
   value: string | null,
   fallback = "/collection",
 ): string {
-  if (
-    !value ||
-    !value.startsWith("/") ||
-    value.startsWith("//") ||
-    value.includes("\\")
-  )
+  if (!value?.startsWith("/")) return fallback;
+  try {
+    const url = new URL(value, window.location.origin);
+    return url.origin === window.location.origin
+      ? url.pathname + url.search + url.hash
+      : fallback;
+  } catch {
     return fallback;
-  return value;
+  }
 }

@@ -13,6 +13,7 @@ namespace Element.Services.Element.API.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/statistics")]
+[ResponseCache(Duration = 5)]
 public class StatisticsController : ControllerBase
 {
     private readonly EfElementRepository _repository;

@@ -3,7 +3,6 @@ using Element.Services.Shipment.Infrastructure.Data;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Element.Shared.Extensions;
-using Element.Shared.Health;
 using Element.Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,15 +37,13 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddControllers();
 
-// Add Health Checks
+// Add Health Checks. RabbitMQ: AddMassTransit registers "masstransit-bus" (Unhealthy/503 until the
+// receive endpoints are connected, Healthy again after reconnect) — no extra AMQP connection per probe.
 var dbConn = connectionString;
 builder.Services.AddHealthChecks()
-    .AddNpgSql(dbConn, name: "PostgreSQL")
-    .AddElementRabbitMqHealthCheck(builder.Configuration);
+    .AddNpgSql(dbConn, name: "PostgreSQL");
 
 var app = builder.Build();
-
-await app.ApplyDatabaseAsync<ShipmentDbContext>("element_shipment_db");
 
 app.UseRequestLogging();
 app.UseGlobalExceptionHandling();
@@ -60,7 +57,14 @@ app.MapGet("/", () => Results.Redirect("/info"));
 
 try
 {
+    // Inside try: a DB that never comes up logs Fatal and exits 1 (restart policy) instead of aborting (exit 134).
+    await app.ApplyDatabaseAsync<ShipmentDbContext>("element_shipment_db");
     app.Run();
+}
+catch (Exception ex)
+{
+    Serilog.Log.Fatal(ex, "Host terminated unexpectedly");
+    Environment.ExitCode = 1;
 }
 finally
 {

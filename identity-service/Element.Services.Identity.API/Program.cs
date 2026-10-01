@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using StackExchange.Redis;
 using Element.Shared.Extensions;
 using Element.Shared.Middleware;
 using Element.Services.Identity.API;
@@ -47,10 +46,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     })
     .AddEntityFrameworkStores<IdentityAppDbContext>()
     .AddDefaultTokenProviders();
-
-// Add Redis
-var redisConn = builder.Configuration.GetValue<string>("RedisConnection") ?? "localhost:6379";
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConn));
 
 // Register DI Services
 builder.Services.AddScoped<TokenService>();
@@ -101,12 +96,9 @@ builder.Services.AddSwaggerGen();
 // Add Health Checks
 var dbConn = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
 builder.Services.AddHealthChecks()
-    .AddNpgSql(dbConn, name: "PostgreSQL")
-    .AddRedis(redisConn, name: "Redis");
+    .AddNpgSql(dbConn, name: "PostgreSQL");
 
 var app = builder.Build();
-
-await app.ApplyDatabaseAsync<IdentityAppDbContext>("element_identity_db");
 
 if (app.Environment.IsDevelopment())
 {
@@ -127,12 +119,15 @@ app.MapStandardOpsEndpoints("Element.Identity", new Dictionary<string, string>
 
 try
 {
+    // Inside try: a DB that never comes up logs Fatal and exits 1 (restart policy) instead of aborting (exit 134).
+    await app.ApplyDatabaseAsync<IdentityAppDbContext>("element_identity_db");
     Log.Information("Starting Identity Service API...");
     app.Run();
 }
 catch (Exception ex)
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
+    Environment.ExitCode = 1;
 }
 finally
 {

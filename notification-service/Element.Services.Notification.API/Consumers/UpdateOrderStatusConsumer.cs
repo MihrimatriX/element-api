@@ -29,7 +29,9 @@ public class UpdateOrderStatusConsumer : IConsumer<UpdateOrderStatusEvent>
             OrderId = message.OrderId,
             Status = message.Status,
             ErrorMessage = message.ErrorMessage,
-            TrackingNumber = message.TrackingNumber
+            TrackingNumber = message.TrackingNumber,
+            // Inside the signed body (unix seconds): receivers reject stale/replayed deliveries.
+            Timestamp = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         };
         // Order details are private. The web app polls its authenticated order endpoint.
         if (message.CustomerId is { } customerId && customerId != System.Guid.Empty)

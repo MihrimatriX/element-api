@@ -44,24 +44,15 @@ ordersRouter.post("/", async (req, res) => {
   }
   const { elementSymbol, quantity, compoundSlug } = parsed.data;
 
-  const ticker = await resolveTicker(elementSymbol);
-  if (!ticker || ticker.ask <= 0) {
-    return problem(
-      res,
-      400,
-      `Could not determine market price for '${elementSymbol}'.`,
-    );
-  }
-  const requestKey = req.header("Idempotency-Key");
-  if (requestKey) {
-    const keyOk = idempotencyKeySchema.safeParse(requestKey);
-    if (!keyOk.success)
-      return problem(res, 400, "Idempotency-Key must be a UUID.");
-  }
+  const requestKey = req.header("Idempotency-Key")?.toLowerCase();
+  if (requestKey && !idempotencyKeySchema.safeParse(requestKey).success)
+    return problem(res, 400, "Idempotency-Key must be a UUID.");
   const orderId = requestKey || randomUUID();
+  // Same elemental aliases as resolveCompound, so a retried elemental order replays instead of 409.
   const normalizedSlug =
     !compoundSlug ||
     compoundSlug === "elemental" ||
+    compoundSlug === elementSymbol.toLowerCase() ||
     compoundSlug === `elemental-${elementSymbol.toLowerCase()}`
       ? null
       : compoundSlug;
@@ -80,8 +71,18 @@ ordersRouter.post("/", async (req, res) => {
     }
     return res.status(200).json(mapOrder(existing));
   };
-  const existing = await orders.getOrderById(orderId);
+  // Replay before any upstream call: a retry must not depend on catalog/inventory being up.
+  const existing = requestKey ? await orders.getOrderById(orderId) : null;
   if (existing) return replay(existing);
+
+  const ticker = await resolveTicker(elementSymbol);
+  if (!ticker || ticker.ask <= 0) {
+    return problem(
+      res,
+      400,
+      `Could not determine market price for '${elementSymbol}'.`,
+    );
+  }
   if (quantity > ticker.availableStock) {
     return res.status(409).json({
       type: "https://httpstatuses.com/409",
@@ -159,6 +160,8 @@ ordersRouter.get("/search", async (req, res) => {
   if (!customerId) return;
 
   const { status, elementSymbol, q, page, pageSize } = req.query;
+  if (typeof q === "string" && q.length > 64)
+    return problem(res, 400, "q must be at most 64 characters.");
   if (
     (page != null &&
       (!Number.isSafeInteger(Number(page)) ||

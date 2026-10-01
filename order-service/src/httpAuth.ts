@@ -5,7 +5,8 @@ import { isUuid } from "./http.js";
 
 export function readUserId(req: Request): string | undefined {
   const id = req.header("X-User-Id")?.trim();
-  return isUuid(id) ? id : undefined;
+  // Lowercase = Postgres uuid text form, so JS ownership compares (customer_id !== id) stay exact.
+  return isUuid(id) ? id.toLowerCase() : undefined;
 }
 
 export function requireUser(req: Request, res: Response): string | null {

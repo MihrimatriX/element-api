@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EventPublisher {
-    // ponytail: publish after JDBC commit (no outbox). Add transactional outbox if dual-write bites.
+    // ponytail: no outbox. Listener publishes inside its JDBC tx (failed commit -> redelivery re-publishes);
+    // desk sell publishes after commit. Add transactional outbox if dual-write bites.
 
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;

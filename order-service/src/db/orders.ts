@@ -150,11 +150,12 @@ export async function getOrderById(id: string): Promise<OrderRow | null> {
   return res.rows[0] ?? null;
 }
 
+/** Most recent 100 only (bounded response); older history pages via /orders/search. */
 export async function getOrdersByCustomer(
   customerId: string,
 ): Promise<OrderRow[]> {
   const res = await pool.query(
-    `SELECT * FROM orders WHERE customer_id = $1 ORDER BY created_at DESC`,
+    `SELECT * FROM orders WHERE customer_id = $1 ORDER BY created_at DESC LIMIT 100`,
     [customerId],
   );
   return res.rows;

@@ -52,7 +52,7 @@ Sipariş oluşunca kuyruk (RabbitMQ):
 
 | Klasör | İnsan cümlesi | Port | README |
 |--------|---------------|------|--------|
-| [web-app](../web-app/README.md) | Ekranda gördüğün uygulama. | 3000 / 5173 | kılavuz orada |
+| [web-app](../web-app/README.md) | Ekranda gördüğün uygulama. | 6241 / 5173 | kılavuz orada |
 | [science-service](../science-service/README.md) | Atlas’ı tek kutuda gösteren sade host. DB yok. | 5080 | |
 | [gateway-service](../gateway-service/README.md) | Resepsiyon (YARP). İsteği doğru odaya verir; kayıt 5/dk, auth 15/dk, genel 60/10sn. | 5000 | |
 
@@ -88,7 +88,7 @@ Agent notları (İngilizce, kısa): [deploy/AGENTS.md](../deploy/AGENTS.md).
 ./deploy/scripts/present-platform.ps1
 ```
 
-http://localhost:3000 — her servis kendi konteynerinde.
+http://localhost:6241 — her servis kendi konteynerinde.
 
 **Yalnız tablo ve laboratuvar (veritabanı istemiyorum):**
 

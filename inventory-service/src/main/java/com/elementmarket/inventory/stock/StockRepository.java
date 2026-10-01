@@ -22,6 +22,7 @@ public class StockRepository {
         this.settings = settings;
     }
 
+    /** Joins the listener's transaction: the mark commits or rolls back together with the stock work. */
     @Transactional
     public boolean tryMarkProcessed(UUID messageId, String eventType, UUID orderId) {
         int n = jdbc.update(
@@ -46,12 +47,15 @@ public class StockRepository {
                 "SELECT stock_grams, reserved_grams FROM stock_items WHERE symbol = ? FOR UPDATE", sym);
     }
 
-    @Transactional
+    /** Public, anonymous read: never INSERT or lock. An unseen symbol reports the default seed it would get. */
     public Map<String, Object> getStock(String symbol) {
-        Map<String, Object> item = ensureItem(symbol);
         String sym = symbol.toUpperCase(Locale.ROOT);
-        BigDecimal stock = (BigDecimal) item.get("stock_grams");
-        BigDecimal reserved = (BigDecimal) item.get("reserved_grams");
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT stock_grams, reserved_grams FROM stock_items WHERE symbol = ?", sym);
+        BigDecimal stock = rows.isEmpty()
+                ? BigDecimal.valueOf(settings.defaultStockGrams())
+                : (BigDecimal) rows.getFirst().get("stock_grams");
+        BigDecimal reserved = rows.isEmpty() ? BigDecimal.ZERO : (BigDecimal) rows.getFirst().get("reserved_grams");
         return Map.of(
                 "symbol", sym,
                 "stockGrams", stock.doubleValue(),
@@ -123,10 +127,15 @@ public class StockRepository {
     }
 
     @Transactional
-    public void fulfill(UUID orderId, String symbol, BigDecimal quantity) {
-        String status = reservationStatus(orderId);
-        if (status == null || !"Reserved".equals(status)) return;
-        ensureItem(symbol);
+    public void fulfill(UUID orderId) {
+        // Decrement what was actually reserved (like release), not whatever the completion event claims.
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT status, element_symbol, quantity FROM stock_reservations WHERE order_id = ? FOR UPDATE",
+                orderId);
+        if (rows.isEmpty() || !"Reserved".equals(rows.getFirst().get("status"))) return;
+        String sym = String.valueOf(rows.getFirst().get("element_symbol"));
+        BigDecimal qty = (BigDecimal) rows.getFirst().get("quantity");
+        ensureItem(sym);
         jdbc.update(
                 """
                 UPDATE stock_items
@@ -134,7 +143,7 @@ public class StockRepository {
                     reserved_grams = GREATEST(0, reserved_grams - ?)
                 WHERE symbol = ?
                 """,
-                quantity, quantity, symbol.toUpperCase(Locale.ROOT));
+                qty, qty, sym);
         jdbc.update("UPDATE stock_reservations SET status = 'Fulfilled' WHERE order_id = ?", orderId);
     }
 

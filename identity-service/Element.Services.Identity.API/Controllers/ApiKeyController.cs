@@ -42,6 +42,10 @@ public class ApiKeyController : ControllerBase
         if (owners.Length != 1 || owners[0].SecurityStamp != User.FindFirst("security_stamp")?.Value) return Unauthorized();
         if (await _context.ApiKeys.CountAsync(k => k.UserId == userId && k.IsActive) >= 20)
             return Conflict(new { message = "En fazla 20 etkin API anahtarı kullanabilirsin. Kullanmadıklarını iptal et." });
+        // Every web login mints a key, so revoked history grows forever; keep the newest 20 revoked rows.
+        var stale = await _context.ApiKeys.Where(k => k.UserId == userId && !k.IsActive)
+            .OrderByDescending(k => k.CreatedAt).Skip(20).Select(k => k.Id).ToListAsync();
+        if (stale.Count > 0) await _context.ApiKeys.Where(k => stale.Contains(k.Id)).ExecuteDeleteAsync();
         var (rawKey, apiKeyRecord) = await _apiKeyService.GenerateKeyAsync(userId, request.Description, request.RateLimitTps);
 
         await transaction.CommitAsync();

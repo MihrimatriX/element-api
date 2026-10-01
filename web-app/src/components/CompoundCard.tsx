@@ -40,6 +40,8 @@ export default function CompoundCard({
           className="compound-card-structure"
           src={structure.url}
           alt={structure.caption}
+          loading="lazy"
+          decoding="async"
         />
       ) : (
         <div className="compound-card-mark" style={{ background: tint }}>

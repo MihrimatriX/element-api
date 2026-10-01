@@ -1,7 +1,14 @@
 import pg from "pg";
 import { config } from "../config.js";
+import { logger } from "../observability.js";
 
 export const pool = new pg.Pool({ connectionString: config.databaseUrl });
+// Idle clients die when Postgres restarts. Exit so Docker restarts us: saga messages then
+// wait in RabbitMQ instead of burning their retries into the _failed queue while the DB is down.
+pool.on("error", (err) => {
+  logger.fatal({ err }, "PostgreSQL connection lost; exiting for restart");
+  process.exit(1);
+});
 
 export async function initDb(): Promise<void> {
   await pool.query(`
@@ -59,5 +66,8 @@ export async function initDb(): Promise<void> {
 
     CREATE INDEX IF NOT EXISTS idx_saga_deadline ON saga_state (deadline_at)
       WHERE deadline_at IS NOT NULL;
+
+    -- Every customer read (list, search, stats) filters on customer_id; without this each is a full scan.
+    CREATE INDEX IF NOT EXISTS idx_orders_customer_created ON orders (customer_id, created_at DESC);
   `);
 }

@@ -17,7 +17,7 @@ Types: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `perf`. Scope o
 
 | Intent | Command |
 |--------|---------|
-| **present** full platform | `./deploy/scripts/present-platform.ps1` → http://localhost:3000 |
+| **present** full platform | `./deploy/scripts/present-platform.ps1` → http://localhost:6241 |
 | **present** atlas-only | `./deploy/scripts/present-local.ps1` → http://127.0.0.1:5080 |
 | **present** public env | `./deploy/scripts/present-public.ps1 -Environment Dev` |
 | **up** (compose alias) | `docker compose --env-file docker/.env up -d --build` |

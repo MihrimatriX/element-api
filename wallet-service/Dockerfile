@@ -7,7 +7,9 @@ RUN mvn -q package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-RUN apk add --no-cache wget
+# Healthcheck uses the base image's busybox wget. App writes only to /tmp (Tomcat work dir).
 COPY --from=build /build/target/wallet-service-1.0.0.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+USER nobody
+# OOM -> exit -> Docker restarts it, instead of a half-dead JVM.
+ENTRYPOINT ["java", "-XX:+ExitOnOutOfMemoryError", "-jar", "app.jar"]

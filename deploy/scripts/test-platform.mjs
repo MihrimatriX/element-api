@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 
 const api = process.env.API_BASE ?? 'http://localhost:5000';
-const web = process.env.WEB_BASE ?? 'http://localhost:3000';
+const web = process.env.WEB_BASE ?? 'http://localhost:6241';
 for (const base of [api, web]) {
   assert.ok(['localhost', '127.0.0.1'].includes(new URL(base).hostname), 'Use a local test environment.');
 }

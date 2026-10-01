@@ -1,7 +1,6 @@
 using Element.Services.Notification.API.Consumers;
 using Element.Services.Notification.API.Webhooks;
 using Element.Shared.Extensions;
-using Element.Shared.Health;
 using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,9 +16,12 @@ builder.Services.AddHttpClient("webhooks", c =>
     ConnectCallback = WebhookFanout.ConnectPublicAsync
 });
 builder.Services.AddHttpClient("webhooks-internal", c => c.Timeout = TimeSpan.FromSeconds(4));
-builder.Services.AddHealthChecks()
-    .AddElementRabbitMqHealthCheck(builder.Configuration);
+// AddMassTransit registers the "masstransit-bus" check: unhealthy until the receive endpoint is
+// connected, healthy again after it reconnects. No extra AMQP connection per probe.
+builder.Services.AddHealthChecks();
 
+// Bound shutdown under Docker's 10s SIGTERM->SIGKILL window; unacked messages return to the queue.
+builder.Services.Configure<MassTransitHostOptions>(o => o.StopTimeout = TimeSpan.FromSeconds(8));
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UpdateOrderStatusConsumer>();
@@ -27,39 +29,19 @@ builder.Services.AddMassTransit(x =>
     x.UsingRabbitMq((context, cfg) =>
     {
         cfg.ConfigureRabbitMqHost(builder.Configuration);
-        cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
+        // ~110s total: rides out identity-service still booting after a host reboot before the
+        // event is parked in notification-order-updates_error.
+        cfg.UseMessageRetry(r => r.Intervals(
+            TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
 
         cfg.ReceiveEndpoint("notification-order-updates", e =>
             e.ConfigureConsumer<UpdateOrderStatusConsumer>(context));
     });
 });
 
-var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()?.ToList()
-    ?? ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5000", "http://localhost:3000", "http://localhost:3001"];
-var publicOrigin = builder.Configuration["PUBLIC_WEB_ORIGIN"]
-    ?? Environment.GetEnvironmentVariable("PUBLIC_WEB_ORIGIN");
-if (!string.IsNullOrWhiteSpace(publicOrigin))
-{
-    var origin = publicOrigin.Trim().TrimEnd('/');
-    if (!corsOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase))
-        corsOrigins.Add(origin);
-}
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", policy =>
-    {
-        policy.WithOrigins(corsOrigins.ToArray())
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
-
 var app = builder.Build();
 
 app.UseRequestLogging();
-app.UseCors("CorsPolicy");
 app.MapStandardOpsEndpoints("Element.Notification");
 
 try

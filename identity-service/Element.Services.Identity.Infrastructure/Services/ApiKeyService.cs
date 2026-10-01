@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 using Element.Services.Identity.Core.Entities;
 using Element.Services.Identity.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
 
 namespace Element.Services.Identity.Infrastructure.Services;
 
 public class ApiKeyService
 {
     private readonly IdentityAppDbContext _context;
-    private readonly IDatabase _redisDb;
-    private const string RedisKeyPrefix = "apikey:";
 
-    public ApiKeyService(IdentityAppDbContext context, IConnectionMultiplexer redisMultiplexer)
+    public ApiKeyService(IdentityAppDbContext context)
     {
         _context = context;
-        _redisDb = redisMultiplexer.GetDatabase();
     }
 
     public async Task<(string RawKey, ApiKey ApiKeyRecord)> GenerateKeyAsync(Guid userId, string description, int rateLimitTps = 10)
@@ -68,11 +64,7 @@ public class ApiKeyService
 
         apiKey.IsActive = false;
         await _context.SaveChangesAsync();
-
-        // Remove or update in Redis
-        var redisKey = RedisKeyPrefix + apiKey.KeyHash;
-        try { await _redisDb.KeyDeleteAsync(redisKey); } catch (RedisException) { /* Validation reads the database; stale caches cannot grant access. */ }
-
+        // No cache to evict: gateway validates every call against the database via /internal/api-keys/validate.
         return true;
     }
 

@@ -137,3 +137,6 @@ playwright-report-auth/
 playwright-report-live/
 /web-app/test-results-auth/
 /web-app/test-results-live/
+
+# Stray Next.js cache (web-app is Vite)
+.next/

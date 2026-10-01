@@ -26,7 +26,9 @@ builder.Services.AddDbContext<ElementDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
         .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
-// ponytail: 118-row DTO cache lived in Redis; EF is enough. Gateway/identity still use Redis — do not add a catalog cache until a profiler asks.
+// ponytail: in-process only (no Redis): a 5 s catalogue snapshot + market board shared by all anonymous readers
+// (see EfElementRepository.SnapshotTtl). Per replica; move to a distributed cache only if replicas multiply.
+builder.Services.AddMemoryCache();
 
 // Domain ports
 builder.Services.Configure<MarketOptions>(builder.Configuration.GetSection(MarketOptions.SectionName));
@@ -81,8 +83,6 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
-await app.ApplyDatabaseAsync<ElementDbContext>("element_market_db");
-
 // Swagger is always available for this open public API
 app.UseSwagger();
 app.UseSwaggerUI(c =>
@@ -103,12 +103,14 @@ app.MapStandardOpsEndpoints("Element.Catalog", new Dictionary<string, string>
 
 try
 {
+    await app.ApplyDatabaseAsync<ElementDbContext>("element_market_db");
     Log.Information("Starting Element Service API...");
     app.Run();
 }
 catch (Exception ex)
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
+    Environment.ExitCode = 1; // swallowed exception would otherwise exit 0
 }
 finally
 {

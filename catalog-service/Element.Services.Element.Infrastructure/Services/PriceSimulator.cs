@@ -17,6 +17,9 @@ public class PriceSimulator : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<PriceSimulator> _logger;
     private readonly Random _random;
+    // Readers need at most 24h (board/ticker) or the last N points; 2 days keeps margin at ~1.4M rows.
+    private static readonly TimeSpan HistoryRetention = TimeSpan.FromDays(2);
+    private DateTime _lastPruneUtc = DateTime.MinValue;
 
     public PriceSimulator(
         IServiceScopeFactory scopeFactory,
@@ -38,7 +41,7 @@ public class PriceSimulator : BackgroundService
                 await Task.Delay(TimeSpan.FromSeconds(15), stoppingToken);
                 await SimulatePriceChangesAsync(stoppingToken);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogError(ex, "Error occurred executing price simulation.");
             }
@@ -74,7 +77,8 @@ public class PriceSimulator : BackgroundService
                 Timestamp = DateTime.UtcNow
             });
 
-            _logger.LogInformation("Market change: {Name} ({Symbol}) price changed from ${Old} to ${New} ({Change:P2})",
+            // Debug: 118 lines per 15 s tick would flood (and rotate away) the container log.
+            _logger.LogDebug("Market change: {Name} ({Symbol}) price changed from ${Old} to ${New} ({Change:P2})",
                 element.Name, element.Symbol, oldPrice, newPrice, percentageChange);
 
             // Publish Integration Event for Order Service or other consumers
@@ -86,5 +90,13 @@ public class PriceSimulator : BackgroundService
         }
 
         await context.SaveChangesAsync(stoppingToken);
+
+        if (DateTime.UtcNow - _lastPruneUtc > TimeSpan.FromHours(1))
+        {
+            var cutoff = DateTime.UtcNow - HistoryRetention;
+            var pruned = await context.PriceHistories.Where(h => h.Timestamp < cutoff).ExecuteDeleteAsync(stoppingToken);
+            _lastPruneUtc = DateTime.UtcNow;
+            _logger.LogInformation("Pruned {Count} price history rows older than {Cutoff:o}.", pruned, cutoff);
+        }
     }
 }

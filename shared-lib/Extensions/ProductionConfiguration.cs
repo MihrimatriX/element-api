@@ -13,7 +13,8 @@ public static class ProductionConfiguration
             var value = builder.Configuration[name];
             // Not every service uses both secrets. Reject known development values
             // when the setting is part of this service's configuration.
-            if (value is not null && (value.Length < 32 || value.Contains("ChangeMe", StringComparison.OrdinalIgnoreCase) || value == "element-internal-dev-key"))
+            if (value is not null && (value.Length < 32 || value.Contains("ChangeMe", StringComparison.OrdinalIgnoreCase)
+                || value is "element-internal-dev-key" or "SuperSecretKeyForElementApiMasterProject2026!")) // both public in git history
                 throw new InvalidOperationException($"Configure a production value for {name}; development credentials are not accepted.");
         }
     }

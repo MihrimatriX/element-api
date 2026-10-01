@@ -36,9 +36,6 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
-await app.ApplyDatabaseAsync<CompoundDbContext>("element_compound_db");
-await CompoundSeeder.EnsureSeededAsync(app.Services, app.Environment);
-
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -59,12 +56,16 @@ app.MapStandardOpsEndpoints("Element.Compound", new Dictionary<string, string>
 
 try
 {
+    // Inside try: a DB that never comes up logs Fatal and exits 1 (restart policy) instead of aborting (exit 134).
+    await app.ApplyDatabaseAsync<CompoundDbContext>("element_compound_db");
+    await CompoundSeeder.EnsureSeededAsync(app.Services, app.Environment);
     Log.Information("Starting Compound Service API...");
     app.Run();
 }
 catch (Exception ex)
 {
     Log.Fatal(ex, "Host terminated unexpectedly");
+    Environment.ExitCode = 1;
 }
 finally
 {

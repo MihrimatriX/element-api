@@ -83,6 +83,7 @@ public class ScientificCatalogTests
         Elements.Read(c.Request, c.Response, "fe");
         c.Request.Headers.IfNoneMatch = c.Response.Headers.ETag;
         Assert.Equal(304, Assert.IsType<StatusCodeResult>(Elements.Read(c.Request, c.Response, "fe")).StatusCode);
+        Assert.Equal("public, max-age=3600", c.Response.Headers.CacheControl.ToString());
         c.Request.QueryString = new QueryString("?fields=symbol,names");
         Assert.IsType<ContentResult>(Elements.Read(c.Request, c.Response, "fe"));
     }
@@ -95,6 +96,21 @@ public class ScientificCatalogTests
             var result = Json(Elements.Read(c.Request, c.Response));
             Assert.Equal("Cu", result["results"]![0]!["symbol"]!.GetValue<string>());
         }
+    }
+    [Fact]
+    public void SearchCombinesWithFilters()
+    {
+        var c = Context("?q=demir&block=d");
+        var results = Json(Elements.Read(c.Request, c.Response))["results"]!.AsArray();
+        Assert.Equal("Fe", Assert.Single(results)!["symbol"]!.GetValue<string>());
+    }
+    [Fact]
+    public void NextLinkStaysValidWhenCallerUsedOtherPageKeyCase()
+    {
+        var c = Context("?Page=1&PageSize=2&block=d");
+        var next = Json(Elements.Read(c.Request, c.Response))["info"]!["next"]!.GetValue<string>();
+        var follow = Context(next[next.IndexOf('?')..]);
+        Assert.Equal(2, Json(Elements.Read(follow.Request, follow.Response))["info"]!["page"]!.GetValue<int>());
     }
     [Fact]
     public void AspirinHasScientificIdentityAndNoSimulatedPrices()

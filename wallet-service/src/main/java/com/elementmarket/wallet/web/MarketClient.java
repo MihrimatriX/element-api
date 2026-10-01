@@ -13,11 +13,13 @@ import java.util.Optional;
 @Component
 public class MarketClient {
 
-    private final RestClient http = RestClient.create();
+    private final RestClient http;
     private final WalletSettings settings;
 
-    public MarketClient(WalletSettings settings) {
+    // Boot's builder carries spring.http.client.connect-timeout/read-timeout; RestClient.create() has none.
+    public MarketClient(WalletSettings settings, RestClient.Builder http) {
         this.settings = settings;
+        this.http = http.build();
     }
 
     public Optional<BigDecimal> resolveBid(String symbol) {

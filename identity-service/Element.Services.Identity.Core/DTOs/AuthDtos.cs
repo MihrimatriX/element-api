@@ -43,10 +43,11 @@ public record ValidateKeyRequest(
     string RawKey
 );
 
+// Bounds mirror the WebhookSubscriptions columns (oversize used to surface as a 500 from Postgres).
 public record CreateWebhookRequest(
-    string Url,
-    string[] Events,
-    string Secret
+    [MaxLength(2048)] string Url,
+    [MaxLength(10)] string[] Events,
+    [MaxLength(256)] string Secret
 );
 
 public record WebhookResponseDto(

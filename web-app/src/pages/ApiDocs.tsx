@@ -594,12 +594,18 @@ export default function ApiDocs() {
               İki olay: <code>price.updated</code>{" "}
               <code>{"{ Symbol, Price, Timestamp }"}</code> ve{" "}
               <code>order.updated</code>{" "}
-              <code>{"{ OrderId, Status, ErrorMessage, TrackingNumber }"}</code>
+              <code>
+                {"{ OrderId, Status, ErrorMessage, TrackingNumber, Timestamp }"}
+              </code>
               . Her POST <code>X-Element-Event</code> başlığı ve gövdenin secret
               ile HMAC-SHA256 imzası (<code>X-Element-Signature</code>, küçük
-              harf hex) taşır. URL herkese açık HTTPS olmalı; localhost ve özel
-              ağ engellenir. Başarısız gönderim 10 saniye sonra bir kez daha
-              denenir. Kurulum <Link to="/account">hesap</Link> sayfasından veya{" "}
+              harf hex) taşır. İmzayı doğrula, <code>Timestamp</code> (Unix
+              saniye) 5 dakikadan eskiyse isteği reddet ve aynı{" "}
+              <code>OrderId + Status</code> ikinci kez gelirse yok say: teslimat
+              en az bir kez yapılır. URL, DNS adı olan herkese açık bir HTTPS
+              adresi olmalı; IP adresi, localhost ve özel ağ kabul edilmez. Hesap
+              başına en çok 10 webhook. Başarısız gönderim 10 saniye sonra bir
+              kez daha denenir. Kurulum <Link to="/account">hesap</Link> sayfasından veya{" "}
               <code>POST /api/v1/webhooks</code>{" "}
               <code>{"{ url, events, secret }"}</code> ile.
             </p>

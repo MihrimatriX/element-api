@@ -5,6 +5,11 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.config.ContainerCustomizer;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.retry.MessageRecoverer;
+import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,10 +18,31 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     public static final String WALLET_QUEUE = "wallet-service";
+    public static final String WALLET_FAILED_QUEUE = WALLET_QUEUE + "_failed";
 
     @Bean
     public Queue walletQueue() {
         return new Queue(WALLET_QUEUE, true);
+    }
+
+    @Bean
+    public Queue walletFailedQueue() {
+        return new Queue(WALLET_FAILED_QUEUE, true);
+    }
+
+    /** Retries exhausted (spring.rabbitmq.listener.simple.retry): park, same *_failed convention as order-service. */
+    @Bean
+    public MessageRecoverer walletFailedRecoverer(RabbitTemplate rabbitTemplate) {
+        return new RepublishMessageRecoverer(rabbitTemplate, "", WALLET_FAILED_QUEUE);
+    }
+
+    /**
+     * Default (true) permanently stops the listener when the broker closes the socket mid-handshake
+     * (e.g. RabbitMQ still booting after a reboot) while /health stays green. Keep retrying instead.
+     */
+    @Bean
+    public ContainerCustomizer<SimpleMessageListenerContainer> walletListenerCustomizer() {
+        return container -> container.setPossibleAuthenticationFailureFatal(false);
     }
 
     @Bean

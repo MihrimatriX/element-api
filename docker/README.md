@@ -16,7 +16,7 @@ Burada **compose dosyası yok** (onlar repo kökünde). Bu klasör sırlar, örn
 | `.env.public.{dev,test,prod}.example` | Üç ortamlı public şablonlar |
 | `.env.public.{dev,test,prod}` | Üretilmiş public env’ler (gitignore) |
 | `Dockerfile.postgres` | Init script gömülü Postgres imajı |
-| `init.sql` / `init-scripts/` | DB oluşturma (identity, market, order, wallet, inventory, …) |
+| `init-scripts/init.sql` | DB oluşturma (identity, market, order, wallet, inventory, …) |
 
 Compose’lar kökte:
 

@@ -57,6 +57,11 @@ namespace Element.Services.Shipment.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderId")
+                        .IsUnique();
+
+                    b.HasIndex("TrackingNumber");
+
                     b.ToTable("Shipments");
                 });
 #pragma warning restore 612, 618

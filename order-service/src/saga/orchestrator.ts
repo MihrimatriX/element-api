@@ -136,6 +136,10 @@ export async function handleSagaMessage(body: Buffer): Promise<void> {
             elementSymbol: row.element_symbol,
             quantity: ctx.quantity,
           });
+        } else if (row.status === "Failed") {
+          // Debit landed after the order failed (e.g. timeout); the earlier refund may have been a
+          // no-op. Wallet refundIfDebited is idempotent per order, so asking again is safe.
+          await requestRefund();
         }
         break;
       case "PaymentFailedEvent":

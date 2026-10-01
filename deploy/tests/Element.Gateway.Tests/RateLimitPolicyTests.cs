@@ -22,6 +22,17 @@ public class RateLimitPolicyTests
         login.PartitionKey.Should().StartWith("auth:");
     }
 
+    [Theory]
+    [InlineData("/api/v1/auth/password/forgot")]
+    [InlineData("/api/v1/auth/email/send-verification")]
+    public void Resolve_MailSendingEndpoints_ShareTheRegisterBucket(string path)
+    {
+        var policy = RateLimitPolicy.Resolve(Post(path));
+
+        policy.PermitLimit.Should().Be(5);
+        policy.PartitionKey.Should().StartWith("register:");
+    }
+
     [Fact]
     public void Resolve_PublicApi_IsSixtyPerTenSeconds()
     {

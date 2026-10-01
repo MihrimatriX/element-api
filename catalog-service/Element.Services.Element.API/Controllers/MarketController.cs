@@ -1,21 +1,25 @@
 using Element.Services.Element.Core.Domain;
 using Element.Services.Element.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Element.Services.Element.API.Controllers;
 
 [ApiController]
 [Route("api/v1/market")]
+[ResponseCache(Duration = 5)]
 public class MarketController : ControllerBase
 {
     private readonly EfElementRepository _repository;
     private readonly MarketOptions _market;
+    private readonly IMemoryCache _cache;
 
-    public MarketController(EfElementRepository repository, IOptions<MarketOptions> market)
+    public MarketController(EfElementRepository repository, IOptions<MarketOptions> market, IMemoryCache cache)
     {
         _repository = repository;
         _market = market.Value;
+        _cache = cache;
     }
 
     /// <summary>Top absolute 24h movers for the ticker tape.</summary>
@@ -39,7 +43,15 @@ public class MarketController : ControllerBase
         return Ok(await BuildBoardAsync(ct));
     }
 
-    private async Task<List<BoardRow>> BuildBoardAsync(CancellationToken ct)
+    // Same for every caller and polled by every open tab: one build (118 index seeks) per snapshot TTL.
+    private async Task<List<BoardRow>> BuildBoardAsync(CancellationToken ct) =>
+        (await _cache.GetOrCreateAsync("market:board", entry =>
+        {
+            entry.AbsoluteExpirationRelativeToNow = EfElementRepository.SnapshotTtl;
+            return ComputeBoardAsync(ct);
+        }))!;
+
+    private async Task<List<BoardRow>> ComputeBoardAsync(CancellationToken ct)
     {
         var spread = _market.SpreadPct > 0 ? _market.SpreadPct : MarketMaker.DefaultSpreadPct;
         var cutoff = DateTime.UtcNow.AddHours(-24);

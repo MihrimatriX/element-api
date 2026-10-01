@@ -56,10 +56,10 @@ export async function fetchPendingOutbox(limit = 50): Promise<OutboxRow[]> {
   }));
 }
 
-export async function markOutboxPublished(id: string): Promise<void> {
+export async function markOutboxPublished(ids: string[]): Promise<void> {
   await pool.query(
-    `UPDATE outbox_messages SET published_at = NOW() WHERE id = $1`,
-    [id],
+    `UPDATE outbox_messages SET published_at = NOW() WHERE id = ANY($1::uuid[])`,
+    [ids],
   );
 }
 

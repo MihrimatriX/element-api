@@ -112,7 +112,9 @@ export async function resolveCompound(
     const parent = String(
       data.elementSymbol ?? data.ElementSymbol ?? "",
     ).toUpperCase();
-    if (parent && parent !== sym) return null;
+    // priceMult is relative to the parent's ask: a missing parent must not let a pricey
+    // compound be bought at a cheap element's price.
+    if (parent !== sym) return null;
     const priceMult = Number(data.priceMult ?? data.PriceMult ?? 0);
     if (!Number.isFinite(priceMult) || !(priceMult > 0)) return null;
     const formula = String(data.formula ?? data.Formula ?? slug);

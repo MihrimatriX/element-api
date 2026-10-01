@@ -25,8 +25,15 @@ public class ApiKeyValidationMiddleware
         _configuration = configuration;
     }
 
+    // Downstream services trust these as "set by the gateway". A client must never be able to send them,
+    // on any route — not only the API-key routes that overwrite them below.
+    internal static readonly string[] TrustedHeaders = ["X-User-Id", "INTERNAL_API_KEY"];
+
     public async Task InvokeAsync(HttpContext context)
     {
+        foreach (var header in TrustedHeaders)
+            context.Request.Headers.Remove(header);
+
         var endpoint = context.GetEndpoint();
         var routeModel = endpoint?.Metadata.GetMetadata<RouteModel>();
 

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,6 +31,9 @@ public class WalletListener {
         this.publisher = publisher;
     }
 
+    // One tx per delivery: if the DB or broker drops mid-handler, the processed_messages mark rolls back
+    // with the ledger work, so the redelivery is applied instead of skipped as a duplicate.
+    @Transactional(rollbackFor = Exception.class)
     @RabbitListener(queues = RabbitConfig.WALLET_QUEUE)
     public void onMessage(Message message) throws Exception {
         byte[] body = message.getBody();
@@ -79,6 +83,10 @@ public class WalletListener {
                 payload.put("reason", "Credit limit exceeded (50000 KREDI limit).");
                 publisher.publish("PaymentFailedEvent", payload);
             }
+            case CANCELLED -> {
+                payload.put("reason", "ORDER_CANCELLED");
+                publisher.publish("PaymentFailedEvent", payload);
+            }
         }
     }
 
@@ -92,7 +100,7 @@ public class WalletListener {
         String label = MassTransitMessage.text(msg, "productLabel", "ProductLabel");
         if (symbol == null || qty.signum() <= 0 || total.signum() <= 0) return;
         BigDecimal unit = total.divide(qty, 4, RoundingMode.HALF_UP);
-        ledger.addHolding(customerId, symbol, qty, unit, slug, label);
+        ledger.addHolding(customerId, orderId, symbol, qty, unit, slug, label);
         log.info("Assets credited order {} {}g {}", orderId, qty, symbol);
     }
 }

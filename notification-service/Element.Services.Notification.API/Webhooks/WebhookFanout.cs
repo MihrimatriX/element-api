@@ -9,6 +9,8 @@ namespace Element.Services.Notification.API.Webhooks;
 
 public class WebhookFanout
 {
+    public const int MaxHooksPerEvent = 10;
+
     private readonly IHttpClientFactory _httpFactory;
     private readonly IConfiguration _configuration;
     private readonly ILogger<WebhookFanout> _logger;
@@ -26,24 +28,26 @@ public class WebhookFanout
         var secret = _configuration["INTERNAL_API_KEY"] ?? "";
         var client = _httpFactory.CreateClient("webhooks-internal");
         List<Hook> hooks;
-        try
+        // Lookup failures throw (nothing has been sent yet): MassTransit retries, then parks the
+        // event in notification-order-updates_error instead of it being silently dropped.
+        using (var req = new HttpRequestMessage(HttpMethod.Get,
+            $"{identityUrl.TrimEnd('/')}/api/v1/internal/webhooks?event={Uri.EscapeDataString(eventName)}&customerId={customerId}"))
         {
-            using var req = new HttpRequestMessage(HttpMethod.Get,
-                $"{identityUrl.TrimEnd('/')}/api/v1/internal/webhooks?event={Uri.EscapeDataString(eventName)}&customerId={customerId}");
             req.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", secret);
             using var res = await client.SendAsync(req, ct);
-            if (!res.IsSuccessStatusCode) return;
+            res.EnsureSuccessStatusCode();
             var opts = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             hooks = await res.Content.ReadFromJsonAsync<List<Hook>>(opts, ct) ?? [];
         }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to load webhooks for {Event}", eventName);
-            return;
-        }
+
+        if (hooks.Count > MaxHooksPerEvent)
+            _logger.LogWarning("Customer {CustomerId} has {Count} hooks for {Event}; delivering to {Max}",
+                customerId, hooks.Count, eventName, MaxHooksPerEvent);
 
         var body = JsonSerializer.Serialize(payload);
-        foreach (var hook in hooks)
+        // Capped and parallel: one event costs at most one hook's worst case (4s + 10s + 4s), so a
+        // customer with many slow hooks cannot pin a consumer slot (and everyone's deliveries) for minutes.
+        await Task.WhenAll(hooks.Take(MaxHooksPerEvent).Select(async hook =>
         {
             if (!await TrySendAsync(hook, eventName, body, ct))
             {
@@ -51,18 +55,13 @@ public class WebhookFanout
                 await Task.Delay(TimeSpan.FromSeconds(10), ct);
                 await TrySendAsync(hook, eventName, body, ct);
             }
-        }
+        }));
     }
 
     private async Task<bool> TrySendAsync(Hook hook, string eventName, string body, CancellationToken ct)
     {
         if (!Uri.TryCreate(hook.Url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps || !string.IsNullOrEmpty(uri.UserInfo))
             return true;
-        if (await IsBlockedHost(uri.Host))
-        {
-            _logger.LogWarning("SSRF blocked webhook host {Host}", uri.Host);
-            return true;
-        }
 
         var sig = Convert.ToHexString(HMACSHA256.HashData(Encoding.UTF8.GetBytes(hook.Secret), Encoding.UTF8.GetBytes(body)))
             .ToLowerInvariant();
@@ -73,29 +72,20 @@ public class WebhookFanout
             req.Content = new StringContent(body, Encoding.UTF8, "application/json");
             req.Headers.TryAddWithoutValidation("X-Element-Signature", sig);
             req.Headers.TryAddWithoutValidation("X-Element-Event", eventName);
-            using var res = await client.SendAsync(req, ct);
+            // Headers only: the body is never read, so a receiver cannot make us buffer an unbounded response.
+            using var res = await client.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
             return res.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Webhook POST failed {Url}", hook.Url);
+            // Host only: the path/query of a webhook URL is often itself a credential.
+            _logger.LogWarning(ex, "Webhook POST to {Host} failed", uri.Host);
             return false;
         }
     }
 
-    private static async Task<bool> IsBlockedHost(string host)
-    {
-        try
-        {
-            var addresses = await Dns.GetHostAddressesAsync(host);
-            return addresses.Any(IsPrivate);
-        }
-        catch
-        {
-            return true;
-        }
-    }
-
+    // The private-address check lives only here, at connect time, on the exact addresses we dial:
+    // no TOCTOU window for DNS rebinding.
     public static async ValueTask<Stream> ConnectPublicAsync(SocketsHttpConnectionContext context, CancellationToken ct)
     {
         var addresses = await Dns.GetHostAddressesAsync(context.DnsEndPoint.Host, ct);
@@ -111,23 +101,19 @@ public class WebhookFanout
 
     public static bool IsPrivate(IPAddress ip)
     {
-        if (IPAddress.IsLoopback(ip)) return true;
         if (ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
-        if (ip.AddressFamily == AddressFamily.InterNetwork)
-        {
-            var b = ip.GetAddressBytes();
-            if (b[0] == 10 || b[0] == 127 || b[0] == 0) return true;
-            if (b[0] == 169 && b[1] == 254) return true;
-            if (b[0] == 172 && b[1] is >= 16 and <= 31) return true;
-            if (b[0] == 192 && b[1] == 168) return true;
-            if (b[0] == 100 && b[1] is >= 64 and <= 127) return true;
-            if (b[0] >= 224) return true;
-        }
-        if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-        {
-            if (ip.IsIPv6LinkLocal || ip.IsIPv6SiteLocal || ip.IsIPv6UniqueLocal || ip.IsIPv6Multicast || ip.Equals(IPAddress.IPv6Any)) return true;
-        }
-        return false;
+        var b = ip.GetAddressBytes();
+        // IPv6: allow only global unicast 2000::/3. Loopback, unspecified, ULA (incl. AWS IMDS fd00:ec2::254),
+        // link-local, multicast, IPv4-compatible ::a.b.c.d and NAT64 64:ff9b::/96 (→ 10.x / 169.254.x) are all outside it.
+        if (ip.AddressFamily == AddressFamily.InterNetworkV6) return (b[0] & 0xE0) != 0x20;
+        if (b[0] == 10 || b[0] == 127 || b[0] == 0) return true;
+        if (b[0] == 169 && b[1] == 254) return true;
+        if (b[0] == 172 && b[1] is >= 16 and <= 31) return true;
+        if (b[0] == 192 && b[1] == 168) return true;
+        if (b[0] == 192 && b[1] == 0 && b[2] == 0) return true;
+        if (b[0] == 198 && b[1] is 18 or 19) return true;
+        if (b[0] == 100 && b[1] is >= 64 and <= 127) return true;
+        return b[0] >= 224;
     }
 
     private sealed class Hook

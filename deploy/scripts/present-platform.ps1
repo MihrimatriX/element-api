@@ -8,5 +8,5 @@ try {
     if (!$NoBuild) { $args += '--build' }
     docker compose @args
     if ($LASTEXITCODE -ne 0) { throw 'Platform startup failed.' }
-    Write-Host 'Full platform: http://localhost:3000 (API http://localhost:5000) — stop with ./deploy/scripts/stop-local.ps1'
+    Write-Host 'Full platform: http://localhost:6241 (API http://localhost:5000) — stop with ./deploy/scripts/stop-local.ps1'
 } finally { Pop-Location }

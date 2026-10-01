@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { SCIENCE_BASE_URL } from "../config";
-import { localScience, mergeRemote } from "./scienceCatalog.ts";
 export type JsonValue =
   | string
   | number
@@ -71,7 +70,10 @@ export interface ScientificCompound extends AtlasFields {
 }
 export const displayFormula = (value: string) =>
   value.replace(/\d/g, (n) => "₀₁₂₃₄₅₆₇₈₉"[Number(n)]);
-export { localScience };
+// The ~1.4 MB offline fallback JSON is its own chunk, fetched on the first science view instead of with every page.
+let catalogModule: typeof import("./scienceCatalog.ts") | undefined;
+const catalog = () =>
+  import("./scienceCatalog.ts").then((m) => (catalogModule = m));
 const cache = new Map<string, Promise<unknown>>();
 export const scienceUrl = (path: string) => `${SCIENCE_BASE_URL}/${path}`;
 async function get<T>(path: string): Promise<T> {
@@ -101,6 +103,7 @@ async function get<T>(path: string): Promise<T> {
 export async function listScience<T>(
   kind: "elements" | "compounds",
 ): Promise<T[]> {
+  const local = catalog().catch(() => undefined);
   try {
     const first = await get<{ info: { pages: number }; results: T[] }>(
       `${kind}?pageSize=100&view=summary`,
@@ -112,17 +115,18 @@ export async function listScience<T>(
         ),
       ),
     );
-    return mergeRemote(kind, [
-      ...first.results,
-      ...rest.flatMap((page) => page.results),
-    ]);
-  } catch {
-    return localScience(kind) as T[];
+    const rows = [...first.results, ...rest.flatMap((page) => page.results)];
+    return (await local)?.mergeRemote(kind, rows) ?? rows;
+  } catch (error) {
+    const fallback = await local;
+    if (!fallback) throw error;
+    return fallback.localScience(kind) as T[];
   }
 }
 export function useScience<T>(kind: "elements" | "compounds", id?: string) {
   const key = `${kind}/${id ?? ""}`;
-  const local = localScience(kind, id) as T | undefined;
+  const [, setCatalogReady] = useState(Boolean(catalogModule));
+  const local = catalogModule?.localScience(kind, id) as T | undefined;
   const [remote, setRemote] = useState<{
     key: string;
     data?: T;
@@ -131,6 +135,12 @@ export function useScience<T>(kind: "elements" | "compounds", id?: string) {
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let active = true;
+    // Local record paints as soon as its chunk lands; remote still wins.
+    if (!catalogModule)
+      catalog().then(
+        () => active && setCatalogReady(true),
+        () => undefined,
+      );
     const promise = id
       ? get<T>(`${kind}/${encodeURIComponent(id)}`)
       : (listScience(kind) as Promise<T>);
@@ -138,18 +148,22 @@ export function useScience<T>(kind: "elements" | "compounds", id?: string) {
       .then((data) => {
         if (active) setRemote({ key, data });
       })
-      .catch((error: Error) => {
+      .catch(async (error: Error) => {
+        const fallback = await catalog().then(
+          (m) => m.localScience(kind, id) as T | undefined,
+          () => undefined,
+        );
         if (active)
           setRemote({
             key,
-            data: local,
-            error: local ? undefined : error.message,
+            data: fallback,
+            error: fallback ? undefined : error.message,
           });
       });
     return () => {
       active = false;
     };
-  }, [kind, id, key, attempt, local]);
+  }, [kind, id, key, attempt]);
   return {
     data: remote?.key === key ? remote.data : local,
     error: remote?.key === key ? remote.error : undefined,

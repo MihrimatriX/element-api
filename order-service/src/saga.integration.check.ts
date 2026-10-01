@@ -120,6 +120,30 @@ try {
     assert.equal(assets.rows[0].payload.compoundSlug, "nacl");
     assert.equal(Number(assets.rows[0].payload.quantity), 10);
   });
+  const late = randomUUID();
+  await orders.createOrderWithSaga({
+    id: late,
+    customerId: userId,
+    elementSymbol: "AU",
+    quantity: 1,
+    totalPrice: 100,
+  });
+  await handleSagaMessage(event("StockReservedEvent", late));
+  await pool.query(
+    "UPDATE saga_state SET deadline_at=NOW()-INTERVAL '1 second' WHERE order_id=$1",
+    [late],
+  );
+  await sweepExpiredSagas();
+  await handleSagaMessage(event("PaymentProcessedEvent", late));
+  const lateRefunds = await pool.query(
+    `SELECT count(*)::int AS c FROM outbox_messages WHERE message_type='PaymentRefundRequestedEvent' AND payload->>'orderId'=$1`,
+    [late],
+  );
+  check("late debit after timeout re-requests refund and stays Failed", () =>
+    assert.equal(lateRefunds.rows[0].c, 2),
+  );
+  assert.equal((await orders.getOrderById(late))?.status, "Failed");
+
   const notifications = await pool.query(
     "SELECT payload FROM outbox_messages WHERE message_type='UpdateOrderStatusEvent'",
   );

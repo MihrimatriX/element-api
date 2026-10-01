@@ -14,6 +14,13 @@ using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Same 1MB cap as Caddy, so it also holds when the gateway port is reached directly (base compose).
+builder.WebHost.ConfigureKestrel(o =>
+{
+    o.Limits.MaxRequestBodySize = 1_048_576;
+    o.AddServerHeader = false;
+});
+
 // Console logging
 builder.AddConsoleLogging("Element.Gateway");
 
@@ -31,7 +38,8 @@ builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 builder.Services.AddHealthChecks()
-    .AddRedis(redisConn, name: "Redis", failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded);
+    // Timeout keeps /health answering (Degraded) inside the compose curl timeout (5s) when Redis is slow/unreachable.
+    .AddRedis(redisConn, name: "Redis", failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded, timeout: TimeSpan.FromSeconds(3));
 
 // Add Rate Limiting — see RateLimitPolicy for numbers (register / auth / public).
 builder.Services.AddRateLimiter(options =>
@@ -126,6 +134,7 @@ try
 catch (Exception ex)
 {
     Log.Fatal(ex, "Gateway host terminated unexpectedly");
+    Environment.ExitCode = 1; // non-zero so the container runtime sees a failure, not a clean exit
 }
 finally
 {

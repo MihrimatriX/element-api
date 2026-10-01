@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public class LedgerRepository {
 
-    public enum DebitResult { OK, DUPLICATE, INSUFFICIENT, LIMIT }
+    public enum DebitResult { OK, DUPLICATE, INSUFFICIENT, LIMIT, CANCELLED }
 
     private final JdbcTemplate jdbc;
     private final WalletSettings settings;
@@ -88,6 +88,12 @@ public class LedgerRepository {
                 .isEmpty()) {
             return DebitResult.DUPLICATE;
         }
+        // Refund (or its zero tombstone) already recorded: order is dead. A late/replayed request must not charge.
+        if (!jdbc.queryForList(
+                        "SELECT id FROM ledger WHERE order_id = ? AND kind = 'refund'", orderId)
+                .isEmpty()) {
+            return DebitResult.CANCELLED;
+        }
 
         BigDecimal balance = jdbc.queryForObject(
                 "SELECT balance_elx FROM wallets WHERE user_id = ?", BigDecimal.class, userId);
@@ -110,21 +116,24 @@ public class LedgerRepository {
         ensureWallet(userId);
         jdbc.queryForObject(
                 "SELECT balance_elx FROM wallets WHERE user_id = ? FOR UPDATE", BigDecimal.class, userId);
-        List<BigDecimal> buys = jdbc.query(
-                "SELECT elx FROM ledger WHERE order_id = ? AND kind = 'buy'",
-                (rs, i) -> rs.getBigDecimal(1),
-                orderId);
-        if (buys.isEmpty()) return;
         if (!jdbc.queryForList(
                         "SELECT id FROM ledger WHERE order_id = ? AND kind = 'refund'", orderId)
                 .isEmpty()) {
             return;
         }
+        List<BigDecimal> buys = jdbc.query(
+                "SELECT elx FROM ledger WHERE order_id = ? AND user_id = ? AND kind = 'buy'",
+                (rs, i) -> rs.getBigDecimal(1),
+                orderId, userId);
 
-        BigDecimal amount = buys.getFirst();
-        jdbc.update(
-                "UPDATE wallets SET balance_elx = balance_elx + ?, updated_at = NOW() WHERE user_id = ?",
-                amount, userId);
+        // No debit yet -> write a 0 KREDI refund as a tombstone so debit() refuses this order if its
+        // PaymentRequested arrives late (timeout race, or replayed from wallet-service_failed).
+        BigDecimal amount = buys.isEmpty() ? BigDecimal.ZERO : buys.getFirst();
+        if (amount.signum() > 0) {
+            jdbc.update(
+                    "UPDATE wallets SET balance_elx = balance_elx + ?, updated_at = NOW() WHERE user_id = ?",
+                    amount, userId);
+        }
         jdbc.update(
                 """
                 INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, order_id, created_at)
@@ -136,6 +145,7 @@ public class LedgerRepository {
     @Transactional
     public void addHolding(
             UUID userId,
+            UUID orderId,
             String symbol,
             BigDecimal grams,
             BigDecimal unitCost,
@@ -144,6 +154,17 @@ public class LedgerRepository {
         ensureWallet(userId);
         jdbc.queryForObject(
                 "SELECT user_id FROM wallets WHERE user_id = ? FOR UPDATE", UUID.class, userId);
+        // Assets only for an order this user actually paid and was not refunded; a stray/forged event must
+        // not mint sellable holdings. Throw (not skip) so it retries, then parks in wallet-service_failed.
+        Integer paid = jdbc.queryForObject(
+                """
+                SELECT count(*) FROM ledger WHERE order_id = ? AND user_id = ? AND kind = 'buy'
+                  AND NOT EXISTS (SELECT 1 FROM ledger r WHERE r.order_id = ? AND r.kind = 'refund')
+                """,
+                Integer.class, orderId, userId, orderId);
+        if (paid == null || paid == 0) {
+            throw new IllegalStateException("AssetsCredited for unpaid or refunded order " + orderId);
+        }
         jdbc.update(
                 """
                 INSERT INTO holdings (user_id, symbol, grams, avg_cost_elx, compound_slug, product_label)
@@ -182,7 +203,7 @@ public class LedgerRepository {
                     "UPDATE holdings SET grams = ? WHERE user_id = ? AND symbol = ? AND compound_slug = ?",
                     remaining, userId, symbol, compoundSlug);
         }
-        BigDecimal proceeds = bid.multiply(grams).setScale(4, RoundingMode.HALF_UP);
+        BigDecimal proceeds = LedgerRules.proceeds(bid, grams);
         jdbc.update(
                 "UPDATE wallets SET balance_elx = balance_elx + ?, updated_at = NOW() WHERE user_id = ?",
                 proceeds, userId);

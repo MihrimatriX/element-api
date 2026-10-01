@@ -30,7 +30,7 @@ Docker Desktop açık olsun. Repo kökünden:
 ./deploy/scripts/present-platform.ps1
 ```
 
-→ http://localhost:3000 · API http://localhost:5000  
+→ http://localhost:6241 (`WEB_HOST_PORT`) · API http://localhost:5000  
 `docker/.env` yoksa script `docker/.env.example`’dan kopyalar. Hazır imajlarla: `-NoBuild`.
 
 **Yalnız atlas (DB / broker yok):**
@@ -119,6 +119,35 @@ JSON değişince ilgili Docker imajını yeniden derle; `-NoBuild` eski anlık g
 - Observability yığını **yok**. `/metrics` ve `/health-ui` 404 beklenir.
 - Lab rotası **`/lab`**. `/stack` eski yönlendirme.
 - FAL, Commons için izinli lisans. `media.photo: null` çoğu zaman bilinçli.
+
+---
+
+## Reboot — her şey kendiliğinden kalkar
+
+Compose’taki **her** servis `restart: unless-stopped`. Açılışta Docker hepsini **aynı anda** başlatır ve `depends_on` sırasını uygulamaz; servisler Postgres/Rabbit hazır değilse bekler ya da non-zero çıkıp Docker tarafından yeniden başlatılır (1–2 dk içinde hepsi `healthy`).
+
+Tek seferlik kurulum:
+
+1. **Docker açılışta başlasın.** Linux: `sudo systemctl enable --now docker containerd`. Windows/Docker Desktop: *Settings → General → Start Docker Desktop when you sign in* — Desktop ancak bir kullanıcı oturum açınca başlar; gözetimsiz sunucuda otomatik oturum açma ya da Linux + Docker Engine gerekir.
+2. **Yeni policy’yi mevcut container’lara uygula.** Restart policy container oluşturulurken yazılır; eski container’lar eski ayarla kalır. Bir kez `up -d` çalıştır (değişen servisleri yeniden oluşturur):
+
+```powershell
+docker compose --env-file docker/.env up -d --build
+# public: ./deploy/scripts/present-public.ps1 -Server
+```
+
+Doğrula (hepsi `unless-stopped` olmalı):
+
+```powershell
+docker inspect -f "{{.Name}} {{.HostConfig.RestartPolicy.Name}} {{.State.Health.Status}}" $(docker ps -aq)
+```
+
+Notlar:
+
+- `stop-local.ps1` / `docker compose stop` ile durdurulan servis reboot’ta **kalkmaz** (unless-stopped’ın anlamı bu). Yeniden `up -d` gerekir.
+- RabbitMQ artık sabit `hostname: rabbitmq` kullanır. İlk geçişte eski (container-id adlı) node dizini yetim kalır; kuyruklar servisler bağlanınca yeniden açılır. Geçişi kuyrukta sipariş yokken yap.
+- Altyapı ve iç servis portları yalnız `127.0.0.1`’e bağlı (Postgres, Redis, Rabbit, 5001–5008). Dışarıdan açık olanlar: gateway `:5000`, web `WEB_HOST_PORT` (varsayılan `6241`).
+- Container log’ları `json-file` 3×10 MB ile döner; disk dolması yok.
 
 ---
 

@@ -1,16 +1,27 @@
+using System.Security.Cryptography;
+using System.Text;
 using Element.Services.Shipment.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Shipment.API.Controllers;
 
+/// <summary>
+/// Internal only: every call needs INTERNAL_API_KEY. The gateway injects it (and overwrites X-User-Id)
+/// on the public track route; anything else on the compose network must present it too.
+/// </summary>
 [ApiController]
 [Route("api/v1/shipments")]
 public class ShipmentsController : ControllerBase
 {
     private readonly ShipmentDbContext _db;
+    private readonly IConfiguration _configuration;
 
-    public ShipmentsController(ShipmentDbContext db) => _db = db;
+    public ShipmentsController(ShipmentDbContext db, IConfiguration configuration)
+    {
+        _db = db;
+        _configuration = configuration;
+    }
 
     /// <summary>Search shipments by order, tracking number, status or free-text query.</summary>
     [HttpGet]
@@ -23,6 +34,7 @@ public class ShipmentsController : ControllerBase
         [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
     {
+        if (!InternalKeyOk()) return Unauthorized();
         if (page < 1) page = 1;
         if (pageSize is < 1 or > 100) pageSize = 20;
 
@@ -75,6 +87,7 @@ public class ShipmentsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
+        if (!InternalKeyOk()) return Unauthorized();
         var shipment = await _db.Shipments.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id, ct);
         return shipment == null ? NotFound() : Ok(shipment);
     }
@@ -82,17 +95,22 @@ public class ShipmentsController : ControllerBase
     [HttpGet("track/{trackingNumber}")]
     public async Task<IActionResult> Track(string trackingNumber, CancellationToken ct)
     {
+        if (!InternalKeyOk()) return Unauthorized();
+        if (!Guid.TryParse(Request.Headers["X-User-Id"], out var userId)) return NotFound();
+
+        // Owner is part of the lookup: another customer's number is indistinguishable from an unknown one,
+        // and a tracking-number collision can never return someone else's row.
+        var owner = userId.ToString();
         var shipment = await _db.Shipments.AsNoTracking()
-            .FirstOrDefaultAsync(s => s.TrackingNumber == trackingNumber, ct);
-        if (shipment == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.TrackingNumber == trackingNumber && s.CustomerId.ToLower() == owner, ct);
+        return shipment == null ? NotFound() : Ok(shipment);
+    }
 
-        var userId = Request.Headers["X-User-Id"].ToString();
-        if (string.IsNullOrEmpty(userId) ||
-            !string.Equals(shipment.CustomerId, userId, StringComparison.OrdinalIgnoreCase))
-        {
-            return NotFound();
-        }
-
-        return Ok(shipment);
+    private bool InternalKeyOk()
+    {
+        var expected = _configuration["INTERNAL_API_KEY"];
+        return !string.IsNullOrEmpty(expected) && CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(Request.Headers["INTERNAL_API_KEY"].ToString()),
+            Encoding.UTF8.GetBytes(expected));
     }
 }

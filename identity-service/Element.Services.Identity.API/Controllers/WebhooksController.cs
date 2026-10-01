@@ -19,6 +19,7 @@ public class WebhooksController : ControllerBase
         "order.updated"
     };
 
+    private const int MaxPerUser = 10;
     private readonly IdentityAppDbContext _db;
 
     public WebhooksController(IdentityAppDbContext db) => _db = db;
@@ -32,16 +33,24 @@ public class WebhooksController : ControllerBase
         if (request is null || string.IsNullOrWhiteSpace(request.Url) || string.IsNullOrWhiteSpace(request.Secret))
             return BadRequest("url and secret are required.");
 
-        if (!Uri.TryCreate(request.Url, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
-            return BadRequest("Webhook URL must be https.");
+        if (!WebhookSubscription.IsAcceptableUrl(request.Url.Trim()))
+            return BadRequest("Webhook URL must be public https with a DNS host name (no IP literal, localhost or credentials).");
 
         var events = (request.Events ?? [])
+            .OfType<string>()
             .Select(e => e.Trim().ToLowerInvariant())
             .Where(Allowed.Contains)
             .Distinct()
             .ToArray();
         if (events.Length == 0)
             return BadRequest("events must include price.updated and/or order.updated.");
+
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+        // Per-account lock (as in API-key issuance) so the cap holds under concurrent requests.
+        // Every hook costs a delivery attempt per event; unbounded hooks = fan-out amplification.
+        await _db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM \"AspNetUsers\" WHERE \"Id\" = {userId.Value} FOR UPDATE");
+        if (await _db.WebhookSubscriptions.CountAsync(w => w.UserId == userId && w.IsActive) >= MaxPerUser)
+            return Conflict(new { message = $"En fazla {MaxPerUser} webhook kaydedebilirsin. Kullanmadıklarını sil." });
 
         var row = new WebhookSubscription
         {
@@ -55,6 +64,7 @@ public class WebhooksController : ControllerBase
         };
         _db.WebhookSubscriptions.Add(row);
         await _db.SaveChangesAsync();
+        await transaction.CommitAsync();
         return Ok(ToDto(row));
     }
 
@@ -64,7 +74,7 @@ public class WebhooksController : ControllerBase
         var userId = CurrentUserId();
         if (userId is null) return Unauthorized("Invalid user identification in token.");
 
-        var rows = await _db.WebhookSubscriptions
+        var rows = await _db.WebhookSubscriptions.AsNoTracking()
             .Where(w => w.UserId == userId && w.IsActive)
             .OrderByDescending(w => w.CreatedAt)
             .ToListAsync();
@@ -77,10 +87,9 @@ public class WebhooksController : ControllerBase
         var userId = CurrentUserId();
         if (userId is null) return Unauthorized("Invalid user identification in token.");
 
-        var row = await _db.WebhookSubscriptions.FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId);
-        if (row == null) return NotFound();
-        row.IsActive = false;
-        await _db.SaveChangesAsync();
+        // Hard delete: drops the signing secret and stops create/delete loops from growing the table.
+        var deleted = await _db.WebhookSubscriptions.Where(w => w.Id == id && w.UserId == userId).ExecuteDeleteAsync();
+        if (deleted == 0) return NotFound();
         return Ok(new { Message = "Webhook removed." });
     }
 

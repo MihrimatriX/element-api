@@ -33,9 +33,11 @@ public sealed class LearningController(IdentityAppDbContext database) : Controll
         await using var transaction = await database.Database.BeginTransactionAsync(ct);
         // Reuse the existing Identity user-token table. Each achievement has its
         // own unique key; concurrent devices cannot overwrite one another.
-        foreach (var id in progress.Discoveries.Distinct().Order()) await Insert(userId, "discovery:" + id, ct);
+        // The web client re-sends its full set on every change: insert only what is new (one round trip each).
+        var stored = await Read(userId, ct);
+        foreach (var id in progress.Discoveries.Except(stored.Discoveries).Order()) await Insert(userId, "discovery:" + id, ct);
         var merged = await Read(userId, ct);
-        foreach (var id in progress.Lessons.Distinct().Order())
+        foreach (var id in progress.Lessons.Except(stored.Lessons).Order())
             if (Lessons[id].All(merged.Discoveries.Contains)) await Insert(userId, "lesson:" + id, ct);
         await transaction.CommitAsync(ct);
         return await Read(userId, ct);

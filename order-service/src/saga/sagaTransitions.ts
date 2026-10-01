@@ -14,6 +14,8 @@ export function sagaAccepts(status: string, eventType: string): boolean {
     case "StockReservationFailedEvent":
       return status === "Submitted";
     case "PaymentProcessedEvent":
+      // Failed: late debit → compensating refund (no status change).
+      return status === "StockReserved" || status === "Failed";
     case "PaymentFailedEvent":
       return status === "StockReserved";
     case "ShipmentDispatchedEvent":

@@ -18,9 +18,11 @@ public sealed class AccountMailer(IConfiguration configuration) : IAccountMailer
         {
             EnableSsl = configuration.GetValue("Mail:EnableSsl", true),
             Credentials = new NetworkCredential(configuration["Mail:Username"], configuration["Mail:Password"]),
-            Timeout = 10000,
         };
         using var mail = new MailMessage(configuration["Mail:From"]!, email, subject, message);
-        await client.SendMailAsync(mail, ct);
+        // SmtpClient.Timeout only applies to synchronous Send; bound the async send explicitly.
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        timeout.CancelAfter(TimeSpan.FromSeconds(10));
+        await client.SendMailAsync(mail, timeout.Token);
     }
 }

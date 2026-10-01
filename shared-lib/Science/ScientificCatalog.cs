@@ -11,6 +11,7 @@ namespace Element.Shared.Science;
 public sealed class ScientificCatalog
 {
     private readonly JsonObject[] _records;
+    private readonly string[] _searchText; // folded once: the snapshot is immutable, q requests are anonymous
     private readonly string[] _summary;
     private readonly bool _elements;
 
@@ -20,6 +21,7 @@ public sealed class ScientificCatalog
         _records = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Data", filename)))!
             .AsArray().Select(n => n!.AsObject()).ToArray();
         if (_records.Length == 0) throw new InvalidDataException("Scientific snapshot is empty.");
+        _searchText = _records.Select(SearchText).ToArray();
         _summary = elements
             ? ["id", "atomic_number", "symbol", "names", "classification", "layout", "atomic_properties.atomic_mass", "atomic_properties.electron_configuration.short", "atomic_properties.electronegativity.pauling", "thermodynamic_properties.standard_state", "thermodynamic_properties.melting_point", "thermodynamic_properties.boiling_point", "thermodynamic_properties.density_g_cm3", "history.discovered_year"]
             : ["id", "slug", "names", "identifiers.pubchem_cid", "molecular_properties.molecular_formula", "molecular_properties.molecular_weight_g_mol", "display_formula", "composition", "editorial.summary", "media"];
@@ -52,7 +54,11 @@ public sealed class ScientificCatalog
                 IEnumerable<JsonObject> records = _records;
                 var search = query["q"].ToString().Trim();
                 if (search.Length > 120) throw new ArgumentException("q must not exceed 120 characters.");
-                if (search.Length > 0) records = records.Where(r => SearchText(r).Contains(Fold(search), StringComparison.Ordinal));
+                if (search.Length > 0)
+                {
+                    var folded = Fold(search);
+                    records = _records.Where((_, i) => _searchText[i].Contains(folded, StringComparison.Ordinal));
+                }
                 foreach (var filter in new[] { "category", "block", "group", "period" })
                 {
                     var value = query[filter].ToString();
@@ -62,7 +68,9 @@ public sealed class ScientificCatalog
                 }
                 var array = records.ToArray();
                 var pages = Math.Max(1, (int)Math.Ceiling(array.Length / (double)size));
-                string? Link(int p) => p < 1 || p > pages ? null : request.Path + QueryString.Create(query.Where(k => k.Key is not ("page" or "pageSize"))
+                // Query keys are case-insensitive: echoing "Page=2" next to the new "page" made the link a 400.
+                string? Link(int p) => p < 1 || p > pages ? null : request.Path + QueryString.Create(query
+                    .Where(k => !k.Key.Equals("page", StringComparison.OrdinalIgnoreCase) && !k.Key.Equals("pageSize", StringComparison.OrdinalIgnoreCase))
                     .SelectMany(k => k.Value.Select(v => new KeyValuePair<string, string?>(k.Key, v)))
                     .Concat([new("page", p.ToString(CultureInfo.InvariantCulture)), new("pageSize", size.ToString(CultureInfo.InvariantCulture))])).ToString();
                 result = new JsonObject

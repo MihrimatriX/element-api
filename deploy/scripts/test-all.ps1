@@ -4,7 +4,7 @@ param(
     [switch]$Live,
     [switch]$Browser,
     [switch]$Recovery,
-    [string]$WebBase = 'http://localhost:3000'
+    [string]$WebBase = 'http://localhost:6241'
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path

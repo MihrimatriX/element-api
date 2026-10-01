@@ -59,15 +59,27 @@ public sealed class LearningIntegrationTests(IntegrationTestContainers container
     public async Task Repeated_wrong_passwords_lock_the_account()
     {
         await using var app = Factory(); var client = app.CreateClient(); var account = await Register(client);
-        for (var i = 0; i < 5; i++) Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest(account.Email, "WrongPassword!"))).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest(account.Email, "Password1!"))).StatusCode);
+        for (var i = 0; i < 4; i++) Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest(account.Email, "WrongPassword!"))).StatusCode);
+        // The 5th failure locks the account (SignInManager returns LockedOut on that attempt) → 429.
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest(account.Email, "WrongPassword!"))).StatusCode);
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest(account.Email, "Password1!"))).StatusCode);
+    }
+    [Fact]
+    public async Task Password_confirmed_actions_share_the_login_lockout()
+    {
+        await using var app = Factory(); var client = app.CreateClient(); var account = await Register(client);
+        client.DefaultRequestHeaders.Authorization = new("Bearer", account.Token);
+        for (var i = 0; i < 4; i++) Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/v1/auth/delete", new { password = "wrong-guess-" + i, confirmation = "HESABIMI SİL" })).StatusCode);
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.PostAsJsonAsync("/api/v1/auth/password/change", new { currentPassword = "wrong-guess-4", password = "Replacement1!" })).StatusCode);
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.PostAsJsonAsync("/api/v1/auth/delete", new { password = "Password1!", confirmation = "HESABIMI SİL" })).StatusCode);
     }
 
     private sealed class CapturingMailer : IAccountMailer
     {
         public bool Enabled => true;
         public string Message { get; private set; } = "";
-        public Task SendAsync(string email, string subject, string message, CancellationToken ct) { Message = message; return Task.CompletedTask; }
+        public int Count { get; private set; }
+        public Task SendAsync(string email, string subject, string message, CancellationToken ct) { Message = message; Count++; return Task.CompletedTask; }
         public string Token => QueryHelpers.ParseQuery(new Uri(Message.Split('\n').First(line => line.StartsWith("http"))).Fragment.TrimStart('#'))["token"].ToString();
     }
     [Fact]
@@ -95,6 +107,9 @@ public sealed class LearningIntegrationTests(IntegrationTestContainers container
         Assert.True((await client.GetFromJsonAsync<JsonElement>("/api/v1/auth/profile")).GetProperty("emailConfirmed").GetBoolean());
         (await client.PostAsJsonAsync("/api/v1/auth/password/forgot", new { email = account.Email })).EnsureSuccessStatusCode();
         var token = mailer.Token;
+        // Same response, but no second mail inside the per-account window (anti mail-bombing).
+        Assert.Equal(HttpStatusCode.Accepted, (await client.PostAsJsonAsync("/api/v1/auth/password/forgot", new { email = account.Email })).StatusCode);
+        Assert.Equal(2, mailer.Count);
         (await client.PostAsJsonAsync("/api/v1/auth/password/reset", new { email = account.Email, token, password = "Replacement1!" })).EnsureSuccessStatusCode();
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/v1/auth/password/reset", new { email = account.Email, token, password = "AnotherPassword1!" })).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/auth/learning")).StatusCode);
@@ -127,5 +142,22 @@ public sealed class LearningIntegrationTests(IntegrationTestContainers container
         Assert.Equal(20, keys.GetArrayLength());
         (await client.DeleteAsync("/api/v1/api-keys/" + keys[0].GetProperty("id").GetString())).EnsureSuccessStatusCode();
         (await client.PostAsJsonAsync("/api/v1/api-keys/generate", new GenerateKeyRequest("replacement"))).EnsureSuccessStatusCode();
+    }
+    [Fact]
+    public async Task Revoked_key_history_is_bounded()
+    {
+        await using var app = Factory(); var client = app.CreateClient(); var account = await Register(client);
+        client.DefaultRequestHeaders.Authorization = new("Bearer", account.Token);
+        for (var i = 0; i < 23; i++)
+        {
+            var key = await client.PostAsJsonAsync("/api/v1/api-keys/generate", new GenerateKeyRequest("login-" + i)); key.EnsureSuccessStatusCode();
+            var id = (await key.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("details").GetProperty("id").GetString();
+            (await client.DeleteAsync("/api/v1/api-keys/" + id)).EnsureSuccessStatusCode();
+        }
+        (await client.PostAsJsonAsync("/api/v1/api-keys/generate", new GenerateKeyRequest("current"))).EnsureSuccessStatusCode();
+        var keys = (await client.GetFromJsonAsync<JsonElement>("/api/v1/api-keys")).EnumerateArray().ToArray();
+        Assert.Single(keys, k => k.GetProperty("isActive").GetBoolean());
+        Assert.Equal(20, keys.Count(k => !k.GetProperty("isActive").GetBoolean()));
+        Assert.DoesNotContain(keys, k => k.GetProperty("description").GetString() == "login-0");
     }
 }

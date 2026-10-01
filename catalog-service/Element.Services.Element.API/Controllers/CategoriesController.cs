@@ -12,9 +12,11 @@ namespace Element.Services.Element.API.Controllers;
 
 /// <summary>
 /// Manages chemical element categories and classification groups.
+/// Category rows are migration seed data (change only on deploy); element pages carry live prices.
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[ResponseCache(Duration = 300)]
 public class CategoriesController : ControllerBase
 {
     private readonly ElementDbContext _context;
@@ -53,7 +55,7 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<CategoryResponseDto>), 200)]
     public async Task<IActionResult> GetAll()
     {
-        var categories = await _context.Categories
+        var categories = await _context.Categories.AsNoTracking()
             .OrderBy(c => c.Id)
             .ToListAsync();
 
@@ -71,7 +73,7 @@ public class CategoriesController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(slug)) return BadRequest("Slug is required.");
 
-        var category = await _context.Categories
+        var category = await _context.Categories.AsNoTracking()
             .FirstOrDefaultAsync(c => c.Slug.ToLower() == slug.ToLower());
 
         if (category == null)
@@ -86,15 +88,16 @@ public class CategoriesController : ControllerBase
     /// Retrieves all elements belonging to a specific category.
     /// </summary>
     [HttpGet("{slug}/elements")]
+    [ResponseCache(Duration = 5)]
     [ProducesResponseType(typeof(PaginatedResponse<ElementResponseDto>), 200)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetElements(string slug, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         if (string.IsNullOrWhiteSpace(slug)) return BadRequest("Slug is required.");
         if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 20;
+        if (pageSize is < 1 or > 100) pageSize = pageSize < 1 ? 20 : 100;
 
-        var category = await _context.Categories
+        var category = await _context.Categories.AsNoTracking()
             .FirstOrDefaultAsync(c => c.Slug.ToLower() == slug.ToLower());
 
         if (category == null)
@@ -103,13 +106,14 @@ public class CategoriesController : ControllerBase
         }
 
         // Search chemical elements matching category name
-        var query = _context.ChemicalElements
+        var query = _context.ChemicalElements.AsNoTracking()
             .Where(e => e.Category.ToLower() == category.Name.ToLower())
             .OrderBy(e => e.AtomicNumber);
 
         var totalCount = await query.CountAsync();
         var elements = await query
-            .Skip((page - 1) * pageSize)
+            // long math: an int overflow here became a negative OFFSET, i.e. a Postgres error and a 500.
+            .Skip((int)Math.Min((long)(page - 1) * pageSize, int.MaxValue))
             .Take(pageSize)
             .ToListAsync();
 

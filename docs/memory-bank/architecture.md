@@ -6,12 +6,12 @@
 
 | Profil | Giriş | Bağımlılık |
 |---|---|---|
-| Tam platform (varsayılan yerel) | http://localhost:3000 | `docker compose` / `present-platform.ps1` |
+| Tam platform (varsayılan yerel) | http://localhost:6241 | `docker compose` / `present-platform.ps1` |
 | Public host | yerel :8080/:8081/:8082 veya https://elements-api.ahmetfuzunkaya.com | `present-public.ps1 -Environment Dev|Test|Prod` (`-All` yan yana); [PUBLIC-HOST.md](../PUBLIC-HOST.md) |
 | Bağımsız atlas | http://127.0.0.1:5080 | `docker-compose.science.yml` — tek science imajı; DB/broker yok |
 | Ön yüz geliştirme | http://localhost:5173 | Vite host; çalışan gateway'e bağlanır |
 
-Tam platform: tarayıcı → web :3000 / gateway :5000 → identity :5001, catalog :5002, order :5003, wallet :5005, shipment :5004, notification :5006, compound :5007, inventory :5008. Sipariş saga’sı: Inventory stok ayırır → Wallet KREDI çeker (tavan 50.000) → Shipment. Servis veritabanları ayrıdır. Katalog Redis kullanmaz; Redis gateway ve identity’de durur.
+Tam platform: tarayıcı → web :6241 / gateway :5000 → identity :5001, catalog :5002, order :5003, wallet :5005, shipment :5004, notification :5006, compound :5007, inventory :5008. Sipariş saga’sı: Inventory stok ayırır → Wallet KREDI çeker (tavan 50.000) → Shipment. Servis veritabanları ayrıdır. Katalog Redis kullanmaz; Redis yalnız gateway’de durur.
 
 Bu makinede ElementAPI PostgreSQL 5432 (veya `POSTGRES_HOST_PORT`), Redis 6380 kullanıyor. 3000, 5433 ve 6379 başka uygulamaya ait olabilir; sahiplik kontrolü yapmadan durdurma.
 
