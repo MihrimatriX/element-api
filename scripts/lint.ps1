@@ -1,3 +1,4 @@
+# Quick static gate: web-app ESLint plus an order-service TypeScript build (tsc type-checks it).
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $root

@@ -3,39 +3,56 @@ using Element.Services.Notification.API.Webhooks;
 using Element.Shared.Extensions;
 using MassTransit;
 
+// Notification service host: consumes UpdateOrderStatusEvent and fans it out as signed webhooks.
+// It exposes no business HTTP API, only the standard /info and /health endpoints.
+
+var webhookTimeout = TimeSpan.FromSeconds(4);
+
+// ~110s total: rides out identity-service still booting after a host reboot before the
+// event is parked in notification-order-updates_error.
+TimeSpan[] messageRetryIntervals =
+[
+    TimeSpan.FromSeconds(5),
+    TimeSpan.FromSeconds(15),
+    TimeSpan.FromSeconds(30),
+    TimeSpan.FromSeconds(60),
+];
+
+// Bound shutdown under Docker's 10s SIGTERM->SIGKILL window; unacked messages return to the queue.
+var busStopTimeout = TimeSpan.FromSeconds(8);
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddConsoleLogging("Element.Notification");
 builder.Services.AddSingleton<WebhookFanout>();
-builder.Services.AddHttpClient("webhooks", c =>
-{
-    c.Timeout = TimeSpan.FromSeconds(4);
-}).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler {
-    AllowAutoRedirect = false,
-    UseProxy = false,
-    ConnectCallback = WebhookFanout.ConnectPublicAsync
-});
-builder.Services.AddHttpClient("webhooks-internal", c => c.Timeout = TimeSpan.FromSeconds(4));
+
+// Customer webhooks: no redirects, no proxy, and a connect callback that refuses private addresses.
+builder.Services
+    .AddHttpClient(WebhookFanout.PublicClientName, client => client.Timeout = webhookTimeout)
+    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+    {
+        AllowAutoRedirect = false,
+        UseProxy = false,
+        ConnectCallback = WebhookFanout.ConnectPublicAsync,
+    });
+builder.Services.AddHttpClient(WebhookFanout.InternalClientName, client => client.Timeout = webhookTimeout);
+
 // AddMassTransit registers the "masstransit-bus" check: unhealthy until the receive endpoint is
 // connected, healthy again after it reconnects. No extra AMQP connection per probe.
 builder.Services.AddHealthChecks();
 
-// Bound shutdown under Docker's 10s SIGTERM->SIGKILL window; unacked messages return to the queue.
-builder.Services.Configure<MassTransitHostOptions>(o => o.StopTimeout = TimeSpan.FromSeconds(8));
-builder.Services.AddMassTransit(x =>
+builder.Services.Configure<MassTransitHostOptions>(options => options.StopTimeout = busStopTimeout);
+builder.Services.AddMassTransit(bus =>
 {
-    x.AddConsumer<UpdateOrderStatusConsumer>();
+    bus.AddConsumer<UpdateOrderStatusConsumer>();
 
-    x.UsingRabbitMq((context, cfg) =>
+    bus.UsingRabbitMq((context, rabbit) =>
     {
-        cfg.ConfigureRabbitMqHost(builder.Configuration);
-        // ~110s total: rides out identity-service still booting after a host reboot before the
-        // event is parked in notification-order-updates_error.
-        cfg.UseMessageRetry(r => r.Intervals(
-            TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(60)));
+        rabbit.ConfigureRabbitMqHost(builder.Configuration);
+        rabbit.UseMessageRetry(retry => retry.Intervals(messageRetryIntervals));
 
-        cfg.ReceiveEndpoint("notification-order-updates", e =>
-            e.ConfigureConsumer<UpdateOrderStatusConsumer>(context));
+        rabbit.ReceiveEndpoint("notification-order-updates", endpoint =>
+            endpoint.ConfigureConsumer<UpdateOrderStatusConsumer>(context));
     });
 });
 
@@ -53,4 +70,5 @@ finally
     Serilog.Log.CloseAndFlush();
 }
 
+/// <summary>Entry point type, kept public so test hosts can reference this assembly.</summary>
 public partial class Program { }

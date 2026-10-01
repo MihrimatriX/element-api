@@ -1,9 +1,13 @@
-using System;
 using Element.Services.Element.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Element.Infrastructure.Persistence;
 
+/// <summary>
+/// EF Core context of the catalogue database (element_market_db): elements, price history,
+/// categories and per-order marker rows. The model and seed rows below are mirrored by the
+/// migrations, so any change here needs a new migration.
+/// </summary>
 public class ElementDbContext : DbContext
 {
     public ElementDbContext(DbContextOptions<ElementDbContext> options) : base(options)
@@ -22,6 +26,7 @@ public class ElementDbContext : DbContext
         modelBuilder.Entity<ChemicalElement>(entity =>
         {
             entity.HasKey(e => e.Id);
+            // The seed also contains predicted element 119; the filter keeps the public catalogue at 118.
             entity.HasQueryFilter(e => e.AtomicNumber >= 1 && e.AtomicNumber <= 118);
             entity.HasIndex(e => e.Symbol).IsUnique();
             entity.Property(e => e.Symbol).IsRequired().HasMaxLength(10);
@@ -41,7 +46,7 @@ public class ElementDbContext : DbContext
             entity.Property(e => e.ElectronConfiguration).HasMaxLength(100);
             entity.Property(e => e.Electronegativity).HasColumnType("numeric(18,4)");
             entity.Property(e => e.Rating).HasColumnType("numeric(18,2)");
-            
+
             entity.Property(e => e.AtomicMass).HasColumnType("numeric(18,4)");
             entity.Property(e => e.Density).HasColumnType("numeric(18,4)");
             entity.Property(e => e.MeltingPoint).HasColumnType("numeric(18,4)");

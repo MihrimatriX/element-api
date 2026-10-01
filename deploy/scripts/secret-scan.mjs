@@ -1,13 +1,20 @@
 #!/usr/bin/env node
 /**
  * Light secret / demo-credential scan of the working tree (and optional recent history).
- * Exit 1 on high-confidence hits in tracked-looking paths. Safe false positives may remain.
+ * Prints a JSON report. Exits 1 only on high-confidence hits (private keys, AWS keys, the old demo
+ * password) outside docs/. Safe false positives may remain in the report.
+ *
+ * Run from the repository root: node deploy/scripts/secret-scan.mjs
  */
 import { execSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const root = process.cwd();
+/** Files at or above this size (generated data, binaries) are not read. */
+const MAX_SCANNED_FILE_BYTES = 1_500_000;
+const DEMO_PASSWORD = "MyStrongPassword123!";
+/** Folder names that only hold dependencies or build output. */
 const SKIP = new Set([
   "node_modules",
   ".git",
@@ -29,50 +36,58 @@ const patterns = [
   { id: "demo-strong-password", re: /MyStrongPassword123!/ },
   { id: "slack-token", re: /xox[baprs]-[0-9a-zA-Z-]{10,}/ },
 ];
+/** Pattern ids that fail the scan (the rest are informational). */
+const FATAL_PATTERN_IDS = new Set(["private-key", "aws-key", "demo-strong-password"]);
 
-const allowPath = (p) =>
+/** Binary assets, lockfiles, the scan docs and this script itself would only produce noise. */
+const isAllowlistedPath = (path) =>
   /node_modules|\.lock$|\.png$|\.jpg$|\.webp$|\.svg$|\.woff|\.map$|package-lock|register_payload\.example|docs\/ops\/SECRET-SCAN|secret-scan\.mjs/i.test(
-    p,
+    path,
   );
 
 const findings = [];
 
+/** Recursively scans every readable text file under `dir` and records pattern hits in `findings`. */
 function walk(dir) {
   for (const name of readdirSync(dir)) {
     if (SKIP.has(name)) continue;
-    const full = join(dir, name);
-    let st;
+    const fullPath = join(dir, name);
+    let stats;
     try {
-      st = statSync(full);
+      stats = statSync(fullPath);
     } catch {
       continue;
     }
-    if (st.isDirectory()) walk(full);
-    else if (st.isFile() && st.size < 1_500_000) {
-      const rel = relative(root, full).replaceAll("\\", "/");
-      if (allowPath(rel)) continue;
-      let text;
-      try {
-        text = readFileSync(full, "utf8");
-      } catch {
-        continue;
-      }
-      for (const { id, re } of patterns) {
-        if (re.test(text)) findings.push({ file: rel, id });
-      }
+    if (stats.isDirectory()) {
+      walk(fullPath);
+      continue;
+    }
+    if (!stats.isFile() || stats.size >= MAX_SCANNED_FILE_BYTES) continue;
+
+    const relativePath = relative(root, fullPath).replaceAll("\\", "/");
+    if (isAllowlistedPath(relativePath)) continue;
+    let text;
+    try {
+      text = readFileSync(fullPath, "utf8");
+    } catch {
+      continue;
+    }
+    for (const { id, re } of patterns) {
+      if (re.test(text)) findings.push({ file: relativePath, id });
     }
   }
 }
 
 walk(root);
 
-let history = [];
+// History check: the demo password once lived in commits; list where so it can be rotated/cleaned.
+const history = [];
 try {
   const log = execSync(
-    'git log -S "MyStrongPassword123!" --oneline --all',
+    `git log -S "${DEMO_PASSWORD}" --oneline --all`,
     { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
   ).trim();
-  if (log) history.push({ needle: "MyStrongPassword123!", commits: log.split("\n").slice(0, 8) });
+  if (log) history.push({ needle: DEMO_PASSWORD, commits: log.split("\n").slice(0, 8) });
 } catch {
   /* no git */
 }
@@ -90,9 +105,5 @@ const report = {
 
 console.log(JSON.stringify(report, null, 2));
 // High-confidence only: real key material or demo password still living in product paths.
-const fatal = findings.filter(
-  (f) =>
-    (f.id === "private-key" || f.id === "aws-key" || f.id === "demo-strong-password") &&
-    !f.file.startsWith("docs/"),
-);
+const fatal = findings.filter((finding) => FATAL_PATTERN_IDS.has(finding.id) && !finding.file.startsWith("docs/"));
 if (fatal.length) process.exit(1);

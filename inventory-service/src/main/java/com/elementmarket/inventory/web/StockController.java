@@ -7,9 +7,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
+/** Public stock lookup used by the web app and by the order service's pre-check before submitting an order. */
 @RestController
 public class StockController {
+
+    private static final Pattern SYMBOL_PATTERN = Pattern.compile("(?i)^[a-z]{1,3}$");
 
     private final StockRepository stock;
 
@@ -17,9 +21,10 @@ public class StockController {
         this.stock = stock;
     }
 
+    /** Returns stock, reserved and available grams for a 1-3 letter element symbol (case-insensitive). */
     @GetMapping("/api/v1/stock/{symbol}")
     public ResponseEntity<?> stock(@PathVariable String symbol) {
-        if (symbol == null || !symbol.matches("(?i)^[a-z]{1,3}$")) {
+        if (symbol == null || !SYMBOL_PATTERN.matcher(symbol).matches()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid symbol."));
         }
         return ResponseEntity.ok(stock.getStock(symbol));

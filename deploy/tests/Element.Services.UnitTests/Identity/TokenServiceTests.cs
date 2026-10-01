@@ -43,5 +43,6 @@ public class TokenServiceTests
         jwt.Claims.Should().Contain(c => c.Type == JwtRegisteredClaimNames.Sub && c.Value == user.Id.ToString());
         jwt.Claims.Should().Contain(c => c.Type == JwtRegisteredClaimNames.Email && c.Value == user.Email);
         jwt.Claims.Should().Contain(c => c.Type == "firstName" && c.Value == "Ada");
+        jwt.Claims.Should().Contain(c => c.Type == "security_stamp");
     }
 }

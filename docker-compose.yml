@@ -5,6 +5,12 @@
 # kaldırır ve depends_on'u UYGULAMAZ; servisler bağımlılık hazır değilse ya bekler ya da
 # non-zero çıkıp yeniden başlatılır. `docker compose stop` ile durdurulan servis reboot'ta
 # kalkmaz (bilinçli). Ayrıntı: deploy/README.md → "Reboot".
+#
+# Layout: infrastructure (postgres, redis, rabbitmq) -> .NET services (identity, catalog, compound,
+# shipment, notification, gateway) + Node order-service + Java wallet/inventory -> web-app.
+# Every API service listens on 8080 inside its container (web-app on 80); the host port is the
+# left side of `ports` (bound to 127.0.0.1 except gateway and web-app).
+# docker-compose.public.yml overlays this file for the public (Caddy) stack.
 
 name: element-market
 
@@ -25,6 +31,8 @@ x-app: &app
   init: true
 
 services:
+  # --- Infrastructure -------------------------------------------------------------------------
+  # One Postgres for all services; docker/init-scripts/init.sql creates the per-service databases.
   postgres:
     <<: *base
     build:
@@ -86,6 +94,8 @@ services:
       retries: 10
       start_period: 20s
 
+  # --- Application services -------------------------------------------------------------------
+  # identity_keys keeps the ASP.NET Data Protection keys across container restarts.
   identity-service:
     <<: *app
     image: element-identity-service
@@ -198,6 +208,7 @@ services:
       WALLET_SERVICE_URL: http://wallet-service:8080
       INVENTORY_SERVICE_URL: http://inventory-service:8080
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      # Purchase-saga timeouts in seconds for the Submitted / StockReserved / Shipping states.
       SAGA_TIMEOUT_SUBMITTED_SEC: "120"
       SAGA_TIMEOUT_STOCK_RESERVED_SEC: "120"
       SAGA_TIMEOUT_SHIPPING_SEC: "180"
@@ -301,6 +312,7 @@ services:
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
       RabbitMQ__Password: ${RABBITMQ_DEFAULT_PASS:-guest}
+      # Test hook: fail shipments with quantity >= this value; 0 disables it.
       Shipment__FailQuantityGte: "0"
       # track/search/get all require it (the gateway injects it on the public track route).
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
@@ -345,6 +357,7 @@ services:
       retries: 5
       start_period: 40s
 
+  # Single public entry point (YARP): API keys, rate limits, CORS and routing to the clusters below.
   gateway-service:
     <<: *app
     image: element-gateway-service
@@ -399,6 +412,8 @@ services:
       retries: 5
       start_period: 60s
 
+  # --- Front end ------------------------------------------------------------------------------
+  # VITE_* values are baked into the bundle at build time: change them, then rebuild this image.
   web-app:
     <<: *app
     image: element-web-app

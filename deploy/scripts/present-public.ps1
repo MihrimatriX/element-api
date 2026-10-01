@@ -1,3 +1,8 @@
+# Starts the public single-host stack (docker-compose.yml + docker-compose.public.yml behind Caddy).
+#   -Environment Dev|Test|Prod  one environment on its own local HTTP port (default Dev)
+#   -All                        all three side by side (:8080 / :8081 / :8082)
+#   -Server                     real Prod host on :80/:443; refuses to start with placeholder settings
+#   -NoBuild                    reuse existing images instead of rebuilding
 param(
     [ValidateSet('Dev', 'Test', 'Prod')]
     [string]$Environment,
@@ -15,6 +20,7 @@ $script:PublicEnvMatrix = @(
     [pscustomobject]@{ Name = 'Prod'; Port = 8082; EnvFile = 'docker/.env.public.prod'; Example = 'docker/.env.public.prod.example' }
 )
 
+# Fails fast if two environments would share a host port or a compose project name.
 function Assert-PublicEnvMatrix {
     $ports = $script:PublicEnvMatrix | ForEach-Object { $_.Port }
     $unique = $ports | Select-Object -Unique
@@ -27,6 +33,7 @@ function Assert-PublicEnvMatrix {
     }
 }
 
+# Copies the example env file on first use so every environment can start without manual setup.
 function Ensure-EnvFile([string]$EnvFile, [string]$Example) {
     if (Test-Path -LiteralPath $EnvFile) { return }
     if (!(Test-Path -LiteralPath $Example)) { throw "Missing example env: $Example" }
@@ -34,18 +41,20 @@ function Ensure-EnvFile([string]$EnvFile, [string]$Example) {
     Write-Host "Created $EnvFile from $Example - replace replace-with-... secrets before real production use."
 }
 
+# Parses the KEY=VALUE lines of a .env file into a hashtable (blank lines and comments are skipped).
 function Read-DotEnv([string]$EnvFile) {
     $map = @{}
     Get-Content -LiteralPath $EnvFile | ForEach-Object {
         $line = $_.Trim()
         if ($line.Length -eq 0 -or $line.StartsWith('#')) { return }
-        $eq = $line.IndexOf('=')
-        if ($eq -lt 1) { return }
-        $map[$line.Substring(0, $eq).Trim()] = $line.Substring($eq + 1).Trim()
+        $separatorIndex = $line.IndexOf('=')
+        if ($separatorIndex -lt 1) { return }
+        $map[$line.Substring(0, $separatorIndex).Trim()] = $line.Substring($separatorIndex + 1).Trim()
     }
     return $map
 }
 
+# Guards -Server: refuses to expose a real host with local-smoke settings or placeholder secrets.
 function Assert-ServerProdEnv([string]$EnvFile) {
     if (!(Test-Path -LiteralPath $EnvFile)) {
         throw "Missing $EnvFile. Copy docker/.env.public.prod.example and set real secrets + CADDY_SITE."
@@ -75,13 +84,18 @@ Local smoke uses 8082/8445; edit $EnvFile for the real host.
 "@
     }
     foreach ($key in @('JWT_SECRET', 'INTERNAL_API_KEY')) {
-        $val = $vars[$key]
-        if ([string]::IsNullOrWhiteSpace($val) -or $val -match 'replace-with' -or $val -match 'ChangeMe' -or $val.Length -lt 32) {
+        $secret = $vars[$key]
+        $looksLikePlaceholder = [string]::IsNullOrWhiteSpace($secret) -or
+            $secret -match 'replace-with' -or
+            $secret -match 'ChangeMe' -or
+            $secret.Length -lt 32
+        if ($looksLikePlaceholder) {
             throw "$key in $EnvFile must be a real secret (>=32 chars, no ChangeMe / replace-with). Generate: openssl rand -hex 32"
         }
     }
 }
 
+# Brings up one environment as its own compose project (element-dev / element-test / element-prod).
 function Start-PublicEnv([string]$Name, [string]$EnvFile, [string]$Example) {
     Ensure-EnvFile -EnvFile $EnvFile -Example $Example
     $project = "element-$($Name.ToLowerInvariant())"

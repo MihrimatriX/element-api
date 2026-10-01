@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+using Element.Services.Element.Core.Entities;
 using Element.Services.Element.Infrastructure.Persistence;
 using Element.Shared.Events;
 using MassTransit;
@@ -8,6 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Element.Services.Element.Infrastructure.Messaging.Consumers;
 
+/// <summary>
+/// Legacy stock-release handler: gives reserved grams back when an order is cancelled.
+/// Not registered in Program.cs — inventory-service owns stock now; kept as the counterpart
+/// of <see cref="OrderSubmittedConsumer"/>.
+/// </summary>
 public class OrderStockReleaseConsumer : IConsumer<OrderStockReleaseEvent>
 {
     private readonly ElementDbContext _context;
@@ -19,6 +23,7 @@ public class OrderStockReleaseConsumer : IConsumer<OrderStockReleaseEvent>
         _logger = logger;
     }
 
+    /// <summary>Releases the order's reserved grams exactly once, under the per-symbol stock lock.</summary>
     public async Task Consume(ConsumeContext<OrderStockReleaseEvent> context)
     {
         var message = context.Message;
@@ -30,16 +35,20 @@ public class OrderStockReleaseConsumer : IConsumer<OrderStockReleaseEvent>
         if (reservation is null)
         {
             // A release can arrive before a delayed reservation. Keep a cancellation marker.
-            _context.StockReservations.Add(new Core.Entities.StockReservation {
-                OrderId = message.OrderId, ElementSymbol = message.ElementSymbol,
-                Quantity = message.Quantity, Status = "Released", CreatedAt = DateTime.UtcNow
+            _context.StockReservations.Add(new StockReservation
+            {
+                OrderId = message.OrderId,
+                ElementSymbol = message.ElementSymbol,
+                Quantity = message.Quantity,
+                Status = StockReservationStatus.Released,
+                CreatedAt = DateTime.UtcNow
             });
             await _context.SaveChangesAsync();
-            if (transaction != null) await transaction.CommitAsync();
+            await StockTransaction.CommitAsync(transaction);
             return;
         }
 
-        if (reservation.Status != "Reserved")
+        if (reservation.Status != StockReservationStatus.Reserved)
         {
             _logger.LogInformation("Idempotent stock release for Order {OrderId}", message.OrderId);
             return;
@@ -48,18 +57,18 @@ public class OrderStockReleaseConsumer : IConsumer<OrderStockReleaseEvent>
         var element = await _context.ChemicalElements
             .FirstOrDefaultAsync(e => e.Symbol.ToLower() == message.ElementSymbol.ToLower());
 
-        if (element != null)
+        if (element is null)
+        {
+            _logger.LogWarning("Element {Symbol} not found for stock release.", message.ElementSymbol);
+        }
+        else
         {
             element.ReservedWeightGrams = Math.Max(0, element.ReservedWeightGrams - message.Quantity);
             _logger.LogInformation("Stock released successfully for Order: {OrderId}", message.OrderId);
         }
-        else
-        {
-            _logger.LogWarning("Element {Symbol} not found for stock release.", message.ElementSymbol);
-        }
 
-        reservation.Status = "Released";
+        reservation.Status = StockReservationStatus.Released;
         await _context.SaveChangesAsync();
-        if (transaction != null) await transaction.CommitAsync();
+        await StockTransaction.CommitAsync(transaction);
     }
 }

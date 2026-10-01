@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 
-const NS = "Element.Shared.Events:";
+/** .NET namespace of the shared event records (shared-lib/Events); MassTransit derives exchange names from it. */
+const EVENT_NAMESPACE = "Element.Shared.Events:";
 
+/** Content type MassTransit expects on every message. */
+export const MASSTRANSIT_CONTENT_TYPE = "application/vnd.masstransit+json";
+
+/** Every integration event this service publishes or consumes (names match shared-lib/Events). */
 export type MessageType =
   | "OrderSubmittedEvent"
   | "StockReservedEvent"
@@ -16,63 +21,57 @@ export type MessageType =
   | "ShipmentFailedEvent"
   | "UpdateOrderStatusEvent"
   | "OrderStockReleaseEvent"
-  | "OrderCompletedEvent"
-  | "ElementSoldEvent";
+  | "OrderCompletedEvent";
 
+/** Fanout exchange MassTransit uses for an event type, e.g. "Element.Shared.Events:OrderSubmittedEvent". */
 export function exchangeName(type: MessageType): string {
-  return `${NS}${type}`;
+  return `${EVENT_NAMESPACE}${type}`;
 }
 
-export function messageUrn(type: MessageType): string {
-  return `urn:message:${NS}${type}`;
+function messageUrn(type: MessageType): string {
+  return `urn:message:${EVENT_NAMESPACE}${type}`;
 }
 
+/**
+ * Serialises a payload into the MassTransit JSON envelope so the .NET services can consume it.
+ * The given messageId (the outbox row id) lets consumers recognise redeliveries.
+ */
 export function wrapEnvelope<T extends object>(
   type: MessageType,
   message: T,
-  messageId?: string,
+  messageId: string,
 ): Buffer {
-  const body = {
-    messageId: messageId ?? randomUUID(),
+  const envelope = {
+    messageId,
     conversationId: randomUUID(),
     messageType: [messageUrn(type)],
     message,
   };
-  return Buffer.from(JSON.stringify(body));
+  return Buffer.from(JSON.stringify(envelope));
 }
 
+/**
+ * Reads a MassTransit JSON envelope. `type` is the short event name (last URN segment);
+ * `message` falls back to the whole body for plain JSON. Throws on invalid JSON.
+ */
 export function parseEnvelope(body: Buffer): {
   messageId?: string;
   type?: string;
   message: unknown;
 } {
-  const json = JSON.parse(body.toString("utf8"));
-  const mt = json.messageType?.[0] as string | undefined;
-  const type = mt?.split(":").pop();
+  const envelope = JSON.parse(body.toString("utf8"));
+  const messageUrnValue = envelope.messageType?.[0] as string | undefined;
   return {
-    messageId: json.messageId as string | undefined,
-    type,
-    message: json.message ?? json,
+    messageId: envelope.messageId as string | undefined,
+    type: messageUrnValue?.split(":").pop(),
+    message: envelope.message ?? envelope,
   };
 }
 
+/** AMQP headers MassTransit uses to route a message to the right consumer type. */
 export function wrapHeaders(type: MessageType): Record<string, string> {
   return {
     "MT-Message-Type": messageUrn(type),
-    "Content-Type": "application/vnd.masstransit+json",
+    "Content-Type": MASSTRANSIT_CONTENT_TYPE,
   };
-}
-
-export function parseMessage<T>(body: Buffer): T {
-  const json = JSON.parse(body.toString("utf8"));
-  return (json.message ?? json) as T;
-}
-
-export function parseMessageId(body: Buffer): string | undefined {
-  try {
-    const json = JSON.parse(body.toString("utf8"));
-    return json.messageId as string | undefined;
-  } catch {
-    return undefined;
-  }
 }

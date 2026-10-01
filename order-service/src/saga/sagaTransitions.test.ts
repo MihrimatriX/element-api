@@ -24,7 +24,10 @@ describe("sagaAccepts", () => {
 
 describe("sagaNextStatus", () => {
   it("advances Submitted → StockReserved → Shipping → Completed", () => {
-    assert.equal(sagaNextStatus("Submitted", "StockReservedEvent"), "StockReserved");
+    assert.equal(
+      sagaNextStatus("Submitted", "StockReservedEvent"),
+      "StockReserved",
+    );
     assert.equal(
       sagaNextStatus("StockReserved", "PaymentProcessedEvent"),
       "Shipping",
@@ -40,7 +43,10 @@ describe("sagaNextStatus", () => {
       sagaNextStatus("Submitted", "StockReservationFailedEvent"),
       "Failed",
     );
-    assert.equal(sagaNextStatus("StockReserved", "PaymentFailedEvent"), "Failed");
+    assert.equal(
+      sagaNextStatus("StockReserved", "PaymentFailedEvent"),
+      "Failed",
+    );
     assert.equal(sagaNextStatus("Shipping", "ShipmentFailedEvent"), "Failed");
   });
 });

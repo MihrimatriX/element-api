@@ -1,5 +1,5 @@
-# Probe DNS/TLS for elements-api.ahmetfuzunkaya.com (and apex context).
-# Safe to re-run; prints no secrets.
+# Probes DNS and HTTPS for the public host (elements-api.ahmetfuzunkaya.com) and its apex domain.
+# Read-only and safe to re-run; prints no secrets.
 param(
     [string]$Name = 'elements-api.ahmetfuzunkaya.com',
     [string]$Apex = 'ahmetfuzunkaya.com',
@@ -10,17 +10,15 @@ Write-Host "=== DNS probe $(Get-Date -Format o) ==="
 Write-Host "Resolver: $DnsServer"
 Write-Host ""
 
-function Show-Dns([string]$q, [string]$type = '') {
-    $label = if ($type) { "$q ($type)" } else { $q }
+# Prints the DNS answer for one name (optionally one record type) and returns $true when it resolved.
+function Show-Dns([string]$QueryName, [string]$RecordType = '') {
+    $label = if ($RecordType) { "$QueryName ($RecordType)" } else { $QueryName }
     Write-Host "--- $label ---"
+    $query = @{ Name = $QueryName; Server = $DnsServer; ErrorAction = 'Stop' }
+    if ($RecordType) { $query.Type = $RecordType }
     try {
-        if ($type) {
-            Resolve-DnsName $q -Type $type -Server $DnsServer -ErrorAction Stop |
-                Format-Table Name, Type, TTL, NameHost, IPAddress -AutoSize
-        } else {
-            Resolve-DnsName $q -Server $DnsServer -ErrorAction Stop |
-                Format-Table Name, Type, TTL, NameHost, IPAddress -AutoSize
-        }
+        # Out-Host keeps the table on screen instead of mixing it into the function's return value.
+        Resolve-DnsName @query | Format-Table Name, Type, TTL, NameHost, IPAddress -AutoSize | Out-Host
         return $true
     } catch {
         Write-Host "FAIL: $($_.Exception.Message)"
@@ -28,13 +26,13 @@ function Show-Dns([string]$q, [string]$type = '') {
     }
 }
 
-$ok = Show-Dns $Name
+$hostResolves = Show-Dns $Name
 [void](Show-Dns $Apex)
 [void](Show-Dns $Apex 'NS')
 
 Write-Host ''
 Write-Host '--- HTTPS ---'
-if ($ok) {
+if ($hostResolves) {
     curl.exe -sI --max-time 20 "https://$Name/" 2>&1 | Select-Object -First 15
 } else {
     Write-Host "Skipped HTTPS — DNS for $Name not resolving (create A/AAAA first)."

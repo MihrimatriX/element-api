@@ -9,9 +9,16 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.Locale;
 
-/** Fail fast in prod-like envs when INTERNAL_API_KEY is missing or a known dev default. */
+/**
+ * Fails startup in production-like environments when INTERNAL_API_KEY is missing, too short or a known dev default,
+ * so a misconfigured deployment never runs with a guessable service key.
+ */
 @Component
 public class ProductionSecretsGuard implements ApplicationRunner {
+
+    private static final int MIN_KEY_LENGTH = 32;
+    private static final String DEV_DEFAULT_KEY = "element-internal-dev-key";
+    private static final String PLACEHOLDER_MARKER = "changeme";
 
     private final Environment environment;
     private final String internalApiKey;
@@ -23,21 +30,28 @@ public class ProductionSecretsGuard implements ApplicationRunner {
         this.internalApiKey = internalApiKey == null ? "" : internalApiKey;
     }
 
+    /** Throws on startup when the environment is production-like and the internal key is weak. */
     @Override
     public void run(ApplicationArguments args) {
-        if (!prodLike()) return;
-        if (internalApiKey.length() < 32
-                || internalApiKey.equals("element-internal-dev-key")
-                || internalApiKey.toLowerCase(Locale.ROOT).contains("changeme")) {
+        if (!isProductionLike()) {
+            return;
+        }
+        boolean isTooShort = internalApiKey.length() < MIN_KEY_LENGTH;
+        boolean isDevDefault = internalApiKey.equals(DEV_DEFAULT_KEY);
+        boolean isPlaceholder = internalApiKey.toLowerCase(Locale.ROOT).contains(PLACEHOLDER_MARKER);
+        if (isTooShort || isDevDefault || isPlaceholder) {
             throw new IllegalStateException(
                     "Configure a unique production INTERNAL_API_KEY of at least 32 characters.");
         }
     }
 
-    private boolean prodLike() {
+    /** Production-like means ELEMENT_ENV=prod or an active "production"/"prod" Spring profile. */
+    private boolean isProductionLike() {
         String elementEnv = System.getenv("ELEMENT_ENV");
-        if (elementEnv != null && elementEnv.equalsIgnoreCase("prod")) return true;
+        if (elementEnv != null && elementEnv.equalsIgnoreCase("prod")) {
+            return true;
+        }
         return Arrays.stream(environment.getActiveProfiles())
-                .anyMatch(p -> p.equalsIgnoreCase("production") || p.equalsIgnoreCase("prod"));
+                .anyMatch(profile -> profile.equalsIgnoreCase("production") || profile.equalsIgnoreCase("prod"));
     }
 }

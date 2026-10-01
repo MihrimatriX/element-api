@@ -1,17 +1,17 @@
 using System.Net;
-using Element.Gateway;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 
 namespace Element.Gateway.Tests;
 
+/// <summary>Pins the edge quota numbers so a change to <see cref="RateLimitPolicy"/> is always deliberate.</summary>
 public class RateLimitPolicyTests
 {
     [Fact]
     public void Resolve_Register_IsStricterThanOtherAuth()
     {
-        var register = RateLimitPolicy.Resolve(Post("/api/v1/auth/register"));
-        var login = RateLimitPolicy.Resolve(Post("/api/v1/auth/login"));
+        var register = RateLimitPolicy.Resolve(Request(HttpMethods.Post, "/api/v1/auth/register"));
+        var login = RateLimitPolicy.Resolve(Request(HttpMethods.Post, "/api/v1/auth/login"));
 
         register.PermitLimit.Should().Be(5);
         register.Window.Should().Be(TimeSpan.FromMinutes(1));
@@ -27,7 +27,7 @@ public class RateLimitPolicyTests
     [InlineData("/api/v1/auth/email/send-verification")]
     public void Resolve_MailSendingEndpoints_ShareTheRegisterBucket(string path)
     {
-        var policy = RateLimitPolicy.Resolve(Post(path));
+        var policy = RateLimitPolicy.Resolve(Request(HttpMethods.Post, path));
 
         policy.PermitLimit.Should().Be(5);
         policy.PartitionKey.Should().StartWith("register:");
@@ -36,28 +36,19 @@ public class RateLimitPolicyTests
     [Fact]
     public void Resolve_PublicApi_IsSixtyPerTenSeconds()
     {
-        var get = RateLimitPolicy.Resolve(Get("/api/v2/elements/fe"));
+        var get = RateLimitPolicy.Resolve(Request(HttpMethods.Get, "/api/v2/elements/fe"));
 
         get.PermitLimit.Should().Be(60);
         get.Window.Should().Be(TimeSpan.FromSeconds(10));
         get.PartitionKey.Should().StartWith("public:");
     }
 
-    static DefaultHttpContext Post(string path)
+    private static DefaultHttpContext Request(string method, string path)
     {
-        var ctx = new DefaultHttpContext();
-        ctx.Connection.RemoteIpAddress = IPAddress.Parse("203.0.113.50");
-        ctx.Request.Method = HttpMethods.Post;
-        ctx.Request.Path = path;
-        return ctx;
-    }
-
-    static DefaultHttpContext Get(string path)
-    {
-        var ctx = new DefaultHttpContext();
-        ctx.Connection.RemoteIpAddress = IPAddress.Parse("203.0.113.50");
-        ctx.Request.Method = HttpMethods.Get;
-        ctx.Request.Path = path;
-        return ctx;
+        var context = new DefaultHttpContext();
+        context.Connection.RemoteIpAddress = IPAddress.Parse("203.0.113.50");
+        context.Request.Method = method;
+        context.Request.Path = path;
+        return context;
     }
 }

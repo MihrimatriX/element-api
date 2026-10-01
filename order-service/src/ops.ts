@@ -1,36 +1,24 @@
 import type { Express, Request, Response } from "express";
-import { buildHealthResponse } from "./healthUi.js";
+import { buildHealthResponse, type HealthReport } from "./healthUi.js";
 import { packageJson } from "./meta.js";
 
-type HealthChecker = () => Promise<{
-  ok: boolean;
-  checks: {
-    name: string;
-    ok: boolean;
-    durationMs: number;
-    description?: string;
-  }[];
-}>;
-
+/** Registers the health and service-info endpoints used by Docker, the gateway and operators. */
 export function registerOpsEndpoints(
   app: Express,
-  checkHealth: HealthChecker,
+  checkHealth: () => Promise<HealthReport>,
 ): void {
+  const respondWithDependencyHealth = async (_req: Request, res: Response) => {
+    const report = await checkHealth();
+    const body = buildHealthResponse(report.checks);
+    res.status(report.ok ? 200 : 503).json(body);
+  };
+
+  // Liveness only proves the process answers; it never touches dependencies.
   app.get("/health/live", (_req, res) => {
     res.json(buildHealthResponse([]));
   });
-
-  app.get("/health/ready", async (_req, res) => {
-    const h = await checkHealth();
-    const body = buildHealthResponse(h.checks);
-    res.status(h.ok ? 200 : 503).json(body);
-  });
-
-  app.get("/health", async (_req, res) => {
-    const h = await checkHealth();
-    const body = buildHealthResponse(h.checks);
-    res.status(h.ok ? 200 : 503).json(body);
-  });
+  app.get("/health/ready", respondWithDependencyHealth);
+  app.get("/health", respondWithDependencyHealth);
 
   app.get("/info", (req: Request, res: Response) => {
     const base = `${req.protocol}://${req.get("host")}`;

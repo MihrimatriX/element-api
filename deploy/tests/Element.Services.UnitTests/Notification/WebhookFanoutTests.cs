@@ -75,10 +75,18 @@ public class WebhookFanoutTests
     [Fact]
     public async Task DeliveryNamesOnlyCurrentEventAndSignsExactBody()
     {
-        string? eventHeader = null, signature = null, body = null;
+        string? eventHeader = null;
+        string? signature = null;
+        string? body = null;
+
+        // The identity service returns one public HTTPS hook subscribed to two events.
+        var subscriptions = new[]
+        {
+            new { url = "https://8.8.8.8/hook", secret = "test-secret", events = "price.updated,order.updated" },
+        };
         using var internalClient = new HttpClient(new StubHandler(_ => Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = JsonContent.Create(new[] { new { url = "https://8.8.8.8/hook", secret = "test-secret", events = "price.updated,order.updated" } })
+            Content = JsonContent.Create(subscriptions),
         })));
         // Every outbound request is intercepted; no network request is sent.
         using var deliveryClient = new HttpClient(new StubHandler(async request =>
@@ -97,7 +105,9 @@ public class WebhookFanoutTests
 
         Assert.Equal("order.updated", eventHeader);
         Assert.NotNull(body);
-        Assert.Equal(Convert.ToHexString(HMACSHA256.HashData(Encoding.UTF8.GetBytes("test-secret"), Encoding.UTF8.GetBytes(body))).ToLowerInvariant(), signature);
+        var expectedHash = HMACSHA256.HashData(Encoding.UTF8.GetBytes("test-secret"), Encoding.UTF8.GetBytes(body));
+        var expectedSignature = Convert.ToHexString(expectedHash).ToLowerInvariant();
+        Assert.Equal(expectedSignature, signature);
     }
 
     [Fact]

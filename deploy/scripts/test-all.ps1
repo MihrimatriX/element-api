@@ -1,3 +1,9 @@
+# The full quality gate. Always runs: tracked-file hygiene, web lint/test/build, order-service
+# build/check, all .NET builds, unit tests and npm audits. Heavier suites are opt-in:
+#   -Integration  Docker-based .NET integration tests
+#   -Live         checks against an already-running local stack (saga, scientific API, e2e, smoke, platform)
+#   -Browser      Playwright browser tests
+#   -Recovery     PostgreSQL backup/restore rehearsal
 param(
     [string]$Configuration = 'Review',
     [switch]$Integration,
@@ -8,21 +14,24 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+
+# Runs a native command and turns a non-zero exit code into a terminating error.
 function Invoke-Checked([string]$Command, [string[]]$Arguments) {
     & $Command @Arguments
     if ($LASTEXITCODE -ne 0) { throw "$Command failed (exit $LASTEXITCODE)." }
 }
 
+# test-unit.ps1 and the live checks change these variables; restore them for the caller's shell.
 $savedDotnet = $env:DOTNET_ROOT
 $savedDotnetX64 = $env:DOTNET_ROOT_X64
 $savedWebBase = $env:WEB_BASE
 Push-Location $root
 try {
     # Keep generated files and local secrets out of future commits.
-    $tracked = @(git ls-files)
+    $trackedFiles = @(git ls-files)
     if ($LASTEXITCODE -ne 0) { throw 'Could not inspect tracked files.' }
-    $generated = @($tracked | Where-Object { $_ -match '/(bin|obj|dist|target|node_modules)/' -or $_ -match '(^|/)\.env$' })
-    if ($generated.Count) { throw "$($generated.Count) generated or local environment files are tracked by Git." }
+    $generatedFiles = @($trackedFiles | Where-Object { $_ -match '/(bin|obj|dist|target|node_modules)/' -or $_ -match '(^|/)\.env$' })
+    if ($generatedFiles.Count) { throw "$($generatedFiles.Count) generated or local environment files are tracked by Git." }
 
     Invoke-Checked npm @('--prefix', 'web-app', 'run', 'lint')
     Invoke-Checked npm @('--prefix', 'web-app', 'test')

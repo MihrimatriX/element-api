@@ -7,13 +7,19 @@ using Element.Services.Identity.API.Controllers;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.IntegrationTests.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Npgsql;
 
 namespace Element.Services.IntegrationTests;
 
+/// <summary>
+/// Gateway + real identity service: public routes stay anonymous, protected routes need a valid
+/// X-API-Key that the gateway validates against identity.
+/// </summary>
 [Trait("Category", "Integration")]
 public class GatewayApiKeyIntegrationTests : IClassFixture<IntegrationTestContainers>
 {
+    /// <summary>Nothing listens here: proxied calls fail fast, which is fine because only auth is tested.</summary>
+    private const string UnreachableCatalogUrl = "http://127.0.0.1:59999";
+
     private readonly IntegrationTestContainers _containers;
 
     public GatewayApiKeyIntegrationTests(IntegrationTestContainers containers)
@@ -63,6 +69,7 @@ public class GatewayApiKeyIntegrationTests : IClassFixture<IntegrationTestContai
         Assert.NotEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    /// <summary>Registers a user, logs in and returns a freshly generated raw API key.</summary>
     private async Task<string> CreateApiKeyAsync()
     {
         await using var identity = CreateIdentityFactory();
@@ -74,13 +81,13 @@ public class GatewayApiKeyIntegrationTests : IClassFixture<IntegrationTestContai
         var login = await client.PostAsJsonAsync("/api/v1/auth/login", new LoginRequest(email, "Password1!"));
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
 
-        var req = new HttpRequestMessage(HttpMethod.Post, "/api/v1/api-keys/generate");
-        req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth!.Token);
-        req.Content = JsonContent.Create(new GenerateKeyRequest("gateway-e2e", 100));
-        var keyRes = await client.SendAsync(req);
-        keyRes.EnsureSuccessStatusCode();
-        var doc = await keyRes.Content.ReadFromJsonAsync<JsonElement>();
-        return doc.GetProperty("apiKey").GetString()!;
+        var keyRequest = new HttpRequestMessage(HttpMethod.Post, "/api/v1/api-keys/generate");
+        keyRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", auth!.Token);
+        keyRequest.Content = JsonContent.Create(new GenerateKeyRequest("gateway-e2e", 100));
+        var keyResponse = await client.SendAsync(keyRequest);
+        keyResponse.EnsureSuccessStatusCode();
+        var keyDocument = await keyResponse.Content.ReadFromJsonAsync<JsonElement>();
+        return keyDocument.GetProperty("apiKey").GetString()!;
     }
 
     private WebApplicationFactory<AuthController> CreateIdentityFactory() =>
@@ -88,7 +95,7 @@ public class GatewayApiKeyIntegrationTests : IClassFixture<IntegrationTestContai
             .WithWebHostBuilder(builder =>
             {
                 builder.UseSetting("ConnectionStrings:DefaultConnection",
-                    BuildConnectionString("element_identity_gw"));
+                    IntegrationTestSettings.BuildPostgresConnection(_containers, "element_identity_gw"));
                 builder.UseSetting("RedisConnection", _containers.RedisConnection);
                 builder.UseSetting("JwtSettings:Secret", "IntegrationTestSecretKey_Minimum32Chars!");
             });
@@ -99,16 +106,7 @@ public class GatewayApiKeyIntegrationTests : IClassFixture<IntegrationTestContai
             {
                 builder.UseSetting("RedisConnection", _containers.RedisConnection);
                 builder.UseSetting("IdentityServiceInternalUrl", identityBase);
-                builder.UseSetting("ElementServiceInternalUrl", "http://127.0.0.1:59999");
-                builder.UseSetting("ReverseProxy:Clusters:element-cluster:Destinations:destination1:Address", "http://127.0.0.1:59999");
+                builder.UseSetting("ElementServiceInternalUrl", UnreachableCatalogUrl);
+                builder.UseSetting("ReverseProxy:Clusters:element-cluster:Destinations:destination1:Address", UnreachableCatalogUrl);
             });
-
-    private string BuildConnectionString(string database)
-    {
-        var builder = new NpgsqlConnectionStringBuilder(_containers.Postgres.GetConnectionString())
-        {
-            Database = database
-        };
-        return builder.ConnectionString;
-    }
 }

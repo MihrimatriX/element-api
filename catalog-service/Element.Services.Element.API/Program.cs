@@ -1,94 +1,90 @@
-using System;
+using System.Reflection;
 using Element.Services.Element.API;
-using Element.Services.Element.API.Controllers;
 using Element.Services.Element.Infrastructure.Messaging.Consumers;
 using Element.Services.Element.Infrastructure.Persistence;
 using Element.Services.Element.Infrastructure.Services;
-using MassTransit;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Serilog;
 using Element.Shared.Extensions;
 using Element.Shared.Middleware;
-using Element.Shared.Health;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.DependencyInjection;
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.OpenApi.Models;
+using Serilog;
+
+// Catalogue service: element reference data (v1 + scientific v2), simulated KREDI prices,
+// categories and statistics. Stock itself is owned by inventory-service.
+
+const int MessageRetryCount = 3;
+var messageRetryInterval = TimeSpan.FromSeconds(5);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Console logging
 builder.AddConsoleLogging("Element.Service");
 
-// Add DbContext
 builder.Services.AddDbContext<ElementDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-        .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+        .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 // ponytail: in-process only (no Redis): a 5 s catalogue snapshot + market board shared by all anonymous readers
 // (see EfElementRepository.SnapshotTtl). Per replica; move to a distributed cache only if replicas multiply.
 builder.Services.AddMemoryCache();
 
-// Domain ports
 builder.Services.Configure<MarketOptions>(builder.Configuration.GetSection(MarketOptions.SectionName));
 builder.Services.AddScoped<EfElementRepository>();
 
-// Configure MassTransit with RabbitMQ
-builder.Services.AddMassTransit(x =>
+builder.Services.AddMassTransit(bus =>
 {
     // Stock reserve/release/fulfill owned by inventory-service. Catalog keeps price nudges.
-    x.AddConsumer<OrderCompletedConsumer>();
-    x.AddConsumer<ElementSoldConsumer>();
+    bus.AddConsumer<OrderCompletedConsumer>();
+    bus.AddConsumer<ElementSoldConsumer>();
 
-    x.UsingRabbitMq((context, cfg) =>
+    bus.UsingRabbitMq((context, rabbit) =>
     {
-        cfg.ConfigureRabbitMqHost(builder.Configuration);
-
-        // Add Resilience: Message Retry Policy
-        cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
-
-        cfg.ConfigureEndpoints(context);
+        rabbit.ConfigureRabbitMqHost(builder.Configuration);
+        rabbit.UseMessageRetry(retry => retry.Interval(MessageRetryCount, messageRetryInterval));
+        rabbit.ConfigureEndpoints(context);
     });
 });
 
 if (builder.Configuration.GetValue("PriceSimulator:Enabled", true))
+{
     builder.Services.AddHostedService<PriceSimulator>();
+}
 
 builder.Services.AddHostedService<ElementDetailSeeder>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => 
+builder.Services.AddSwaggerGen(swagger =>
 {
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    swagger.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Element API",
         Version = "v1",
         Description = "Free, open API for chemical elements data, market prices, and periodic table categories. Like SWAPI/Rick & Morty API, but for Chemistry!",
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact { Name = "Element Market Developer Team", Url = new Uri("http://localhost:3000") }
+        Contact = new OpenApiContact { Name = "Element Market Developer Team", Url = new Uri("http://localhost:3000") }
     });
 
-    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = System.IO.Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (System.IO.File.Exists(xmlPath))
+    var xmlDocFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlDocPath = Path.Combine(AppContext.BaseDirectory, xmlDocFile);
+    if (File.Exists(xmlDocPath))
     {
-        c.IncludeXmlComments(xmlPath);
+        swagger.IncludeXmlComments(xmlDocPath);
     }
 });
-// Add Health Checks
-var dbConn = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
+
+var healthCheckConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "";
 builder.Services.AddHealthChecks()
-    .AddNpgSql(dbConn, name: "PostgreSQL");
+    .AddNpgSql(healthCheckConnectionString, name: "PostgreSQL");
 
 var app = builder.Build();
 
 // Swagger is always available for this open public API
 app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseSwaggerUI(swaggerUi =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Element API v1");
-    c.DocumentTitle = "Element API Documentation";
+    swaggerUi.SwaggerEndpoint("/swagger/v1/swagger.json", "Element API v1");
+    swaggerUi.DocumentTitle = "Element API Documentation";
 });
 
 app.UseRequestLogging();
@@ -117,4 +113,5 @@ finally
     Log.CloseAndFlush();
 }
 
+/// <summary>Entry point type; public so integration tests can host the API with WebApplicationFactory.</summary>
 public partial class Program { }

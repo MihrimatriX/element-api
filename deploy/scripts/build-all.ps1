@@ -1,4 +1,5 @@
-# Build all .NET services and test projects (replaces element-api.sln).
+# Builds every .NET service and .NET test project one by one.
+# The repo has no .sln on purpose, so this list is the single place that knows all .NET projects.
 param([string]$Configuration = 'Release')
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..\..")
@@ -17,11 +18,11 @@ $projects = @(
     "deploy\tests\Element.Services.IntegrationTests\Element.Services.IntegrationTests.csproj"
 )
 
-foreach ($rel in $projects) {
-    $path = Join-Path $root $rel
-    Write-Host "Building $rel ..." -ForegroundColor Cyan
-    dotnet build $path -c $Configuration
-    if ($LASTEXITCODE -ne 0) { throw "Build failed: $rel" }
+foreach ($relativePath in $projects) {
+    $projectPath = Join-Path $root $relativePath
+    Write-Host "Building $relativePath ..." -ForegroundColor Cyan
+    dotnet build $projectPath -c $Configuration
+    if ($LASTEXITCODE -ne 0) { throw "Build failed: $relativePath" }
 }
 
 Write-Host "All projects built." -ForegroundColor Green

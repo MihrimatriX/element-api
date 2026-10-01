@@ -1,7 +1,6 @@
-using System.Collections.Generic;
-
 namespace Element.Services.Element.API.DTOs;
 
+/// <summary>Public shape of a category, with links to itself and to its elements.</summary>
 public class CategoryResponseDto
 {
     public int Id { get; set; }

@@ -94,4 +94,4 @@ Swagger (Development): http://localhost:5001/swagger
 | Giriş 401 | yanlış şifre |
 | Giriş 429 | kilit (5 hatalı → ~15 dk) veya gateway auth hız sınırı |
 
-[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md) · [Kod kılavuzu (her fonksiyon)](../docs/kilavuz/identity.md)
