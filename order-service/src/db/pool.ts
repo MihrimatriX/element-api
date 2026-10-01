@@ -2,6 +2,7 @@ import pg from "pg";
 import { config } from "../config.js";
 import { logger } from "../observability.js";
 
+/** Shared PostgreSQL connection pool for element_order_db. */
 export const pool = new pg.Pool({ connectionString: config.databaseUrl });
 // Idle clients die when Postgres restarts. Exit so Docker restarts us: saga messages then
 // wait in RabbitMQ instead of burning their retries into the _failed queue while the DB is down.
@@ -10,6 +11,10 @@ pool.on("error", (err) => {
   process.exit(1);
 });
 
+/**
+ * Creates or upgrades the service's tables and indexes at startup.
+ * Every statement is idempotent (IF NOT EXISTS), so it is safe to run on each boot.
+ */
 export async function initDb(): Promise<void> {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS orders (
@@ -51,6 +56,7 @@ export async function initDb(): Promise<void> {
     );
   `);
 
+  // Columns added after the first release; existing databases are upgraded in place.
   await pool.query(`
     ALTER TABLE saga_state ADD COLUMN IF NOT EXISTS deadline_at TIMESTAMPTZ;
     ALTER TABLE saga_state ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
@@ -60,6 +66,7 @@ export async function initDb(): Promise<void> {
     ALTER TABLE orders ADD COLUMN IF NOT EXISTS product_label VARCHAR(160);
   `);
 
+  // Partial indexes for the two background workers (outbox dispatcher, timeout sweeper) and the customer-read index.
   await pool.query(`
     CREATE INDEX IF NOT EXISTS idx_outbox_unpublished ON outbox_messages (created_at)
       WHERE published_at IS NULL;

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isQuantity, isSlug, isSymbol, isUuid } from "./http.js";
 
+/** Validates the POST /api/v1/orders body; the field rules are shared with http.ts. */
 export const createOrderBodySchema = z
   .object({
     elementSymbol: z.string(),
@@ -23,11 +24,7 @@ export const createOrderBodySchema = z
         path: ["quantity"],
       });
     }
-    if (
-      body.compoundSlug != null &&
-      body.compoundSlug !== undefined &&
-      !isSlug(body.compoundSlug)
-    ) {
+    if (body.compoundSlug != null && !isSlug(body.compoundSlug)) {
       ctx.addIssue({
         code: "custom",
         message: "compoundSlug must be a slug",
@@ -36,8 +33,9 @@ export const createOrderBodySchema = z
     }
   });
 
-export type CreateOrderBody = z.infer<typeof createOrderBodySchema>;
-
+/** Validates the optional Idempotency-Key header; it must be a UUID because it becomes the order id. */
 export const idempotencyKeySchema = z
   .string()
-  .refine((v) => isUuid(v), { message: "Idempotency-Key must be a UUID" });
+  .refine((value) => isUuid(value), {
+    message: "Idempotency-Key must be a UUID",
+  });
