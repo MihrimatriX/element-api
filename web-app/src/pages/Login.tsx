@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { authService, apiError } from "../services/api";
-import { useSelectedElement } from "../App";
+import { useSelectedElement } from "../context/selection";
 import { safeReturnTo } from "../services/session";
 import { API_BASE_URL } from "../config";
 import Seo from "../components/Seo";

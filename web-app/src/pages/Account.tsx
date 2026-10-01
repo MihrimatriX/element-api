@@ -3,7 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCommerce, useSelectedElement } from "../App";
+import { useCommerce } from "../context/commerce";
+import { useSelectedElement } from "../context/selection";
 import {
   apiError,
   apiKeyService,

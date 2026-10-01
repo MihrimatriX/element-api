@@ -6,9 +6,11 @@ import {
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useCommerce, useSelectedElement } from "../App";
+import { useCommerce } from "../context/commerce";
+import { useSelectedElement } from "../context/selection";
 import Seo from "../components/Seo";
 import {
   addToCart,
@@ -43,14 +45,6 @@ const fmt = (n: number, digits = 2) =>
   }).format(n);
 
 const elx = (n: number) => `${fmt(n, 2)} kredi`;
-
-function toast(text: string) {
-  const el = document.getElementById("toast");
-  if (!el) return;
-  el.textContent = text;
-  el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 1600);
-}
 
 interface ShopOrder {
   id: string;

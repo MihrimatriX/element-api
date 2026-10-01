@@ -1,9 +1,284 @@
-@layer theme, base, legacy, components, utilities;
+/*
+ * ElementAPI design system — "Mineral".
+ *
+ * One dark theme, one accent (cuprite), one gray family (green-tinted mineral).
+ * Every color, radius, shadow and font lives in the @theme block below; Tailwind
+ * turns each token into utilities (bg-surface, text-ink-2, border-line, rounded-lg ...).
+ * Components use those utilities. Do not hard-code hex values in components.
+ * `@theme static` emits every variable even when no utility uses it, because
+ * components also read tokens at runtime (e.g. `var(--color-family-${family})`).
+ */
 @import "tailwindcss" source(".");
 @import "tw-animate-css";
-@import "./index.css" layer(legacy);
-@import "./science.css" layer(legacy);
-@import "./atlas.css" layer(legacy);
-@import "./design-system.css";
-/* After design-system so landing/API product rules beat base h1/h2 in @layer components. */
-@import "./product.css" layer(components);
+
+@theme static {
+  /* ── Typefaces ─────────────────────────────────────────────── */
+  --font-display: "Bricolage Grotesque", "Geist", system-ui, sans-serif;
+  --font-sans: "Geist", system-ui, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+
+  /* ── Surfaces: page → band → card → raised → pressed ───────── */
+  --color-canvas: oklch(0.145 0.006 165);
+  --color-canvas-2: oklch(0.168 0.007 165);
+  --color-surface: oklch(0.192 0.008 165);
+  --color-surface-2: oklch(0.222 0.009 165);
+  --color-surface-3: oklch(0.258 0.01 165);
+
+  /* ── Hairlines ─────────────────────────────────────────────── */
+  --color-line: oklch(0.96 0.005 165 / 0.08);
+  --color-line-strong: oklch(0.96 0.005 165 / 0.15);
+
+  /* ── Ink (text). ink-3 still passes WCAG AA on canvas. ─────── */
+  --color-ink: oklch(0.955 0.004 165);
+  --color-ink-2: oklch(0.79 0.009 165);
+  --color-ink-3: oklch(0.63 0.011 165);
+  --color-ink-4: oklch(0.47 0.01 165);
+
+  /* ── Brand: cuprite. Fill for buttons, ink for text on dark. ─ */
+  --color-brand: oklch(0.52 0.14 33);
+  --color-brand-hover: oklch(0.575 0.15 33);
+  --color-brand-press: oklch(0.47 0.13 33);
+  --color-brand-ink: oklch(0.77 0.11 36);
+  --color-brand-soft: oklch(0.52 0.14 33 / 0.14);
+  --color-brand-line: oklch(0.62 0.14 33 / 0.45);
+
+  /* ── Status ────────────────────────────────────────────────── */
+  --color-success: oklch(0.76 0.12 158);
+  --color-success-soft: oklch(0.76 0.12 158 / 0.12);
+  --color-warning: oklch(0.82 0.12 80);
+  --color-warning-soft: oklch(0.82 0.12 80 / 0.12);
+  --color-danger: oklch(0.7 0.17 20);
+  --color-danger-soft: oklch(0.7 0.17 20 / 0.13);
+  --color-info: oklch(0.76 0.09 235);
+  --color-info-soft: oklch(0.76 0.09 235 / 0.12);
+
+  /* ── Element families (periodic table, charts, chips) ──────── */
+  --color-family-alkali: oklch(0.7 0.13 30);
+  --color-family-alkaline: oklch(0.78 0.11 72);
+  --color-family-transition: oklch(0.72 0.08 240);
+  --color-family-post: oklch(0.72 0.035 215);
+  --color-family-metalloid: oklch(0.78 0.09 108);
+  --color-family-nonmetal: oklch(0.76 0.11 152);
+  --color-family-halogen: oklch(0.78 0.09 192);
+  --color-family-noble: oklch(0.74 0.09 285);
+  --color-family-lanthanide: oklch(0.74 0.1 345);
+  --color-family-actinide: oklch(0.72 0.1 12);
+  --color-family-unknown: oklch(0.6 0.01 165);
+
+  /* ── Code / JSON syntax ────────────────────────────────────── */
+  --color-syntax-key: oklch(0.86 0.05 200);
+  --color-syntax-string: oklch(0.8 0.1 150);
+  --color-syntax-number: oklch(0.82 0.11 75);
+  --color-syntax-literal: oklch(0.77 0.11 36);
+  --color-syntax-punct: oklch(0.55 0.01 165);
+
+  /* ── shadcn/Radix aliases (ui/* primitives read these) ────── */
+  --color-background: var(--color-canvas);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-surface-2);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-brand);
+  --color-primary-foreground: oklch(0.985 0.003 60);
+  --color-secondary: var(--color-surface-2);
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: var(--color-surface-2);
+  --color-muted-foreground: var(--color-ink-3);
+  --color-accent: var(--color-surface-3);
+  --color-accent-foreground: var(--color-ink);
+  --color-destructive: var(--color-danger);
+  --color-border: var(--color-line-strong);
+  --color-input: var(--color-line-strong);
+  --color-ring: var(--color-brand-ink);
+
+  /* ── Shape: tight on controls, softer on containers ───────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+
+  /* ── Depth: shadows tinted with the canvas hue ────────────── */
+  --shadow-xs: 0 1px 0 oklch(0.96 0.005 165 / 0.04) inset, 0 1px 2px oklch(0.08 0.01 165 / 0.5);
+  --shadow-sm: 0 1px 0 oklch(0.96 0.005 165 / 0.05) inset, 0 2px 8px -2px oklch(0.08 0.01 165 / 0.6);
+  --shadow-md: 0 1px 0 oklch(0.96 0.005 165 / 0.06) inset, 0 12px 32px -12px oklch(0.06 0.01 165 / 0.75);
+  --shadow-lg: 0 1px 0 oklch(0.96 0.005 165 / 0.07) inset, 0 24px 64px -16px oklch(0.05 0.01 165 / 0.85);
+  --shadow-glow: 0 0 0 1px var(--color-brand-line), 0 8px 32px -8px oklch(0.52 0.14 33 / 0.45);
+
+  /* ── Type scale (fluid display sizes) ─────────────────────── */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-display-sm: clamp(2.25rem, 1.6rem + 2.6vw, 3.25rem);
+  --text-display-sm--line-height: 1.05;
+  --text-display: clamp(2.75rem, 1.8rem + 4.2vw, 4.75rem);
+  --text-display--line-height: 1;
+  --text-display-lg: clamp(3.25rem, 1.9rem + 6.4vw, 6.75rem);
+  --text-display-lg--line-height: 0.95;
+
+  /* ── Motion ────────────────────────────────────────────────── */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* ── Layers ────────────────────────────────────────────────── */
+  --z-header: 40;
+  --z-overlay: 50;
+  --z-toast: 60;
+}
+
+/* Page container: one max width, one gutter rule, used by every page. */
+@utility container-page {
+  width: 100%;
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @media (width >= 40rem) {
+    padding-inline: 1.5rem;
+  }
+  @media (width >= 64rem) {
+    padding-inline: 2rem;
+  }
+}
+
+/* Numbers that line up in tables and stat tiles. */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* Small uppercase label above a title ("Laboratuvar", "Element 26"). */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+/* Subtle surface with hairline + inner highlight; the default card look. */
+@utility panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Inline text link: readable cuprite ink with a quiet underline that firms up on hover. */
+@utility text-link {
+  color: var(--color-brand-ink);
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-brand-line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 150ms;
+
+  &:hover {
+    text-decoration-color: var(--color-brand-ink);
+  }
+}
+
+/* Keyboard focus ring for components that carry [data-slot] (the base outline skips them). */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-canvas);
+    /* Fine grain keeps large dark areas from looking flat. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    color: var(--color-ink-2);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-mono);
+  }
+
+  ::selection {
+    background: var(--color-brand-soft);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  /* Radix primitives draw their own ring; avoid a double outline. */
+  [data-slot]:focus-visible {
+    outline: none;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-surface-3) transparent;
+  }
+
+  img,
+  svg,
+  video {
+    display: block;
+    max-width: 100%;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

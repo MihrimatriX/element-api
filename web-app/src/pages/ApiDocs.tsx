@@ -14,6 +14,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/toast";
 import { track } from "../services/diagnostics";
 import { playgroundView } from "../services/apiDocs";
 import { readStorage } from "../services/session";
@@ -240,12 +241,7 @@ export default function ApiDocs() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    const toast = document.getElementById("toast");
-    if (toast) {
-      toast.textContent = "Kopyalandı";
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 1500);
-    }
+    toast("Kopyalandı");
   };
 
   const sellExample = `curl -s -X POST "${API_ORIGIN}/api/v1/desk/sell" \\
