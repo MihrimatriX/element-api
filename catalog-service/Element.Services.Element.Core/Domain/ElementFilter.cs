@@ -1,4 +1,3 @@
-using System;
 using Element.Services.Element.Core.Entities;
 
 namespace Element.Services.Element.Core.Domain;
@@ -37,6 +36,7 @@ public sealed class ElementFilter
     public ElementSort Sort { get; init; } = ElementSort.AtomicNumber;
     public bool Descending { get; init; }
 
+    /// <summary>Turns the free-text <c>sort</c> query value into a sort key; unknown values sort by atomic number.</summary>
     public static ElementSort ParseSort(string? value) => value?.Trim().ToLowerInvariant() switch
     {
         "name" => ElementSort.Name,
@@ -49,51 +49,87 @@ public sealed class ElementFilter
         _ => ElementSort.AtomicNumber
     };
 
-    public bool Matches(ChemicalElement e)
+    /// <summary>Returns true when the element passes every filter that is set; unset filters are ignored.</summary>
+    public bool Matches(ChemicalElement element)
     {
-        if (e is null) return false;
-
-        if (!string.IsNullOrWhiteSpace(Category) &&
-            !e.Category.Contains(Category.Trim(), StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (!string.IsNullOrWhiteSpace(Block) &&
-            !string.Equals(e.Block, Block.Trim(), StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (!string.IsNullOrWhiteSpace(Phase) &&
-            !string.Equals(e.Phase, Phase.Trim(), StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        if (Group.HasValue && e.Group != Group.Value) return false;
-        if (Period.HasValue && e.Period != Period.Value) return false;
-        if (MinPrice.HasValue && e.PricePerGram < MinPrice.Value) return false;
-        if (MaxPrice.HasValue && e.PricePerGram > MaxPrice.Value) return false;
-        if (InStockOnly == true && e.AvailableStock <= 0) return false;
-
-        if (!string.IsNullOrWhiteSpace(Search))
+        if (element is null)
         {
-            var term = Search.Trim();
-            var hit = e.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
-                      || e.Symbol.Contains(term, StringComparison.OrdinalIgnoreCase)
-                      || (e.NameTr?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false)
-                      || e.AtomicNumber.ToString().Contains(term, StringComparison.OrdinalIgnoreCase);
-            if (!hit) return false;
+            return false;
         }
 
-        return true;
+        if (!string.IsNullOrWhiteSpace(Category) &&
+            !element.Category.Contains(Category.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Block) &&
+            !string.Equals(element.Block, Block.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Phase) &&
+            !string.Equals(element.Phase, Phase.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (Group.HasValue && element.Group != Group.Value)
+        {
+            return false;
+        }
+
+        if (Period.HasValue && element.Period != Period.Value)
+        {
+            return false;
+        }
+
+        if (MinPrice.HasValue && element.PricePerGram < MinPrice.Value)
+        {
+            return false;
+        }
+
+        if (MaxPrice.HasValue && element.PricePerGram > MaxPrice.Value)
+        {
+            return false;
+        }
+
+        if (InStockOnly == true && element.AvailableStock <= 0)
+        {
+            return false;
+        }
+
+        return MatchesSearch(element);
     }
 
     /// <summary>Sort key projection, used by <see cref="ElementAnalytics"/> for ordering.</summary>
-    public IComparable SortKey(ChemicalElement e) => Sort switch
+    public IComparable SortKey(ChemicalElement element) => Sort switch
     {
-        ElementSort.Name => e.Name,
-        ElementSort.Price => e.PricePerGram,
-        ElementSort.AtomicMass => e.AtomicMass,
-        ElementSort.Density => e.Density ?? decimal.MinValue,
-        ElementSort.MeltingPoint => e.MeltingPoint ?? decimal.MinValue,
-        ElementSort.BoilingPoint => e.BoilingPoint ?? decimal.MinValue,
-        ElementSort.Rating => e.Rating,
-        _ => e.AtomicNumber
+        ElementSort.Name => element.Name,
+        ElementSort.Price => element.PricePerGram,
+        ElementSort.AtomicMass => element.AtomicMass,
+        // Missing measurements sort as the smallest value so they stay together at one end.
+        ElementSort.Density => element.Density ?? decimal.MinValue,
+        ElementSort.MeltingPoint => element.MeltingPoint ?? decimal.MinValue,
+        ElementSort.BoilingPoint => element.BoilingPoint ?? decimal.MinValue,
+        ElementSort.Rating => element.Rating,
+        _ => element.AtomicNumber
     };
+
+    private bool MatchesSearch(ChemicalElement element)
+    {
+        if (string.IsNullOrWhiteSpace(Search))
+        {
+            return true;
+        }
+
+        var term = Search.Trim();
+        var turkishName = element.NameTr ?? string.Empty;
+
+        return element.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
+            || element.Symbol.Contains(term, StringComparison.OrdinalIgnoreCase)
+            || turkishName.Contains(term, StringComparison.OrdinalIgnoreCase)
+            || element.AtomicNumber.ToString().Contains(term, StringComparison.OrdinalIgnoreCase);
+    }
 }

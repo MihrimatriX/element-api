@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Element.Services.Element.Core.Entities;
 
 namespace Element.Services.Element.Core.Domain;
@@ -16,6 +13,11 @@ namespace Element.Services.Element.Core.Domain;
 /// </summary>
 public static class ElementAnalytics
 {
+    private const int PriceDecimals = 4;
+    private const string UnknownPhase = "unknown";
+    private const string UnknownBlock = "?";
+
+    /// <summary>Filters and sorts elements; ties are always broken by atomic number so paging is stable.</summary>
     public static IReadOnlyList<ChemicalElement> Query(IEnumerable<ChemicalElement> source, ElementFilter filter)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -24,12 +26,15 @@ public static class ElementAnalytics
         var matched = source.Where(filter.Matches);
 
         var ordered = filter.Descending
-            ? matched.OrderByDescending(filter.SortKey).ThenBy(e => e.AtomicNumber)
-            : matched.OrderBy(filter.SortKey).ThenBy(e => e.AtomicNumber);
+            ? matched.OrderByDescending(filter.SortKey)
+            : matched.OrderBy(filter.SortKey);
 
-        return ordered.ToList();
+        return ordered
+            .ThenBy(element => element.AtomicNumber)
+            .ToList();
     }
 
+    /// <summary>Computes counts, price averages and per-metric leaders for the given elements.</summary>
     public static ElementStatistics ComputeStatistics(IReadOnlyCollection<ChemicalElement> elements)
     {
         ArgumentNullException.ThrowIfNull(elements);
@@ -40,46 +45,60 @@ public static class ElementAnalytics
             return new ElementStatistics(0, 0m, 0m, null, null, null, null, 0m, empty, empty, empty);
         }
 
-        var prices = elements.Select(e => e.PricePerGram).OrderBy(p => p).ToList();
-        var cheapest = elements.MinBy(e => e.PricePerGram)!;
-        var dearest = elements.MaxBy(e => e.PricePerGram)!;
-        var heaviest = elements.MaxBy(e => e.AtomicMass)!;
-        var withMelt = elements.Where(e => e.MeltingPoint.HasValue).ToList();
-        var hottest = withMelt.Count > 0 ? withMelt.MaxBy(e => e.MeltingPoint!.Value) : null;
+        var sortedPrices = elements
+            .Select(element => element.PricePerGram)
+            .OrderBy(price => price)
+            .ToList();
+
+        var cheapest = elements.MinBy(element => element.PricePerGram)!;
+        var mostExpensive = elements.MaxBy(element => element.PricePerGram)!;
+        var heaviest = elements.MaxBy(element => element.AtomicMass)!;
+        var highestMelting = elements
+            .Where(element => element.MeltingPoint.HasValue)
+            .MaxBy(element => element.MeltingPoint!.Value);
 
         return new ElementStatistics(
             Count: elements.Count,
-            AveragePrice: Math.Round(elements.Average(e => e.PricePerGram), 4),
-            MedianPrice: Median(prices),
+            AveragePrice: Math.Round(elements.Average(element => element.PricePerGram), PriceDecimals),
+            MedianPrice: Median(sortedPrices),
             Cheapest: new ElementRef(cheapest.Symbol, cheapest.Name, cheapest.PricePerGram),
-            MostExpensive: new ElementRef(dearest.Symbol, dearest.Name, dearest.PricePerGram),
+            MostExpensive: new ElementRef(mostExpensive.Symbol, mostExpensive.Name, mostExpensive.PricePerGram),
             Heaviest: new ElementRef(heaviest.Symbol, heaviest.Name, heaviest.AtomicMass),
-            HighestMelting: hottest is null ? null : new ElementRef(hottest.Symbol, hottest.Name, hottest.MeltingPoint!.Value),
-            TotalAvailableStock: elements.Sum(e => e.AvailableStock),
-            CountByCategory: GroupCount(elements, e => e.Category),
-            CountByPhase: GroupCount(elements, e => string.IsNullOrWhiteSpace(e.Phase) ? "unknown" : e.Phase),
-            CountByBlock: GroupCount(elements, e => string.IsNullOrWhiteSpace(e.Block) ? "?" : e.Block));
+            HighestMelting: highestMelting is null
+                ? null
+                : new ElementRef(highestMelting.Symbol, highestMelting.Name, highestMelting.MeltingPoint!.Value),
+            TotalAvailableStock: elements.Sum(element => element.AvailableStock),
+            CountByCategory: CountBy(elements, element => element.Category),
+            CountByPhase: CountBy(elements, element => ValueOrDefault(element.Phase, UnknownPhase)),
+            CountByBlock: CountBy(elements, element => ValueOrDefault(element.Block, UnknownBlock)));
     }
 
+    /// <summary>Names the winner of each metric (cheapest, heaviest, densest, ...) within the given set.</summary>
     public static ElementComparison Compare(IReadOnlyList<ChemicalElement> elements)
     {
         ArgumentNullException.ThrowIfNull(elements);
 
-        var symbols = elements.Select(e => e.Symbol).ToList();
+        var symbols = elements.Select(element => element.Symbol).ToList();
         if (elements.Count == 0)
+        {
             return new ElementComparison(symbols, null, null, null, null, null, null);
+        }
 
-        var withMelt = elements.Where(e => e.MeltingPoint.HasValue).ToList();
-        var withDensity = elements.Where(e => e.Density.HasValue).ToList();
+        var highestMelting = elements
+            .Where(element => element.MeltingPoint.HasValue)
+            .MaxBy(element => element.MeltingPoint!.Value);
+        var densest = elements
+            .Where(element => element.Density.HasValue)
+            .MaxBy(element => element.Density!.Value);
 
         return new ElementComparison(
             Symbols: symbols,
-            CheapestSymbol: elements.MinBy(e => e.PricePerGram)!.Symbol,
-            MostExpensiveSymbol: elements.MaxBy(e => e.PricePerGram)!.Symbol,
-            HeaviestSymbol: elements.MaxBy(e => e.AtomicMass)!.Symbol,
-            LightestSymbol: elements.MinBy(e => e.AtomicMass)!.Symbol,
-            HighestMeltingSymbol: withMelt.Count > 0 ? withMelt.MaxBy(e => e.MeltingPoint!.Value)!.Symbol : null,
-            DensestSymbol: withDensity.Count > 0 ? withDensity.MaxBy(e => e.Density!.Value)!.Symbol : null);
+            CheapestSymbol: elements.MinBy(element => element.PricePerGram)!.Symbol,
+            MostExpensiveSymbol: elements.MaxBy(element => element.PricePerGram)!.Symbol,
+            HeaviestSymbol: elements.MaxBy(element => element.AtomicMass)!.Symbol,
+            LightestSymbol: elements.MinBy(element => element.AtomicMass)!.Symbol,
+            HighestMeltingSymbol: highestMelting?.Symbol,
+            DensestSymbol: densest?.Symbol);
     }
 
     /// <summary>
@@ -91,20 +110,28 @@ public static class ElementAnalytics
         ArgumentNullException.ThrowIfNull(all);
         ArgumentNullException.ThrowIfNull(target);
 
-        var list = all.ToList();
-        var result = new List<ChemicalElement>();
+        var elements = all.ToList();
+        var neighbors = new List<ChemicalElement>();
 
-        void Add(ChemicalElement? e)
+        void AddIfNew(ChemicalElement? candidate)
         {
-            if (e is not null && e.Symbol != target.Symbol && !result.Contains(e)) result.Add(e);
+            if (candidate is null || candidate.Symbol == target.Symbol || neighbors.Contains(candidate))
+            {
+                return;
+            }
+
+            neighbors.Add(candidate);
         }
 
-        Add(list.FirstOrDefault(e => e.Period == target.Period && e.Group == target.Group - 1));
-        Add(list.FirstOrDefault(e => e.Period == target.Period && e.Group == target.Group + 1));
-        Add(list.FirstOrDefault(e => e.Group == target.Group && e.Period == target.Period - 1));
-        Add(list.FirstOrDefault(e => e.Group == target.Group && e.Period == target.Period + 1));
+        ChemicalElement? FindCell(int period, int group) =>
+            elements.FirstOrDefault(element => element.Period == period && element.Group == group);
 
-        return result;
+        AddIfNew(FindCell(target.Period, target.Group - 1));
+        AddIfNew(FindCell(target.Period, target.Group + 1));
+        AddIfNew(FindCell(target.Period - 1, target.Group));
+        AddIfNew(FindCell(target.Period + 1, target.Group));
+
+        return neighbors;
     }
 
     /// <summary>Same-category elements closest by atomic number, nearest first.</summary>
@@ -114,25 +141,43 @@ public static class ElementAnalytics
         ArgumentNullException.ThrowIfNull(target);
 
         return all
-            .Where(e => e.Symbol != target.Symbol &&
-                        string.Equals(e.Category, target.Category, StringComparison.OrdinalIgnoreCase))
-            .OrderBy(e => Math.Abs(e.AtomicNumber - target.AtomicNumber))
-            .ThenBy(e => e.AtomicNumber)
+            .Where(element => element.Symbol != target.Symbol)
+            .Where(element => string.Equals(element.Category, target.Category, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(element => Math.Abs(element.AtomicNumber - target.AtomicNumber))
+            .ThenBy(element => element.AtomicNumber)
             .Take(Math.Max(0, count))
             .ToList();
     }
 
-    private static decimal Median(IReadOnlyList<decimal> sorted)
+    private static decimal Median(IReadOnlyList<decimal> sortedValues)
     {
-        if (sorted.Count == 0) return 0m;
-        var mid = sorted.Count / 2;
-        return sorted.Count % 2 == 1
-            ? sorted[mid]
-            : Math.Round((sorted[mid - 1] + sorted[mid]) / 2m, 4);
+        if (sortedValues.Count == 0)
+        {
+            return 0m;
+        }
+
+        var middle = sortedValues.Count / 2;
+        var hasOddCount = sortedValues.Count % 2 == 1;
+        if (hasOddCount)
+        {
+            return sortedValues[middle];
+        }
+
+        var middlePairAverage = (sortedValues[middle - 1] + sortedValues[middle]) / 2m;
+        return Math.Round(middlePairAverage, PriceDecimals);
     }
 
-    private static IReadOnlyDictionary<string, int> GroupCount(
-        IEnumerable<ChemicalElement> elements, Func<ChemicalElement, string> key) =>
-        elements.GroupBy(key).OrderByDescending(g => g.Count())
-            .ToDictionary(g => g.Key, g => g.Count());
+    /// <summary>Counts elements per key, largest group first.</summary>
+    private static IReadOnlyDictionary<string, int> CountBy(
+        IEnumerable<ChemicalElement> elements,
+        Func<ChemicalElement, string> keySelector)
+    {
+        return elements
+            .GroupBy(keySelector)
+            .OrderByDescending(group => group.Count())
+            .ToDictionary(group => group.Key, group => group.Count());
+    }
+
+    private static string ValueOrDefault(string value, string fallback) =>
+        string.IsNullOrWhiteSpace(value) ? fallback : value;
 }

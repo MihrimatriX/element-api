@@ -1,9 +1,8 @@
-using Element.Services.Compound.API.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace Element.Services.Compound.API.Controllers;
 
+/// <summary>Root discovery endpoint of the compound service.</summary>
 [ApiController]
 [Route("api/v1")]
 public class ApiInfoController : ControllerBase
@@ -12,6 +11,7 @@ public class ApiInfoController : ControllerBase
 
     public ApiInfoController(IConfiguration configuration) => _configuration = configuration;
 
+    /// <summary>Lists the compound endpoints with example links, so a client can explore the API from one URL.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(Dictionary<string, string>), 200)]
     public IActionResult GetApiInfo()
@@ -27,6 +27,7 @@ public class ApiInfoController : ControllerBase
             { "info", $"{baseUrl}/info" },
             { "swagger", $"{baseUrl}/swagger" }
         };
+
         return Ok(resources);
     }
 }
