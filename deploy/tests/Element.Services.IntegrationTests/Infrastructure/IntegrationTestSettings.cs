@@ -1,11 +1,13 @@
-using System.Text.Json;
 using Npgsql;
-using StackExchange.Redis;
 
 namespace Element.Services.IntegrationTests.Infrastructure;
 
+/// <summary>
+/// Shared configuration helpers that point services under test at the Testcontainers instances.
+/// </summary>
 public static class IntegrationTestSettings
 {
+    /// <summary>Connection string for <paramref name="database"/> on the shared Postgres container.</summary>
     public static string BuildPostgresConnection(IntegrationTestContainers containers, string database)
     {
         var builder = new NpgsqlConnectionStringBuilder(containers.Postgres.GetConnectionString())
@@ -15,6 +17,7 @@ public static class IntegrationTestSettings
         return builder.ConnectionString;
     }
 
+    /// <summary>Web host settings that connect a .NET service to the RabbitMQ container.</summary>
     public static Action<Microsoft.AspNetCore.Hosting.IWebHostBuilder> RabbitMqSettings(IntegrationTestContainers containers) => builder =>
     {
         builder.UseSetting("RabbitMQ:Host", containers.RabbitHost);
@@ -22,29 +25,4 @@ public static class IntegrationTestSettings
         builder.UseSetting("RabbitMQ:Username", "guest");
         builder.UseSetting("RabbitMQ:Password", "guest");
     };
-
-    public static Action<Microsoft.AspNetCore.Hosting.IWebHostBuilder> PaymentTestSettings(IntegrationTestContainers containers) => builder =>
-    {
-        RabbitMqSettings(containers)(builder);
-        builder.UseSetting("Payment:DeterministicMode", "true");
-        builder.UseSetting("Payment:SimulateDelaySeconds", "0");
-    };
-
-    /// <summary>
-    /// Seeds Redis so Order can resolve catalog price via HTTP ticker.
-    /// </summary>
-    public static async Task SeedElementPriceCacheAsync(IntegrationTestContainers containers, string symbol, decimal pricePerGram)
-    {
-        var redis = await ConnectionMultiplexer.ConnectAsync(containers.RedisConnection);
-        try
-        {
-            var payload = JsonSerializer.Serialize(new { pricePerGram });
-            await redis.GetDatabase().StringSetAsync($"element:{symbol.ToLower()}", payload);
-        }
-        finally
-        {
-            await redis.CloseAsync();
-            redis.Dispose();
-        }
-    }
 }

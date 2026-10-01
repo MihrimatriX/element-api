@@ -4,14 +4,21 @@ using Microsoft.AspNetCore.Http;
 
 namespace Element.Services.IntegrationTests.Infrastructure;
 
-/// <summary>Expose a TestServer client to the separate Node process over loopback.</summary>
+/// <summary>
+/// Exposes an in-memory TestServer client on a real loopback port, so the separate Node
+/// order-service process can call a .NET service that only exists inside the test.
+/// Only GET is forwarded (status, content type and body).
+/// </summary>
 public sealed class TestHttpBridge : IAsyncDisposable
 {
     private readonly WebApplication _app;
+
+    /// <summary>The loopback URL the bridge listens on (random free port).</summary>
     public string BaseUrl => _app.Urls.Single();
 
     private TestHttpBridge(WebApplication app) => _app = app;
 
+    /// <summary>Starts a minimal web app that forwards every incoming GET to <paramref name="client"/>.</summary>
     public static async Task<TestHttpBridge> StartAsync(HttpClient client)
     {
         var builder = WebApplication.CreateBuilder();

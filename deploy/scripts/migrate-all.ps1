@@ -1,12 +1,13 @@
-# Generates or applies EF Core migrations for all database-backed services.
-# Requires: dotnet-ef tool — dotnet tool install -g dotnet-ef
+# Creates the first EF Core migration (InitialCreate) for each database-backed .NET service
+# that has no migrations folder yet. Existing migrations are never touched.
+# Requires the dotnet-ef tool: dotnet tool install -g dotnet-ef
 
 $ErrorActionPreference = "Stop"
 $root = Resolve-Path (Join-Path $PSScriptRoot "..\..")
 
 Write-Host "Adding/updating EF migrations..." -ForegroundColor Cyan
 
-$migrations = @(
+$migrationTargets = @(
     @{
         Name = "Identity"
         Infrastructure = "identity-service\Element.Services.Identity.Infrastructure"
@@ -30,21 +31,22 @@ $migrations = @(
     }
 )
 
-foreach ($m in $migrations) {
-    $infra = Join-Path $root $m.Infrastructure
-    $api = Join-Path $root $m.Api
-    $outDir = Join-Path $infra $m.Output
+foreach ($target in $migrationTargets) {
+    $infrastructureDir = Join-Path $root $target.Infrastructure
+    $apiDir = Join-Path $root $target.Api
+    $migrationsDir = Join-Path $infrastructureDir $target.Output
 
-    if (-not (Test-Path $outDir)) {
-        Write-Host "Creating InitialCreate for $($m.Name)..." -ForegroundColor Yellow
-        dotnet ef migrations add InitialCreate `
-            --project $infra `
-            --startup-project $api `
-            --context $m.Context `
-            --output-dir $m.Output
-    } else {
-        Write-Host "$($m.Name) migrations already exist at $outDir" -ForegroundColor Green
+    if (Test-Path $migrationsDir) {
+        Write-Host "$($target.Name) migrations already exist at $migrationsDir" -ForegroundColor Green
+        continue
     }
+
+    Write-Host "Creating InitialCreate for $($target.Name)..." -ForegroundColor Yellow
+    dotnet ef migrations add InitialCreate `
+        --project $infrastructureDir `
+        --startup-project $apiDir `
+        --context $target.Context `
+        --output-dir $target.Output
 }
 
 Write-Host "Done. Production deploys use Database.Migrate via ApplyDatabaseAsync." -ForegroundColor Cyan

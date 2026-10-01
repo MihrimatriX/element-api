@@ -1,6 +1,6 @@
-# Creates gitignored docker/.env.public.prod from the example + fresh secrets.
-# Default: local prod smoke (:8082). Pass -ServerTemplate to write real-host CADDY_SITE/80/443
-# (still needs DNS → this machine and operator paste for Turnstile).
+# Creates the gitignored docker/.env.public.prod from its example, with freshly generated secrets.
+# Default: local prod smoke (:8082). Pass -ServerTemplate to write the real-host CADDY_SITE and 80/443
+# (DNS must still point at this machine, and the operator still pastes the Turnstile keys).
 # Never prints secret values. Does not overwrite an existing file unless -Force.
 param(
     [switch]$Force,
@@ -12,43 +12,56 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
 $example = Join-Path $root 'docker/.env.public.prod.example'
 $target = Join-Path $root 'docker/.env.public.prod'
 
+$publicHost = 'elements-api.ahmetfuzunkaya.com'
+$publicOrigin = "https://$publicHost"
+
 if ((Test-Path -LiteralPath $target) -and -not $Force) {
     Write-Host "Exists: $target (pass -Force to regenerate secrets)."
     exit 0
 }
 if (!(Test-Path -LiteralPath $example)) { throw "Missing $example" }
 
-function New-HexSecret([int]$bytes = 32) {
-    $buf = New-Object byte[] $bytes
-    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-    try { $rng.GetBytes($buf) } finally { $rng.Dispose() }
-    -join ($buf | ForEach-Object { $_.ToString('x2') })
+# Returns a cryptographically random secret as lowercase hex (32 bytes -> 64 characters).
+function New-HexSecret([int]$byteCount = 32) {
+    $buffer = New-Object byte[] $byteCount
+    $generator = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try { $generator.GetBytes($buffer) } finally { $generator.Dispose() }
+    -join ($buffer | ForEach-Object { $_.ToString('x2') })
 }
 
-$jwt = New-HexSecret
-$iak = New-HexSecret
-$pg = New-HexSecret
-$rb = New-HexSecret
+# Secrets replace the example placeholders in every mode.
+$generatedSecrets = [ordered]@{
+    JWT_SECRET            = New-HexSecret
+    INTERNAL_API_KEY      = New-HexSecret
+    POSTGRES_PASSWORD     = New-HexSecret
+    RABBITMQ_DEFAULT_PASS = New-HexSecret
+}
 
-$lines = Get-Content -LiteralPath $example
-$out = foreach ($line in $lines) {
-    if ($line -match '^\s*JWT_SECRET=') { "JWT_SECRET=$jwt"; continue }
-    if ($line -match '^\s*INTERNAL_API_KEY=') { "INTERNAL_API_KEY=$iak"; continue }
-    if ($line -match '^\s*POSTGRES_PASSWORD=') { "POSTGRES_PASSWORD=$pg"; continue }
-    if ($line -match '^\s*RABBITMQ_DEFAULT_PASS=') { "RABBITMQ_DEFAULT_PASS=$rb"; continue }
+# Only -ServerTemplate switches the file from local smoke to the real public host.
+$serverOverrides = [ordered]@{
+    CADDY_SITE           = $publicHost
+    CADDY_HTTP_PORT      = '80'
+    CADDY_HTTPS_PORT     = '443'
+    PUBLIC_WEB_ORIGIN    = $publicOrigin
+    VITE_PUBLIC_SITE_URL = $publicOrigin
+    PUBLIC_API_BASE      = $publicOrigin
+}
 
-    if ($ServerTemplate) {
-        if ($line -match '^\s*CADDY_SITE=') { 'CADDY_SITE=elements-api.ahmetfuzunkaya.com'; continue }
-        if ($line -match '^\s*CADDY_HTTP_PORT=') { 'CADDY_HTTP_PORT=80'; continue }
-        if ($line -match '^\s*CADDY_HTTPS_PORT=') { 'CADDY_HTTPS_PORT=443'; continue }
-        if ($line -match '^\s*PUBLIC_WEB_ORIGIN=') { 'PUBLIC_WEB_ORIGIN=https://elements-api.ahmetfuzunkaya.com'; continue }
-        if ($line -match '^\s*VITE_PUBLIC_SITE_URL=') { 'VITE_PUBLIC_SITE_URL=https://elements-api.ahmetfuzunkaya.com'; continue }
-        if ($line -match '^\s*PUBLIC_API_BASE=') { 'PUBLIC_API_BASE=https://elements-api.ahmetfuzunkaya.com'; continue }
+# Returns "KEY=value" when the line assigns one of the given keys, otherwise $null.
+function Get-ReplacementLine([string]$Line, $Values) {
+    foreach ($key in $Values.Keys) {
+        if ($Line -match "^\s*$key=") { return "$key=$($Values[$key])" }
     }
-    $line
+    return $null
 }
 
-# Footer: operator leftovers (no secrets)
+$outputLines = foreach ($line in Get-Content -LiteralPath $example) {
+    $replacement = Get-ReplacementLine $line $generatedSecrets
+    if (-not $replacement -and $ServerTemplate) { $replacement = Get-ReplacementLine $line $serverOverrides }
+    if ($replacement) { $replacement } else { $line }
+}
+
+# Footer: what the operator still has to do by hand (never contains secrets).
 $footer = @(
     ''
     '# --- Operator leftovers (filled by fill-public-prod-env.ps1) ---'
@@ -58,7 +71,7 @@ $footer = @(
 )
 if ($ServerTemplate) {
     $footer += '# Server template: CADDY_SITE + 80/443 + https origins set.'
-    $footer += '# DNS must resolve elements-api.ahmetfuzunkaya.com → this host before ACME works.'
+    $footer += "# DNS must resolve $publicHost → this host before ACME works."
     if ($DeployHostIp) {
         $footer += "# Expected A record target (operator-supplied): $DeployHostIp"
     } else {
@@ -68,7 +81,7 @@ if ($ServerTemplate) {
     $footer += '# Local smoke (:8082). For real host: re-run with -ServerTemplate (and -Force).'
 }
 
-$out + $footer | Set-Content -LiteralPath $target -Encoding utf8
+$outputLines + $footer | Set-Content -LiteralPath $target -Encoding utf8
 Write-Host "Wrote $target"
 Write-Host "  JWT_SECRET / INTERNAL_API_KEY / POSTGRES_PASSWORD / RABBITMQ_DEFAULT_PASS: generated (len 64 hex each)"
 Write-Host "  SMTP_*: empty (e-postasız beta)"

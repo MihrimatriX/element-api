@@ -16,7 +16,7 @@ Burada **compose dosyası yok** (onlar repo kökünde). Bu klasör sırlar, örn
 | `.env.public.{dev,test,prod}.example` | Üç ortamlı public şablonlar |
 | `.env.public.{dev,test,prod}` | Üretilmiş public env’ler (gitignore) |
 | `Dockerfile.postgres` | Init script gömülü Postgres imajı |
-| `init-scripts/init.sql` | DB oluşturma (identity, market, order, wallet, inventory, …) |
+| `init-scripts/init.sql` | DB oluşturma (identity, market, order, wallet, inventory, shipment, compound); `Dockerfile.postgres` imaja gömer |
 
 Compose’lar kökte:
 
@@ -95,7 +95,7 @@ Sunucu (gerçek domain + 80/443): `present-public.ps1 -Server` — `CADDY_SITE` 
 
 | Host port | Servis |
 |-----------|--------|
-| 3000 | web-app |
+| 6241 | web-app (konteyner içi 80; `WEB_HOST_PORT` ile değişir) |
 | 5000 | gateway |
 | 5001 | identity |
 | 5002 | catalog |
@@ -117,7 +117,7 @@ Bağımsız atlas: **5080** (science compose; bu tablodaki DB/broker yok).
 
 ## Init / DB
 
-Postgres ayağa kalkınca `init.sql` veritabanlarını oluşturur (`element_identity_db`, `element_market_db`, `element_order_db`, `element_wallet_db`, `element_inventory_db`, `element_shipment_db`, `element_compound_db`, …). Servisler kendi migrasyonunu uygular.
+Postgres boş bir volume ile ilk kez ayağa kalkınca `init-scripts/init.sql` veritabanlarını oluşturur (`element_identity_db`, `element_market_db`, `element_order_db`, `element_wallet_db`, `element_inventory_db`, `element_shipment_db`, `element_compound_db`, …). Servisler kendi migrasyonunu uygular.
 
 Volume silmeden (`down` without `-v`) veriler kalır. Sıfırdan: `docker compose --env-file docker/.env down -v`.
 
