@@ -7,6 +7,7 @@ using StackExchange.Redis;
 
 namespace Element.Gateway.Tests;
 
+/// <summary>Checks that clients cannot smuggle gateway-trusted headers (X-User-Id, INTERNAL_API_KEY) to the backends.</summary>
 public class TrustedHeaderTests
 {
     [Fact]

@@ -1,7 +1,5 @@
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using Microsoft.AspNetCore.Http;
 
 namespace Element.Gateway;
 
@@ -12,20 +10,26 @@ namespace Element.Gateway;
 /// </summary>
 public static class ClientIp
 {
+    private const string ForwardedForHeader = "X-Forwarded-For";
+    private const string TrustedProxyCidrsVariable = "TRUSTED_PROXY_CIDRS";
+
+    /// <summary>Returns the real client IP: the first X-Forwarded-For hop when a trusted proxy sent the request, otherwise the TCP peer.</summary>
     public static string Resolve(HttpContext context)
     {
-        var remote = context.Connection.RemoteIpAddress;
-        if (remote is not null && !IsTrustedProxy(remote))
-            return remote.ToString();
+        var peerAddress = context.Connection.RemoteIpAddress;
+        if (peerAddress is not null && !IsTrustedProxy(peerAddress))
+            return peerAddress.ToString();
 
-        var forwarded = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-        if (!string.IsNullOrWhiteSpace(forwarded))
+        var forwardedFor = context.Request.Headers[ForwardedForHeader].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(forwardedFor))
         {
-            var first = forwarded.Split(',', 2, StringSplitOptions.TrimEntries)[0];
-            if (first.Length > 0) return first;
+            // The left-most hop is the original client; later hops are proxies.
+            var originalClient = forwardedFor.Split(',', 2, StringSplitOptions.TrimEntries)[0];
+            if (originalClient.Length > 0)
+                return originalClient;
         }
 
-        return remote?.ToString() ?? "unknown";
+        return peerAddress?.ToString() ?? "unknown";
     }
 
     /// <summary>
@@ -35,34 +39,37 @@ public static class ClientIp
     /// </summary>
     public static bool IsTrustedProxy(IPAddress address)
     {
-        if (IPAddress.IsLoopback(address)) return true;
+        if (IPAddress.IsLoopback(address))
+            return true;
+
         if (address.IsIPv4MappedToIPv6)
             address = address.MapToIPv4();
 
-        var raw = Environment.GetEnvironmentVariable("TRUSTED_PROXY_CIDRS");
-        if (!string.IsNullOrWhiteSpace(raw))
+        var configuredCidrs = Environment.GetEnvironmentVariable(TrustedProxyCidrsVariable);
+        if (string.IsNullOrWhiteSpace(configuredCidrs))
+            return IsPrivateOrLinkLocal(address);
+
+        var cidrs = configuredCidrs.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var cidr in cidrs)
         {
-            foreach (var part in raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            {
-                if (IPNetwork.Parse(part).Contains(address)) return true;
-            }
-            return false;
+            if (IPNetwork.Parse(cidr).Contains(address))
+                return true;
         }
 
-        return IsPrivateOrLinkLocal(address);
+        return false;
     }
 
-    static bool IsPrivateOrLinkLocal(IPAddress address)
+    private static bool IsPrivateOrLinkLocal(IPAddress address)
     {
         if (address.AddressFamily == AddressFamily.InterNetwork)
         {
-            var bytes = address.GetAddressBytes();
-            return bytes[0] switch
+            var octets = address.GetAddressBytes();
+            return octets[0] switch
             {
-                10 => true,
-                172 => bytes[1] is >= 16 and <= 31,
-                192 => bytes[1] == 168,
-                169 => bytes[1] == 254,
+                10 => true,                            // 10.0.0.0/8
+                172 => octets[1] is >= 16 and <= 31,   // 172.16.0.0/12
+                192 => octets[1] == 168,               // 192.168.0.0/16
+                169 => octets[1] == 254,               // 169.254.0.0/16 link-local
                 _ => false,
             };
         }
@@ -73,7 +80,8 @@ public static class ClientIp
         return false;
     }
 
-    static bool IsUniqueLocal(IPAddress address)
+    // fc00::/7 (IPv6 unique local addresses, the IPv6 counterpart of RFC1918).
+    private static bool IsUniqueLocal(IPAddress address)
     {
         var bytes = address.GetAddressBytes();
         return (bytes[0] & 0xfe) == 0xfc;

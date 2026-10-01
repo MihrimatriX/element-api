@@ -3,13 +3,10 @@ using Element.Shared.Health;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Hosting;
 
 namespace Element.Shared.Extensions;
 
+/// <summary>The ops endpoints (/info and /health*) that every .NET service exposes in the same shape.</summary>
 public static class ServiceOpsExtensions
 {
     /// <summary>
@@ -22,31 +19,33 @@ public static class ServiceOpsExtensions
         IReadOnlyDictionary<string, string>? links = null)
     {
         var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "1.0.0";
-        var env = app.Environment.EnvironmentName;
+        var environmentName = app.Environment.EnvironmentName;
 
         app.MapGet("/info", () => Results.Ok(new
         {
             name = serviceName,
             version,
-            environment = env,
-            links = links ?? new Dictionary<string, string>()
+            environment = environmentName,
+            links = links ?? new Dictionary<string, string>(),
         }))
         .WithName("ServiceInfo")
         .WithTags("Ops");
 
-        var liveOptions = new HealthCheckOptions
+        // Liveness runs no checks: it only proves the process answers HTTP.
+        var livenessOptions = new HealthCheckOptions
         {
             Predicate = _ => false,
-            ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse
+            ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse,
         };
-        var readyOptions = new HealthCheckOptions
+        // Readiness runs every registered check (database, Redis, RabbitMQ ...).
+        var readinessOptions = new HealthCheckOptions
         {
-            ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse
+            ResponseWriter = HealthCheckResponseWriter.WriteJsonResponse,
         };
 
-        app.MapHealthChecks("/health/live", liveOptions);
-        app.MapHealthChecks("/health/ready", readyOptions);
-        app.MapHealthChecks("/health", readyOptions);
+        app.MapHealthChecks("/health/live", livenessOptions);
+        app.MapHealthChecks("/health/ready", readinessOptions);
+        app.MapHealthChecks("/health", readinessOptions);
 
         return app;
     }

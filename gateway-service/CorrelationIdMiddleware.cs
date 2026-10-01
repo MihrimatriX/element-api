@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Serilog.Context;
 
 namespace Element.Gateway;
@@ -13,27 +9,41 @@ namespace Element.Gateway;
 public sealed class CorrelationIdMiddleware
 {
     public const string HeaderName = "X-Request-Id";
+    private const string LegacyHeaderName = "X-Correlation-Id";
+    private const int MaxRequestIdLength = 128;
+
     private readonly RequestDelegate _next;
 
     public CorrelationIdMiddleware(RequestDelegate next) => _next = next;
 
+    /// <summary>Resolves the request id, writes it to the request and response headers and the log context, then calls the next middleware.</summary>
     public async Task InvokeAsync(HttpContext context)
     {
-        var incoming = context.Request.Headers[HeaderName].FirstOrDefault()
-            ?? context.Request.Headers["X-Correlation-Id"].FirstOrDefault();
-        var id = string.IsNullOrWhiteSpace(incoming)
-            ? Guid.NewGuid().ToString("N")
-            : incoming.Trim();
-        if (id.Length > 128) id = id[..128];
+        var requestId = ResolveRequestId(context.Request);
 
-        context.Request.Headers[HeaderName] = id;
+        context.Request.Headers[HeaderName] = requestId;
         context.Response.OnStarting(() =>
         {
-            context.Response.Headers[HeaderName] = id;
+            context.Response.Headers[HeaderName] = requestId;
             return Task.CompletedTask;
         });
 
-        using (LogContext.PushProperty("RequestId", id))
+        using (LogContext.PushProperty("RequestId", requestId))
             await _next(context);
+    }
+
+    // Reuses the caller's id (trimmed and capped so a client cannot flood logs) or mints a new one.
+    private static string ResolveRequestId(HttpRequest request)
+    {
+        var incomingId = request.Headers[HeaderName].FirstOrDefault()
+            ?? request.Headers[LegacyHeaderName].FirstOrDefault();
+
+        var requestId = string.IsNullOrWhiteSpace(incomingId)
+            ? Guid.NewGuid().ToString("N")
+            : incomingId.Trim();
+
+        return requestId.Length > MaxRequestIdLength
+            ? requestId[..MaxRequestIdLength]
+            : requestId;
     }
 }

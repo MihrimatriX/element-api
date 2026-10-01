@@ -2,11 +2,11 @@ using System.Data.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Serilog;
 
 namespace Element.Shared.Extensions;
 
+/// <summary>Startup helpers for the EF Core database every stateful .NET service owns.</summary>
 public static class DatabaseExtensions
 {
     // On reboot Docker starts every container at once (depends_on is ignored), so Postgres may
@@ -24,11 +24,11 @@ public static class DatabaseExtensions
         for (var attempt = 1; ; attempt++)
         {
             using var scope = app.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<TContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<TContext>();
 
             try
             {
-                await db.Database.MigrateAsync();
+                await dbContext.Database.MigrateAsync();
                 Log.Information("Database {Database} migrated successfully.", databaseLabel);
                 return;
             }
