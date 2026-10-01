@@ -4,101 +4,128 @@ using Element.Services.Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace Element.Services.Identity.API.Controllers;
 
+/// <summary>Lets a signed-in user register HTTPS endpoints that receive price and order events.</summary>
 [Authorize]
 [ApiController]
 [Route("api/v1/webhooks")]
-public class WebhooksController : ControllerBase
+public class WebhooksController(IdentityAppDbContext database) : ControllerBase
 {
-    private static readonly HashSet<string> Allowed = new(StringComparer.OrdinalIgnoreCase)
+    private const string InvalidUserMessage = "Invalid user identification in token.";
+
+    // Every hook costs a delivery attempt per event; unbounded hooks = fan-out amplification.
+    private const int MaxSubscriptionsPerUser = 10;
+
+    private static readonly HashSet<string> SupportedEvents = new(StringComparer.OrdinalIgnoreCase)
     {
         "price.updated",
-        "order.updated"
+        "order.updated",
     };
 
-    private const int MaxPerUser = 10;
-    private readonly IdentityAppDbContext _db;
-
-    public WebhooksController(IdentityAppDbContext db) => _db = db;
-
+    /// <summary>
+    /// Creates a subscription. Only public HTTPS URLs with a DNS host name and supported event names are accepted;
+    /// an account may hold at most 10 active subscriptions (409 beyond that).
+    /// </summary>
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateWebhookRequest request)
     {
-        var userId = CurrentUserId();
-        if (userId is null) return Unauthorized("Invalid user identification in token.");
+        if (User.GetUserId() is not Guid userId)
+        {
+            return Unauthorized(InvalidUserMessage);
+        }
 
         if (request is null || string.IsNullOrWhiteSpace(request.Url) || string.IsNullOrWhiteSpace(request.Secret))
+        {
             return BadRequest("url and secret are required.");
+        }
 
         if (!WebhookSubscription.IsAcceptableUrl(request.Url.Trim()))
+        {
             return BadRequest("Webhook URL must be public https with a DNS host name (no IP literal, localhost or credentials).");
+        }
 
         var events = (request.Events ?? [])
             .OfType<string>()
-            .Select(e => e.Trim().ToLowerInvariant())
-            .Where(Allowed.Contains)
+            .Select(eventName => eventName.Trim().ToLowerInvariant())
+            .Where(SupportedEvents.Contains)
             .Distinct()
             .ToArray();
         if (events.Length == 0)
+        {
             return BadRequest("events must include price.updated and/or order.updated.");
+        }
 
-        await using var transaction = await _db.Database.BeginTransactionAsync();
+        await using var transaction = await database.Database.BeginTransactionAsync();
+
         // Per-account lock (as in API-key issuance) so the cap holds under concurrent requests.
-        // Every hook costs a delivery attempt per event; unbounded hooks = fan-out amplification.
-        await _db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM \"AspNetUsers\" WHERE \"Id\" = {userId.Value} FOR UPDATE");
-        if (await _db.WebhookSubscriptions.CountAsync(w => w.UserId == userId && w.IsActive) >= MaxPerUser)
-            return Conflict(new { message = $"En fazla {MaxPerUser} webhook kaydedebilirsin. Kullanmadıklarını sil." });
+        await database.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM \"AspNetUsers\" WHERE \"Id\" = {userId} FOR UPDATE");
+        var activeSubscriptionCount = await database.WebhookSubscriptions
+            .CountAsync(subscription => subscription.UserId == userId && subscription.IsActive);
+        if (activeSubscriptionCount >= MaxSubscriptionsPerUser)
+        {
+            return Conflict(new { message = $"En fazla {MaxSubscriptionsPerUser} webhook kaydedebilirsin. Kullanmadıklarını sil." });
+        }
 
-        var row = new WebhookSubscription
+        var subscription = new WebhookSubscription
         {
             Id = Guid.NewGuid(),
-            UserId = userId.Value,
+            UserId = userId,
             Url = request.Url.Trim(),
             Secret = request.Secret,
             Events = string.Join(',', events),
             CreatedAt = DateTime.UtcNow,
-            IsActive = true
+            IsActive = true,
         };
-        _db.WebhookSubscriptions.Add(row);
-        await _db.SaveChangesAsync();
+        database.WebhookSubscriptions.Add(subscription);
+        await database.SaveChangesAsync();
         await transaction.CommitAsync();
-        return Ok(ToDto(row));
+
+        return Ok(ToDto(subscription));
     }
 
+    /// <summary>Lists the caller's active subscriptions, newest first; secrets are never returned.</summary>
     [HttpGet]
     public async Task<IActionResult> List()
     {
-        var userId = CurrentUserId();
-        if (userId is null) return Unauthorized("Invalid user identification in token.");
+        if (User.GetUserId() is not Guid userId)
+        {
+            return Unauthorized(InvalidUserMessage);
+        }
 
-        var rows = await _db.WebhookSubscriptions.AsNoTracking()
-            .Where(w => w.UserId == userId && w.IsActive)
-            .OrderByDescending(w => w.CreatedAt)
+        var subscriptions = await database.WebhookSubscriptions
+            .AsNoTracking()
+            .Where(subscription => subscription.UserId == userId && subscription.IsActive)
+            .OrderByDescending(subscription => subscription.CreatedAt)
             .ToListAsync();
-        return Ok(rows.Select(ToDto));
+        return Ok(subscriptions.Select(ToDto));
     }
 
+    /// <summary>Permanently deletes one of the caller's subscriptions; someone else's is reported as not found.</summary>
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var userId = CurrentUserId();
-        if (userId is null) return Unauthorized("Invalid user identification in token.");
+        if (User.GetUserId() is not Guid userId)
+        {
+            return Unauthorized(InvalidUserMessage);
+        }
 
         // Hard delete: drops the signing secret and stops create/delete loops from growing the table.
-        var deleted = await _db.WebhookSubscriptions.Where(w => w.Id == id && w.UserId == userId).ExecuteDeleteAsync();
-        if (deleted == 0) return NotFound();
+        var deletedCount = await database.WebhookSubscriptions
+            .Where(webhook => webhook.Id == id && webhook.UserId == userId)
+            .ExecuteDeleteAsync();
+        if (deletedCount == 0)
+        {
+            return NotFound();
+        }
+
         return Ok(new { Message = "Webhook removed." });
     }
 
-    private Guid? CurrentUserId()
+    private static WebhookResponseDto ToDto(WebhookSubscription subscription)
     {
-        var raw = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-        return Guid.TryParse(raw, out var id) ? id : null;
+        var events = subscription.Events.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return new WebhookResponseDto(subscription.Id, subscription.Url, events, subscription.CreatedAt);
     }
-
-    private static WebhookResponseDto ToDto(WebhookSubscription row) =>
-        new(row.Id, row.Url, row.Events.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries), row.CreatedAt);
 }

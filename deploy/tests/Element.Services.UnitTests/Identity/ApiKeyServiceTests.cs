@@ -1,5 +1,3 @@
-using System.Text.Json;
-using Element.Services.Identity.Core.Entities;
 using Element.Services.Identity.Infrastructure.Persistence;
 using Element.Services.Identity.Infrastructure.Services;
 using FluentAssertions;
@@ -28,9 +26,12 @@ public class ApiKeyServiceTests
         var (rawKey, record) = await service.GenerateKeyAsync(userId, "integration test", 50);
 
         rawKey.Should().StartWith("ele_live_").And.HaveLength(41);
+        rawKey["ele_live_".Length..].Should().MatchRegex("^[0-9a-f]{32}$");
         record.UserId.Should().Be(userId);
         record.IsActive.Should().BeTrue();
         record.RateLimitTps.Should().Be(10);
+        record.MaskedKey.Should().Be($"{rawKey[..13]}...{rawKey[^4..]}");
+        record.KeyHash.Should().NotContain(rawKey);
         (await db.ApiKeys.CountAsync()).Should().Be(1);
     }
 
@@ -39,7 +40,6 @@ public class ApiKeyServiceTests
     {
         var (service, _) = CreateSut();
         var userId = Guid.NewGuid();
-
         var (rawKey, _) = await service.GenerateKeyAsync(userId, "test");
 
         var validated = await service.ValidateKeyAsync(rawKey);
@@ -53,7 +53,7 @@ public class ApiKeyServiceTests
     public async Task RevokeKeyAsync_ReturnsFalse_WhenKeyNotOwned()
     {
         var (service, _) = CreateSut();
-        var (rawKey, record) = await service.GenerateKeyAsync(Guid.NewGuid(), "owned");
+        var (_, record) = await service.GenerateKeyAsync(Guid.NewGuid(), "owned");
 
         var result = await service.RevokeKeyAsync(Guid.NewGuid(), record.Id);
 
@@ -82,8 +82,8 @@ public class ApiKeyServiceTests
         var (rawKey, record) = await service.GenerateKeyAsync(userId, "temp");
 
         await service.RevokeKeyAsync(userId, record.Id);
-
         var validated = await service.ValidateKeyAsync(rawKey);
+
         validated.Should().BeNull();
     }
 }

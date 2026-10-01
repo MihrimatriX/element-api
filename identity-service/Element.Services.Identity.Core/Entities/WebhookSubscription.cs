@@ -1,15 +1,20 @@
-using System;
 using System.Net;
 
 namespace Element.Services.Identity.Core.Entities;
 
+/// <summary>An HTTPS endpoint a user registered to receive events. Deleting it removes the row (and its secret).</summary>
 public class WebhookSubscription
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }
     public string Url { get; set; } = string.Empty;
+
+    /// <summary>Shared secret the notification service uses to sign deliveries.</summary>
     public string Secret { get; set; } = string.Empty;
+
+    /// <summary>Comma-separated event names, e.g. "price.updated,order.updated".</summary>
     public string Events { get; set; } = string.Empty;
+
     public DateTime CreatedAt { get; set; }
     public bool IsActive { get; set; } = true;
 
