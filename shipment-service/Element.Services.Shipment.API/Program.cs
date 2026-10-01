@@ -1,47 +1,48 @@
 using Element.Services.Shipment.Infrastructure.Consumers;
 using Element.Services.Shipment.Infrastructure.Data;
-using MassTransit;
-using Microsoft.EntityFrameworkCore;
 using Element.Shared.Extensions;
 using Element.Shared.Middleware;
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+
+// Shipment service host: consumes ShipmentRequestedEvent from the order saga and serves the shipment REST API.
+
+const string DatabaseName = "element_shipment_db";
+const string DevelopmentConnectionString =
+    "Host=localhost;Port=5432;Database=element_shipment_db;Username=postgres;Password=mysecretpassword";
+const int MessageRetryCount = 3;
+var messageRetryInterval = TimeSpan.FromSeconds(5);
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Console logging
 builder.AddConsoleLogging("Element.Shipment");
 
-// Add DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Host=localhost;Port=5432;Database=element_shipment_db;Username=postgres;Password=mysecretpassword";
-builder.Services.AddDbContext<ShipmentDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    ?? DevelopmentConnectionString;
+builder.Services.AddDbContext<ShipmentDbContext>(options => options.UseNpgsql(connectionString));
 
-// Add MassTransit
-builder.Services.AddMassTransit(x =>
+builder.Services.AddMassTransit(bus =>
 {
-    x.AddConsumer<ShipmentRequestedConsumer>();
+    bus.AddConsumer<ShipmentRequestedConsumer>();
 
-    x.UsingRabbitMq((context, cfg) =>
+    bus.UsingRabbitMq((context, rabbit) =>
     {
-        cfg.ConfigureRabbitMqHost(builder.Configuration);
+        rabbit.ConfigureRabbitMqHost(builder.Configuration);
+        rabbit.UseMessageRetry(retry => retry.Interval(MessageRetryCount, messageRetryInterval));
 
-        // Add Resilience: Message Retry Policy
-        cfg.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
-
-        cfg.ReceiveEndpoint("shipment-requested-queue", e =>
+        rabbit.ReceiveEndpoint("shipment-requested-queue", endpoint =>
         {
-            e.ConfigureConsumer<ShipmentRequestedConsumer>(context);
+            endpoint.ConfigureConsumer<ShipmentRequestedConsumer>(context);
         });
     });
 });
 
 builder.Services.AddControllers();
 
-// Add Health Checks. RabbitMQ: AddMassTransit registers "masstransit-bus" (Unhealthy/503 until the
-// receive endpoints are connected, Healthy again after reconnect) — no extra AMQP connection per probe.
-var dbConn = connectionString;
+// RabbitMQ: AddMassTransit registers "masstransit-bus" (Unhealthy/503 until the receive endpoints
+// are connected, Healthy again after reconnect) — no extra AMQP connection per probe.
 builder.Services.AddHealthChecks()
-    .AddNpgSql(dbConn, name: "PostgreSQL");
+    .AddNpgSql(connectionString, name: "PostgreSQL");
 
 var app = builder.Build();
 
@@ -58,7 +59,7 @@ app.MapGet("/", () => Results.Redirect("/info"));
 try
 {
     // Inside try: a DB that never comes up logs Fatal and exits 1 (restart policy) instead of aborting (exit 134).
-    await app.ApplyDatabaseAsync<ShipmentDbContext>("element_shipment_db");
+    await app.ApplyDatabaseAsync<ShipmentDbContext>(DatabaseName);
     app.Run();
 }
 catch (Exception ex)
@@ -71,5 +72,5 @@ finally
     Serilog.Log.CloseAndFlush();
 }
 
+/// <summary>Entry point type, kept public so test hosts can reference this assembly.</summary>
 public partial class Program { }
-
