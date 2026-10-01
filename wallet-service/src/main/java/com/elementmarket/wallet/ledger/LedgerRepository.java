@@ -11,10 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * JDBC access to wallets, the append-only ledger and holdings.
+ * Every money-moving method locks the wallet row first so concurrent messages cannot double-spend.
+ */
 @Repository
 public class LedgerRepository {
 
+    /**
+     * Outcome of a purchase debit, mapped by the listener to PaymentProcessed / PaymentFailed.
+     * CANCELLED means the order already has a refund (or refund tombstone), so it must never be charged.
+     */
     public enum DebitResult { OK, DUPLICATE, INSUFFICIENT, LIMIT, CANCELLED }
+
+    private static final String KIND_BUY = "buy";
+    private static final String KIND_REFUND = "refund";
 
     private final JdbcTemplate jdbc;
     private final WalletSettings settings;
@@ -24,39 +35,45 @@ public class LedgerRepository {
         this.settings = settings;
     }
 
+    /**
+     * Records a message id once; returns false when it was already processed (idempotent consumer).
+     * Joins the listener's transaction, so the mark rolls back together with the ledger work.
+     */
     @Transactional
     public boolean tryMarkProcessed(UUID messageId, String eventType, UUID orderId) {
-        int n = jdbc.update(
+        int insertedRows = jdbc.update(
                 """
                 INSERT INTO processed_messages (message_id, event_type, order_id)
                 VALUES (?, ?, ?) ON CONFLICT DO NOTHING
                 """,
                 messageId, eventType, orderId);
-        return n == 1;
+        return insertedRows == 1;
     }
 
+    /** Creates the wallet with the welcome grant on first touch and returns the current balance. */
     @Transactional
     public BigDecimal ensureWallet(UUID userId) {
-        // Local default 10000; public compose sets WALLET_WELCOME_GRANT=1000 (signup grinding).
-        BigDecimal grant = BigDecimal.valueOf(settings.welcomeGrant());
-        int inserted = jdbc.update(
+        // Local default is 10000; the public compose file sets WALLET_WELCOME_GRANT=1000 to discourage signup grinding.
+        BigDecimal welcomeGrant = BigDecimal.valueOf(settings.welcomeGrant());
+        int insertedRows = jdbc.update(
                 """
                 INSERT INTO wallets (user_id, balance_elx, updated_at)
                 VALUES (?, ?, NOW()) ON CONFLICT (user_id) DO NOTHING
                 """,
-                userId, grant);
-        if (inserted > 0) {
+                userId, welcomeGrant);
+        boolean isNewWallet = insertedRows > 0;
+        if (isNewWallet) {
             jdbc.update(
                     """
                     INSERT INTO ledger (id, user_id, kind, elx, created_at)
                     VALUES (?, ?, 'grant', ?, NOW())
                     """,
-                    UUID.randomUUID(), userId, grant);
+                    UUID.randomUUID(), userId, welcomeGrant);
         }
-        return jdbc.queryForObject(
-                "SELECT balance_elx FROM wallets WHERE user_id = ?", BigDecimal.class, userId);
+        return readBalance(userId);
     }
 
+    /** Returns the wallet row (balance_elx, updated_at), creating the wallet if needed. */
     @Transactional
     public Map<String, Object> getWallet(UUID userId) {
         ensureWallet(userId);
@@ -64,6 +81,7 @@ public class LedgerRepository {
                 "SELECT balance_elx, updated_at FROM wallets WHERE user_id = ?", userId);
     }
 
+    /** Lists the user's non-empty holdings, ordered by symbol and compound. */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getHoldings(UUID userId) {
         return jdbc.queryForList(
@@ -75,73 +93,62 @@ public class LedgerRepository {
                 userId);
     }
 
+    /**
+     * Charges a purchase once per order: checks the credit limit, duplicates, an earlier refund
+     * (cancelled order) and the balance before writing.
+     */
     @Transactional
     public DebitResult debit(UUID userId, UUID orderId, BigDecimal amount, String symbol, BigDecimal grams) {
         if (LedgerRules.evaluateDebit(amount, settings.creditLimit()) == LedgerRules.DebitGate.LIMIT) {
             return DebitResult.LIMIT;
         }
         ensureWallet(userId);
-        jdbc.queryForObject(
-                "SELECT balance_elx FROM wallets WHERE user_id = ? FOR UPDATE", BigDecimal.class, userId);
-        if (!jdbc.queryForList(
-                        "SELECT id FROM ledger WHERE order_id = ? AND kind = 'buy'", orderId)
-                .isEmpty()) {
+        BigDecimal balance = lockWalletAndReadBalance(userId);
+        if (hasOrderLedgerEntry(orderId, KIND_BUY)) {
             return DebitResult.DUPLICATE;
         }
         // Refund (or its zero tombstone) already recorded: order is dead. A late/replayed request must not charge.
-        if (!jdbc.queryForList(
-                        "SELECT id FROM ledger WHERE order_id = ? AND kind = 'refund'", orderId)
-                .isEmpty()) {
+        if (hasOrderLedgerEntry(orderId, KIND_REFUND)) {
             return DebitResult.CANCELLED;
         }
+        if (!LedgerRules.canAfford(balance, amount)) {
+            return DebitResult.INSUFFICIENT;
+        }
 
-        BigDecimal balance = jdbc.queryForObject(
-                "SELECT balance_elx FROM wallets WHERE user_id = ?", BigDecimal.class, userId);
-        if (balance.compareTo(amount) < 0) return DebitResult.INSUFFICIENT;
-
-        jdbc.update(
-                "UPDATE wallets SET balance_elx = balance_elx - ?, updated_at = NOW() WHERE user_id = ?",
-                amount, userId);
-        jdbc.update(
-                """
-                INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, order_id, created_at)
-                VALUES (?, ?, 'buy', ?, ?, ?, ?, NOW())
-                """,
-                UUID.randomUUID(), userId, amount, symbol, grams, orderId);
+        addToBalance(userId, amount.negate());
+        insertOrderLedgerEntry(KIND_BUY, userId, amount, symbol, grams, orderId);
         return DebitResult.OK;
     }
 
+    /**
+     * Refunds an order once: gives back this user's purchase amount if it was charged. When nothing was
+     * charged yet, a 0 KREDI refund is still written as a tombstone so a late debit() returns CANCELLED.
+     */
     @Transactional
     public void refundIfDebited(UUID userId, UUID orderId, String symbol, BigDecimal grams) {
         ensureWallet(userId);
-        jdbc.queryForObject(
-                "SELECT balance_elx FROM wallets WHERE user_id = ? FOR UPDATE", BigDecimal.class, userId);
-        if (!jdbc.queryForList(
-                        "SELECT id FROM ledger WHERE order_id = ? AND kind = 'refund'", orderId)
-                .isEmpty()) {
+        lockWalletAndReadBalance(userId);
+        if (hasOrderLedgerEntry(orderId, KIND_REFUND)) {
             return;
         }
-        List<BigDecimal> buys = jdbc.query(
+        List<BigDecimal> buyAmounts = jdbc.query(
                 "SELECT elx FROM ledger WHERE order_id = ? AND user_id = ? AND kind = 'buy'",
-                (rs, i) -> rs.getBigDecimal(1),
+                (resultSet, rowNumber) -> resultSet.getBigDecimal(1),
                 orderId, userId);
 
-        // No debit yet -> write a 0 KREDI refund as a tombstone so debit() refuses this order if its
-        // PaymentRequested arrives late (timeout race, or replayed from wallet-service_failed).
-        BigDecimal amount = buys.isEmpty() ? BigDecimal.ZERO : buys.getFirst();
-        if (amount.signum() > 0) {
-            jdbc.update(
-                    "UPDATE wallets SET balance_elx = balance_elx + ?, updated_at = NOW() WHERE user_id = ?",
-                    amount, userId);
+        // No debit yet -> the tombstone covers a PaymentRequested that arrives late
+        // (timeout race, or replayed from wallet-service_failed).
+        BigDecimal refundAmount = buyAmounts.isEmpty() ? BigDecimal.ZERO : buyAmounts.getFirst();
+        if (refundAmount.signum() > 0) {
+            addToBalance(userId, refundAmount);
         }
-        jdbc.update(
-                """
-                INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, order_id, created_at)
-                VALUES (?, ?, 'refund', ?, ?, ?, ?, NOW())
-                """,
-                UUID.randomUUID(), userId, amount, symbol, grams, orderId);
+        insertOrderLedgerEntry(KIND_REFUND, userId, refundAmount, symbol, grams, orderId);
     }
 
+    /**
+     * Adds grams to a holding and recomputes its weighted average cost (4 decimals).
+     * Throws IllegalStateException unless this user paid for the order and it was not refunded.
+     */
     @Transactional
     public void addHolding(
             UUID userId,
@@ -152,17 +159,16 @@ public class LedgerRepository {
             String compoundSlug,
             String productLabel) {
         ensureWallet(userId);
-        jdbc.queryForObject(
-                "SELECT user_id FROM wallets WHERE user_id = ? FOR UPDATE", UUID.class, userId);
+        lockWalletAndReadBalance(userId);
         // Assets only for an order this user actually paid and was not refunded; a stray/forged event must
         // not mint sellable holdings. Throw (not skip) so it retries, then parks in wallet-service_failed.
-        Integer paid = jdbc.queryForObject(
+        Integer paidBuys = jdbc.queryForObject(
                 """
                 SELECT count(*) FROM ledger WHERE order_id = ? AND user_id = ? AND kind = 'buy'
                   AND NOT EXISTS (SELECT 1 FROM ledger r WHERE r.order_id = ? AND r.kind = 'refund')
                 """,
                 Integer.class, orderId, userId, orderId);
-        if (paid == null || paid == 0) {
+        if (paidBuys == null || paidBuys == 0) {
             throw new IllegalStateException("AssetsCredited for unpaid or refunded order " + orderId);
         }
         jdbc.update(
@@ -178,54 +184,99 @@ public class LedgerRepository {
                 userId, symbol, grams, unitCost, compoundSlug, productLabel);
     }
 
+    /** Sells grams from a holding at the given bid, credits the proceeds and returns the new balance. */
     @Transactional
     public SellResult sellAtBid(UUID userId, String symbol, BigDecimal grams, BigDecimal bid, String compoundSlug) {
         ensureWallet(userId);
-        jdbc.queryForObject(
-                "SELECT user_id FROM wallets WHERE user_id = ? FOR UPDATE", UUID.class, userId);
-        List<Map<String, Object>> holds = jdbc.queryForList(
+        lockWalletAndReadBalance(userId);
+        List<Map<String, Object>> holdingRows = jdbc.queryForList(
                 """
                 SELECT grams FROM holdings
                 WHERE user_id = ? AND symbol = ? AND compound_slug = ? FOR UPDATE
                 """,
                 userId, symbol, compoundSlug);
-        if (holds.isEmpty()) return SellResult.fail("no_holding");
-        BigDecimal have = (BigDecimal) holds.getFirst().get("grams");
-        if (have.compareTo(grams) < 0) return SellResult.fail("over_holding");
+        if (holdingRows.isEmpty()) {
+            return SellResult.fail("no_holding");
+        }
+        BigDecimal ownedGrams = (BigDecimal) holdingRows.getFirst().get("grams");
+        if (ownedGrams.compareTo(grams) < 0) {
+            return SellResult.fail("over_holding");
+        }
 
-        BigDecimal remaining = have.subtract(grams).setScale(4, RoundingMode.HALF_UP);
-        if (remaining.signum() <= 0) {
+        BigDecimal remainingGrams = ownedGrams.subtract(grams).setScale(LedgerRules.AMOUNT_SCALE, RoundingMode.HALF_UP);
+        if (remainingGrams.signum() <= 0) {
             jdbc.update(
                     "DELETE FROM holdings WHERE user_id = ? AND symbol = ? AND compound_slug = ?",
                     userId, symbol, compoundSlug);
         } else {
             jdbc.update(
                     "UPDATE holdings SET grams = ? WHERE user_id = ? AND symbol = ? AND compound_slug = ?",
-                    remaining, userId, symbol, compoundSlug);
+                    remainingGrams, userId, symbol, compoundSlug);
         }
+
         BigDecimal proceeds = LedgerRules.proceeds(bid, grams);
-        jdbc.update(
-                "UPDATE wallets SET balance_elx = balance_elx + ?, updated_at = NOW() WHERE user_id = ?",
-                proceeds, userId);
+        addToBalance(userId, proceeds);
         jdbc.update(
                 """
                 INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, compound_slug, created_at)
                 VALUES (?, ?, 'sell', ?, ?, ?, ?, NOW())
                 """,
                 UUID.randomUUID(), userId, proceeds, symbol, grams, compoundSlug);
-        BigDecimal balance = jdbc.queryForObject(
-                "SELECT balance_elx FROM wallets WHERE user_id = ?", BigDecimal.class, userId);
-        return SellResult.ok(symbol, grams, bid, proceeds, balance);
+        BigDecimal newBalance = readBalance(userId);
+        return SellResult.ok(symbol, grams, bid, proceeds, newBalance);
     }
 
+    /** Takes a row lock on the wallet for the rest of the transaction and returns its balance. */
+    private BigDecimal lockWalletAndReadBalance(UUID userId) {
+        return jdbc.queryForObject(
+                "SELECT balance_elx FROM wallets WHERE user_id = ? FOR UPDATE", BigDecimal.class, userId);
+    }
+
+    private BigDecimal readBalance(UUID userId) {
+        return jdbc.queryForObject(
+                "SELECT balance_elx FROM wallets WHERE user_id = ?", BigDecimal.class, userId);
+    }
+
+    private boolean hasOrderLedgerEntry(UUID orderId, String kind) {
+        List<Map<String, Object>> rows = jdbc.queryForList(
+                "SELECT id FROM ledger WHERE order_id = ? AND kind = ?", orderId, kind);
+        return !rows.isEmpty();
+    }
+
+    /** Adds a signed amount to the balance (negative to charge) and bumps updated_at. */
+    private void addToBalance(UUID userId, BigDecimal signedAmount) {
+        jdbc.update(
+                "UPDATE wallets SET balance_elx = balance_elx + ?, updated_at = NOW() WHERE user_id = ?",
+                signedAmount, userId);
+    }
+
+    private void insertOrderLedgerEntry(
+            String kind, UUID userId, BigDecimal amount, String symbol, BigDecimal grams, UUID orderId) {
+        jdbc.update(
+                """
+                INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, order_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+                """,
+                UUID.randomUUID(), userId, kind, amount, symbol, grams, orderId);
+    }
+
+    /** Result of a desk sale: either a failure reason ("no_holding" / "over_holding") or the sale figures. */
     public record SellResult(
-            boolean ok, String reason, String symbol, BigDecimal grams, BigDecimal bid,
-            BigDecimal proceeds, BigDecimal balanceElx) {
+            boolean ok,
+            String reason,
+            String symbol,
+            BigDecimal grams,
+            BigDecimal bid,
+            BigDecimal proceeds,
+            BigDecimal balanceElx) {
+
         static SellResult fail(String reason) {
             return new SellResult(false, reason, null, null, null, null, null);
         }
-        static SellResult ok(String symbol, BigDecimal grams, BigDecimal bid, BigDecimal proceeds, BigDecimal bal) {
-            return new SellResult(true, null, symbol, grams, bid, proceeds, bal);
+
+        static SellResult ok(
+                String symbol, BigDecimal grams, BigDecimal bid, BigDecimal proceeds, BigDecimal balanceElx) {
+            return new SellResult(true, null, symbol, grams, bid, proceeds, balanceElx);
         }
     }
 }
