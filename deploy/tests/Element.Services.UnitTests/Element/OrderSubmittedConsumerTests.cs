@@ -7,7 +7,6 @@ using MassTransit;
 using MassTransit.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Element.Services.UnitTests.Element;
 
@@ -24,15 +23,18 @@ public class OrderSubmittedConsumerTests
         return db;
     }
 
-    [Fact]
-    public async Task Consume_PublishesStockReservationFailed_WhenElementMissing()
-    {
-        await using var provider = new ServiceCollection()
+    /// <summary>In-memory MassTransit bus with only the consumer under test, sharing the given database.</summary>
+    private static ServiceProvider CreateHarnessProvider(ElementDbContext db) =>
+        new ServiceCollection()
             .AddLogging()
-            .AddSingleton(CreateDb("missing-element"))
+            .AddSingleton(db)
             .AddMassTransitTestHarness(x => x.AddConsumer<OrderSubmittedConsumer>())
             .BuildServiceProvider(true);
 
+    [Fact]
+    public async Task Consume_PublishesStockReservationFailed_WhenElementMissing()
+    {
+        await using var provider = CreateHarnessProvider(CreateDb("missing-element"));
         var harness = provider.GetRequiredService<ITestHarness>();
         await harness.Start();
 
@@ -60,12 +62,7 @@ public class OrderSubmittedConsumerTests
             });
         });
 
-        await using var provider = new ServiceCollection()
-            .AddLogging()
-            .AddSingleton(db)
-            .AddMassTransitTestHarness(x => x.AddConsumer<OrderSubmittedConsumer>())
-            .BuildServiceProvider(true);
-
+        await using var provider = CreateHarnessProvider(db);
         var harness = provider.GetRequiredService<ITestHarness>();
         await harness.Start();
 
@@ -92,12 +89,7 @@ public class OrderSubmittedConsumerTests
             });
         });
 
-        await using var provider = new ServiceCollection()
-            .AddLogging()
-            .AddSingleton(db)
-            .AddMassTransitTestHarness(x => x.AddConsumer<OrderSubmittedConsumer>())
-            .BuildServiceProvider(true);
-
+        await using var provider = CreateHarnessProvider(db);
         var harness = provider.GetRequiredService<ITestHarness>();
         await harness.Start();
 

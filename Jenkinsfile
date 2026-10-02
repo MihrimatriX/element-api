@@ -1,32 +1,37 @@
 // Path-based Multibranch Pipeline for element-api.
 // Operator setup: docs/CI-JENKINS.md
-// Change detection: git diff vs changeTarget (PRs) or previous successful commit.
+// Change detection: git diff against the PR target branch (CHANGE_TARGET, default main), falling
+// back to the previous commit (HEAD~1). When neither works every stage runs ('FORCE_ALL').
+// The agent is Windows, hence `bat`.
 
-def changed() {
-  def out = ''
-  def base = env.CHANGE_TARGET ?: 'main'
+/** Files changed by this build, or ['FORCE_ALL'] when the diff cannot be computed. */
+def changedFiles() {
+  def diffOutput = ''
+  def baseBranch = env.CHANGE_TARGET ?: 'main'
   try {
-    out = bat(returnStdout: true, script: "@echo off & git diff --name-only origin/${base}...HEAD").trim()
+    diffOutput = bat(returnStdout: true, script: "@echo off & git diff --name-only origin/${baseBranch}...HEAD").trim()
   } catch (ignored) {
     try {
-      out = bat(returnStdout: true, script: "@echo off & git diff --name-only HEAD~1").trim()
-    } catch (ignored2) {
-      out = 'FORCE_ALL'
+      diffOutput = bat(returnStdout: true, script: "@echo off & git diff --name-only HEAD~1").trim()
+    } catch (ignoredAgain) {
+      diffOutput = 'FORCE_ALL'
     }
   }
-  return out ? out.split(/\r?\n/) as List : ['FORCE_ALL']
+  return diffOutput ? diffOutput.split(/\r?\n/) as List : ['FORCE_ALL']
 }
 
-boolean prefix(List files, String... prefs) {
+/** True when any changed file starts with one of the prefixes (always true for FORCE_ALL). */
+boolean touchesAny(List files, String... prefixes) {
   if (files.contains('FORCE_ALL')) return true
-  return files.any { f -> prefs.any { p -> f.startsWith(p) } }
+  return files.any { file -> prefixes.any { prefix -> file.startsWith(prefix) } }
 }
 
-boolean docsOnly(List files) {
+/** True when the change is documentation only, so the heavy build stages can be skipped. */
+boolean isDocsOnly(List files) {
   if (files.contains('FORCE_ALL')) return false
-  return files.every { f ->
-    f.startsWith('docs/') || f == 'TODO.md' || f == 'LICENSE' ||
-    f.startsWith('.cursor/') || (f.endsWith('.md') && !f.contains('Jenkins'))
+  return files.every { file ->
+    file.startsWith('docs/') || file == 'TODO.md' || file == 'LICENSE' ||
+    file.startsWith('.cursor/') || (file.endsWith('.md') && !file.contains('Jenkins'))
   }
 }
 
@@ -44,21 +49,23 @@ pipeline {
     stage('Detect paths') {
       steps {
         script {
-          def files = changed()
+          def files = changedFiles()
           echo "Changed files:\n${files.join('\n')}"
-          env.RUN_DOCS_ONLY = docsOnly(files) ? '1' : '0'
-          env.RUN_ORDER = prefix(files, 'order-service/') || prefix(files, 'shared-lib/', 'docker/', 'docker-compose') ? '1' : '0'
-          env.RUN_WEB = prefix(files, 'web-app/') ? '1' : '0'
-          env.RUN_GATEWAY = prefix(files, 'gateway-service/', 'shared-lib/', 'docker/', 'docker-compose') ? '1' : '0'
-          env.RUN_DOTNET = prefix(files,
+          // Each RUN_* flag ('1'/'0') switches one stage below on or off.
+          env.RUN_DOCS_ONLY = isDocsOnly(files) ? '1' : '0'
+          env.RUN_ORDER = touchesAny(files, 'order-service/', 'shared-lib/', 'docker/', 'docker-compose') ? '1' : '0'
+          env.RUN_WEB = touchesAny(files, 'web-app/') ? '1' : '0'
+          env.RUN_GATEWAY = touchesAny(files, 'gateway-service/', 'shared-lib/', 'docker/', 'docker-compose') ? '1' : '0'
+          env.RUN_DOTNET = touchesAny(files,
             'identity-service/', 'catalog-service/', 'compound-service/',
             'shipment-service/', 'notification-service/', 'science-service/',
             'shared-lib/', 'deploy/tests/', 'docker/', 'docker-compose') ? '1' : '0'
-          env.RUN_WALLET = prefix(files, 'wallet-service/', 'docker/', 'docker-compose') ? '1' : '0'
-          env.RUN_INVENTORY = prefix(files, 'inventory-service/', 'docker/', 'docker-compose') ? '1' : '0'
-          env.RUN_E2E = (env.RUN_WEB == '1' || prefix(files, 'science-service/')) ? '1' : '0'
-          env.RUN_SMOKE = prefix(files, 'docker/', 'docker-compose', 'deploy/Caddyfile', 'deploy/scripts/') ? '1' : '0'
-          if (prefix(files, 'Jenkinsfile', 'docs/CI-JENKINS')) {
+          env.RUN_WALLET = touchesAny(files, 'wallet-service/', 'docker/', 'docker-compose') ? '1' : '0'
+          env.RUN_INVENTORY = touchesAny(files, 'inventory-service/', 'docker/', 'docker-compose') ? '1' : '0'
+          env.RUN_E2E = (env.RUN_WEB == '1' || touchesAny(files, 'science-service/')) ? '1' : '0'
+          env.RUN_SMOKE = touchesAny(files, 'docker/', 'docker-compose', 'deploy/Caddyfile', 'deploy/scripts/') ? '1' : '0'
+          // A pipeline change must at least prove the Node and web stages still run.
+          if (touchesAny(files, 'Jenkinsfile', 'docs/CI-JENKINS')) {
             env.RUN_ORDER = '1'
             env.RUN_WEB = '1'
           }

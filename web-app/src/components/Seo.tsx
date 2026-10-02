@@ -4,35 +4,47 @@ import { getPublicSiteUrl } from "../config";
 type JsonLd = Record<string, unknown>;
 
 type SeoProps = {
+  /** Full document title, e.g. "Periyodik tablo · ElementAPI". */
   title: string;
   description: string;
+  /** Route path for the canonical link and og:url; the leading slash is optional. */
   path: string;
+  /** Private or dead-end pages: robots "noindex, nofollow". */
   noIndex?: boolean;
   ogType?: "website" | "article";
+  /** schema.org node(s); `@context` is added when missing. */
   jsonLd?: JsonLd | JsonLd[];
 };
 
-function upsertMeta(attr: "name" | "property", key: string, content: string) {
-  const selector = `meta[${attr}="${CSS.escape(key)}"]`;
-  let el = document.head.querySelector(selector) as HTMLMetaElement | null;
-  if (!el) {
-    el = document.createElement("meta");
-    el.setAttribute(attr, key);
-    document.head.appendChild(el);
+const SHARE_IMAGE_ALT = "ElementAPI · kimya atlası";
+const JSON_LD_ID = "json-ld-seo";
+
+function upsertMeta(
+  attribute: "name" | "property",
+  key: string,
+  content: string,
+) {
+  let meta = document.head.querySelector<HTMLMetaElement>(
+    `meta[${attribute}="${CSS.escape(key)}"]`,
+  );
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.setAttribute(attribute, key);
+    document.head.appendChild(meta);
   }
-  el.content = content;
+  meta.content = content;
 }
 
 function upsertLink(rel: string, href: string) {
-  let el = document.head.querySelector(
+  let link = document.head.querySelector<HTMLLinkElement>(
     `link[rel="${CSS.escape(rel)}"]`,
-  ) as HTMLLinkElement | null;
-  if (!el) {
-    el = document.createElement("link");
-    el.rel = rel;
-    document.head.appendChild(el);
+  );
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = rel;
+    document.head.appendChild(link);
   }
-  el.href = href;
+  link.href = href;
 }
 
 function withContext(node: JsonLd): JsonLd {
@@ -41,6 +53,30 @@ function withContext(node: JsonLd): JsonLd {
     : { "@context": "https://schema.org", ...node };
 }
 
+/** Writes the page's JSON-LD script, or removes it when the page has none. */
+function syncJsonLd(json: string) {
+  let script = document.getElementById(JSON_LD_ID) as HTMLScriptElement | null;
+  if (!json) {
+    script?.remove();
+    return;
+  }
+  if (!script) {
+    script = document.createElement("script");
+    script.id = JSON_LD_ID;
+    script.type = "application/ld+json";
+    document.head.appendChild(script);
+  }
+  const parsed = JSON.parse(json) as JsonLd | JsonLd[];
+  const payload = Array.isArray(parsed)
+    ? parsed.map(withContext)
+    : withContext(parsed);
+  script.textContent = JSON.stringify(payload);
+}
+
+/**
+ * Head metadata for the current page: title, description, robots, canonical,
+ * Open Graph, Twitter card and JSON-LD. Renders nothing.
+ */
 export default function Seo({
   title,
   description,
@@ -49,12 +85,12 @@ export default function Seo({
   jsonLd,
   noIndex = false,
 }: SeoProps) {
+  // Serialised so a new but equal jsonLd object does not re-run the effect.
   const json = jsonLd ? JSON.stringify(jsonLd) : "";
 
   useEffect(() => {
     const origin = getPublicSiteUrl();
-    const pathPart = path.startsWith("/") ? path : `/${path}`;
-    const url = `${origin}${pathPart}`;
+    const url = `${origin}${path.startsWith("/") ? path : `/${path}`}`;
     const image = `${origin}/og.png`;
 
     document.title = title;
@@ -66,7 +102,6 @@ export default function Seo({
       "robots",
       noIndex ? "noindex, nofollow" : "index, follow",
     );
-    upsertMeta("name", "theme-color", "#0E1110");
     upsertLink("canonical", url);
 
     upsertMeta("property", "og:type", ogType);
@@ -76,7 +111,7 @@ export default function Seo({
     upsertMeta("property", "og:description", description);
     upsertMeta("property", "og:url", url);
     upsertMeta("property", "og:image", image);
-    upsertMeta("property", "og:image:alt", "ElementAPI · kimya atlası");
+    upsertMeta("property", "og:image:alt", SHARE_IMAGE_ALT);
     upsertMeta("property", "og:image:width", "1200");
     upsertMeta("property", "og:image:height", "630");
 
@@ -84,25 +119,9 @@ export default function Seo({
     upsertMeta("name", "twitter:title", title);
     upsertMeta("name", "twitter:description", description);
     upsertMeta("name", "twitter:image", image);
-    upsertMeta("name", "twitter:image:alt", "ElementAPI · kimya atlası");
+    upsertMeta("name", "twitter:image:alt", SHARE_IMAGE_ALT);
 
-    const scriptId = "json-ld-seo";
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
-    const parsed = json ? (JSON.parse(json) as JsonLd | JsonLd[]) : null;
-    if (parsed) {
-      if (!script) {
-        script = document.createElement("script");
-        script.id = scriptId;
-        script.type = "application/ld+json";
-        document.head.appendChild(script);
-      }
-      const payload = Array.isArray(parsed)
-        ? parsed.map(withContext)
-        : withContext(parsed);
-      script.textContent = JSON.stringify(payload);
-    } else if (script) {
-      script.remove();
-    }
+    syncJsonLd(json);
   }, [title, description, path, ogType, json, noIndex]);
 
   return null;

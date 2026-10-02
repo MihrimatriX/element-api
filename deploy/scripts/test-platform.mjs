@@ -1,11 +1,18 @@
-// Checks the running local platform, including cross-service routing.
+/**
+ * Checks the running local platform: health/info of every service port, the built SPA routes and
+ * assets, and two cross-service routes through the gateway. Prints a JSON summary; exit code 1 on
+ * any failure. API_BASE / WEB_BASE override the URLs but must stay on localhost.
+ *
+ * Run: node deploy/scripts/test-platform.mjs
+ */
 import assert from 'node:assert/strict';
 
 const api = process.env.API_BASE ?? 'http://localhost:5000';
-const web = process.env.WEB_BASE ?? 'http://localhost:3000';
+const web = process.env.WEB_BASE ?? 'http://localhost:6241';
 for (const base of [api, web]) {
   assert.ok(['localhost', '127.0.0.1'].includes(new URL(base).hostname), 'Use a local test environment.');
 }
+/** Host port of every service in docker-compose.yml. */
 const services = [
   ['gateway', 5000],
   ['identity', 5001],
@@ -18,6 +25,8 @@ const services = [
   ['inventory', 5008],
 ];
 const results = [];
+
+/** Runs one named async check, records PASS/FAIL and never throws (all checks always run). */
 async function check(name, run) {
   try {
     await run();
@@ -28,6 +37,8 @@ async function check(name, run) {
     console.error(`FAIL ${name}: ${error.message}`);
   }
 }
+
+/** GET (by default) that must answer HTTP 200 within 15 s. */
 async function request(url, options = {}) {
   const response = await fetch(url, { ...options, signal: AbortSignal.timeout(15000) });
   assert.equal(response.status, 200, `${url}: HTTP ${response.status}`);
@@ -41,6 +52,7 @@ for (const [name, port] of services) {
     const ready = await json(`${base}/health`);
     assert.equal(ready.status, 'Healthy');
     const live = await json(`${base}/health/live`);
+    // .NET services answer "Healthy", the Spring Boot services answer "UP".
     assert.ok(['Healthy', 'UP'].includes(live.status));
     assert.ok(Object.keys(await json(`${base}/info`)).length > 0);
   });

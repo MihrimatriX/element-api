@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace Element.Services.IntegrationTests;
 
 /// <summary>
-/// Real Node, catalog and shipment services; payment events are supplied by the test.
-/// The Java worker and wallet debit are covered by deploy/scripts/test-e2e.mjs.
+/// Real Node order-service, catalog and shipment services. The Java inventory and wallet services
+/// are not started, so the test publishes their StockReservedEvent and PaymentProcessedEvent itself.
+/// The real Java services in the saga are covered by deploy/scripts/test-e2e.mjs.
 /// </summary>
 [Trait("Category", "Integration")]
 [Collection("SagaFlow")]
@@ -24,6 +25,7 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
 
     static SagaFlowIntegrationTests()
     {
+        // Allows HTTP/2 without TLS for the in-process test clients.
         AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
     }
 
@@ -41,6 +43,7 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
 
         (await elementClient.GetAsync("/api/v1/elements/Au")).EnsureSuccessStatusCode();
 
+        // Creating a client starts the shipment host, whose consumer then answers ShipmentRequested events.
         await using var shipmentApp = CreateShipmentFactory();
         using var shipmentClient = shipmentApp.CreateClient();
         await using var orderHost = new OrderNodeTestHost();
@@ -67,6 +70,10 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
             $"Expected Completed but order status was '{finalStatus}' and saga state was '{sagaState ?? "missing"}'.");
     }
 
+    /// <summary>
+    /// Polls the order until it is Completed or Failed (or the timeout passes), publishing the
+    /// stock or payment event whenever the saga waits for one. Returns the last status seen.
+    /// </summary>
     private async Task<string> PollAndAdvanceSagaAsync(
         HttpClient orderClient,
         Guid orderId,
@@ -92,25 +99,28 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
         return status;
     }
 
+    /// <summary>
+    /// Inventory and wallet are not running in this test, so the test answers for them. The saga
+    /// ignores a repeated event once the order has moved on, so publishing on every poll is safe.
+    /// </summary>
     private async Task TryAdvanceSagaAsync(Guid orderId, string status)
     {
-        switch (status)
-        {
-            case "StockReserved":
-                await SagaEventPublisher.PublishPaymentProcessedAsync(_containers, orderId);
-                break;
-        }
+        if (status == "Submitted")
+            await SagaEventPublisher.PublishStockReservedAsync(_containers, orderId);
+        else if (status == "StockReserved")
+            await SagaEventPublisher.PublishPaymentProcessedAsync(_containers, orderId);
     }
 
+    /// <summary>Reads the saga's current state straight from the order database (for failure messages).</summary>
     private async Task<string?> GetSagaStateAsync(Guid orderId)
     {
-        await using var conn = new Npgsql.NpgsqlConnection(
+        await using var connection = new Npgsql.NpgsqlConnection(
             IntegrationTestSettings.BuildPostgresConnection(_containers, "element_order_db"));
-        await conn.OpenAsync();
-        await using var cmd = new Npgsql.NpgsqlCommand(
-            "SELECT current_state FROM saga_state WHERE order_id = @id", conn);
-        cmd.Parameters.AddWithValue("id", orderId);
-        var result = await cmd.ExecuteScalarAsync();
+        await connection.OpenAsync();
+        await using var command = new Npgsql.NpgsqlCommand(
+            "SELECT current_state FROM saga_state WHERE order_id = @id", connection);
+        command.Parameters.AddWithValue("id", orderId);
+        var result = await command.ExecuteScalarAsync();
         return result as string;
     }
 

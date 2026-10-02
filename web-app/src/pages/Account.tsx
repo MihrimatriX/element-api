@@ -1,307 +1,189 @@
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCommerce, useSelectedElement } from "../App";
-import {
-  apiError,
-  apiKeyService,
-  walletService,
-  webhookService,
-} from "../services/api";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { Section } from "@/components/ui/section";
+import { Stat, StatGrid } from "@/components/ui/stat";
+import { ApiKeysPanel } from "../components/commerce/ApiKeysPanel";
+import { useHoldings, useOrders } from "../components/commerce/data";
+import { HoldingsTable } from "../components/commerce/HoldingsTable";
+import { holdingValue } from "../components/commerce/model";
+import { OrdersTable } from "../components/commerce/OrdersTable";
+import { WebhooksPanel } from "../components/commerce/WebhooksPanel";
 import Seo from "../components/Seo";
+import { useCommerce } from "../context/commerce";
+import { useSelectedElement } from "../context/selection";
+import { formatFixed, formatNumber } from "../lib/format";
+import { elementService, type BoardRow } from "../services/api";
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("tr-TR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n);
+const ORDERS_POLL_MS = 15_000;
 
-interface KeyRow {
-  id: string;
-  description: string;
-  maskedKey: string;
-  isActive: boolean;
-  rateLimitTps: number;
-}
+const GUEST_FACTS = [
+  { term: "Cüzdan", detail: "10.000 sanal KREDI ile açılır; gerçek para değil." },
+  {
+    term: "API anahtarı",
+    detail: "Giriş sana bir oturum jetonu verir; ilk ticaret anahtarın otomatik üretilir.",
+  },
+  { term: "Veri API", detail: "Bilimsel v2 anahtar istemez; cüzdan ve siparişler (v1) ister." },
+];
 
-interface HookRow {
-  id: string;
-  url: string;
-  events: string[];
-}
-
+/** /account: wallet, holdings, orders, API keys and webhooks for the signed-in user; a sign-in prompt for guests. */
 export default function Account() {
   const { isAuthenticated } = useSelectedElement();
-  const { walletElx, refreshWallet } = useCommerce();
-  const [keys, setKeys] = useState<KeyRow[]>([]);
-  const [hooks, setHooks] = useState<HookRow[]>([]);
-  const [holdings, setHoldings] = useState<{ symbol: string; grams: number }[]>(
-    [],
+  return (
+    <main className="container-page pb-24 pt-10 lg:pt-14">
+      <Seo
+        title="Hesap · ElementAPI"
+        description="Cüzdan ve API anahtarı."
+        path="/account"
+        noIndex
+      />
+      {isAuthenticated ? <AccountOverview /> : <GuestAccount />}
+    </main>
   );
-  const [newKeyDesc, setNewKeyDesc] = useState("CLI key");
-  const [freshKey, setFreshKey] = useState("");
-  const [hookUrl, setHookUrl] = useState("");
-  const [hookSecret, setHookSecret] = useState("");
-  const [msg, setMsg] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [actionError, setActionError] = useState("");
+}
 
-  const load = useCallback(
-    () =>
-      Promise.all([
-        apiKeyService.list(),
-        webhookService.list(),
-        walletService.holdings(),
-      ]).then(([k, h, hold]) => {
-        setKeys(k || []);
-        setHooks(h || []);
-        setHoldings(hold || []);
-      }),
-    [],
+/** What a guest gets after signing in, with sign-in and register links. */
+function GuestAccount() {
+  return (
+    <>
+      <PageHeader
+        eyebrow="Hesap"
+        title="Hesabım"
+        lead="Cüzdan, API anahtarları ve webhook tek yerde. Fe gramı keşif defterine yazılmaz."
+        actions={
+          <>
+            <Button asChild size="lg">
+              <Link to="/login?returnTo=/account">Giriş yap</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link to="/register">Kayıt ol</Link>
+            </Button>
+          </>
+        }
+      />
+      <dl className="panel mt-12 grid divide-y divide-line md:grid-cols-3 md:divide-x md:divide-y-0">
+        {GUEST_FACTS.map((fact) => (
+          <div key={fact.term} className="p-5">
+            <dt className="eyebrow">{fact.term}</dt>
+            <dd className="mt-2 text-sm leading-6 text-ink-2">{fact.detail}</dd>
+          </div>
+        ))}
+      </dl>
+    </>
   );
+}
+
+/** Signed-in console: wallet stats, holdings, orders and developer access. */
+function AccountOverview() {
+  const { elements, walletElx, refreshWallet } = useCommerce();
+  const holdings = useHoldings(true);
+  const orders = useOrders(true, ORDERS_POLL_MS);
+  const [board, setBoard] = useState<BoardRow[]>([]);
 
   useEffect(() => {
-    if (isAuthenticated)
-      void load().catch((error) =>
-        setActionError(
-          apiError(error, "Hesap bilgileri yüklenemedi. Yeniden deneyin."),
-        ),
-      );
-  }, [isAuthenticated, load]);
-
-  const perform = async (action: () => Promise<void>) => {
-    setBusy(true);
-    setActionError("");
-    try {
-      await action();
-      await load();
-    } catch (error) {
-      setActionError(
-        apiError(error, "İşlem tamamlanamadı. Lütfen yeniden deneyin."),
-      );
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const accountSeo = (
-    <Seo
-      title="Hesap · ElementAPI"
-      description="Cüzdan ve API anahtarı."
-      path="/account"
-      noIndex
-    />
-  );
-
-  if (!isAuthenticated) {
-    return (
-      <main className="page">
-        {accountSeo}
-        <h1>Hesabım · cüzdan, anahtarlar, webhook</h1>
-        <p>
-          10.000 sanal KREDI kasa (gerçek para değil). Giriş sana bir oturum
-          jetonu verir; ilk ticaret anahtarın otomatik üretilir. Bilimsel v2
-          anahtar istemez; cüzdan v1 ister. Fe gramı keşif defterine yazılmaz.
-        </p>
-        <Button asChild variant="default">
-          <Link to="/login?returnTo=/account" className="btn primary">
-            Giriş
-          </Link>
-        </Button>
-      </main>
+    elementService.getBoard().then(
+      (rows) => setBoard(rows ?? []),
+      () => undefined,
     );
-  }
+  }, []);
+
+  const bidBySymbol = useMemo(
+    () => new Map(board.map((row) => [row.symbol.toUpperCase(), row.bid])),
+    [board],
+  );
+  const bidOf = (symbol: string) => bidBySymbol.get(symbol.toUpperCase());
+
+  const holdingRows = holdings.state.status === "ready" ? holdings.state.rows : null;
+  const orderRows = orders.state.status === "ready" ? orders.state.rows : null;
+  const portfolioValue =
+    holdingRows && board.length > 0
+      ? holdingRows.reduce((sum, row) => sum + (holdingValue(row, bidOf(row.symbol)) ?? 0), 0)
+      : null;
+  const delivered = orderRows?.filter((order) => order.status === "Completed").length;
 
   return (
-    <main className="page account-page">
-      {accountSeo}
-      <h1>Hesabım · cüzdan, anahtarlar, webhook</h1>
-      <p>
-        Kasa kredisi sanal (KREDI) — gerçek para değil. JSON’da balanceElx;
-        ekranda KREDI. Su keşfi burayı değiştirmez.
-      </p>
+    <>
+      <PageHeader
+        eyebrow="Hesap · sanal KREDI"
+        title="Hesabım"
+        lead="Kasa kredisi sanal (KREDI), gerçek para değil. API yanıtında balanceElx alanı ekranda kredi olarak görünür. Laboratuvardaki su keşfi burayı değiştirmez."
+      />
 
-      <section className="desk-quotes">
-        <article>
-          <span>Bakiye</span>
-          <strong className="mono">
-            {walletElx == null ? "—" : `${fmt(walletElx)} kredi`}
-          </strong>
-        </article>
-        <article>
-          <span>Elindeki</span>
-          <strong className="mono">
-            {holdings.filter((h) => h.grams > 0).length}
-          </strong>
-        </article>
-      </section>
+      <StatGrid className="mt-10">
+        <Stat
+          label="Bakiye"
+          value={walletElx == null ? "—" : formatFixed(walletElx, 2)}
+          unit="kredi"
+        />
+        <Stat
+          label="Varlık değeri"
+          value={portfolioValue == null ? "—" : formatFixed(portfolioValue, 2)}
+          unit="kredi"
+          hint="Bugünkü satış fiyatıyla"
+        />
+        <Stat
+          label="Elindeki ürün"
+          value={holdingRows ? formatNumber(holdingRows.length) : "—"}
+        />
+        <Stat
+          label="Teslim edilen sipariş"
+          value={delivered == null ? "—" : formatNumber(delivered)}
+          unit={orderRows ? `/ ${formatNumber(orderRows.length)}` : undefined}
+        />
+      </StatGrid>
 
-      {actionError && (
-        <p role="alert" className="desk-msg">
-          {actionError}{" "}
-          <Button
-            variant="outline"
-            type="button"
-            className="mini-btn"
-            disabled={busy}
-            onClick={() => void perform(async () => {})}
-          >
-            Yeniden dene
+      <Section
+        title="Varlıklar"
+        description="Kasandaki gramlar. Satış piyasa sayfasından yapılır."
+        actions={
+          <Button asChild variant="outline" size="sm">
+            <Link to="/market">Piyasaya git</Link>
           </Button>
-        </p>
-      )}
-      <div className="learning-grid">
-        <Card asChild className="gap-0 py-0 shadow-none">
-          <section className="learning-card account-card">
-            <h2>API anahtarları</h2>
-            <div className="fields">
-              {freshKey && (
-                <p className="desk-msg">
-                  Yeni anahtar (bir kez): <code>{freshKey}</code>
-                </p>
-              )}
-              <div className="field">
-                <label htmlFor="keyDesc">Açıklama</label>
-                <Input
-                  id="keyDesc"
-                  value={newKeyDesc}
-                  onChange={(e) => setNewKeyDesc(e.target.value)}
-                />
-              </div>
-              <Button
-                variant="default"
-                className="btn primary"
-                type="button"
-                disabled={busy}
-                onClick={() =>
-                  void perform(async () => {
-                    const res = await apiKeyService.generate(
-                      newKeyDesc || "API key",
-                      5,
-                    );
-                    setFreshKey(res.apiKey);
-                    if (!localStorage.getItem("apiKey"))
-                      localStorage.setItem("apiKey", res.apiKey);
-                    refreshWallet();
-                  })
-                }
-              >
-                Anahtar üret (1–10 TPS)
-              </Button>
-              <ul className="account-list">
-                {keys.map((k) => (
-                  <li key={k.id}>
-                    <span>
-                      {k.description} · {k.maskedKey} · {k.rateLimitTps} TPS{" "}
-                      {k.isActive ? "" : "(iptal)"}
-                    </span>
-                    {k.isActive && (
-                      <Button
-                        variant="outline"
-                        className="mini-btn"
-                        type="button"
-                        disabled={busy}
-                        onClick={() =>
-                          void perform(async () => {
-                            await apiKeyService.revoke(k.id);
-                            const activeKey = localStorage.getItem("apiKey");
-                            if (
-                              activeKey &&
-                              `${activeKey.slice(0, 13)}...${activeKey.slice(-4)}` ===
-                                k.maskedKey
-                            ) {
-                              localStorage.removeItem("apiKey");
-                              refreshWallet();
-                            }
-                            setFreshKey("");
-                          })
-                        }
-                      >
-                        İptal
-                      </Button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        </Card>
+        }
+      >
+        <HoldingsTable
+          state={holdings.state}
+          elements={elements}
+          bidOf={bidOf}
+          onRetry={holdings.retry}
+          // `state.slug` preselects this row's product in Market's sell form; the symbol alone
+          // would pick pure Na for an NaCl row when the user holds both.
+          action={(row) => (
+            <Button asChild variant="ghost" size="sm">
+              <Link to={`/market?symbol=${row.symbol}`} state={{ slug: row.compoundSlug }}>
+                Sat
+              </Link>
+            </Button>
+          )}
+        />
+      </Section>
 
-        <Card asChild className="gap-0 py-0 shadow-none">
-          <section className="learning-card account-card">
-            <h2>Webhook</h2>
-            <div className="fields">
-              <p className="muted">
-                HTTPS URL. İmza: <code>X-Element-Signature</code> HMAC-SHA256.
-              </p>
-              <div className="field">
-                <label htmlFor="hookUrl">URL</label>
-                <Input
-                  id="hookUrl"
-                  value={hookUrl}
-                  onChange={(e) => setHookUrl(e.target.value)}
-                  placeholder="https://…"
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="hookSecret">Secret</label>
-                <Input
-                  id="hookSecret"
-                  type="password"
-                  autoComplete="new-password"
-                  value={hookSecret}
-                  onChange={(e) => setHookSecret(e.target.value)}
-                />
-              </div>
-              <Button
-                variant="outline"
-                className="btn"
-                type="button"
-                disabled={busy}
-                onClick={() =>
-                  void perform(async () => {
-                    await webhookService.create(
-                      hookUrl,
-                      ["price.updated", "order.updated"],
-                      hookSecret,
-                    );
-                    setMsg("Webhook kaydedildi.");
-                    setHookUrl("");
-                    setHookSecret("");
-                  })
-                }
-              >
-                Kaydet
-              </Button>
-              {msg && <p className="desk-msg">{msg}</p>}
-              <ul className="account-list">
-                {hooks.map((h) => (
-                  <li key={h.id}>
-                    <span>
-                      {h.url} · {h.events?.join(", ")}
-                    </span>
-                    <Button
-                      variant="outline"
-                      className="mini-btn"
-                      type="button"
-                      disabled={busy}
-                      onClick={() =>
-                        void perform(async () => {
-                          await webhookService.remove(h.id);
-                        })
-                      }
-                    >
-                      Sil
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        </Card>
-      </div>
-    </main>
+      <Section
+        title="Siparişler"
+        actions={
+          <Button asChild variant="outline" size="sm">
+            <Link to="/shop">Mağazaya git</Link>
+          </Button>
+        }
+      >
+        <OrdersTable
+          state={orders.state}
+          elements={elements}
+          onRetry={() => void orders.reload()}
+          emptyHint="Mağazadan bir ürün al; sipariş adımları burada görünür."
+        />
+      </Section>
+
+      <Section
+        title="Geliştirici erişimi"
+        description="API anahtarları ve webhook'lar bu hesaba bağlıdır."
+      >
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+          <ApiKeysPanel onDashboardKeyChange={refreshWallet} />
+          <WebhooksPanel />
+        </div>
+      </Section>
+    </>
   );
 }

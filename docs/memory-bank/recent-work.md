@@ -1,3 +1,17 @@
+# Son çalışma — 2 Ekim 2026 (Mineral arayüzü, okunabilirlik turu, sistem kılavuzu, testler)
+
+Dal `redesign` (çıkış: `main` üzerindeki 1 Ekim kontrol noktası `7fbaa70`). Kullanıcı: her satır temiz ve anlaşılır olsun, üst düzey cila.
+
+- **Backend okunabilirlik turu:** her serviste davranışı değiştirmeyen okunabilirlik düzenlemesi — gateway/shared-lib/science, catalog/compound, wallet/inventory, order, identity, shipment/notification, deploy/altyapı; birleştirme commit’i `b115c63`.
+- **Sistem kılavuzu:** `docs/kilavuz/README.md` + servis başına bir sayfa + `altyapi.md` + `web-app.md`; her sayfa aynı kalıpta (özet, özellik tablosu, uçlar, mesajlar, dosya dosya kod haritası, yapılandırma, testler). Uygulamada `/kilavuz` (arama + bölüm bağlantıları). `web-app/scripts/write-guide.mjs` sayfaları `src/data/guide.json` dosyasına çevirir; dosya git’e girmez, `predev` / `build` / `pretest` yeniden üretir; web ve science Dockerfile’ları `docs/kilavuz/` klasörünü kopyalar.
+- **Mineral arayüzü:** jetonlar `web-app/src/styles.css`, bileşenler `src/components/ui/`, kabuk `components/shell/`; yalnız koyu tema, tek kuprit vurgu, Bricolage Grotesque + Geist + Geist Mono. Bütün sayfalar yeniden kuruldu; beş eski CSS dosyası (~12 bin satır) ve onları grep’leyen testler silindi. Vitrin `/_ui` (yalnız dev). Kurallar: [design-system.md](design-system.md).
+- **Testler:** entegrasyon 18/18 — saga testi inventory işçisini de oynuyor, cüzdan testi Testcontainers ile gerçek wallet-service konteynerine karşı (`727fb72`). Yeni Playwright paketleri: `e2e/` (tablo, kayıt, laboratuvar, kılavuz, hesaplar kapalı ekranlar), `e2e-auth/` (taklit identity API ile kayıt/giriş/çıkış), `e2e-live/` (tam platformda kayıt → Au al → teslim → sat). Birim: Gateway 20, Services 115, web birim testleri yeşil.
+- **İnceleme:** çekişmeli kod incelemesinin doğrulanan bulguları uygulandı (`f3f5c7e`). Çapraz alan kalan maddeler ve e2e’nin bulduğu hatalar (kayıt hata mesajı, mobil menünün kendini kapatması, aynı adlı iki mağaza düğmesi) aynı gün ayrı turda ele alındı; bu not yazılırken tur sürüyordu, durum için `git log`.
+- **Belgeler:** kök README’ye kılavuz işaretçisi ve test matrisi; servis kılavuzu her kutuyu kendi kılavuz sayfasına bağlar; open-risks güncellendi (`/kilavuz` yerel sırları gösteriyor — sahip kararı).
+- Doğrulama: `./deploy/scripts/test-unit.ps1`, `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"`, `npm --prefix web-app test`, `npm --prefix web-app run test:e2e`, `test:e2e:auth`, `test:e2e:live` (platform `:6241` ayaktayken).
+
+---
+
 # Son çalışma — 26 Eylül 2026 (slogan: Atomdan bileşiğe.)
 
 Commit yok. Kullanıcı: “Hücreden moleküle.” ürün için yanlış ölçek (biyoloji); atom/molekül/bileşik istiyor.

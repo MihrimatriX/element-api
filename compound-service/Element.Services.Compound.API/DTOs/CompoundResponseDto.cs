@@ -1,5 +1,8 @@
 namespace Element.Services.Compound.API.DTOs;
 
+// Property order in these classes is the JSON field order clients see; keep it stable.
+
+/// <summary>Paging block of a list response: total count, page count and ready-to-follow next/prev links.</summary>
 public class PaginationInfo
 {
     public int Count { get; set; }
@@ -8,12 +11,14 @@ public class PaginationInfo
     public string? Prev { get; set; }
 }
 
+/// <summary>List envelope: <c>info</c> for paging plus the <c>results</c> of the current page.</summary>
 public class PaginatedResponse<T>
 {
     public PaginationInfo Info { get; set; } = new();
     public IEnumerable<T> Results { get; set; } = [];
 }
 
+/// <summary>Public v1 shape of a compound, allotrope or preparation, with optional sourced properties.</summary>
 public sealed class CompoundResponseDto
 {
     public Guid Id { get; set; }

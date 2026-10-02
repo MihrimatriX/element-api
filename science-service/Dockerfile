@@ -3,6 +3,8 @@ WORKDIR /app
 COPY web-app/package*.json ./
 RUN npm ci
 COPY web-app/ .
+# scripts/write-guide.mjs turns docs/kilavuz into src/data/guide.json during the build.
+COPY docs/kilavuz/ /docs/kilavuz/
 COPY catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json /catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json
 COPY compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json /compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json
 ARG VITE_PUBLIC_SITE_URL=http://127.0.0.1:5080

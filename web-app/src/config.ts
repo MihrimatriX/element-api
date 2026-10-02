@@ -1,8 +1,10 @@
 const rawBase =
   import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000/api/v1";
 
+/** Account and commerce gateway (`/api/v1`), no trailing slash. Build-time `VITE_API_BASE_URL`. */
 export const API_BASE_URL = rawBase.replace(/\/$/, "");
-export const API_ORIGIN = API_BASE_URL.replace(/\/api\/v1$/i, "");
+/** Gateway origin: `API_BASE_URL` without its `/api/v1` suffix. */
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/v1$/i, "");
 
 /** Public web origin for canonical / OG URLs. Build-time env, else the browser origin. */
 export function getPublicSiteUrl(): string {
@@ -13,14 +15,13 @@ export function getPublicSiteUrl(): string {
   return "http://localhost:3000";
 }
 
-export function pagePath(pathname: string, symbol?: string): string {
-  const base = pathname.startsWith("/") ? pathname : `/${pathname}`;
-  if (!symbol) return base;
-  return `${base}?symbol=${encodeURIComponent(symbol)}`;
-}
-
+/** Sign-in, registration and settings are on unless the build sets `VITE_ACCOUNTS_ENABLED=false`. */
 export const ACCOUNTS_ENABLED =
   import.meta.env.VITE_ACCOUNTS_ENABLED !== "false";
+/**
+ * Science API (`/api/v2`), no trailing slash: relative in dev (Vite proxy), on the
+ * gateway origin in a build. Build-time `VITE_SCIENCE_API_BASE_URL` overrides both.
+ */
 export const SCIENCE_BASE_URL = (
   import.meta.env.VITE_SCIENCE_API_BASE_URL ??
   (import.meta.env.DEV ? "/api/v2" : `${API_ORIGIN}/api/v2`)

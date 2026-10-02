@@ -20,6 +20,16 @@ export default defineConfig([
     },
   },
   {
+    // Each context file exports its provider and the hook that reads the same context instance.
+    files: ["src/context/**/*.tsx"],
+    rules: {
+      "react-refresh/only-export-components": [
+        "error",
+        { allowExportNames: ["useSelectedElement", "useCommerce"] },
+      ],
+    },
+  },
+  {
     files: ["src/components/ui/**/*.{ts,tsx}"],
     rules: {
       "react-refresh/only-export-components": [

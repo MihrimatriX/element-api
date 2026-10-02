@@ -70,10 +70,26 @@
 
 Ana yüzey bilimsel atlas ve öğrenme. Ticaret ayrı sanal demo; gerçek ödeme/teslimat yok. Yerelde sunum hedefi korunur; e-posta sağlayıcısı tercihi Resend, bağlantısı henüz yok.
 
-Ön yüz için gerçek shadcn/ui kaynakları + Radix + Tailwind 4 kullanılır. Ortak ProductShell, sans tipografi, krem kâğıt zemin; periyodik hücreler aile rengini doldurur. Pazarlama sloganları ve dekoratif kart yığını yok. Mevcut bilimsel API ve öğrenme kuralları görsel değişiklik için değiştirilmez. [Tasarım sözleşmesi](design-system.md).
+Ön yüz için shadcn kalıbında Radix + Tailwind 4 kullanılır. Pazarlama sloganları ve dekoratif kart yığını yok. Mevcut bilimsel API ve öğrenme kuralları görsel değişiklik için değiştirilmez. Görsel dil 2 Ekim 2026’da Mineral sistemiyle değişti (aşağıda); “krem kâğıt zemin” artık geçerli değil.
+
+## Mineral tasarım sistemi — 2 Ekim 2026
+
+**Decision:** Arayüz tek tasarım sistemiyle kurulur: “Mineral”. Yalnız koyu tema, yeşil tonlu mineral yüzeyler, tek vurgu rengi kuprit, periyodik tablo için aile renkleri; Bricolage Grotesque (başlık), Geist (gövde), Geist Mono (sembol, formül, kod). Jetonlar yalnız `web-app/src/styles.css`, paylaşılan bileşenler yalnız `web-app/src/components/ui/`; bileşende ham renk yazılmaz. Eski beş CSS dosyası silindi, geri gelmez.
+
+**Why:** Kullanıcı “her satır temiz ve anlaşılır, üst düzey cila” istedi; üst üste binmiş eski stil katmanları (~12 bin satır) bunu imkânsız kılıyordu.
+
+**Where:** [design-system.md](design-system.md); vitrin `/_ui` (yalnız dev).
+
+## Sistem kılavuzu tek kaynak: `docs/kilavuz/` — 2 Ekim 2026
+
+**Decision:** Her servisin ne yaptığı, uçları, mesajları, yapılandırması ve dosya dosya kod haritası `docs/kilavuz/` altında, servis başına bir Markdown sayfasında tutulur. Uygulamadaki `/kilavuz` bu sayfalardan üretilir (`web-app/scripts/write-guide.mjs` → `src/data/guide.json`); üretilen JSON git’e girmez, `predev` / `build` / `pretest` yeniden üretir. Kalıba uymayan sayfada script satır numarasıyla durur.
+
+**Why:** Belge ile uygulama içi kılavuz ayrı kopyalar olursa kayar. Servis README’leri “nasıl açılır” notu olarak kalır; içerinin ayrıntısı kılavuzdadır.
+
+**Açık soru (sahip):** `altyapi.md` yerel varsayılan sırları listeler ve public sitede de okunur — [open-risks.md](open-risks.md).
 
 ## Bilimsel bileşik kataloğu mağaza SKU’su değildir — 17 Eylül 2026
 
 **Decision:** Eğitim/oyun kataloğu (`known-compounds.json` / `scientific-compounds.json`) büyüyebilir. Mağaza `compounds.json` SKU listesi otomatik büyümez.
 
-**Why:** Ticaret ayrı sanal sözleşmedir; 167 molekülün tamamı satılık ürün değildir.
+**Why:** Ticaret ayrı sanal sözleşmedir; eğitim kataloğundaki 214 molekülün tamamı satılık ürün değildir.

@@ -8,7 +8,7 @@ Kim bu kullanıcı, oturumu geçerli mi, API anahtarı kimin, öğrenme ilerleme
 |--|--|
 | **Port** | `5001` |
 | **Teknoloji** | .NET 10, ASP.NET Identity, JWT |
-| **Veritabanı** | PostgreSQL `element_identity_db` · Redis |
+| **Veritabanı** | PostgreSQL `element_identity_db` |
 | **Komşular** | gateway (auth + anahtar) · notification (webhook listesi) · web-app (JWT / öğrenme) |
 
 ---
@@ -17,12 +17,12 @@ Kim bu kullanıcı, oturumu geçerli mi, API anahtarı kimin, öğrenme ilerleme
 
 - Kayıt ve giriş; JWT üretir (tarayıcı `localStorage`’a koyar).
 - API anahtarı basar (`ele_live_` + rastgele). Gateway alışverişte ve cüzdanda bunu sorar.
-- Webhook kaydı: “sipariş değişince şu HTTPS adresine yaz.”
+- Webhook kaydı: “sipariş değişince şu HTTPS adresine yaz.” Hesap başına en fazla 10; URL DNS adlı herkese açık HTTPS olmalı (IP, localhost, tek etiketli ad, kullanıcı:şifre reddedilir). Silme kalıcıdır (secret da gider).
 - Öğrenme: `GET/PUT /api/v1/auth/learning` — keşif slug’ları ve tamamlanan rotalar. Uydurma slug yazılmaz; izin listesi `known-compounds.json` + `lessons.json`.
 - Profil, veri indirme, şifre değiştirme, hesap silme (`HESABIMI SİL` onayı).
 - Gateway için iç uç: `POST /api/v1/internal/api-keys/validate`.
 
-Şifre değişince veya hesap silinince anahtarlar kapanır; yeniden giriş gerekir.
+Şifre değişince veya hesap silinince anahtarlar kapanır; yeniden giriş gerekir. Şifre isteyen hesap işlemleri (silme, şifre değiştirme) girişle aynı kilidi paylaşır (5 hata → ~15 dk, 429). Sıfırlama / doğrulama maili hesap başına 2 dakikada en fazla bir kez gider; yanıt aynı kalır.
 
 ## Ne yapmaz?
 
@@ -38,7 +38,7 @@ Ayrı Learning Progress servisi yok; ilerleme hâlâ bu kutunun token/kaydında.
 
 ```
 web-app → gateway → identity (kayıt/giriş/öğrenme/anahtar)
-gateway → POST /internal/api-keys/validate (Redis önbellek)
+gateway → POST /internal/api-keys/validate (her çağrıda DB; önbellek yok)
 notification → GET /internal/webhooks (order.updated listesi)
 ```
 
@@ -54,7 +54,7 @@ Host:
 dotnet run --project identity-service/Element.Services.Identity.API/Element.Services.Identity.API.csproj
 ```
 
-Postgres ve Redis ayakta olmalı.
+Postgres ayakta olmalı.
 
 ## Sık uçlar
 
@@ -80,8 +80,7 @@ Swagger (Development): http://localhost:5001/swagger
 | Değişken | Ne işe yarar |
 |----------|----------------|
 | `ConnectionStrings__DefaultConnection` | Postgres |
-| `RedisConnection` | önbellek |
-| `JwtSettings__Secret` | token imzası |
+| `JwtSettings__Secret` | token imzası (zorunlu; geliştirme değeri yalnız `appsettings.Development.json`’da) |
 | `PUBLIC_WEB_ORIGIN` | sıfırlama mailindeki site adresi |
 | SMTP / mailer | yoksa kurtarma kapalı |
 | `CAPTCHA_SECRET_KEY` | Turnstile secret; boşsa captcha kapalı |
@@ -95,4 +94,4 @@ Swagger (Development): http://localhost:5001/swagger
 | Giriş 401 | yanlış şifre |
 | Giriş 429 | kilit (5 hatalı → ~15 dk) veya gateway auth hız sınırı |
 
-[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)
+[← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md) · [Kod kılavuzu (her fonksiyon)](../docs/kilavuz/identity.md)

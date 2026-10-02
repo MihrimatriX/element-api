@@ -1,50 +1,48 @@
 import type { ReactNode } from "react";
 
-/** Cheap JSON token paint for mineral terminals — no deps. */
+const TOKEN_CLASS = {
+  key: "text-syntax-key",
+  string: "text-syntax-string",
+  number: "text-syntax-number",
+  literal: "text-syntax-literal",
+  punct: "text-syntax-punct",
+} as const;
+
+const JSON_TOKEN =
+  /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[[{}\],]|:/g;
+
+/** Dependency-free JSON syntax colouring: wraps tokens in spans with the syntax token colours. */
 export function highlightJson(source: string): ReactNode[] {
-  const out: ReactNode[] = [];
-  const re =
-    /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|[[{}\],]|:/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let i = 0;
-  while ((m = re.exec(source))) {
-    if (m.index > last) {
-      out.push(source.slice(last, m.index));
-    }
-    const [full, str, colonAfter, lit] = m;
-    if (str != null) {
-      out.push(
-        <span key={i++} className={colonAfter ? "jw-key" : "jw-str"}>
-          {str}
-        </span>,
-      );
-      if (colonAfter) out.push(colonAfter);
-    } else if (lit != null) {
-      out.push(
-        <span key={i++} className="jw-lit">
-          {lit}
-        </span>,
-      );
-    } else if (/^-?\d/.test(full)) {
-      out.push(
-        <span key={i++} className="jw-num">
-          {full}
-        </span>,
-      );
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+  let key = 0;
+  const paint = (text: string, kind: keyof typeof TOKEN_CLASS) =>
+    nodes.push(
+      <span key={key++} className={TOKEN_CLASS[kind]}>
+        {text}
+      </span>,
+    );
+
+  for (const match of source.matchAll(JSON_TOKEN)) {
+    const [token, quoted, colonAfter, literal] = match;
+    if (match.index > cursor) nodes.push(source.slice(cursor, match.index));
+    if (quoted !== undefined) {
+      paint(quoted, colonAfter ? "key" : "string");
+      if (colonAfter) paint(colonAfter, "punct");
+    } else if (literal !== undefined) {
+      paint(literal, "literal");
+    } else if (/^-?\d/.test(token)) {
+      paint(token, "number");
     } else {
-      out.push(
-        <span key={i++} className="jw-punc">
-          {full}
-        </span>,
-      );
+      paint(token, "punct");
     }
-    last = m.index + full.length;
+    cursor = match.index + token.length;
   }
-  if (last < source.length) out.push(source.slice(last));
-  return out;
+  if (cursor < source.length) nodes.push(source.slice(cursor));
+  return nodes;
 }
 
+/** Pretty-prints any value as JSON (strings pass through unchanged). */
 export function jsonSource(value: unknown): string {
   if (typeof value === "string") return value;
   try {

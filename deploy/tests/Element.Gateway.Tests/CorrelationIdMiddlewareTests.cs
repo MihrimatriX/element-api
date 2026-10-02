@@ -3,38 +3,40 @@ using Microsoft.AspNetCore.Http;
 
 namespace Element.Gateway.Tests;
 
+/// <summary>Checks that every request leaves the gateway with an X-Request-Id.</summary>
 public class CorrelationIdMiddlewareTests
 {
     [Fact]
     public async Task Invoke_MintsRequestId_WhenMissing()
     {
-        var ctx = new DefaultHttpContext();
-        string? seen = null;
-        var mw = new CorrelationIdMiddleware(c =>
+        var context = new DefaultHttpContext();
+        string? forwardedId = null;
+        var middleware = new CorrelationIdMiddleware(forwardedContext =>
         {
-            seen = c.Request.Headers[CorrelationIdMiddleware.HeaderName].ToString();
+            forwardedId = forwardedContext.Request.Headers[CorrelationIdMiddleware.HeaderName].ToString();
             return Task.CompletedTask;
         });
 
-        await mw.InvokeAsync(ctx);
+        await middleware.InvokeAsync(context);
 
-        seen.Should().NotBeNullOrWhiteSpace();
-        seen!.Length.Should().BeGreaterThan(8);
+        forwardedId.Should().NotBeNullOrWhiteSpace();
+        forwardedId!.Length.Should().BeGreaterThan(8);
     }
 
     [Fact]
     public async Task Invoke_PreservesIncomingRequestId()
     {
-        var ctx = new DefaultHttpContext();
-        ctx.Request.Headers[CorrelationIdMiddleware.HeaderName] = "client-trace-abc";
-        string? seen = null;
-        var mw = new CorrelationIdMiddleware(c =>
+        var context = new DefaultHttpContext();
+        context.Request.Headers[CorrelationIdMiddleware.HeaderName] = "client-trace-abc";
+        string? forwardedId = null;
+        var middleware = new CorrelationIdMiddleware(forwardedContext =>
         {
-            seen = c.Request.Headers[CorrelationIdMiddleware.HeaderName].ToString();
+            forwardedId = forwardedContext.Request.Headers[CorrelationIdMiddleware.HeaderName].ToString();
             return Task.CompletedTask;
         });
 
-        await mw.InvokeAsync(ctx);
-        seen.Should().Be("client-trace-abc");
+        await middleware.InvokeAsync(context);
+
+        forwardedId.Should().Be("client-trace-abc");
     }
 }

@@ -1,32 +1,48 @@
 using Element.Services.Element.Core.Domain;
 using Element.Services.Element.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace Element.Services.Element.API.Controllers;
 
+/// <summary>
+/// Market-wide views of the simulated KREDI prices: one row per element with last, bid/ask
+/// and 24h change, so the web app can draw the ticker tape and heatmap in a single call.
+/// </summary>
 [ApiController]
 [Route("api/v1/market")]
+[ResponseCache(Duration = 5)]
 public class MarketController : ControllerBase
 {
+    private const int DefaultMoversLimit = 12;
+    private const int MaxMoversLimit = 50;
+    private const int ChangeWindowHours = 24;
+
     private readonly EfElementRepository _repository;
     private readonly MarketOptions _market;
+    private readonly IMemoryCache _cache;
 
-    public MarketController(EfElementRepository repository, IOptions<MarketOptions> market)
+    public MarketController(EfElementRepository repository, IOptions<MarketOptions> market, IMemoryCache cache)
     {
         _repository = repository;
         _market = market.Value;
+        _cache = cache;
     }
 
     /// <summary>Top absolute 24h movers for the ticker tape.</summary>
     [HttpGet("movers")]
-    public async Task<IActionResult> Movers([FromQuery] int limit = 12, CancellationToken ct = default)
+    public async Task<IActionResult> Movers([FromQuery] int limit = DefaultMoversLimit, CancellationToken ct = default)
     {
-        if (limit is < 1 or > 50) limit = 12;
+        if (limit is < 1 or > MaxMoversLimit)
+        {
+            limit = DefaultMoversLimit;
+        }
+
         var board = await BuildBoardAsync(ct);
         var movers = board
-            .Where(x => x.Change24hPct != null)
-            .OrderByDescending(x => Math.Abs(x.Change24hPct!.Value))
+            .Where(row => row.Change24hPct != null)
+            .OrderByDescending(row => Math.Abs(row.Change24hPct!.Value))
             .Take(limit)
             .ToList();
         return Ok(movers);
@@ -36,33 +52,54 @@ public class MarketController : ControllerBase
     [HttpGet("board")]
     public async Task<IActionResult> Board(CancellationToken ct = default)
     {
-        return Ok(await BuildBoardAsync(ct));
+        var board = await BuildBoardAsync(ct);
+        return Ok(board);
     }
 
-    private async Task<List<BoardRow>> BuildBoardAsync(CancellationToken ct)
-    {
-        var spread = _market.SpreadPct > 0 ? _market.SpreadPct : MarketMaker.DefaultSpreadPct;
-        var cutoff = DateTime.UtcNow.AddHours(-24);
-        var elements = await _repository.GetAllAsync(ct);
-        var firsts = await _repository.GetOldestPriceSinceAsync(cutoff, ct);
-        return elements.Select(e =>
+    // Same for every caller and polled by every open tab: one build (118 index seeks) per snapshot TTL.
+    private async Task<List<BoardRow>> BuildBoardAsync(CancellationToken ct) =>
+        (await _cache.GetOrCreateAsync("market:board", entry =>
         {
-            firsts.TryGetValue(e.Symbol, out var first);
-            var (bid, ask) = MarketMaker.Quotes(e.PricePerGram, spread);
-            return new BoardRow(
-                e.Symbol,
-                e.PricePerGram,
-                MarketMaker.ChangePct(e.PricePerGram, firsts.ContainsKey(e.Symbol) ? first : null),
-                bid,
-                ask,
-                e.AvailableStock,
-                "KREDI",
-                "simulation",
-                DateTime.UtcNow
-            );
-        }).ToList();
+            entry.AbsoluteExpirationRelativeToNow = EfElementRepository.SnapshotTtl;
+            return ComputeBoardAsync(ct);
+        }))!;
+
+    private async Task<List<BoardRow>> ComputeBoardAsync(CancellationToken ct)
+    {
+        var spread = _market.EffectiveSpreadPct;
+        var windowStart = DateTime.UtcNow.AddHours(-ChangeWindowHours);
+        var elements = await _repository.GetAllAsync(ct);
+        var openPrices = await _repository.GetOldestPriceSinceAsync(windowStart, ct);
+
+        return elements
+            .Select(element =>
+            {
+                decimal? openPrice = openPrices.TryGetValue(element.Symbol, out var price) ? price : null;
+                var (bid, ask) = MarketMaker.Quotes(element.PricePerGram, spread);
+
+                return new BoardRow(
+                    element.Symbol,
+                    element.PricePerGram,
+                    MarketMaker.ChangePct(element.PricePerGram, openPrice),
+                    bid,
+                    ask,
+                    element.AvailableStock,
+                    MarketMaker.Currency,
+                    MarketMaker.SimulatedPriceSource,
+                    DateTime.UtcNow);
+            })
+            .ToList();
     }
 
-    public record BoardRow(string Symbol, decimal Last, decimal? Change24hPct, decimal Bid, decimal Ask,
-        decimal AvailableStock, string Currency, string PriceSource, DateTime UpdatedAt);
+    /// <summary>One element's market snapshot on the board.</summary>
+    public record BoardRow(
+        string Symbol,
+        decimal Last,
+        decimal? Change24hPct,
+        decimal Bid,
+        decimal Ask,
+        decimal AvailableStock,
+        string Currency,
+        string PriceSource,
+        DateTime UpdatedAt);
 }

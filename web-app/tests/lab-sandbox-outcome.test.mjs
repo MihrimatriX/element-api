@@ -1,23 +1,19 @@
 import assert from "node:assert/strict";
 import {
   formCompound,
-  mixOutcome,
+  missTone,
   moveChip,
   syncChipOrder,
 } from "../src/services/lab.ts";
 
-const hit = formCompound({ H: 2, O: 1 });
-assert.equal(mixOutcome(hit), "hit");
+assert.ok(formCompound({ H: 2, O: 1 }).ok, "water is a catalogue hit");
 
 const almost = formCompound({ H: 1, O: 1 });
-assert.equal(mixOutcome(almost), "almost");
 assert.ok(!almost.ok && almost.code === "wrong_ratio");
+assert.equal(missTone(almost), "almost");
 
-const impossible = formCompound({ He: 1, O: 1 });
-assert.equal(mixOutcome(impossible), "impossible");
-
-const empty = formCompound({});
-assert.equal(mixOutcome(empty), "empty");
+assert.equal(missTone(formCompound({ He: 1, O: 1 })), "impossible");
+assert.equal(missTone(formCompound({})), "empty");
 
 assert.deepEqual(moveChip(["H", "O", "Na"], 0, 2), ["O", "Na", "H"]);
 assert.deepEqual(moveChip(["H", "O"], 1, 1), ["H", "O"]);

@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Element.Services.Element.API.Controllers;
 
+/// <summary>
+/// Read-only scientific element records (v2) served straight from scientific-elements.json.
+/// No prices or stock here; unknown values stay null instead of being invented.
+/// </summary>
 [ApiController]
 [Route("api/v2/elements")]
 public sealed class ScientificElementsController : ControllerBase

@@ -10,7 +10,7 @@ export default defineConfig({
     ["html", { outputFolder: "playwright-report-live", open: "never" }],
   ],
   use: {
-    baseURL: process.env.WEB_BASE || "http://localhost:3000",
+    baseURL: process.env.WEB_BASE || "http://localhost:6241",
     viewport: { width: 1365, height: 900 },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",

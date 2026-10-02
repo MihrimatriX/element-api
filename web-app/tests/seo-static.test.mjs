@@ -26,8 +26,9 @@ assert.match(indexHtml, /"@type":\s*"WebSite"/);
 
 assert.ok(existsSync(join(root, "public/og.png")), "public/og.png missing");
 
+// The browser chrome takes the canvas colour; index.html sets it once for every page.
+assert.match(indexHtml, /name="theme-color" content="#080b09"/);
 const seo = readFileSync(join(root, "src/components/Seo.tsx"), "utf8");
-assert.match(seo, /theme-color.*#0E1110/);
 assert.match(seo, /twitter:image:alt/);
 assert.match(seo, /noIndex/);
 

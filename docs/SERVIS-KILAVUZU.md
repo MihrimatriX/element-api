@@ -2,7 +2,7 @@
 
 Bu belge, ElementAPI’nin parçalarını **insan dilinde** anlatır. Hangi kutu ne işe yarar, kiminle konuşur, hangisini tek başına açmak yeter.
 
-Teknik uç listesi her klasörün kendi `README.md` dosyasındadır. Burada önce resmi gör.
+Burada önce resmi gör. Her kutunun içi (uçlar, mesajlar, yapılandırma, dosya dosya kod haritası) [sistem kılavuzunda](kilavuz/README.md) servis başına bir sayfadır; aynı sayfalar uygulamada `/kilavuz` adresinde okunur. Kutuyu nasıl açacağın klasörün kendi `README.md` dosyasındadır.
 
 Ürünü üç dakikada göstermek için: [yerel sunum](LOCAL-PRESENTATION.md).
 
@@ -50,31 +50,30 @@ Sipariş oluşunca kuyruk (RabbitMQ):
 
 ## Servisler, tek cümle
 
-| Klasör | İnsan cümlesi | Port | README |
-|--------|---------------|------|--------|
-| [web-app](../web-app/README.md) | Ekranda gördüğün uygulama. | 3000 / 5173 | kılavuz orada |
-| [science-service](../science-service/README.md) | Atlas’ı tek kutuda gösteren sade host. DB yok. | 5080 | |
-| [gateway-service](../gateway-service/README.md) | Resepsiyon (YARP). İsteği doğru odaya verir; kayıt 5/dk, auth 15/dk, genel 60/10sn. | 5000 | |
-
-| [identity-service](../identity-service/README.md) | Hesap, oturum, API anahtarı, öğrenme kaydı. | 5001 | |
-| [catalog-service](../catalog-service/README.md) | 118 element: bilimsel kayıt + sanal fiyat (stok inventory’de). | 5002 | |
-| [compound-service](../compound-service/README.md) | Bileşikler. Eğitim kataloğu ile mağaza ürünü **aynı liste değildir**. | 5007 | |
-| [order-service](../order-service/README.md) | Sipariş saga’sının yönetmeni. KREDI ve stok için event yollar. | 5003 | |
-| [wallet-service](../wallet-service/README.md) | KREDI cüzdan, defter, holdings, masa satışı. Java. | 5005 | |
-| [inventory-service](../inventory-service/README.md) | Stok ayırma / serbest bırakma / kalıcı düşüm. Java. | 5008 | |
-| [shipment-service](../shipment-service/README.md) | Sahte kargo: takip numarası basar, kaydı tutar. | 5004 | |
-| [notification-service](../notification-service/README.md) | Sipariş webhook’u (`order.updated`). Canlı fiyat kanalı yok. | 5006 | |
-| [shared-lib](../shared-lib/README.md) | Ortak kutu: olay isimleri, sağlık uçları, bilimsel API yardımcısı. Çalışmaz. | — | |
+| Klasör | İnsan cümlesi | Port | İçi |
+|--------|---------------|------|-----|
+| [web-app](../web-app/README.md) | Ekranda gördüğün uygulama. | 6241 / 5173 | [kılavuz](kilavuz/web-app.md) |
+| [science-service](../science-service/README.md) | Atlas’ı tek kutuda gösteren sade host. DB yok. | 5080 | [kılavuz](kilavuz/science.md) |
+| [gateway-service](../gateway-service/README.md) | Resepsiyon (YARP). İsteği doğru odaya verir; kayıt 5/dk, auth 15/dk, genel 60/10sn. | 5000 | [kılavuz](kilavuz/gateway.md) |
+| [identity-service](../identity-service/README.md) | Hesap, oturum, API anahtarı, öğrenme kaydı. | 5001 | [kılavuz](kilavuz/identity.md) |
+| [catalog-service](../catalog-service/README.md) | 118 element: bilimsel kayıt + sanal fiyat (stok inventory’de). | 5002 | [kılavuz](kilavuz/catalog.md) |
+| [compound-service](../compound-service/README.md) | Bileşikler. Eğitim kataloğu ile mağaza ürünü **aynı liste değildir**. | 5007 | [kılavuz](kilavuz/compound.md) |
+| [order-service](../order-service/README.md) | Sipariş saga’sının yönetmeni. KREDI ve stok için event yollar. | 5003 | [kılavuz](kilavuz/order.md) |
+| [wallet-service](../wallet-service/README.md) | KREDI cüzdan, defter, holdings, masa satışı. Java. | 5005 | [kılavuz](kilavuz/wallet.md) |
+| [inventory-service](../inventory-service/README.md) | Stok ayırma / serbest bırakma / kalıcı düşüm. Java. | 5008 | [kılavuz](kilavuz/inventory.md) |
+| [shipment-service](../shipment-service/README.md) | Sahte kargo: takip numarası basar, kaydı tutar. | 5004 | [kılavuz](kilavuz/shipment.md) |
+| [notification-service](../notification-service/README.md) | Sipariş webhook’u (`order.updated`). Canlı fiyat kanalı yok. | 5006 | [kılavuz](kilavuz/notification.md) |
+| [shared-lib](../shared-lib/README.md) | Ortak kutu: olay isimleri, sağlık uçları, bilimsel API yardımcısı. Çalışmaz. | — | [kılavuz](kilavuz/shared-lib.md) |
 
 Altyapı (ayrı “ürün servisi” değil): PostgreSQL, Redis, RabbitMQ. Compose bunları da ayağa kaldırır.
 
 ### Operatör klasörleri (ürün servisi değil)
 
-| Klasör | İnsan cümlesi | README |
-|--------|---------------|--------|
-| [deploy/](../deploy/README.md) | Script’ler, testler, atlas verisi, Caddy taslağı. “Şunu çalıştır” burada. | kullanım kılavuzu |
-| [docker/](../docker/README.md) | Env örnekleri, Postgres init. Compose dosyaları kökte; sırlar burada. | kullanım kılavuzu |
-| [docs/](./README.md) | İnsan belgeleri indeksi. Memory bank + bu kılavuz. İkinci paralel sistem yok. | giriş |
+| Klasör | İnsan cümlesi | İçi |
+|--------|---------------|-----|
+| [deploy/](../deploy/README.md) | Script’ler, testler, atlas verisi, Caddy taslağı. “Şunu çalıştır” burada. | [altyapı kılavuzu](kilavuz/altyapi.md) |
+| [docker/](../docker/README.md) | Env örnekleri, Postgres init. Compose dosyaları kökte; sırlar burada. | [altyapı kılavuzu](kilavuz/altyapi.md) |
+| [docs/](./README.md) | İnsan belgeleri indeksi: bu tur, sistem kılavuzu, memory bank. İkinci paralel sistem yok. | giriş |
 
 Agent notları (İngilizce, kısa): [deploy/AGENTS.md](../deploy/AGENTS.md).
 
@@ -88,7 +87,7 @@ Agent notları (İngilizce, kısa): [deploy/AGENTS.md](../deploy/AGENTS.md).
 ./deploy/scripts/present-platform.ps1
 ```
 
-http://localhost:3000 — her servis kendi konteynerinde.
+http://localhost:6241 — her servis kendi konteynerinde.
 
 **Yalnız tablo ve laboratuvar (veritabanı istemiyorum):**
 
@@ -132,7 +131,7 @@ Her backend kutusunda aynı üç kapı vardır:
 
 **KREDI yazısı, Elx alanı.** Ekranda para **KREDI**’dir. Kablodaki bazı alanlar hâlâ `balanceElx`, `INSUFFICIENT_ELX` gibi eski isimler taşır. Bu isimleri “düzeltmek” istemeden kırma; kök README’deki sözleşme geçerlidir.
 
-**İki bileşik listesi.** Laboratuvar ve `/compound/h2o` **167 eğitim kaydına** bakar. Mağaza rafları ayrı, kısa bir SKU listesidir. 167 molekülün hepsi satılık ürün olmaz.
+**İki bileşik listesi.** Laboratuvar ve `/compound/h2o` **214 eğitim kaydına** bakar. Mağaza rafları ayrı, kısa bir SKU listesidir. 214 molekülün hepsi satılık ürün olmaz.
 
 **Stok vs fiyat.** Gram stok `inventory-service`’tedir. Catalog ticker’daki `availableStock` gösterim/legacy olabilir; sipariş ön-kontrolü inventory’ye bakar. Catalog kuyrukta yalnız fiyat nudge dinler.
 
@@ -149,6 +148,7 @@ Her backend kutusunda aynı üç kapı vardır:
 | Ne arıyorsun | Nereye |
 |--------------|--------|
 | Bu tur (insan dili) | bu dosya |
+| Her kutunun içi, fonksiyon fonksiyon | [kilavuz/](./kilavuz/README.md) · uygulamada `/kilavuz` |
 | Docs indeksi | [README.md](./README.md) |
 | Ürün / mimari / son iş | [memory-bank/](./memory-bank/README.md) |
 | Üç dakikalık sunum | [LOCAL-PRESENTATION.md](./LOCAL-PRESENTATION.md) |

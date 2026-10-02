@@ -1,7 +1,9 @@
-using System;
-
 namespace Element.Services.Element.Core.Entities;
 
+/// <summary>
+/// One periodic-table element as stored in the market database: reference data,
+/// Turkish display texts, simulated commerce metadata and the simulated stock/price.
+/// </summary>
 public class ChemicalElement
 {
     public Guid Id { get; set; }
@@ -35,5 +37,6 @@ public class ChemicalElement
     public decimal StockWeightGrams { get; set; }
     public decimal ReservedWeightGrams { get; set; }
 
+    /// <summary>Grams that can still be sold: total stock minus grams held for open orders.</summary>
     public decimal AvailableStock => StockWeightGrams - ReservedWeightGrams;
 }

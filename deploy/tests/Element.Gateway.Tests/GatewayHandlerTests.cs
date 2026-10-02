@@ -11,34 +11,61 @@ using StackExchange.Redis;
 
 namespace Element.Gateway.Tests;
 
+/// <summary>Covers the identity lookup and the Redis per-key rate limit of <see cref="ApiKeyValidator"/>.</summary>
 public class GatewayHandlerTests
 {
-    private static IHttpClientFactory IdentityFactory(Guid userId, HttpStatusCode status = HttpStatusCode.OK)
+    private const string ValidKey = "ele_live_12345678901234567890123456789012";
+    private static readonly IConfiguration EmptyConfig = new ConfigurationBuilder().Build();
+
+    /// <summary>Fake identity-service that answers every validate call with the given status and body.</summary>
+    private static IHttpClientFactory IdentityFactory(HttpStatusCode status, string responseJson)
     {
         var handler = new Mock<HttpMessageHandler>();
-        handler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage(status) { Content = new StringContent(JsonSerializer.Serialize(new { userId, isActive = status == HttpStatusCode.OK, rateLimitTps = 10 }), Encoding.UTF8, "application/json") });
+        handler.Protected()
+            .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage(status)
+            {
+                Content = new StringContent(responseJson, Encoding.UTF8, "application/json"),
+            });
+
         var factory = new Mock<IHttpClientFactory>();
         factory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(new HttpClient(handler.Object));
         return factory.Object;
     }
-    private const string ValidKey = "ele_live_12345678901234567890123456789012";
+
+    private static IHttpClientFactory IdentityFactory(Guid userId, HttpStatusCode status = HttpStatusCode.OK)
+    {
+        var responseJson = JsonSerializer.Serialize(new { userId, isActive = status == HttpStatusCode.OK, rateLimitTps = 10 });
+        return IdentityFactory(status, responseJson);
+    }
+
+    private static IConnectionMultiplexer MultiplexerFor(Mock<IDatabase> redisDb)
+    {
+        var multiplexer = new Mock<IConnectionMultiplexer>();
+        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
+        return multiplexer.Object;
+    }
+
+    /// <summary>Redis whose per-second counter returns <paramref name="requestCount"/> on increment.</summary>
+    private static Mock<IDatabase> RedisWithCounter(long requestCount)
+    {
+        var redisDb = new Mock<IDatabase>();
+        redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(requestCount);
+        redisDb.Setup(r => r.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(true);
+        return redisDb;
+    }
 
     [Fact]
     public async Task ValidateApiKeyAsync_Returns503_WhenIdentityUnreachable()
     {
-        var mockFactory = new Mock<IHttpClientFactory>();
-        mockFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Throws(new HttpRequestException("down"));
-
-        var redisDb = new Mock<IDatabase>();
-        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync(RedisValue.Null);
-        var multiplexer = new Mock<IConnectionMultiplexer>();
-        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
+        var unreachableIdentity = new Mock<IHttpClientFactory>();
+        unreachableIdentity.Setup(f => f.CreateClient(It.IsAny<string>())).Throws(new HttpRequestException("down"));
 
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, mockFactory.Object, new ConfigurationBuilder().Build());
+            context, ValidKey, MultiplexerFor(new Mock<IDatabase>()), unreachableIdentity.Object, EmptyConfig);
 
         ok.Should().BeFalse();
         vc.StatusCode.Should().Be(StatusCodes.Status503ServiceUnavailable);
@@ -53,37 +80,12 @@ public class GatewayHandlerTests
             id = userId,
             userId,
             isActive = true,
-            rateLimitTps = 20
+            rateLimitTps = 20,
         });
-
-        var messageHandler = new Mock<HttpMessageHandler>();
-        messageHandler.Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(responseJson, Encoding.UTF8, "application/json")
-            });
-
-        var client = new HttpClient(messageHandler.Object);
-        var mockFactory = new Mock<IHttpClientFactory>();
-        mockFactory.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
-
-        var redisDb = new Mock<IDatabase>();
-        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync(RedisValue.Null);
-        redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync(1L);
-        redisDb.Setup(r => r.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync(true);
-        var multiplexer = new Mock<IConnectionMultiplexer>();
-        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
 
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, mockFactory.Object, new ConfigurationBuilder().Build());
+            context, ValidKey, MultiplexerFor(RedisWithCounter(1)), IdentityFactory(HttpStatusCode.OK, responseJson), EmptyConfig);
 
         ok.Should().BeTrue();
         vc.IsActive.Should().BeTrue();
@@ -95,21 +97,16 @@ public class GatewayHandlerTests
     public async Task ValidateApiKeyAsync_IgnoresStaleCache_WhenIdentityRejects()
     {
         var userId = Guid.NewGuid();
-        var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 15 });
 
-        var redisDb = new Mock<IDatabase>();
+        // A cached "active" entry must never win over identity's live answer.
+        var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 15 });
+        var redisDb = RedisWithCounter(1);
         redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
             .ReturnsAsync((RedisValue)cached);
-        redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync(1L);
-        redisDb.Setup(r => r.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync(true);
-        var multiplexer = new Mock<IConnectionMultiplexer>();
-        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
 
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, IdentityFactory(userId, HttpStatusCode.Unauthorized), new ConfigurationBuilder().Build());
+            context, ValidKey, MultiplexerFor(redisDb), IdentityFactory(userId, HttpStatusCode.Unauthorized), EmptyConfig);
 
         ok.Should().BeFalse();
         vc.StatusCode.Should().Be(401);
@@ -120,19 +117,11 @@ public class GatewayHandlerTests
     public async Task ValidateApiKeyAsync_Returns429_WhenOverLimit()
     {
         var userId = Guid.NewGuid();
-        var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 10 });
 
-        var redisDb = new Mock<IDatabase>();
-        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync((RedisValue)cached);
-        redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync(11L);
-        var multiplexer = new Mock<IConnectionMultiplexer>();
-        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
-
+        // Identity allows 10 requests per second; this is the 11th.
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, IdentityFactory(userId), new ConfigurationBuilder().Build());
+            context, ValidKey, MultiplexerFor(RedisWithCounter(11)), IdentityFactory(userId), EmptyConfig);
 
         ok.Should().BeFalse();
         vc.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);
@@ -142,19 +131,13 @@ public class GatewayHandlerTests
     public async Task ValidateApiKeyAsync_Returns429_WhenRedisRateLimitThrows()
     {
         var userId = Guid.NewGuid();
-        var cached = JsonSerializer.Serialize(new { UserId = userId, IsActive = true, RateLimitTps = 10 });
-
         var redisDb = new Mock<IDatabase>();
-        redisDb.Setup(r => r.StringGetAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
-            .ReturnsAsync((RedisValue)cached);
         redisDb.Setup(r => r.StringIncrementAsync(It.IsAny<RedisKey>(), It.IsAny<long>(), It.IsAny<CommandFlags>()))
             .ThrowsAsync(new RedisConnectionException(ConnectionFailureType.UnableToConnect, "down"));
-        var multiplexer = new Mock<IConnectionMultiplexer>();
-        multiplexer.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>())).Returns(redisDb.Object);
 
         var context = new DefaultHttpContext();
         var (ok, vc) = await ApiKeyValidator.ValidateApiKeyAsync(
-            context, ValidKey, multiplexer.Object, IdentityFactory(userId), new ConfigurationBuilder().Build());
+            context, ValidKey, MultiplexerFor(redisDb), IdentityFactory(userId), EmptyConfig);
 
         ok.Should().BeFalse();
         vc.StatusCode.Should().Be(StatusCodes.Status429TooManyRequests);

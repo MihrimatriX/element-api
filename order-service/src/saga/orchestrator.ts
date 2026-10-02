@@ -1,185 +1,117 @@
+import type pg from "pg";
 import { v5 as uuidv5 } from "uuid";
 import { pool } from "../db/pool.js";
 import * as orders from "../db/orders.js";
-import { enqueueOutbox } from "../db/outbox.js";
-import {
-  parseMessage,
-  exchangeName,
-  type MessageType,
-} from "../messaging/massTransit.js";
+import { enqueueOutboxEvent, tryMarkMessageProcessed } from "../db/outbox.js";
+import { parseEnvelope } from "../messaging/massTransit.js";
+import { ELEMENTAL_SLUG } from "../compoundPrice.js";
 import { isUuid } from "../http.js";
 import { paymentDecision } from "./paymentDecision.js";
 
-interface SagaContext {
+const CREDIT_LIMIT_REASON = "Credit limit exceeded (50000 KREDI limit).";
+const PAYMENT_FAILED_REASON = "Payment failed";
+
+/** A saga event after parsing, with a valid order id and a de-duplication id. */
+interface SagaEvent {
+  type: string;
+  messageId: string;
   orderId: string;
-  customerId: string;
-  elementSymbol: string;
-  quantity: number;
-  totalPrice: number;
+  message: Record<string, unknown>;
 }
 
-export async function startSaga(ctx: SagaContext): Promise<void> {
-  await orders.createOrderWithSaga({ id: ctx.orderId, ...ctx });
+/** Reads the order id from camelCase or PascalCase payloads; anything that is not a UUID is ignored. */
+function orderIdOf(message: Record<string, unknown>): string | undefined {
+  const orderId = (message.orderId ?? message.OrderId) as string | undefined;
+  return isUuid(orderId) ? orderId : undefined;
 }
 
-function orderIdOf(msg: Record<string, unknown>): string | undefined {
-  const id = (msg.orderId ?? msg.OrderId) as string | undefined;
-  return isUuid(id) ? id : undefined;
+function reasonOf(message: Record<string, unknown>): string | undefined {
+  return (
+    (message.reason as string | undefined) ??
+    (message.Reason as string | undefined)
+  );
 }
 
-/** Order saga: stock → payment request → ship. Wallet owns debit/holdings. */
-export async function handleSagaMessage(body: Buffer): Promise<void> {
-  let type: MessageType;
-  let messageId: string;
-  let msg: Record<string, unknown>;
+function trackingNumberOf(
+  message: Record<string, unknown>,
+): string | undefined {
+  const trackingNumber = message.trackingNumber || message.TrackingNumber;
+  return trackingNumber as string | undefined;
+}
+
+/**
+ * Turns a broker message into a SagaEvent, or null when it is unusable (invalid JSON, no type, no order id).
+ * Unusable messages are acknowledged and dropped by the caller.
+ */
+function parseSagaEvent(body: Buffer): SagaEvent | null {
   try {
-    const raw = JSON.parse(body.toString("utf8"));
-    type = raw.messageType?.[0]?.split(":").pop();
-    msg = parseMessage(body) as Record<string, unknown>;
-    const oid = orderIdOf(msg);
-    if (!type || !oid) return;
-    messageId = isUuid(raw.messageId)
-      ? raw.messageId
-      : uuidv5(`${type}:${oid}`, uuidv5.URL);
-    msg.orderId = oid;
+    const envelope = parseEnvelope(body);
+    const message = envelope.message as Record<string, unknown>;
+    const orderId = orderIdOf(message);
+    if (!envelope.type || !orderId) return null;
+
+    // Without a MassTransit messageId, derive a stable one so a redelivered event is still de-duplicated.
+    const messageId = isUuid(envelope.messageId)
+      ? envelope.messageId
+      : uuidv5(`${envelope.type}:${orderId}`, uuidv5.URL);
+    return { type: envelope.type, messageId, orderId, message };
   } catch {
-    return;
+    return null;
   }
+}
+
+function sagaContextOf(order: orders.OrderRow): orders.SagaContext {
+  return {
+    orderId: order.id,
+    customerId: order.customer_id,
+    elementSymbol: order.element_symbol,
+    quantity: Number(order.quantity),
+    totalPrice: Number(order.total_price),
+  };
+}
+
+/** Loads the order and row-locks it until the transaction ends, so saga steps for one order never run in parallel. */
+async function lockOrder(
+  client: pg.PoolClient,
+  orderId: string,
+): Promise<orders.OrderRow | undefined> {
+  const result = await client.query<orders.OrderRow>(
+    `SELECT * FROM orders WHERE id = $1 FOR UPDATE`,
+    [orderId],
+  );
+  return result.rows[0];
+}
+
+/**
+ * Handles one saga event from RabbitMQ:
+ * Submitted → StockReserved → Shipping → Completed, or → Failed with compensation.
+ * Runs in one transaction that locks the order and records the message id, so a repeated delivery changes nothing.
+ * Wallet owns the actual debit and holdings; this service only requests them.
+ */
+export async function handleSagaMessage(body: Buffer): Promise<void> {
+  const event = parseSagaEvent(body);
+  if (!event) return;
 
   const client = await pool.connect();
   try {
     await client.query("BEGIN");
-    const result = await client.query<orders.OrderRow>(
-      `SELECT * FROM orders WHERE id = $1 FOR UPDATE`,
-      [msg.orderId],
-    );
-    const row = result.rows[0];
-    if (!row) {
+    const order = await lockOrder(client, event.orderId);
+    if (!order) {
       await client.query("ROLLBACK");
       return;
     }
-    const inserted = await client.query(
-      `INSERT INTO processed_messages (message_id, event_type, order_id) VALUES ($1,$2,$3)
-       ON CONFLICT DO NOTHING RETURNING message_id`,
-      [messageId, type, row.id],
+    const isFirstDelivery = await tryMarkMessageProcessed(
+      client,
+      event.messageId,
+      event.type,
+      order.id,
     );
-    if (!inserted.rowCount) {
+    if (!isFirstDelivery) {
       await client.query("COMMIT");
       return;
     }
 
-    const ctx: SagaContext = {
-      orderId: row.id,
-      customerId: row.customer_id,
-      elementSymbol: row.element_symbol,
-      quantity: Number(row.quantity),
-      totalPrice: Number(row.total_price),
-    };
-    const emit = (messageType: MessageType, payload: object, queue?: string) =>
-      enqueueOutbox(client, {
-        messageType,
-        payload,
-        route: queue ? "queue" : "exchange",
-        routeTarget: queue ?? exchangeName(messageType),
-      });
-    const release = () =>
-      emit("OrderStockReleaseEvent", {
-        orderId: row.id,
-        elementSymbol: row.element_symbol,
-        quantity: ctx.quantity,
-      });
-    const requestRefund = () =>
-      emit("PaymentRefundRequestedEvent", {
-        orderId: row.id,
-        customerId: row.customer_id,
-        elementSymbol: row.element_symbol,
-        quantity: ctx.quantity,
-      });
-    const fail = async () => {
-      await orders.transitionSaga(
-        client,
-        ctx,
-        "Failed",
-        (msg.reason as string | undefined) ??
-          (msg.Reason as string | undefined),
-      );
-      await release();
-      await requestRefund();
-    };
-    switch (type) {
-      case "StockReservedEvent":
-        if (row.status === "Submitted") {
-          await orders.transitionSaga(client, ctx, "StockReserved");
-          if (paymentDecision(ctx.totalPrice) === "limit") {
-            msg.reason = "Credit limit exceeded (50000 KREDI limit).";
-            await fail();
-            break;
-          }
-          await emit("PaymentRequestedEvent", {
-            orderId: row.id,
-            customerId: row.customer_id,
-            amount: ctx.totalPrice,
-            elementSymbol: row.element_symbol,
-            quantity: ctx.quantity,
-          });
-        } else if (row.status === "Failed") await release();
-        break;
-      case "StockReservationFailedEvent":
-        if (row.status === "Submitted") await fail();
-        break;
-      case "PaymentProcessedEvent":
-        if (row.status === "StockReserved") {
-          await orders.transitionSaga(client, ctx, "Shipping");
-          await emit("ShipmentRequestedEvent", {
-            orderId: row.id,
-            customerId: row.customer_id,
-            elementSymbol: row.element_symbol,
-            quantity: ctx.quantity,
-          });
-        }
-        break;
-      case "PaymentFailedEvent":
-        if (row.status === "StockReserved") {
-          msg.reason =
-            (msg.reason as string | undefined) ??
-            (msg.Reason as string | undefined) ??
-            "Payment failed";
-          await fail();
-        }
-        break;
-      case "ShipmentFailedEvent":
-        if (row.status === "Shipping") await fail();
-        break;
-      case "ShipmentDispatchedEvent":
-        if (row.status === "Shipping") {
-          const tracking = (msg.trackingNumber ||
-            msg.TrackingNumber) as string | undefined;
-          if (tracking)
-            await orders.setTrackingNumber(client, row.id, tracking);
-          await orders.transitionSaga(
-            client,
-            ctx,
-            "Completed",
-            undefined,
-            tracking,
-          );
-          await emit("AssetsCreditedEvent", {
-            orderId: row.id,
-            customerId: row.customer_id,
-            elementSymbol: row.element_symbol,
-            quantity: ctx.quantity,
-            totalPrice: ctx.totalPrice,
-            compoundSlug: row.compound_slug ?? "elemental",
-            productLabel: row.product_label,
-          });
-          await emit("OrderCompletedEvent", {
-            orderId: row.id,
-            elementSymbol: row.element_symbol,
-            quantity: ctx.quantity,
-          });
-        }
-        break;
-    }
+    await applySagaEvent(client, order, event);
     await client.query("COMMIT");
   } catch (err) {
     await client.query("ROLLBACK");
@@ -187,4 +119,136 @@ export async function handleSagaMessage(body: Buffer): Promise<void> {
   } finally {
     client.release();
   }
+}
+
+/**
+ * Applies an event to the order's current status. An event that does not fit the current status
+ * (late, duplicate or out of order) is ignored. sagaTransitions.ts holds the same matrix as pure functions.
+ */
+async function applySagaEvent(
+  client: pg.PoolClient,
+  order: orders.OrderRow,
+  event: SagaEvent,
+): Promise<void> {
+  const saga = sagaContextOf(order);
+  const status = order.status;
+
+  switch (event.type) {
+    case "StockReservedEvent":
+      if (status === "Submitted") {
+        await requestPayment(client, saga);
+      } else if (status === "Failed") {
+        // The order already failed (e.g. timed out) before inventory answered: give the stock back.
+        await orders.enqueueStockRelease(client, saga);
+      }
+      break;
+    case "StockReservationFailedEvent":
+      if (status === "Submitted") {
+        await failOrder(client, saga, reasonOf(event.message));
+      }
+      break;
+    case "PaymentProcessedEvent":
+      if (status === "StockReserved") {
+        await requestShipment(client, saga);
+      } else if (status === "Failed") {
+        // Debit landed after the order failed (e.g. timeout); the earlier refund may have been a
+        // no-op. Wallet refundIfDebited is idempotent per order, so asking again is safe.
+        await orders.enqueuePaymentRefund(client, saga);
+      }
+      break;
+    case "PaymentFailedEvent":
+      if (status === "StockReserved") {
+        const reason = reasonOf(event.message) ?? PAYMENT_FAILED_REASON;
+        await failOrder(client, saga, reason);
+      }
+      break;
+    case "ShipmentFailedEvent":
+      if (status === "Shipping") {
+        await failOrder(client, saga, reasonOf(event.message));
+      }
+      break;
+    case "ShipmentDispatchedEvent":
+      if (status === "Shipping") {
+        const trackingNumber = trackingNumberOf(event.message);
+        await completeOrder(client, order, saga, trackingNumber);
+      }
+      break;
+  }
+}
+
+/** Stock is held: move to StockReserved and ask wallet to charge the customer, or fail when over the credit limit. */
+async function requestPayment(
+  client: pg.PoolClient,
+  saga: orders.SagaContext,
+): Promise<void> {
+  await orders.transitionSaga(client, saga, "StockReserved");
+  if (paymentDecision(saga.totalPrice) === "limit") {
+    await failOrder(client, saga, CREDIT_LIMIT_REASON);
+    return;
+  }
+  await enqueueOutboxEvent(client, "PaymentRequestedEvent", {
+    orderId: saga.orderId,
+    customerId: saga.customerId,
+    amount: saga.totalPrice,
+    elementSymbol: saga.elementSymbol,
+    quantity: saga.quantity,
+  });
+}
+
+/** Payment succeeded: move to Shipping and ask shipment-service to dispatch. */
+async function requestShipment(
+  client: pg.PoolClient,
+  saga: orders.SagaContext,
+): Promise<void> {
+  await orders.transitionSaga(client, saga, "Shipping");
+  await enqueueOutboxEvent(client, "ShipmentRequestedEvent", {
+    orderId: saga.orderId,
+    customerId: saga.customerId,
+    elementSymbol: saga.elementSymbol,
+    quantity: saga.quantity,
+  });
+}
+
+/** Shipment dispatched: store tracking, complete the order and tell wallet and inventory to finalise it. */
+async function completeOrder(
+  client: pg.PoolClient,
+  order: orders.OrderRow,
+  saga: orders.SagaContext,
+  trackingNumber: string | undefined,
+): Promise<void> {
+  if (trackingNumber) {
+    await orders.setTrackingNumber(client, saga.orderId, trackingNumber);
+  }
+  await orders.transitionSaga(
+    client,
+    saga,
+    "Completed",
+    undefined,
+    trackingNumber,
+  );
+  await enqueueOutboxEvent(client, "AssetsCreditedEvent", {
+    orderId: saga.orderId,
+    customerId: saga.customerId,
+    elementSymbol: saga.elementSymbol,
+    quantity: saga.quantity,
+    totalPrice: saga.totalPrice,
+    compoundSlug: order.compound_slug ?? ELEMENTAL_SLUG,
+    productLabel: order.product_label,
+  });
+  await enqueueOutboxEvent(client, "OrderCompletedEvent", {
+    orderId: saga.orderId,
+    elementSymbol: saga.elementSymbol,
+    quantity: saga.quantity,
+  });
+}
+
+/** Marks the order Failed and queues compensation: release the reserved stock and refund any payment. */
+async function failOrder(
+  client: pg.PoolClient,
+  saga: orders.SagaContext,
+  reason: string | undefined,
+): Promise<void> {
+  await orders.transitionSaga(client, saga, "Failed", reason);
+  await orders.enqueueStockRelease(client, saga);
+  await orders.enqueuePaymentRefund(client, saga);
 }

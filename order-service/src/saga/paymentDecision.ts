@@ -1,6 +1,8 @@
-/** Inclusive cap from the retired payment worker: 50_000 KREDI. */
+/** Largest order total in KREDI (inclusive), inherited from the retired payment worker. */
 export const CREDIT_LIMIT = 50_000;
 
+/** Decides whether the saga may request payment for an amount: "ok" up to the credit limit, otherwise "limit". */
 export function paymentDecision(amount: number): "ok" | "limit" {
-  return Number.isFinite(amount) && amount <= CREDIT_LIMIT ? "ok" : "limit";
+  const isWithinLimit = Number.isFinite(amount) && amount <= CREDIT_LIMIT;
+  return isWithinLimit ? "ok" : "limit";
 }

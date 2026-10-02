@@ -53,6 +53,8 @@ services:
     ports: !override []
     environment:
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
+      # ProductionSecretsGuard only rejects weak secrets when it sees ELEMENT_ENV=prod in its own env.
+      ELEMENT_ENV: ${ELEMENT_ENV:-prod}
       # Smaller demo grant on public hosts (local compose keeps default 10000).
       WALLET_WELCOME_GRANT: ${WALLET_WELCOME_GRANT:-1000}
   inventory-service:
@@ -63,13 +65,13 @@ services:
     ports: !override []
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
   notification-service:
     container_name: element-${ELEMENT_ENV:-prod}-notification-service
     ports: !override []
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set a unique INTERNAL_API_KEY}
-      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:?Set PUBLIC_WEB_ORIGIN}
   gateway-service:
     container_name: element-${ELEMENT_ENV:-prod}-gateway-service
     ports: !override []
@@ -104,14 +106,21 @@ services:
       - ./deploy/Caddyfile.elements-api:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    # Caddy upstream'leri istek anında çözer; "healthy" beklemek reboot'ta işe yaramaz,
+    # `up` sırasında ise tek yavaş servis Caddy'yi `Created`da bırakır.
     depends_on:
       web-app:
-        condition: service_healthy
+        condition: service_started
       gateway-service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - element-network
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   caddy_data:

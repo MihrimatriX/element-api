@@ -75,7 +75,9 @@ Gerekli ortam: `IdentityServiceInternalUrl` (Compose’ta identity DNS), `INTERN
 1. Hesap aç, JWT al.
 2. Identity’de webhook kaydet (event `order.updated`, **https** URL + secret).
 3. Mağazadan sipariş ver; saga ilerleyince POST gelmeli.
-4. İmza: gövde byte’ları + hook secret → HMAC-SHA256 hex; `X-Element-Signature` ile karşılaştır.
+4. İmza: gövde byte’ları + hook secret → HMAC-SHA256 hex; `X-Element-Signature` ile sabit zamanlı karşılaştır. Gövdedeki `Timestamp` (unix saniye) imzanın içindedir: 5 dakikadan eskiyse reddet (replay).
+
+Bir olay müşterinin en çok 10 hook’una paralel gider; her hook 4 sn zaman aşımı, başarısızsa 10 sn sonra bir deneme daha. Yönlendirme izlenmez, cevap gövdesi okunmaz. Özel / loopback / link-local / CGNAT / NAT64 adresler bağlantı anında (DNS çözülen IP üzerinde) engellenir.
 
 Yerelde `https://localhost` çoğu zaman SSRF/private engeline takılır; gerçek dış HTTPS veya tünel kullan.
 
@@ -87,6 +89,7 @@ Yerelde `https://localhost` çoğu zaman SSRF/private engeline takılır; gerçe
 | Webhook hiç gelmiyor | Identity’de kayıt yok; event adı yanlış; identity iç uç 401 (`INTERNAL_API_KEY`) |
 | POST reddediliyor | HTTP URL; private IP; imza uyuşmazlığı |
 | Sipariş Completed, hook yok | Bu worker veya Rabbit endpoint `notification-order-updates` |
+| `notification-order-updates_error` kuyruğunda mesaj | Identity iç uç ~2 dk boyunca cevap vermedi (kapalı / 401 / 5xx). Sebep düzelince Rabbit UI’dan ana kuyruğa geri taşı |
 | Konteyner unhealthy | Rabbit yok; `/health/ready` |
 
 Birim testi: `deploy/tests/Element.Services.UnitTests` içinde webhook fanout.

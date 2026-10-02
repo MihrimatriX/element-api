@@ -1,6 +1,20 @@
 # Ne yapıldı? — Ayrıntılı anlatım
 
-Bu dosya, kök `README.md` hızlı başlangıcını bozmadan **son dönemde (ChatGPT + Cursor devamı) yapılan her şeyi** Türkçe açıklar. Güncel agent özeti: [`docs/memory-bank/`](./memory-bank/).
+Bu dosya, kök `README.md` hızlı başlangıcını bozmadan iş paketlerini tarihli olarak Türkçe anlatır; en yenisi üstte. Güncel agent özeti: [`docs/memory-bank/`](./memory-bank/). Sistemin bugünkü hâli, dosya dosya: [`docs/kilavuz/`](./kilavuz/README.md).
+
+## 2 Ekim 2026 — Mineral arayüzü, okunabilirlik turu, sistem kılavuzu, testler
+
+Dal `redesign`. Kullanıcının isteği: her satır temiz ve anlaşılır olsun, üst düzey cila.
+
+- **Servisler:** her serviste davranışı değiştirmeyen okunabilirlik turu (gateway, shared-lib, science, catalog, compound, identity, order, wallet, inventory, shipment, notification, deploy/altyapı).
+- **Sistem kılavuzu:** `docs/kilavuz/` — giriş sayfası, servis başına bir sayfa, `altyapi.md` ve `web-app.md`. Her sayfa aynı kalıpta: ne işe yarar, uçlar, mesajlar, dosya dosya kod haritası, yapılandırma, testler. Uygulamada `/kilavuz` adresinde aranabilir olarak okunur; `web-app/scripts/write-guide.mjs` sayfaları `src/data/guide.json` dosyasına çevirir (git’e girmez, dev/build/test öncesi yeniden üretilir).
+- **Arayüz:** “Mineral” tasarım sistemi — yalnız koyu tema, tek vurgu rengi kuprit, Bricolage Grotesque + Geist + Geist Mono. Jetonlar `web-app/src/styles.css`, bileşenler `src/components/ui/`, vitrin `/_ui` (yalnız dev). Bütün sayfalar yeniden kuruldu; beş eski CSS dosyası (`index.css`, `science.css`, `atlas.css`, `design-system.css`, `product.css`) silindi. Kurallar: [design-system.md](./memory-bank/design-system.md).
+- **Testler:** iki eskimiş entegrasyon testi düzeltildi; cüzdan testi artık Testcontainers ile gerçek wallet-service konteynerine karşı koşar (18/18). Yeni Playwright paketleri: `e2e/` (hesaplar kapalı), `e2e-auth/` (taklit identity API), `e2e-live/` (tam platformda ticaret yolculuğu). Test matrisi kök README’de.
+- Ayrıntı: [recent-work.md](./memory-bank/recent-work.md).
+
+Aşağıdaki bölümler (19 Eylül ve öncesi) o günün durumunu anlatır; dosya adları ve portlar değişmiş olabilir.
+
+---
 
 ## 19 Eylül — public dev/test/prod
 
@@ -134,7 +148,7 @@ Eski **stack / gözlemlenebilirlik** tanıtım sayfası ürün yüzeyi olmaktan 
 | `web-app/src/services/chemistry.ts` | Formül ayrıştırma, stoikiometri, bilinen-molekül bakışı |
 | `web-app/src/services/lab.ts` | Katalog, localStorage, keşif kaydı |
 | `web-app/tests/chemistry.test.mjs` | H2O/NaCl/CH5/HO ve parantezli formüller |
-| `web-app/src/atlas.css` + `AtlasVisual.tsx` | Görsel dil / yapı veya fotoğraf |
+| `web-app/src/atlas.css` + `AtlasVisual.tsx` | Görsel dil / yapı veya fotoğraf (`atlas.css` 2 Ekim 2026’da silindi; stil artık `styles.css` jetonlarında) |
 
 Davranış özeti (17 Eylül 2026):
 
@@ -179,14 +193,18 @@ Kök README ve servis README’leri laboratuvarı, atlas yenilemeyi ve “izleme
 
 ## 7. Sistem nasıl çalışır? (kısa tur)
 
+Güncel hâli (2 Ekim 2026; o günkü “payment” servisi yerini wallet + inventory’ye bıraktı):
+
 ```
-Tarayıcı :5173 (dev) veya :3000 (docker web)
+Tarayıcı :5173 (dev) veya :6241 (docker web)
     → API istekleri gateway :5000
-        → identity / catalog / compound / order / notification
-Sipariş saga → RabbitMQ → payment + shipment
-Veri → PostgreSQL (ayrı DB’ler), bazı önbellek → Redis
+        → identity / catalog / compound / order / wallet / inventory / shipment
+Sipariş saga → RabbitMQ → inventory (stok) → wallet (KREDI) → shipment; notification webhook
+Veri → PostgreSQL (servis başına ayrı DB); Redis yalnız gateway kotası
 Atlas medyası → web’in statik /media/atlas (gateway üzerinden değil, SPA origin)
 ```
+
+Ayrıntı: [kilavuz/README.md](./kilavuz/README.md#mimari).
 
 Bilimsel keşif için tipik çağrılar:
 

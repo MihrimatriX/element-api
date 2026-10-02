@@ -1,505 +1,178 @@
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { useMemo, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useCommerce, useSelectedElement } from "../App";
-import {
-  compoundService,
-  elementService,
-  walletService,
-  apiError,
-  type BoardRow,
-  type Ticker,
-  type Holding,
-} from "../services/api";
+import { PageHeader } from "@/components/ui/page-header";
+import { Section } from "@/components/ui/section";
+import { Stat } from "@/components/ui/stat";
+import { useHoldings, useTicker, type HoldingRow, type HoldingsState } from "../components/commerce/data";
+import { HoldingsTable } from "../components/commerce/HoldingsTable";
+import { MoversStrip } from "../components/commerce/MoversStrip";
+import { QuoteBoard } from "../components/commerce/QuoteBoard";
+import { QuoteTicket } from "../components/commerce/QuoteTicket";
+import { SellForm, type SaleDraft } from "../components/commerce/SellForm";
 import Seo from "../components/Seo";
+import { useCommerce } from "../context/commerce";
+import { useSelectedElement } from "../context/selection";
+import { usePolling } from "../hooks/usePolling";
+import { formatFixed } from "../lib/format";
+import { ELEMENTAL_SLUG, elementService, type BoardRow } from "../services/api";
 
-const fmt = (n: number, digits = 2) =>
-  new Intl.NumberFormat("tr-TR", {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  }).format(n);
+const BOARD_POLL_MS = 20_000;
+const MOVERS_LIMIT = 16;
 
-const elx = (n: number | null | undefined, digits = 2) =>
-  n == null || Number.isNaN(n) ? "—" : `${fmt(n, digits)} kredi`;
-
-function deltaClass(pct: number | null | undefined) {
-  if (pct == null) return "desk-flat";
-  return pct >= 0 ? "desk-up" : "desk-down";
+/** Holdings of one element for the sell form: `null` while loading, empty when the vault failed to load. */
+function holdingsOf(state: HoldingsState, symbol: string): HoldingRow[] | null {
+  if (state.status === "loading") return null;
+  if (state.status === "error") return [];
+  return state.rows.filter((row) => row.symbol.toUpperCase() === symbol);
 }
 
-type SortKey = "symbol" | "last" | "bid" | "ask" | "change24hPct";
-
+/**
+ * /market: the virtual-KREDI price desk. A movers strip and a sortable quote board pick the
+ * element; its ticket shows live prices with a buy link and a sell form; the vault lists holdings.
+ */
 export default function Market() {
-  const { selectedSymbol, setSelectedSymbol, isAuthenticated } =
-    useSelectedElement();
-  const { elements, selectedElement, refreshWallet } = useCommerce();
-  const navigate = useNavigate();
+  const { selectedSymbol, setSelectedSymbol, isAuthenticated } = useSelectedElement();
+  const { elements, selectedElement, walletElx, refreshWallet } = useCommerce();
   const location = useLocation();
-  const [movers, setMovers] = useState<BoardRow[]>([]);
+  const ticketRef = useRef<HTMLDivElement>(null);
+
   const [board, setBoard] = useState<BoardRow[]>([]);
-  const [ticker, setTicker] = useState<Ticker | null>(null);
-  const [holdings, setHoldings] = useState<Holding[]>([]);
-  const [sellSlug, setSellSlug] = useState("elemental");
-  const [productMultiplier, setProductMultiplier] = useState<{
-    slug: string;
-    value: number;
-  } | null>(null);
-  const [marketError, setMarketError] = useState("");
-  const [sellGrams, setSellGrams] = useState("10");
-  const [sellMsg, setSellMsg] = useState("");
-  const [selling, setSelling] = useState(false);
-  const [sortKey, setSortKey] = useState<SortKey>("symbol");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [filter, setFilter] = useState("");
+  const [movers, setMovers] = useState<BoardRow[]>([]);
+  const [boardStatus, setBoardStatus] = useState<"loading" | "ready" | "error">("loading");
+  // Account's "Sat" link hands over the holding's product as `state.slug`, so an NaCl row
+  // preselects NaCl rather than pure Na for someone who holds both.
+  const [draft, setDraft] = useState<SaleDraft>(() => ({
+    slug: (location.state as { slug?: string } | null)?.slug ?? ELEMENTAL_SLUG,
+    grams: "",
+  }));
+  const { ticker, reload: reloadTicker } = useTicker(selectedSymbol);
+  const holdings = useHoldings(isAuthenticated);
 
-  useEffect(() => {
-    let live = true;
-    const load = () => {
-      elementService
-        .getMovers(16)
-        .then((rows) => {
-          if (live) setMovers(rows || []);
-        })
-        .catch(() => {});
-      elementService
-        .getBoard()
-        .then((rows) => {
-          if (live) {
-            setBoard(rows || []);
-            setMarketError("");
-          }
-        })
-        .catch(() => {
-          if (live)
-            setMarketError(
-              "Fiyatlar güncellenemedi. Bağlantı tekrar deneniyor.",
-            );
-        });
-    };
-    load();
-    const t = setInterval(load, 20000);
-    return () => {
-      live = false;
-      clearInterval(t);
-    };
-  }, []);
-
-  useEffect(() => {
-    let live = true;
-    elementService
-      .getTicker(selectedSymbol)
-      .then((t) => {
-        if (live) setTicker(t);
-      })
-      .catch(() => {
-        if (live) setTicker(null);
-      });
-    const id = setInterval(() => {
-      elementService
-        .getTicker(selectedSymbol)
-        .then((t) => {
-          if (live) setTicker(t);
-        })
-        .catch(() => {});
-    }, 12000);
-    return () => {
-      live = false;
-      clearInterval(id);
-    };
-  }, [selectedSymbol, selectedElement.currentPrice]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    let live = true;
-    walletService
-      .holdings()
-      .then((rows) => {
-        if (live) setHoldings(rows || []);
-      })
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [isAuthenticated, selectedElement.currentPrice]);
-
-  useEffect(() => {
-    if (sellSlug === "elemental") return;
-    let live = true;
-    compoundService
-      .get(sellSlug)
-      .then((sku) => {
-        if (live)
-          setProductMultiplier({ slug: sellSlug, value: sku.priceMult });
-      })
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [sellSlug]);
-
-  const currentTicker =
-    ticker?.symbol.toUpperCase() === selectedSymbol ? ticker : null;
-  const last = currentTicker?.last;
-  const bid = currentTicker?.bid;
-  const ask = currentTicker?.ask;
-  const chg = ticker?.change24hPct ?? null;
-
-  const toggleSort = (key: SortKey) => {
-    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else {
-      setSortKey(key);
-      setSortDir(key === "symbol" ? "asc" : "desc");
-    }
-  };
-
-  const boardRows = useMemo(() => {
-    const q = filter.trim().toLowerCase();
-    const rows = board.filter(
-      (r) =>
-        !q ||
-        r.symbol.toLowerCase().includes(q) ||
-        elements
-          .find((e) => e.symbol.toLowerCase() === r.symbol.toLowerCase())
-          ?.name.toLocaleLowerCase("tr")
-          .includes(q),
+  const loadBoard = () => {
+    elementService.getMovers(MOVERS_LIMIT).then((rows) => setMovers(rows ?? []), () => undefined);
+    elementService.getBoard().then(
+      (rows) => {
+        setBoard(rows ?? []);
+        setBoardStatus("ready");
+      },
+      () => setBoardStatus("error"),
     );
-    const dir = sortDir === "asc" ? 1 : -1;
-    return [...rows].sort((a, b) => {
-      if (sortKey === "symbol") return dir * a.symbol.localeCompare(b.symbol);
-      if (sortKey === "change24hPct") {
-        const av = a.change24hPct ?? -Infinity;
-        const bv = b.change24hPct ?? -Infinity;
-        return dir * (av - bv);
-      }
-      return dir * ((a[sortKey] ?? 0) - (b[sortKey] ?? 0));
-    });
-  }, [board, elements, filter, sortKey, sortDir]);
+  };
+  usePolling(loadBoard, BOARD_POLL_MS);
 
-  const selectedHolding = isAuthenticated
-    ? holdings.find(
-        (h) =>
-          h.symbol.toUpperCase() === selectedSymbol &&
-          h.compoundSlug === sellSlug,
-      )
-    : undefined;
-  const saleMultiplier =
-    sellSlug === "elemental"
-      ? 1
-      : productMultiplier?.slug === sellSlug
-        ? productMultiplier.value
-        : null;
-  const saleBid =
-    bid != null && saleMultiplier != null ? bid * saleMultiplier : null;
-  const tapeSource = movers.length
-    ? movers
-    : board.length
-      ? board.slice(0, 16)
-      : boardRows.slice(0, 16);
-  const tape = tapeSource;
+  const bidBySymbol = useMemo(
+    () => new Map(board.map((row) => [row.symbol.toUpperCase(), row.bid])),
+    [board],
+  );
+  const bidOf = (symbol: string) => bidBySymbol.get(symbol.toUpperCase());
+  const loginHref = `/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`;
 
-  const handleSell = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      navigate(
-        `/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`,
-      );
-      return;
-    }
-    const grams = Number(sellGrams);
-    if (
-      !Number.isFinite(grams) ||
-      grams <= 0 ||
-      !selectedHolding ||
-      grams > selectedHolding.grams ||
-      saleBid == null
-    ) {
-      setSellMsg("Gram girin.");
-      return;
-    }
-    setSelling(true);
-    setSellMsg("");
-    try {
-      const res = await walletService.sell(selectedSymbol, grams, sellSlug);
-      setSellMsg(
-        `${fmt(grams, 2)} g ${selectedHolding.productLabel} satıldı · ${elx(res.proceedsElx)}`,
-      );
-      const rows = await walletService.holdings();
-      setHoldings(rows || []);
-      refreshWallet();
-      const t = await elementService.getTicker(selectedSymbol);
-      setTicker(t);
-    } catch (err: unknown) {
-      setSellMsg(apiError(err, "Satış yapılamadı."));
-    } finally {
-      setSelling(false);
-    }
+  const selectForSale = (row: HoldingRow) => {
+    setSelectedSymbol(row.symbol);
+    setDraft({ slug: row.compoundSlug, grams: String(Math.min(10, row.grams)) });
+    ticketRef.current?.scrollIntoView({ block: "nearest" });
   };
 
-  const sortMark = (key: SortKey) =>
-    sortKey === key ? (sortDir === "asc" ? " ↑" : " ↓") : "";
+  const handleSold = () => {
+    void holdings.reload();
+    refreshWallet();
+    void reloadTicker();
+  };
 
   return (
-    <main className="page desk-page">
+    <main className="container-page pb-24 pt-10 lg:pt-14">
       <Seo
         title="Piyasa · ElementAPI"
-        description={`${selectedElement.name} (${selectedSymbol}) fiyat tablosu: son fiyat, alış, satış.`}
+        description={`${selectedElement.name} (${selectedElement.symbol}) fiyat tablosu: son fiyat, alış, satış.`}
         path="/market"
       />
-
-      <header className="firm-head">
-        <div>
-          <h1>Fiyat tablosu</h1>
-        </div>
-        <p className="firm-head-note">
-          Alış / satış fiyatları sanal KREDI demosudur — gerçek para veya borsa
-          değil. Fe satırı eğitim simülasyonu.
-        </p>
-      </header>
-      {marketError && (
-        <p className="desk-msg" role="status">
-          {marketError}
-        </p>
-      )}
-
-      <div className="tape" aria-label="Hareketliler">
-        <div className="tape-track">
-          {tape.map((m, i) => (
-            <Button
-              variant="plain"
-              size="none"
-              key={`${m.symbol}-${i}`}
-              type="button"
-              className={`tape-chip ${deltaClass(m.change24hPct)}`}
-              onClick={() => setSelectedSymbol(m.symbol)}
-            >
-              <span className="mono">{m.symbol}</span>
-              <span>{fmt(m.last, 2)}</span>
-              <span>
-                {m.change24hPct == null
-                  ? "—"
-                  : `${m.change24hPct >= 0 ? "+" : ""}${fmt(m.change24hPct, 2)}%`}
-              </span>
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="desk-terminal">
-        <section className="quote-board-wrap" aria-label="Fiyat tablosu">
-          <div className="board-toolbar">
-            <h2>Fiyatlar</h2>
-            <Input
-              type="search"
-              className="board-filter"
-              placeholder="Sembol…"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              aria-label="Tabloda ara"
+      <PageHeader
+        eyebrow="Piyasa · sanal KREDI"
+        title="Fiyat tablosu"
+        lead="Alış ve satış fiyatları sanal KREDI demosudur; gerçek para veya borsa değil. Fe satırı eğitim simülasyonu."
+        aside={
+          isAuthenticated && (
+            <Stat
+              label="Cüzdan"
+              value={walletElx == null ? "—" : formatFixed(walletElx, 2)}
+              unit="kredi"
+              className="min-w-56"
             />
-            <span className="muted mono">{boardRows.length}</span>
-          </div>
-          <div className="quote-sort" role="group" aria-label="Sırala">
-            {(
-              [
-                ["symbol", "Sembol"],
-                ["last", "Son fiyat"],
-                ["ask", "Alış"],
-                ["bid", "Satış"],
-                ["change24hPct", "Değişim"],
-              ] as [SortKey, string][]
-            ).map(([key, label]) => (
-              <Button
-                key={key}
-                variant="plain"
-                size="none"
-                type="button"
-                aria-pressed={sortKey === key}
-                onClick={() => toggleSort(key)}
-              >
-                {label}
-                {sortMark(key)}
-              </Button>
-            ))}
-          </div>
-          <div className="quote-board">
-            {boardRows.map((row) => {
-              const sel = row.symbol.toUpperCase() === selectedSymbol;
-              const name =
-                elements.find(
-                  (e) => e.symbol.toUpperCase() === row.symbol.toUpperCase(),
-                )?.name ?? row.symbol;
-              return (
-                <Button
-                  variant="plain"
-                  size="none"
-                  key={row.symbol}
-                  type="button"
-                  className={`quote-tile ${sel ? "is-sel" : ""}`}
-                  onClick={() => setSelectedSymbol(row.symbol)}
-                >
-                  <span className="quote-sym">{row.symbol}</span>
-                  <span className="quote-name">{name}</span>
-                  <strong>{fmt(row.last, 2)}</strong>
-                  <em className={deltaClass(row.change24hPct)}>
-                    {row.change24hPct == null
-                      ? "—"
-                      : `${row.change24hPct >= 0 ? "+" : ""}${fmt(row.change24hPct, 2)}%`}
-                  </em>
-                  <span className="quote-meta">
-                    alış {fmt(row.ask, 2)} · satış {fmt(row.bid, 2)}
-                  </span>
-                </Button>
-              );
-            })}
-          </div>
-          {boardRows.length === 0 && (
-            <p className="empty-cart">
-              {filter ? "Aramanıza uyan element yok." : "Fiyatlar bekleniyor…"}
-            </p>
-          )}
-        </section>
+          )
+        }
+      />
 
-        <aside className="desk-ticket" aria-label="Alış satış">
-          <header className="ticket-head">
-            <div>
-              <p className="science-meta">{selectedSymbol}</p>
-              <h2>{selectedElement.name}</h2>
-            </div>
-            <strong className={`mono ${deltaClass(chg)}`}>
-              {chg == null ? "—" : `${chg >= 0 ? "+" : ""}${fmt(chg, 2)}%`}
-            </strong>
-          </header>
-          <dl className="ticket-quotes">
-            <div>
-              <dt>Son fiyat</dt>
-              <dd className="mono">{elx(last, 4)}</dd>
-            </div>
-            <div>
-              <dt>Alış</dt>
-              <dd className="mono desk-up">{elx(ask, 4)}</dd>
-            </div>
-            <div>
-              <dt>Satış</dt>
-              <dd className="mono desk-down">{elx(bid, 4)}</dd>
-            </div>
-            <div>
-              <dt>Stok</dt>
-              <dd className="mono">
-                {fmt(
-                  ticker?.availableStock ?? selectedElement.availableStock ?? 0,
-                  0,
-                )}{" "}
-                g
-              </dd>
-            </div>
-          </dl>
-
-          <div className="ticket-actions">
-            <Button asChild variant="default">
-              <Link
-                to={`/shop?symbol=${selectedSymbol}`}
-                className="btn primary"
-              >
-                Satın al
-              </Link>
-            </Button>
-            {isAuthenticated ? (
-              <form className="desk-sell-inline" onSubmit={handleSell}>
-                <Input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={sellGrams}
-                  onChange={(e) => setSellGrams(e.target.value)}
-                  aria-label="Satış gram"
-                />
-                <Button
-                  variant="outline"
-                  className="btn"
-                  type="submit"
-                  disabled={
-                    selling ||
-                    !selectedHolding ||
-                    saleBid == null ||
-                    !Number.isFinite(Number(sellGrams)) ||
-                    Number(sellGrams) <= 0 ||
-                    Number(sellGrams) > selectedHolding.grams
-                  }
-                >
-                  {selling ? "…" : "Sat"}
-                </Button>
-              </form>
-            ) : (
-              <p className="guest-note">
-                Satış için{" "}
-                <Link
-                  to={`/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
-                >
-                  giriş
-                </Link>
-                .
-              </p>
-            )}
-          </div>
-          {isAuthenticated && (
-            <p className="desk-vault muted">
-              {selectedHolding?.productLabel ?? selectedSymbol}:{" "}
-              {selectedHolding ? `${fmt(selectedHolding.grams, 2)} g` : "0 g"} ·
-              Tahmini satış{" "}
-              {elx(saleBid == null ? null : saleBid * Number(sellGrams))}
-            </p>
-          )}
-          {sellMsg && (
-            <p className="desk-msg" role="status">
-              {sellMsg}
-            </p>
-          )}
-        </aside>
+      <div className="mt-10">
+        <MoversStrip
+          rows={movers.length > 0 ? movers : board.slice(0, MOVERS_LIMIT)}
+          selectedSymbol={selectedSymbol}
+          onSelect={setSelectedSymbol}
+        />
       </div>
-      {isAuthenticated && (
-        <Card asChild className="gap-0 py-0 shadow-none">
-          <section className="panel" aria-label="Elindeki ürünler">
-            <div className="panel-header">
-              <h2>Elindeki ürünler</h2>
-              <Link to="/shop">Mağazaya git</Link>
-            </div>
-            <div className="panel-body">
-              {holdings.length === 0 && (
-                <p className="muted">
-                  Kasada ürün yok. <Link to="/shop">Mağazadan 1 g Fe dene</Link>
-                  .
+
+      <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start">
+        <QuoteBoard
+          rows={board}
+          elements={elements}
+          loading={boardStatus === "loading"}
+          failed={boardStatus === "error"}
+          pollMs={BOARD_POLL_MS}
+          selectedSymbol={selectedSymbol}
+          onSelect={setSelectedSymbol}
+          onRetry={loadBoard}
+        />
+        <div ref={ticketRef} className="scroll-mt-2">
+          <QuoteTicket element={selectedElement} ticker={ticker}>
+            {isAuthenticated ? (
+              <SellForm
+                symbol={selectedSymbol}
+                elementName={selectedElement.name}
+                elements={elements}
+                holdings={holdingsOf(holdings.state, selectedSymbol)}
+                bid={ticker?.bid ?? bidOf(selectedSymbol)}
+                draft={draft}
+                onDraftChange={setDraft}
+                onSold={handleSold}
+              />
+            ) : (
+              <>
+                <h3 className="text-sm font-semibold text-ink">Sat</h3>
+                <p className="mt-1.5 text-sm leading-6 text-ink-2">
+                  Satış için{" "}
+                  <Link to={loginHref} className="text-link">
+                    giriş yap
+                  </Link>
+                  . Kayıt olunca hesabına 10.000 kredi yüklenir.
                 </p>
-              )}
-              {holdings.map((holding) => (
-                <div
-                  className="bank-row"
-                  key={`${holding.symbol}:${holding.compoundSlug}`}
-                >
-                  <div>
-                    <strong>{holding.productLabel}</strong>
-                    <span>
-                      {fmt(holding.grams, 4)} g · Ortalama maliyet{" "}
-                      {elx(holding.avgCostElx)} / g
-                    </span>
-                  </div>
-                  <Button
-                    variant="outline"
-                    className="btn mini-btn"
-                    onClick={() => {
-                      setSelectedSymbol(holding.symbol);
-                      setSellSlug(holding.compoundSlug);
-                      setSellGrams(String(Math.min(10, holding.grams)));
-                    }}
-                  >
-                    Satış için seç
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </section>
-        </Card>
+              </>
+            )}
+          </QuoteTicket>
+        </div>
+      </div>
+
+      {isAuthenticated && (
+        <Section
+          title="Elindeki ürünler"
+          description="Değer, bugünkü satış fiyatı ile ürün çarpanından hesaplanır."
+          actions={
+            <Button asChild variant="outline" size="sm">
+              <Link to="/shop">Mağazaya git</Link>
+            </Button>
+          }
+        >
+          <HoldingsTable
+            state={holdings.state}
+            elements={elements}
+            bidOf={bidOf}
+            onRetry={holdings.retry}
+            action={(row) => (
+              <Button variant="ghost" size="sm" onClick={() => selectForSale(row)}>
+                Satış için seç
+              </Button>
+            )}
+          />
+        </Section>
       )}
     </main>
   );

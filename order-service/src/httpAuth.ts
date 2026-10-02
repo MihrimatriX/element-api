@@ -3,36 +3,45 @@ import type { Request, Response } from "express";
 import { config } from "./config.js";
 import { isUuid } from "./http.js";
 
+/** Returns the caller's user id (lowercased) from the gateway-set X-User-Id header, or undefined when it is missing or not a UUID. */
 export function readUserId(req: Request): string | undefined {
-  const id = req.header("X-User-Id")?.trim();
-  return isUuid(id) ? id : undefined;
+  const userId = req.header("X-User-Id")?.trim();
+  // Lowercase = Postgres uuid text form, so JS ownership compares (customer_id !== userId) stay exact.
+  return isUuid(userId) ? userId.toLowerCase() : undefined;
 }
 
+/**
+ * Guards customer endpoints: the request must carry the internal service key (added by the gateway)
+ * and a valid X-User-Id. Sends 401 and returns null otherwise.
+ */
 export function requireUser(req: Request, res: Response): string | null {
   if (!requireInternal(req, res)) return null;
-  const id = readUserId(req);
-  if (!id) {
+  const userId = readUserId(req);
+  if (!userId) {
     res.status(401).json({ error: "X-User-Id header required" });
     return null;
   }
-  return id;
+  return userId;
 }
 
-/** Constant-time compare; unequal lengths still fail without early string ===. */
-export function keysMatch(provided: string | undefined, expected: string): boolean {
+/** Constant-time key comparison; empty or different-length keys fail without an early string compare. */
+export function keysMatch(
+  provided: string | undefined,
+  expected: string,
+): boolean {
   if (!provided || !expected) return false;
-  const a = Buffer.from(provided);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
+  const providedBytes = Buffer.from(provided);
+  const expectedBytes = Buffer.from(expected);
+  if (providedBytes.length !== expectedBytes.length) return false;
+  return timingSafeEqual(providedBytes, expectedBytes);
 }
 
+/** Sends 401 and returns false unless the request carries the shared INTERNAL_API_KEY header. */
 export function requireInternal(req: Request, res: Response): boolean {
-  const key = req.header("INTERNAL_API_KEY");
-  if (!keysMatch(key ?? undefined, config.internalApiKey)) {
+  const providedKey = req.header("INTERNAL_API_KEY");
+  if (!keysMatch(providedKey, config.internalApiKey)) {
     res.status(401).json({ error: "Unauthorized" });
     return false;
   }
   return true;
 }
-

@@ -1,5 +1,5 @@
-using System.Diagnostics;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using Npgsql;
@@ -12,10 +12,22 @@ namespace Element.Services.IntegrationTests.Infrastructure;
 /// </summary>
 public sealed class OrderNodeTestHost : IAsyncDisposable
 {
+    /// <summary>Internal key shared with the order-service process; sent on every test request.</summary>
+    private const string TestInternalApiKey = "test-internal-key";
+    /// <summary>Only the last lines of service output are kept, for the "exited early" error message.</summary>
+    private const int MaxCapturedOutputLines = 100;
+    private static readonly TimeSpan StartupTimeout = TimeSpan.FromSeconds(30);
+
     private Process? _process;
     private readonly ConcurrentQueue<string> _output = new();
+
+    /// <summary>Loopback URL of the running service; empty until <see cref="StartAsync"/> succeeds.</summary>
     public string BaseUrl { get; private set; } = "";
 
+    /// <summary>
+    /// Starts <c>node dist/index.js</c> on a free port, wired to the test containers and to
+    /// <paramref name="catalogBaseUrl"/> for prices, and waits until /health answers.
+    /// </summary>
     public async Task StartAsync(IntegrationTestContainers containers, string catalogBaseUrl)
     {
         var repoRoot = FindRepoRoot();
@@ -26,12 +38,12 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
                 $"order-service not built. Run: cd order-service && npm ci && npm run build. Missing: {entry}");
 
         var port = GetFreePort();
-        var db = new NpgsqlConnectionStringBuilder(containers.Postgres.GetConnectionString())
+        var database = new NpgsqlConnectionStringBuilder(containers.Postgres.GetConnectionString())
         {
             Database = "element_order_db"
         };
 
-        var psi = new ProcessStartInfo
+        var startInfo = new ProcessStartInfo
         {
             FileName = "node",
             Arguments = $"\"{entry}\"",
@@ -41,26 +53,22 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
             RedirectStandardError = true,
             CreateNoWindow = true
         };
-        psi.Environment["PORT"] = port.ToString();
-        psi.Environment["DATABASE_URL"] = $"postgres://{Uri.EscapeDataString(db.Username!)}:{Uri.EscapeDataString(db.Password!)}@{db.Host}:{db.Port}/{db.Database}";
-        psi.Environment["REDIS_URL"] = $"redis://127.0.0.1:{containers.Redis.GetMappedPublicPort(6379)}";
-        psi.Environment["RABBITMQ_HOST"] = containers.RabbitHost;
-        psi.Environment["RABBITMQ_PORT"] = containers.RabbitPort.ToString();
-        psi.Environment["RABBITMQ_USERNAME"] = "guest";
-        psi.Environment["RABBITMQ_PASSWORD"] = "guest";
-        psi.Environment["CATALOG_SERVICE_URL"] = catalogBaseUrl.TrimEnd('/');
-        psi.Environment["INTERNAL_API_KEY"] = "test-internal-key";
+        var databaseUser = Uri.EscapeDataString(database.Username!);
+        var databasePassword = Uri.EscapeDataString(database.Password!);
+        startInfo.Environment["PORT"] = port.ToString();
+        startInfo.Environment["DATABASE_URL"] = $"postgres://{databaseUser}:{databasePassword}@{database.Host}:{database.Port}/{database.Database}";
+        startInfo.Environment["REDIS_URL"] = $"redis://127.0.0.1:{containers.Redis.GetMappedPublicPort(6379)}";
+        startInfo.Environment["RABBITMQ_HOST"] = containers.RabbitHost;
+        startInfo.Environment["RABBITMQ_PORT"] = containers.RabbitPort.ToString();
+        startInfo.Environment["RABBITMQ_USERNAME"] = "guest";
+        startInfo.Environment["RABBITMQ_PASSWORD"] = "guest";
+        startInfo.Environment["CATALOG_SERVICE_URL"] = catalogBaseUrl.TrimEnd('/');
+        startInfo.Environment["INTERNAL_API_KEY"] = TestInternalApiKey;
 
-        _process = Process.Start(psi)
+        _process = Process.Start(startInfo)
             ?? throw new InvalidOperationException("Failed to start order-service node process.");
-        void Capture(object sender, DataReceivedEventArgs args)
-        {
-            if (args.Data == null) return;
-            _output.Enqueue(args.Data);
-            while (_output.Count > 100) _output.TryDequeue(out _);
-        }
-        _process.OutputDataReceived += Capture;
-        _process.ErrorDataReceived += Capture;
+        _process.OutputDataReceived += CaptureOutput;
+        _process.ErrorDataReceived += CaptureOutput;
         _process.BeginOutputReadLine();
         _process.BeginErrorReadLine();
 
@@ -68,36 +76,44 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
         await WaitForHealthyAsync();
     }
 
+    /// <summary>HTTP client for the started service, pre-authenticated with the internal API key.</summary>
     public HttpClient CreateClient()
     {
         if (string.IsNullOrEmpty(BaseUrl))
             throw new InvalidOperationException("OrderNodeTestHost not started.");
         var client = new HttpClient { BaseAddress = new Uri(BaseUrl + "/"), Timeout = TimeSpan.FromSeconds(15) };
-        client.DefaultRequestHeaders.Add("INTERNAL_API_KEY", "test-internal-key");
+        client.DefaultRequestHeaders.Add("INTERNAL_API_KEY", TestInternalApiKey);
         return client;
+    }
+
+    private void CaptureOutput(object sender, DataReceivedEventArgs args)
+    {
+        if (args.Data == null) return;
+        _output.Enqueue(args.Data);
+        while (_output.Count > MaxCapturedOutputLines) _output.TryDequeue(out _);
     }
 
     private async Task WaitForHealthyAsync()
     {
         using var client = CreateClient();
-        var deadline = DateTime.UtcNow.AddSeconds(30);
+        var deadline = DateTime.UtcNow.Add(StartupTimeout);
         while (DateTime.UtcNow < deadline)
         {
             try
             {
-                var res = await client.GetAsync("/health");
-                if (res.IsSuccessStatusCode)
+                var response = await client.GetAsync("/health");
+                if (response.IsSuccessStatusCode)
                     return;
             }
             catch
             {
-                /* retry */
+                // Not listening yet; retry.
             }
 
             if (_process?.HasExited == true)
             {
-                var err = string.Join(Environment.NewLine, _output);
-                throw new InvalidOperationException($"order-service exited early: {err}");
+                var output = string.Join(Environment.NewLine, _output);
+                throw new InvalidOperationException($"order-service exited early: {output}");
             }
 
             await Task.Delay(500);
@@ -106,6 +122,7 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
         throw new TimeoutException("order-service did not become healthy in time.");
     }
 
+    /// <summary>Asks the OS for an unused loopback port (tiny race window, acceptable for tests).</summary>
     private static int GetFreePort()
     {
         var listener = new TcpListener(IPAddress.Loopback, 0);
@@ -115,19 +132,21 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
         return port;
     }
 
-    private static string FindRepoRoot()
+    /// <summary>Walks up from the test binaries until it finds the folder that contains order-service.</summary>
+    internal static string FindRepoRoot()
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory != null)
         {
-            if (Directory.Exists(Path.Combine(dir.FullName, "order-service")))
-                return dir.FullName;
-            dir = dir.Parent;
+            if (Directory.Exists(Path.Combine(directory.FullName, "order-service")))
+                return directory.FullName;
+            directory = directory.Parent;
         }
 
         throw new InvalidOperationException("Could not locate repository root (order-service folder).");
     }
 
+    /// <summary>Kills the Node process tree so no service outlives the test.</summary>
     public async ValueTask DisposeAsync()
     {
         if (_process is { HasExited: false })

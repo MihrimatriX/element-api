@@ -1,2 +1,4 @@
+# Postgres 16 plus init-scripts/init.sql, which creates every service database on the first start
+# of an empty data volume.
 FROM postgres:16-alpine
 COPY ./init-scripts/ /docker-entrypoint-initdb.d/

@@ -14,8 +14,13 @@ public class ElementBlockTests
     [InlineData(118, 18, "noble gas", "p")]
     public void BlockFollowsPositionAndHeliumException(int number, int group, string category, string expected)
     {
-        Assert.Equal(expected, ElementDetailSeeder.ResolveBlock(new ChemicalElement {
-            AtomicNumber = number, Group = group, Category = category
-        }));
+        var element = new ChemicalElement
+        {
+            AtomicNumber = number,
+            Group = group,
+            Category = category
+        };
+
+        Assert.Equal(expected, ElementDetailSeeder.ResolveBlock(element));
     }
 }

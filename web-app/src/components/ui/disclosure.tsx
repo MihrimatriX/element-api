@@ -1,11 +1,14 @@
 import * as React from "react";
-import { Collapsible } from "radix-ui";
 import { ChevronDown } from "lucide-react";
+import { Collapsible } from "radix-ui";
 import { cn } from "@/lib/utils";
 
+/** Show/hide section. Put the heading outside the trigger when the section needs one in the outline. */
 function Disclosure(props: React.ComponentProps<typeof Collapsible.Root>) {
   return <Collapsible.Root data-slot="disclosure" {...props} />;
 }
+
+/** Full-width toggle row with a rotating chevron. */
 function DisclosureTrigger({
   children,
   className,
@@ -15,7 +18,7 @@ function DisclosureTrigger({
     <Collapsible.Trigger
       data-slot="disclosure-trigger"
       className={cn(
-        "group flex w-full items-center justify-between gap-4 rounded-sm py-3 text-left text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "focus-ring group flex w-full items-center justify-between gap-4 rounded-md py-3 text-left text-[15px] font-medium text-ink transition-colors hover:text-ink",
         className,
       )}
       {...props}
@@ -23,10 +26,16 @@ function DisclosureTrigger({
       <span className="flex flex-1 items-center justify-between gap-3">
         {children}
       </span>
-      <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+      <ChevronDown
+        aria-hidden="true"
+        strokeWidth={1.75}
+        className="size-4 shrink-0 text-ink-3 transition-transform duration-200 group-hover:text-ink-2 group-data-[state=open]:rotate-180"
+      />
     </Collapsible.Trigger>
   );
 }
+
+/** Collapsible body; animates its height open and closed. */
 function DisclosureContent({
   className,
   ...props
@@ -34,9 +43,13 @@ function DisclosureContent({
   return (
     <Collapsible.Content
       data-slot="disclosure-content"
-      className={cn("pb-4", className)}
+      className={cn(
+        "overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down",
+        className,
+      )}
       {...props}
     />
   );
 }
-export { Disclosure, DisclosureTrigger, DisclosureContent };
+
+export { Disclosure, DisclosureContent, DisclosureTrigger };

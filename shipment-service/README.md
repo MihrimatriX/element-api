@@ -16,7 +16,7 @@ Sahte sevkiyat: sipariş ödendikten sonra bir takip numarası basar ve kaydı t
 ## Bu kutu ne yapar?
 
 1. Order, ödeme OK olunca `ShipmentRequestedEvent` basar.
-2. Bu worker kayıt açar, takip numarası üretir (`EM-…` tarzı).
+2. Bu worker kayıt açar, takip numarası üretir (`TRK-` + 16 hex, 64 bit rastgele). Sipariş başına tek kayıt (`OrderId` unique index); aynı istek iki kez gelirse ilk kaydın sonucu yeniden yayınlanır.
 3. `ShipmentDispatchedEvent` yayınlar → order saga **Completed**’a gider.
 4. Sonra inventory kalıcı düşüm + wallet holdings + catalog fiyat nudge ayrı event’lerle yürür.
 
@@ -24,7 +24,9 @@ REST (doğrudan `:5004` veya kapıdaki track):
 
 - sipariş id, takip no, durum, serbest metin ile ara,
 - UUID ile tek kayıt,
-- `GET /api/v1/shipments/track/{numara}`.
+- `GET /api/v1/shipments/track/{numara}` — yalnız `X-User-Id` kaydın sahibiyse döner; başkasınınki bilinmeyen numara gibi 404.
+
+Her uç `INTERNAL_API_KEY` başlığı ister (kapı track’te kendisi ekler). Anahtar yoksa ya da tanımsızsa 401.
 
 ## Ne yapmaz?
 
@@ -56,9 +58,10 @@ dotnet run --project shipment-service/Element.Services.Shipment.API/Element.Serv
 ## Sık istekler
 
 ```bash
-curl "http://localhost:5004/api/v1/shipments?orderId={guid}"
-curl http://localhost:5004/api/v1/shipments/track/EM-2024-ABC123
-curl "http://localhost:5004/api/v1/shipments?q=AU&status=Dispatched"
+K="INTERNAL_API_KEY: element-internal-dev-key"
+curl -H "$K" "http://localhost:5004/api/v1/shipments?orderId={guid}"
+curl -H "$K" -H "X-User-Id: {kullanıcı-guid}" http://localhost:5004/api/v1/shipments/track/TRK-0123456789ABCDEF
+curl -H "$K" "http://localhost:5004/api/v1/shipments?q=AU&status=Shipped"
 ```
 
 Kapıdan takip: `GET /api/v1/shipments/track/...` + `X-API-Key`.
@@ -70,8 +73,8 @@ Sağlık: `/info`, `/health/live`, `/health/ready`.
 | Belirti | Muhtemel neden |
 |---------|----------------|
 | Sipariş ödendi, Completed olmadı | Bu worker veya Rabbit; `ShipmentRequested` tüketilmiyor |
-| Track 401 | Kapı anahtar bekliyor |
-| Track 404 | Numara yanlış veya shipment kaydı hiç açılmadı |
+| Track 401 | Kapı anahtar bekliyor; ya da kapı ile bu kutunun `INTERNAL_API_KEY` değeri farklı / bu kutuda tanımsız |
+| Track 404 | Numara yanlış, kayıt hiç açılmadı ya da numara başka müşterinin |
 | DB migrate hatası | `element_shipment_db` init / connection string |
 
 [← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md) · [Order](../order-service/README.md)

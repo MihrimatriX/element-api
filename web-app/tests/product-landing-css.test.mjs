@@ -1,54 +1,70 @@
+// Landing page contract (/). The file name predates the redesign; it no longer checks CSS.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
+import {
+  API_SAMPLE_FIELDS,
+  API_SAMPLE_PATH,
+  API_SAMPLE_RESPONSE,
+} from "../src/components/landing/apiSample.ts";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const styles = readFileSync(join(root, "src/styles.css"), "utf8");
-const product = readFileSync(join(root, "src/product.css"), "utf8");
-const landing = readFileSync(join(root, "src/pages/Landing.tsx"), "utf8");
+const read = (path) => readFileSync(join(root, path), "utf8");
 
-const ds = styles.indexOf('@import "./design-system.css"');
-const prod = styles.indexOf('@import "./product.css" layer(components)');
-assert.ok(ds >= 0, "design-system import missing");
-assert.ok(prod > ds, "product.css must load after design-system in components layer");
+const landing = read("src/pages/Landing.tsx");
+const landingDir = "src/components/landing";
+const sources = [
+  landing,
+  ...readdirSync(join(root, landingDir)).map((file) => read(`${landingDir}/${file}`)),
+].join("\n");
 
-assert.doesNotMatch(
-  product,
-  /color:\s*var\(--muted,\s*var\(--muted-foreground\)\)/,
-  "text must not use --muted (surface) as foreground",
-);
-assert.match(product, /\.product-hero-copy h1[\s\S]*?color:\s*var\(--hero-ink\)/);
-assert.match(product, /\.product-orbit-track/);
-assert.match(product, /\.product-measure-inner/);
-assert.match(product, /\.product-measure-giant/);
-assert.match(product, /\.product-stage/);
-assert.match(product, /\.product-signal-inner/);
-assert.match(product, /\.product-api-sample/);
-assert.match(product, /\.product-close-tag/);
-assert.match(product, /product-landing--void/);
-assert.match(product, /calc\(100dvh - var\(--shell-toolbar/);
-assert.match(product, /\.route-stage-fallback-panel/);
-assert.match(product, /\.product-orbit[\s\S]*?border-top:\s*8px\s+solid\s+var\(--brand\)/s);
-assert.doesNotMatch(product, /product-journey-list/);
-assert.doesNotMatch(product, /product-bridge/);
-assert.doesNotMatch(product, /product-chapters/);
-assert.doesNotMatch(product, /product-landing--wow/);
-assert.doesNotMatch(landing, /—|–/);
-assert.match(landing, /product-landing--void/);
-assert.match(landing, /Atomdan bileşiğe\./);
-assert.doesNotMatch(landing, /Hücreden moleküle/);
-assert.match(landing, /elementapi-hero-void-cuprite/);
-assert.match(landing, /214/);
-assert.doesNotMatch(landing, /\b167\b/);
+/** Keeps only the dot-path `fields` of `record`, like the v2 `fields` query. */
+function project(record, fields) {
+  const result = {};
+  for (const field of fields) {
+    const keys = field.split(".");
+    let source = record;
+    let target = result;
+    keys.forEach((key, index) => {
+      assert.ok(source && key in source, `unknown field ${field}`);
+      source = source[key];
+      if (index === keys.length - 1) target[key] = source;
+      else target = target[key] ??= {};
+    });
+  }
+  return result;
+}
 
-/* Element detail void surface (readable type + dark mineral) */
-assert.match(product, /atlas-detail--void/);
-assert.match(product, /\.atlas-detail--void \.atlas-lead[\s\S]*?font-size:\s*18px/);
-const detail = readFileSync(
-  join(root, "src/components/ScientificDetail.tsx"),
-  "utf8",
-);
-assert.match(detail, /atlas-detail--void/);
+describe("Landing page", () => {
+  it("keeps the slogan, the hero crystal and the WebSite JSON-LD", () => {
+    assert.match(sources, /Atomdan bileşiğe\./);
+    assert.doesNotMatch(sources, /Hücreden moleküle/);
+    assert.match(sources, /elementapi-hero-void-cuprite/);
+    assert.match(landing, /"@type": "WebSite"/);
+    assert.match(landing, /<main className="container-page/);
+  });
 
-console.log("product-landing-css: ok");
+  it("reads coverage counts from data instead of hard-coding them", () => {
+    assert.match(sources, /data\/coverage\.json/);
+    assert.doesNotMatch(sources, /\b(118|167|214)\b/);
+  });
+
+  it("uses tokens and building blocks, not legacy classes or dashes", () => {
+    assert.doesNotMatch(sources, /product-(landing|hero|orbit|measure|stage|signal|close)/);
+    assert.doesNotMatch(sources, /—|–/);
+    assert.doesNotMatch(sources, /#[0-9a-f]{3,8}\b|rgba?\(/i);
+    assert.match(sources, /<ElementTile/);
+    assert.match(sources, /to=\{`\/element\/\$\{/);
+  });
+
+  it("shows an API sample that matches the shipped Fe record", () => {
+    const snapshot = JSON.parse(
+      read("../catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json"),
+    );
+    const iron = snapshot.find((element) => element.symbol === "Fe");
+    assert.equal(API_SAMPLE_PATH, `/api/v2/elements/fe?fields=${API_SAMPLE_FIELDS.join(",")}`);
+    assert.deepEqual(project(iron, API_SAMPLE_FIELDS), API_SAMPLE_RESPONSE);
+  });
+});
