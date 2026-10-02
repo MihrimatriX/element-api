@@ -32,7 +32,19 @@ interface MixOutcomeProps {
   onRestart: () => void;
 }
 
-/** Feedback under the bench: ready prompt, hint, miss notice with the right ratios, or the discovery card. */
+function noticeLook(outcome: Outcome | null): { tone: Tone; title?: string } {
+  if (!outcome) return { tone: "neutral" };
+  if (outcome.kind === "tip") return { tone: "neutral", title: "İpucu" };
+  if (outcome.kind === "miss") return MISS_NOTICE[outcome.tone];
+  return { tone: "success", title: outcome.fresh ? "Yeni keşif" : "Bunu biliyordun" };
+}
+
+/**
+ * Feedback under the bench: ready prompt, hint, miss notice with the right
+ * ratios, or the discovery card. The status notice stays mounted while idle,
+ * empty and visually hidden: screen readers often skip a live region that
+ * arrives together with its text, but read text added to one already there.
+ */
 export function MixOutcome({
   outcome,
   preview,
@@ -41,56 +53,62 @@ export function MixOutcome({
   onLoad,
   onRestart,
 }: MixOutcomeProps) {
-  if (!outcome) return preview ? <ReadyPrompt preview={preview} /> : null;
-
-  if (outcome.kind === "tip")
-    return (
-      <Notice tone="neutral" title="İpucu" className="mt-4">
-        {outcome.message}
-      </Notice>
-    );
-
-  if (outcome.kind === "miss") {
-    const { tone, title } = MISS_NOTICE[outcome.tone];
-    return (
-      <Notice tone={tone} title={title} role="status" className="mt-4">
-        <p>{outcome.message}</p>
-        {outcome.cousins.length > 0 && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-[13px] text-ink-3">Doğru oranı yükle:</span>
-            {outcome.cousins.slice(0, 4).map((cousin) => (
-              <Button
-                key={cousin.slug}
-                variant="outline"
-                size="xs"
-                aria-label={`${cousin.nameTr} oranını yükle`}
-                onClick={() => onLoad(parseFormula(cousin.formula))}
-              >
-                <Formula value={cousin.formula} />
-              </Button>
-            ))}
-          </div>
-        )}
-      </Notice>
-    );
-  }
-
-  const { compound, fresh } = outcome;
-  const message = fresh
-    ? `${compound.nameTr} deftere işlendi. ${discovered} / ${catalogSize}`
-    : `Tekrar: ${compound.nameTr}. Oran tuttu; defterde zaten var.`;
+  const { tone, title } = noticeLook(outcome);
   return (
     <>
-      <Notice tone="success" title={fresh ? "Yeni keşif" : "Bunu biliyordun"} className="mt-4">
-        {message}
-      </Notice>
-      <ResultCard
-        key={compound.slug}
-        compound={compound}
-        fresh={fresh}
-        nextHint={nextHintText(nextUp, discovered)}
-        onRestart={onRestart}
-      />
+      {!outcome && preview && <ReadyPrompt preview={preview} />}
+      <div className={outcome ? "mt-4" : "sr-only"}>
+        <Notice tone={tone} title={title} role="status">
+          {outcome && <OutcomeMessage outcome={outcome} discovered={discovered} onLoad={onLoad} />}
+        </Notice>
+      </div>
+      {outcome?.kind === "hit" && (
+        <ResultCard
+          key={outcome.compound.slug}
+          compound={outcome.compound}
+          fresh={outcome.fresh}
+          nextHint={nextHintText(nextUp, discovered)}
+          onRestart={onRestart}
+        />
+      )}
+    </>
+  );
+}
+
+/** Body of the status notice; a miss offers the catalogue ratios for the same elements. */
+function OutcomeMessage({
+  outcome,
+  discovered,
+  onLoad,
+}: {
+  outcome: Outcome;
+  discovered: number;
+  onLoad: (counts: Counts) => void;
+}) {
+  if (outcome.kind === "tip") return outcome.message;
+  if (outcome.kind === "hit")
+    return outcome.fresh
+      ? `${outcome.compound.nameTr} deftere işlendi. ${discovered} / ${catalogSize}`
+      : `Tekrar: ${outcome.compound.nameTr}. Oran tuttu; defterde zaten var.`;
+  return (
+    <>
+      <p>{outcome.message}</p>
+      {outcome.cousins.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-[13px] text-ink-3">Doğru oranı yükle:</span>
+          {outcome.cousins.slice(0, 4).map((cousin) => (
+            <Button
+              key={cousin.slug}
+              variant="outline"
+              size="xs"
+              aria-label={`${cousin.nameTr} oranını yükle`}
+              onClick={() => onLoad(parseFormula(cousin.formula))}
+            >
+              <Formula value={cousin.formula} />
+            </Button>
+          ))}
+        </div>
+      )}
     </>
   );
 }

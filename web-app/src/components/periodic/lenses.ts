@@ -87,12 +87,13 @@ function tint(color: string, percent: number): string {
 /**
  * Sequential heat colour for a position from 0 (lowest) to 1 (highest): hue runs from cool
  * blue through green to amber while the tint gets stronger, so order reads by lightness too
- * (safe for common colour-vision deficiencies).
+ * (safe for common colour-vision deficiencies). The fill stops at a 28 % tint so the small
+ * tile text keeps 4.5:1; the full-strength colour is the tile's top edge.
  */
 export function heatPaint(position: number): LensPaint {
   const percent = Math.round(Math.min(1, Math.max(0, position)) * 100);
   const edge = `color-mix(in oklch, var(--color-warning) ${percent}%, var(--color-info))`;
-  return { edge, fill: tint(edge, 14 + Math.round(percent * 0.36)) };
+  return { edge, fill: tint(edge, 14 + Math.round(percent * 0.14)) };
 }
 
 /** Domain of a numeric lens over the records, or `undefined` when none has a value yet. */

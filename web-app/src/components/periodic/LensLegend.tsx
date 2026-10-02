@@ -13,9 +13,9 @@ import {
 
 const SCALE_STOPS = [0, 0.25, 0.5, 0.75, 1];
 
-/** Same tile fill as heat-lens tiles, sampled at five points. */
+/** Same colour as the top edge of heat-lens tiles, sampled at five points. */
 const scaleGradient = `linear-gradient(to right, ${SCALE_STOPS.map(
-  (stop) => `${heatPaint(stop).fill} ${stop * 100}%`,
+  (stop) => `${heatPaint(stop).edge} ${stop * 100}%`,
 ).join(", ")})`;
 
 interface LensLegendProps {

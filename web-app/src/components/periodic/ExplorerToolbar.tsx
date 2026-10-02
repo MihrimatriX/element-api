@@ -103,19 +103,22 @@ export function ExplorerToolbar({
           onValueChange={onFamiliesChange}
           className={chipRowClass}
         />
+        {/*
+          Family-filter count; while searching, the search field shows and announces it instead.
+          Always mounted so screen readers announce every change; takes no space while empty.
+        */}
+        <p role="status" className="text-[13px] text-ink-3 empty:sr-only">
+          {filtered && !searching && (
+            <>
+              <span className="font-mono text-ink-2 tabular">{matchCount}</span> element
+            </>
+          )}
+        </p>
         {filtered && (
-          <div className="flex items-center gap-2">
-            {/* While searching, the search field already shows the count. */}
-            {!searching && (
-              <p className="text-[13px] text-ink-3">
-                <span className="font-mono text-ink-2 tabular">{matchCount}</span> element
-              </p>
-            )}
-            <Button variant="ghost" size="sm" onClick={onClear}>
-              <X aria-hidden="true" strokeWidth={1.75} />
-              Temizle
-            </Button>
-          </div>
+          <Button variant="ghost" size="sm" onClick={onClear}>
+            <X aria-hidden="true" strokeWidth={1.75} />
+            Temizle
+          </Button>
         )}
       </div>
     </div>

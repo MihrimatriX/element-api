@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { usePolling } from "../../hooks/usePolling";
 import {
   compoundService,
@@ -15,24 +15,38 @@ import { isElementalSlug } from "./model";
 const TICKER_POLL_MS = 12_000;
 
 /**
- * Live ticker of one symbol: fetched when the symbol changes and every 12 s while
- * the tab is visible. `ticker` is `null` until data for *this* symbol arrives, so a
- * slow answer for the previous symbol is never shown under the new name.
+ * Live ticker of one symbol: fetched on mount, when the symbol changes and every 12 s
+ * while the tab is visible. `ticker` is `null` until data for *this* symbol arrives, and
+ * a late answer for a previous symbol is dropped, so it can neither show under the new
+ * name nor replace the new symbol's prices.
  */
 export function useTicker(symbol: string) {
   const [ticker, setTicker] = useState<Ticker | null>(null);
+  /** The symbol whose answers are still wanted. */
+  const wanted = useRef(symbol);
+
   const reload = useCallback(
     () =>
-      elementService.getTicker(symbol).then(setTicker, () => undefined),
+      elementService.getTicker(symbol).then(
+        (answer) => {
+          if (wanted.current === symbol) setTicker(answer);
+        },
+        () => undefined,
+      ),
     [symbol],
   );
 
+  // usePolling fetches on mount and then polls with the latest `reload`; it does not
+  // restart on a new symbol, so this effect fetches the new one at once.
   usePolling(reload, TICKER_POLL_MS);
   useEffect(() => {
+    if (wanted.current === symbol) return;
+    wanted.current = symbol;
     void reload();
-  }, [reload]);
+  }, [symbol, reload]);
 
-  const current = ticker?.symbol.toUpperCase() === symbol ? ticker : null;
+  const current =
+    ticker?.symbol.toUpperCase() === symbol.toUpperCase() ? ticker : null;
   return { ticker: current, reload };
 }
 

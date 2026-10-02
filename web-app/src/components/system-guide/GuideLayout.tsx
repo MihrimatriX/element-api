@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 interface GuideLayoutProps {
   /** Sticky left column from `lg` (search + page list). */
   sidebar: ReactNode;
-  /** Above the content below `lg` (page select + search). */
+  /** Above the content below `lg` (page list button + search), in a one- or two-column grid. */
   toolbar: ReactNode;
   children: ReactNode;
 }

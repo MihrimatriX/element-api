@@ -62,6 +62,18 @@ export function tableCell(element: ElementItem): { row: number; column: number }
   };
 }
 
+/**
+ * The one tile of a grid that Tab lands on (roving tab stop), so the whole grid is a single
+ * Tab stop and arrow keys move inside it: the selected element when it passes the filter,
+ * otherwise the first match.
+ */
+export function tabStopSymbol(
+  matches: readonly ElementItem[],
+  selected: string,
+): string | undefined {
+  return matches.some((element) => element.symbol === selected) ? selected : matches[0]?.symbol;
+}
+
 const ARROW_KEYS = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"];
 
 /** True for the four arrow keys the tile grids handle. */

@@ -1,10 +1,10 @@
-import { useId } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
-  NativeSelect,
-  NativeSelectOptGroup,
-  NativeSelectOption,
-} from "@/components/ui/native-select";
+  Disclosure,
+  DisclosureContent,
+  DisclosureTrigger,
+} from "@/components/ui/disclosure";
 import { splitGuideTitle, type GuideNavGroup, type GuidePage } from "./guide-model";
 
 interface GuideNavProps {
@@ -72,32 +72,59 @@ export function GuideNav({ overview, groups, current }: GuideNavProps) {
   );
 }
 
-/** Phone and tablet navigation: the same pages in a native select (optgroups per group). */
+// Same height, fill and hairline as the search field beside it in the toolbar.
+const pickerTriggerClass =
+  "h-10 border border-line-strong bg-canvas-2 px-3 py-0 text-base font-normal shadow-xs transition-[border-color] duration-150 hover:border-ink-4 data-[state=open]:border-brand-ink md:text-[15px]";
+
+/**
+ * Phone and tablet navigation: a button naming the current page opens the
+ * sidebar's list of links. Only following a link navigates, so arrowing through
+ * the list never changes the page (a select that navigated on change did).
+ * Any navigation closes the list at once, before the page scrolls to its anchor;
+ * a followed link hands focus to the button instead of dropping it with the list.
+ * Its two parts are items of GuideLayout's toolbar grid: the button, and the
+ * list, which spans both columns below it.
+ */
 export function GuidePicker({ overview, groups, current }: GuideNavProps) {
-  const navigate = useNavigate();
-  const selectId = useId();
+  const { key } = useLocation();
+  // Open only at the location it was opened at, so every navigation closes it.
+  const [openAt, setOpenAt] = useState<string>();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  let currentLabel = "Bölüm seç";
+  if (current && current === overview) currentLabel = OVERVIEW_LABEL;
+  else if (current) currentLabel = splitGuideTitle(current.title).name;
+
+  function handleListClick(event: MouseEvent<HTMLDivElement>) {
+    if (event.target instanceof Element && event.target.closest("a")) triggerRef.current?.focus();
+  }
+
+  function handleListKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Escape") return;
+    setOpenAt(undefined);
+    triggerRef.current?.focus();
+  }
+
   return (
-    <div>
-      <label htmlFor={selectId} className="sr-only">
-        Kılavuz bölümü
-      </label>
-      <NativeSelect
-        id={selectId}
-        value={current?.path ?? ""}
-        onChange={(event) => navigate(event.target.value)}
+    <Disclosure
+      open={openAt === key}
+      onOpenChange={(open) => setOpenAt(open ? key : undefined)}
+      className="contents"
+    >
+      <DisclosureTrigger ref={triggerRef} className={pickerTriggerClass}>
+        <span>
+          <span className="sr-only">Kılavuz bölümü: </span>
+          {currentLabel}
+        </span>
+      </DisclosureTrigger>
+      <DisclosureContent
+        onClick={handleListClick}
+        onKeyDown={handleListKeyDown}
+        className="data-[state=closed]:animate-none sm:order-last sm:col-span-2"
       >
-        {!current && <NativeSelectOption value="">Bölüm seç</NativeSelectOption>}
-        {overview && <NativeSelectOption value={overview.path}>{OVERVIEW_LABEL}</NativeSelectOption>}
-        {groups.map((group) => (
-          <NativeSelectOptGroup key={group.label} label={group.label}>
-            {group.pages.map((page) => (
-              <NativeSelectOption key={page.slug} value={page.path}>
-                {splitGuideTitle(page.title).name}
-              </NativeSelectOption>
-            ))}
-          </NativeSelectOptGroup>
-        ))}
-      </NativeSelect>
-    </div>
+        <div className="panel p-3">
+          <GuideNav overview={overview} groups={groups} current={current} />
+        </div>
+      </DisclosureContent>
+    </Disclosure>
   );
 }

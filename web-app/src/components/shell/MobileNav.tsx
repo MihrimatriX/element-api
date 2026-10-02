@@ -14,7 +14,8 @@ import { useSignOut } from "./useSignOut";
 const rowClass =
   "relative flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-[15px] text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink";
 
-function MobileAccount() {
+/** Sign-in links, or account links and sign-out. Each one calls `onNavigate` to close the sheet. */
+function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
   const { isAuthenticated } = useSelectedElement();
   const signOut = useSignOut();
 
@@ -22,25 +23,36 @@ function MobileAccount() {
     return (
       <div className="grid grid-cols-2 gap-2">
         <Button asChild variant="outline">
-          <Link to="/login">Giriş yap</Link>
+          <Link to="/login" onClick={onNavigate}>
+            Giriş yap
+          </Link>
         </Button>
         <Button asChild>
-          <Link to="/register">Hesap aç</Link>
+          <Link to="/register" onClick={onNavigate}>
+            Hesap aç
+          </Link>
         </Button>
       </div>
     );
 
   return (
     <div className="grid gap-0.5">
-      <Link to="/account" className={rowClass}>
+      <Link to="/account" onClick={onNavigate} className={rowClass}>
         <Wallet aria-hidden="true" className="size-4" strokeWidth={1.75} />
         Hesabım
       </Link>
-      <Link to="/settings" className={rowClass}>
+      <Link to="/settings" onClick={onNavigate} className={rowClass}>
         <Settings2 aria-hidden="true" className="size-4" strokeWidth={1.75} />
         Ayarlar
       </Link>
-      <button type="button" onClick={signOut} className={rowClass}>
+      <button
+        type="button"
+        onClick={() => {
+          onNavigate();
+          signOut();
+        }}
+        className={rowClass}
+      >
         <LogOut aria-hidden="true" className="size-4" strokeWidth={1.75} />
         Çıkış
       </button>
@@ -51,8 +63,10 @@ function MobileAccount() {
 /** Hamburger + left sheet with every route and the account actions. Below `lg` only. */
 export function MobileNav() {
   const { pathname } = useLocation();
-  // The sheet belongs to the page it was opened on, so any navigation closes it.
+  // The sheet belongs to the page it was opened on, so a pathname change (back button, redirect)
+  // closes it. Its links close it too, because a link to the current page keeps the pathname.
   const [openedOn, setOpenedOn] = useState<string | null>(null);
+  const close = () => setOpenedOn(null);
 
   return (
     <Sheet
@@ -76,7 +90,7 @@ export function MobileNav() {
       >
         <SheetTitle className="sr-only">Gezinme</SheetTitle>
         <div className="flex h-14 shrink-0 items-center border-b border-line px-5">
-          <BrandLink />
+          <BrandLink onClick={close} />
         </div>
         <nav aria-label="Mobil menü" className="flex-1 overflow-y-auto px-3 py-4">
           {siteMap.map((group) => (
@@ -89,6 +103,7 @@ export function MobileNav() {
                     <li key={route.to}>
                       <Link
                         to={route.to}
+                        onClick={close}
                         aria-current={active ? "page" : undefined}
                         className={cn(
                           rowClass,
@@ -111,7 +126,7 @@ export function MobileNav() {
         </nav>
         {ACCOUNTS_ENABLED && (
           <div className="shrink-0 border-t border-line p-3">
-            <MobileAccount />
+            <MobileAccount onNavigate={close} />
           </div>
         )}
       </SheetContent>

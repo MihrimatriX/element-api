@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import type { ElementItem } from "@/services/elementData";
 import { ExplorerTile } from "./ExplorerTile";
 import type { LensReading } from "./lenses";
+import { tabStopSymbol } from "./model";
 
 interface ElementCardsProps {
   /** Matching elements only, in atomic-number order. */
@@ -26,6 +27,8 @@ export function ElementCards({
   onOpen,
   gridProps,
 }: ElementCardsProps) {
+  const tabStop = tabStopSymbol(elements, selected);
+
   return (
     <div
       {...gridProps}
@@ -40,6 +43,7 @@ export function ElementCards({
           reading={readingOf(element.symbol)}
           valueLabel={valueLabel}
           selected={selected === element.symbol}
+          tabStop={tabStop === element.symbol}
           onOpen={onOpen}
         />
       ))}

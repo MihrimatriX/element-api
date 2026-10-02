@@ -10,10 +10,8 @@ import { Notice } from "@/components/ui/notice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
 import { readStorage, removeStorage, writeStorage } from "../../lib/storage";
-import { apiError, apiKeyService } from "../../services/api";
+import { apiError, apiKeyService, type ApiKeyRow } from "../../services/api";
 import { DASHBOARD_KEY_DESCRIPTION, maskApiKey } from "./model";
-
-type ApiKeyRow = Awaited<ReturnType<typeof apiKeyService.list>>[number];
 
 type KeysState =
   | { status: "loading" }
@@ -127,7 +125,8 @@ export function ApiKeysPanel({ onDashboardKeyChange }: ApiKeysPanelProps) {
           </p>
         </form>
 
-        {freshKey && <FreshKey value={freshKey} />}
+        {/* Keyed by the key itself so every new key starts masked again. */}
+        {freshKey && <FreshKey key={freshKey} value={freshKey} />}
         {failure && <Notice tone="danger">{failure}</Notice>}
         <KeyList state={state} onRetry={() => void reload()} onRevoke={revoke} />
       </div>

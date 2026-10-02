@@ -147,9 +147,13 @@ function AccountOverview() {
           elements={elements}
           bidOf={bidOf}
           onRetry={holdings.retry}
+          // `state.slug` preselects this row's product in Market's sell form; the symbol alone
+          // would pick pure Na for an NaCl row when the user holds both.
           action={(row) => (
             <Button asChild variant="ghost" size="sm">
-              <Link to={`/market?symbol=${row.symbol}`}>Sat</Link>
+              <Link to={`/market?symbol=${row.symbol}`} state={{ slug: row.compoundSlug }}>
+                Sat
+              </Link>
             </Button>
           )}
         />

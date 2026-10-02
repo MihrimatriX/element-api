@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import type { ElementItem } from "@/services/elementData";
 import { ExplorerTile } from "./ExplorerTile";
 import type { LensReading } from "./lenses";
-import { tableCell } from "./model";
+import { tableCell, tabStopSymbol } from "./model";
 
 const GROUPS = Array.from({ length: 18 }, (_, index) => index + 1);
 const PERIODS = Array.from({ length: 7 }, (_, index) => index + 1);
@@ -31,7 +31,8 @@ interface PeriodicTableProps {
 
 /**
  * The 18-column periodic table with group and period axes and the f-block rows detached below.
- * Non-matching elements stay in place, dimmed. Below 59rem it scrolls sideways inside its own frame.
+ * Non-matching elements stay in place, dimmed, but are skipped by the arrow keys and the Tab stop.
+ * Below 59rem it scrolls sideways inside its own frame.
  */
 export function PeriodicTable({
   elements,
@@ -44,6 +45,11 @@ export function PeriodicTable({
   panel,
   legend,
 }: PeriodicTableProps) {
+  const tabStop = tabStopSymbol(
+    elements.filter((element) => matchingSymbols.has(element.symbol)),
+    selected,
+  );
+
   return (
     <div
       role="region"
@@ -92,6 +98,7 @@ export function PeriodicTable({
               reading={readingOf(element.symbol)}
               valueLabel={valueLabel}
               selected={selected === element.symbol}
+              tabStop={tabStop === element.symbol}
               dimmed={!matchingSymbols.has(element.symbol)}
               onOpen={onOpen}
               style={{ "--row": cell.row, "--column": cell.column }}

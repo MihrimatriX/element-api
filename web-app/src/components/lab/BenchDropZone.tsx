@@ -39,10 +39,13 @@ interface BenchDropZoneProps {
   onStarter: (counts: Counts) => void;
 }
 
+const handleSelector = (id: string) => `[data-chip-handle="${CSS.escape(id)}"]`;
+
 /**
  * The bench: drop zone (`data-lab-drop`) holding one chip per element. Chips
  * reorder by dragging their handle or with the arrow keys on it, and leave the
- * bench when dropped outside it or with their remove button.
+ * bench when dropped outside it or with their remove button. Keyboard focus
+ * stays on the bench when a chip moves or leaves and when a starter loads.
  */
 export function BenchDropZone({
   counts,
@@ -55,17 +58,16 @@ export function BenchDropZone({
   onStarter,
 }: BenchDropZoneProps) {
   const hintId = useId();
-  const listRef = useRef<HTMLUListElement>(null);
+  const zoneRef = useRef<HTMLDivElement>(null);
   const [moved, setMoved] = useState<{ id: string; position: number } | null>(null);
+  const [refocus, setRefocus] = useState<{ selector: string } | null>(null);
   const hot = Boolean(drag?.overBench);
 
-  // Moving a chip re-inserts its DOM node, which drops focus; put it back on the handle.
+  // Moving, removing or loading chips re-renders or unmounts the focused control; focus the
+  // element the change asked for instead of letting it fall back to <body>.
   useEffect(() => {
-    if (!moved) return;
-    listRef.current
-      ?.querySelector<HTMLElement>(`[data-chip-handle="${CSS.escape(moved.id)}"]`)
-      ?.focus();
-  }, [moved]);
+    if (refocus) zoneRef.current?.querySelector<HTMLElement>(refocus.selector)?.focus();
+  }, [refocus]);
 
   function moveWithKeys(event: KeyboardEvent, index: number, id: string) {
     const offsets: Record<string, number> = { ArrowLeft: -1, ArrowUp: -1, ArrowRight: 1, ArrowDown: 1 };
@@ -76,10 +78,34 @@ export function BenchDropZone({
     if (target < 0 || target >= chipIds.length) return;
     onMove(index, target);
     setMoved({ id, position: target + 1 });
+    setRefocus({ selector: handleSelector(id) });
+  }
+
+  /** Before `id` leaves: focus goes to the chip after it, else the one before, else the empty bench. */
+  function focusAfterLeaving(id: string) {
+    const index = chipIds.indexOf(id);
+    const neighbour = chipIds[index + 1] ?? chipIds[index - 1];
+    setRefocus({ selector: neighbour ? handleSelector(neighbour) : "[data-bench-empty]" });
+  }
+
+  function remove(id: string) {
+    focusAfterLeaving(id);
+    onRemove(id);
+  }
+
+  function step(id: string, delta: 1 | -1) {
+    if (delta < 0 && (counts[id] ?? 0) <= 1) focusAfterLeaving(id);
+    onStep(id, delta);
+  }
+
+  function loadStarter(starter: Counts) {
+    setRefocus({ selector: "[data-bench-chips]" });
+    onStarter(starter);
   }
 
   return (
     <div
+      ref={zoneRef}
       data-lab-drop
       className={cn(
         "relative mt-4 flex min-h-40 flex-1 flex-col rounded-lg border border-dashed p-3 transition-colors duration-150 sm:p-4",
@@ -91,16 +117,17 @@ export function BenchDropZone({
       )}
     >
       {chipIds.length === 0 ? (
-        <BenchInvite dropping={hot} onStarter={onStarter} />
+        <BenchInvite dropping={hot} onStarter={loadStarter} />
       ) : (
         <>
           <p id={hintId} className="sr-only">
             Sırayı değiştirmek için tutamaçta sol ve sağ ok tuşlarını kullan.
           </p>
           <ul
-            ref={listRef}
+            data-bench-chips
+            tabIndex={-1}
             aria-label="Tezgâhtaki elementler"
-            className="flex flex-1 flex-wrap content-center justify-center gap-2"
+            className="flex flex-1 flex-wrap content-center justify-center gap-2 rounded-md"
           >
             {chipIds.map((id, index) => (
               <BenchChip
@@ -110,8 +137,8 @@ export function BenchDropZone({
                 count={counts[id] ?? 0}
                 hintId={hintId}
                 drag={drag}
-                onStep={onStep}
-                onRemove={onRemove}
+                onStep={step}
+                onRemove={remove}
                 onHandleKeyDown={moveWithKeys}
                 onDragStart={onChipDragStart}
               />
@@ -218,7 +245,11 @@ function BenchInvite({
       >
         <FlaskConical className="size-5" strokeWidth={1.75} />
       </span>
-      <h3 className="mt-4 font-sans text-base font-semibold tracking-normal text-ink">
+      <h3
+        data-bench-empty
+        tabIndex={-1}
+        className="mt-4 rounded-sm font-sans text-base font-semibold tracking-normal text-ink"
+      >
         Tezgâh boş
       </h3>
       <p className="mt-1.5 max-w-sm text-sm leading-6 text-ink-2">

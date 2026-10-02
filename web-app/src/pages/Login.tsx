@@ -15,13 +15,26 @@ import { isCaptchaConfigured } from "../lib/captcha";
 import { ApiHttpError, apiError, authService } from "../services/api";
 import { safeReturnTo } from "../services/session";
 
-/** The identity service answers 401 and 429 in English; say it in Turkish. */
+/**
+ * Turkish text for a failed sign-in. Only a server answer is about the
+ * credentials (401 and 429 arrive in English). A failed request means the
+ * service is unreachable; any other Error is the client's own sentence, such
+ * as blocked browser storage after the server accepted the password.
+ */
 function loginError(error: unknown): string {
-  if (error instanceof ApiHttpError && error.status === 401)
-    return "E-posta veya şifre yanlış.";
-  if (error instanceof ApiHttpError && error.status === 429)
-    return "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene.";
-  return apiError(error, "Giriş bilgileri geçersiz.");
+  if (error instanceof ApiHttpError) {
+    if (error.status === 401) return "E-posta veya şifre yanlış.";
+    if (error.status === 429)
+      return "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene.";
+    return apiError(error, "Giriş bilgileri geçersiz.");
+  }
+  // fetch rejects with a TypeError when offline and an AbortError on timeout.
+  const unreachable =
+    error instanceof TypeError ||
+    (error instanceof DOMException && error.name === "AbortError");
+  if (unreachable || !(error instanceof Error))
+    return "Servise ulaşılamadı. Biraz sonra yeniden deneyebilirsin.";
+  return error.message;
 }
 
 /** E-mail and password sign-in; returns to `?returnTo` (same-origin only) or the notebook. */

@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -50,6 +51,7 @@ export function SellForm({
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
+  const gramsRef = useRef<HTMLInputElement>(null);
 
   if (holdings === null)
     return (
@@ -96,9 +98,14 @@ export function SellForm({
     const blocker =
       saleProblem(grams, holding) ??
       (unitBid == null ? "Satış fiyatı henüz gelmedi; birkaç saniye sonra deneyin." : null);
-    setProblem(blocker);
-    if (blocker) return;
+    if (blocker) {
+      // Render the error first so the focused field already describes it to screen readers.
+      flushSync(() => setProblem(blocker));
+      gramsRef.current?.focus();
+      return;
+    }
 
+    setProblem(null);
     setBusy(true);
     setFailure(null);
     try {
@@ -146,6 +153,7 @@ export function SellForm({
         }
       >
         <Input
+          ref={gramsRef}
           type="number"
           inputMode="decimal"
           min="0.01"

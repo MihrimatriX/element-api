@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ChevronsDownUp, ChevronsUpDown, SearchX } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -55,11 +55,21 @@ function PropertyDisclosure({
   );
 }
 
+/** Target of a plain click on an in-page link (`#isotopes` → "isotopes"), else null. */
+function clickedAnchor(event: MouseEvent): string | null {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+    return null;
+  const link = event.target instanceof Element ? event.target.closest("a[href^='#']") : null;
+  const href = link?.getAttribute("href");
+  return href ? decodeURIComponent(href.slice(1)) : null;
+}
+
 /**
  * "Bilimsel özellikler": every labelled section of the record as a collapsible
  * group with a size badge, a filter over section and field names, a switch for
  * fields without data and expand/collapse all. Linking to `#<section key>`
- * (side index, deep link) clears the filter and opens that section.
+ * (side index, deep link) clears the filter and opens that section, also when
+ * the URL already ends in that hash.
  */
 export function PropertySections({ record }: { record: ScientificRecord }) {
   const { hash } = useLocation();
@@ -74,15 +84,30 @@ export function PropertySections({ record }: { record: ScientificRecord }) {
   const filtering = filter.trim() !== "";
   const allOpen = visible.length > 0 && visible.every((section) => openKeys.has(section.key));
 
+  /** Clears the filter and opens `key`. */
+  function reveal(key: string) {
+    // Sections the filter held open stay open: one collapsing above the target would scroll it away.
+    const heldOpen = filtering ? visible.map((section) => section.key) : [];
+    setOpenKeys((current) => new Set([...current, ...heldOpen, key]));
+    setFilter("");
+  }
+
   if (hash !== handledHash) {
     setHandledHash(hash);
-    if (target in record) {
-      // Sections the filter held open stay open: one collapsing above the target would scroll it away.
-      const heldOpen = filtering ? visible.map((section) => section.key) : [];
-      setOpenKeys((current) => new Set([...current, ...heldOpen, target]));
-      setFilter("");
-    }
+    if (target in record) reveal(target);
   }
+
+  // A link to the hash the URL already has leaves `hash` unchanged, so the click reveals too.
+  // React renders the section before the browser scrolls to it.
+  const onDocumentClick = useEffectEvent((event: MouseEvent) => {
+    const key = clickedAnchor(event);
+    if (key !== null && key in record) reveal(key);
+  });
+  useEffect(() => {
+    const listener = (event: MouseEvent) => onDocumentClick(event);
+    document.addEventListener("click", listener);
+    return () => document.removeEventListener("click", listener);
+  }, []);
 
   function setOpen(key: string, open: boolean) {
     setOpenKeys((current) => {

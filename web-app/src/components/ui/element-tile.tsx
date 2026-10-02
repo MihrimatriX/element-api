@@ -23,15 +23,23 @@ interface ElementTileProps {
   family: ElementFamily;
   /** Extra line (atomic mass, lens value); the tile becomes 4:5 instead of square to fit it. */
   value?: ReactNode;
-  /** Highlighted with the cuprite ring (current element, toggled on). */
+  /**
+   * Highlighted with the cuprite ring (current element, focused pick, toggled on). Visual only,
+   * except on a link, where it sets `aria-current`.
+   */
   selected?: boolean;
+  /**
+   * Toggle state of a button tile (`aria-pressed`). Set it only when a click switches the tile on
+   * or off; a highlight that just follows focus or hover is not a toggle and leaves it out.
+   */
+  pressed?: boolean;
   /** Faded out (filtered away but kept in place). */
   dimmed?: boolean;
   /** Hatched: the active lens has no value for this element. */
   missing?: boolean;
   /** Renders a router link. */
   to?: string;
-  /** Renders a toggle button (`aria-pressed` follows `selected`). Ignored when `to` is set. */
+  /** Renders a button, a toggle when `pressed` is set. Ignored when `to` is set. */
   onClick?: () => void;
   /** Accessible name override; by default number, symbol, name and value are read. */
   label?: string;
@@ -56,6 +64,7 @@ export function ElementTile({
   family,
   value,
   selected = false,
+  pressed,
   dimmed = false,
   missing = false,
   to,
@@ -115,7 +124,7 @@ export function ElementTile({
       <button
         type="button"
         onClick={onClick}
-        aria-pressed={selected}
+        aria-pressed={pressed}
         {...shared}
       >
         {content}

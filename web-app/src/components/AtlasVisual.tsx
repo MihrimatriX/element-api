@@ -5,101 +5,10 @@ import { Segmented, type SegmentOption } from "@/components/ui/segmented";
 import { cn } from "@/lib/utils";
 import type { AtlasMedia } from "../services/science";
 import { focusOnImage, type DrawingFocus } from "./detail/drawingFocus";
+import { ShellDiagram } from "./periodic/ShellDiagram";
 
-const BEATS = {
-  water: ["H₂", "+", "O", "→", "H₂O"],
-  salt: ["Na", "+", "Cl", "→", "NaCl"],
-  rust: ["Fe", "+", "O₂", "→", "pas"],
-  quartz: ["Si", "+", "O₂", "→", "SiO₂"],
-} as const;
-
-/** Reaction shown by `WorkshopMarks`. */
-export type WorkshopBeat = keyof typeof BEATS;
-
-const OPERATORS = new Set(["+", "→"]);
-
-/** Decorative "A + B → AB" chip row that illustrates a page about building compounds. */
-export function WorkshopMarks({
-  beat = "water",
-  className,
-}: {
-  beat?: WorkshopBeat;
-  className?: string;
-}) {
-  return (
-    <div aria-hidden="true" className={cn("flex flex-wrap items-center gap-2", className)}>
-      {BEATS[beat].map((text, index) =>
-        OPERATORS.has(text) ? (
-          <span key={index} className="font-mono text-sm text-ink-3">
-            {text}
-          </span>
-        ) : (
-          <span
-            key={index}
-            className="rounded-sm border border-line-strong bg-surface-2 px-2 py-0.5 font-mono text-[13px] text-ink"
-          >
-            {text}
-          </span>
-        ),
-      )}
-    </div>
-  );
-}
-
-/**
- * Bohr-style electron shell schematic: nucleus with the symbol and one orbit per
- * shell with its electrons spaced evenly. Not to scale; the label reads the counts.
- */
-export function AtomShell({
-  symbol,
-  shells = [],
-  className,
-}: {
-  symbol: string;
-  shells?: number[];
-  className?: string;
-}) {
-  const orbitStep = 58 / Math.max(1, shells.length - 1);
-  return (
-    <svg
-      viewBox="0 0 220 220"
-      role="img"
-      aria-label={`${symbol}, şematik elektron kabukları: ${shells.join(", ") || "veri yok"}`}
-      className={cn("size-full", className)}
-    >
-      {shells.map((electrons, shell) => {
-        const radius = 38 + shell * orbitStep;
-        return (
-          <g key={shell}>
-            <circle cx="110" cy="110" r={radius} fill="none" strokeWidth="1" className="stroke-line-strong" />
-            {Array.from({ length: electrons }, (_, index) => {
-              const angle = (index / electrons) * Math.PI * 2 + shell * 0.4;
-              return (
-                <circle
-                  key={index}
-                  cx={110 + radius * Math.cos(angle)}
-                  cy={110 + radius * Math.sin(angle)}
-                  r={electrons > 20 ? 2 : 2.8}
-                  className="fill-brand-ink"
-                />
-              );
-            })}
-          </g>
-        );
-      })}
-      <circle cx="110" cy="110" r="24" strokeWidth="1" className="fill-surface-3 stroke-brand-line" />
-      <text
-        x="110"
-        y="110"
-        textAnchor="middle"
-        dominantBaseline="central"
-        className="fill-ink font-mono text-[17px] font-semibold"
-      >
-        {symbol}
-      </text>
-    </svg>
-  );
-}
+// The header chip row lives in ./WorkshopMarks; kept here until the pages import it from there.
+export { WorkshopMarks, type WorkshopBeat } from "./WorkshopMarks";
 
 type View = "photo" | "structure" | "schematic";
 
@@ -213,8 +122,13 @@ export default function AtlasVisual({
   const view = views.some((option) => option.value === chosen) ? chosen : views[0].value;
   const media = { photo, structure, schematic: null }[view] ?? null;
 
+  // The shared diagram takes its colour from `--family`; the atlas figure uses the brand accent.
   const schematic = symbol ? (
-    <AtomShell symbol={symbol} shells={shells} className="p-4" />
+    <ShellDiagram
+      symbol={symbol}
+      shells={shells}
+      className="size-full p-4 [--family:var(--color-brand-ink)]"
+    />
   ) : (
     <div className="grid size-full place-content-center gap-2 text-center">
       <span className={cn("font-mono font-semibold text-ink", compact ? "text-3xl" : "text-5xl")}>

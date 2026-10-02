@@ -1,4 +1,5 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Lightbulb, Lock, SkipForward } from "lucide-react";
@@ -35,8 +36,13 @@ export default function LabDetective() {
   const [result, setResult] = useState<Grade | null>(null);
   const [wrongPicks, setWrongPicks] = useState<string[]>([]);
   const headingId = useId();
+  const guessRef = useRef<HTMLInputElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
   const { element, clues, choices } = item;
   const solvedNow = result?.ok === true;
+
+  // A correct answer disables the guess controls, the last clue removes "Başka ipucu" and a new
+  // case removes "Sonraki". Each handler below moves focus on before its control goes away.
 
   /** Moves to the next case; "Pas geç" never returns the current element. */
   function nextCase() {
@@ -47,10 +53,25 @@ export default function LabDetective() {
     setWrongPicks([]);
   }
 
+  /** "Sonraki": the guess field is enabled again only after the new case renders. */
+  function continueToNextCase() {
+    flushSync(nextCase);
+    guessRef.current?.focus();
+  }
+
+  function revealClue() {
+    const next = open + 1;
+    if (next === clues.length) guessRef.current?.focus();
+    setOpen(next);
+  }
+
   function submit(value: string) {
     const graded = gradeDetective(element.symbol, value);
-    setResult(graded);
-    if (graded.ok) setSolved(rememberGame("detective", element.symbol).detective);
+    flushSync(() => {
+      setResult(graded);
+      if (graded.ok) setSolved(rememberGame("detective", element.symbol).detective);
+    });
+    if (graded.ok) nextRef.current?.focus();
   }
 
   function pick(symbol: string) {
@@ -128,9 +149,14 @@ export default function LabDetective() {
               ),
             )}
           </ol>
+          {/* Reads out each clue as it opens, while focus stays on "Başka ipucu". The key makes a
+              new case's first clue a fresh node, so it is read even when its text repeats. */}
+          <p aria-live="polite" aria-atomic="true" className="sr-only">
+            <span key={`${element.symbol}-${open}`}>{`${open}. ipucu: ${clues[open - 1]}`}</span>
+          </p>
 
           {open < clues.length && !solvedNow && (
-            <Button variant="outline" className="mt-4" onClick={() => setOpen((n) => n + 1)}>
+            <Button variant="outline" className="mt-4" onClick={revealClue}>
               <Lightbulb strokeWidth={1.75} />
               Başka ipucu ({open}/{clues.length})
             </Button>
@@ -147,6 +173,7 @@ export default function LabDetective() {
           >
             <Field label="Element adı veya sembol" className="min-w-0 flex-1">
               <Input
+                ref={guessRef}
                 value={guess}
                 autoComplete="off"
                 spellCheck={false}
@@ -189,7 +216,7 @@ export default function LabDetective() {
 
           {solvedNow && (
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button size="sm" onClick={nextCase}>
+              <Button ref={nextRef} size="sm" onClick={continueToNextCase}>
                 Sonraki
                 <ArrowRight strokeWidth={1.75} />
               </Button>

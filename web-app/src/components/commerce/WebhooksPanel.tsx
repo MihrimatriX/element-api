@@ -8,10 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Notice } from "@/components/ui/notice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
-import { apiError, webhookService } from "../../services/api";
+import { apiError, webhookService, type WebhookRow } from "../../services/api";
 import { webhookUrlProblem } from "./model";
-
-type WebhookRow = Awaited<ReturnType<typeof webhookService.list>>[number];
 
 type HooksState =
   | { status: "loading" }

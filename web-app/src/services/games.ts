@@ -14,6 +14,7 @@ import {
   type Counts,
   type KnownCompound,
 } from "./chemistry.ts";
+import { readJson, writeJson } from "../lib/storage.ts";
 import { foldTurkish } from "../lib/text.ts";
 
 /** localStorage key of the side-game scores (kept apart from the discovery notebook). */
@@ -25,10 +26,9 @@ export interface GameProgress {
   detective: string[];
 }
 
-const EMPTY_GAMES: GameProgress = { formula: [], detective: [] };
-const elementSymbols = new Set(STATIC_ELEMENTS.map((e) => e.symbol));
+const elementSymbols = new Set(STATIC_ELEMENTS.map((element) => element.symbol));
 const elementNames: Record<string, string> = Object.fromEntries(
-  STATIC_ELEMENTS.map((e) => [e.symbol, e.name]),
+  STATIC_ELEMENTS.map((element) => [element.symbol, element.name]),
 );
 
 /** Unique string ids that pass `isKnown`; anything else in storage is dropped. */
@@ -51,58 +51,29 @@ export function normalizeGames(value: unknown): GameProgress {
   };
 }
 
-/** Parses the stored JSON; corrupt or missing data gives empty progress. */
-export function parseGames(raw: string | null): GameProgress {
-  try {
-    return normalizeGames(JSON.parse(raw ?? "null"));
-  } catch {
-    return EMPTY_GAMES;
-  }
-}
+/**
+ * Progress that storage refused (site data blocked or quota full). It stands in
+ * for the stored copy until the page reloads, so the score and tier unlocks keep
+ * growing during the visit instead of resetting after every solve.
+ */
+let unsavedGames: GameProgress | undefined;
 
-/** Reads progress from a Storage; a throwing storage gives empty progress. */
-export function loadGames(storage: Pick<Storage, "getItem">): GameProgress {
-  try {
-    return parseGames(storage.getItem(GAMES_KEY));
-  } catch {
-    return EMPTY_GAMES;
-  }
-}
-
-/** Writes progress; returns false when storage is unavailable or full. */
-export function saveGames(
-  storage: Pick<Storage, "setItem">,
-  progress: GameProgress,
-): boolean {
-  try {
-    storage.setItem(GAMES_KEY, JSON.stringify(normalizeGames(progress)));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/** Progress from this browser's localStorage; empty when site data is blocked. */
+/** This browser's progress: the stored copy, or this visit's unsaved one. Corrupt data reads as empty. */
 export function readGames(): GameProgress {
-  try {
-    return loadGames(localStorage);
-  } catch {
-    return EMPTY_GAMES;
-  }
+  return unsavedGames ?? normalizeGames(readJson(GAMES_KEY, null));
 }
 
-/** Records one solved puzzle and returns the new progress (also when it could not be saved). */
+/**
+ * Records one solved puzzle and returns the new progress, also when it could
+ * not be saved. It starts from storage, so puzzles solved in another tab are kept.
+ */
 export function rememberGame(
   kind: keyof GameProgress,
   id: string,
 ): GameProgress {
   const current = readGames();
   const next = normalizeGames({ ...current, [kind]: [...current[kind], id] });
-  try {
-    saveGames(localStorage, next);
-  } catch {
-    // Storage blocked: the score lives for this page view only.
-  }
+  unsavedGames = writeJson(GAMES_KEY, next) ? undefined : next;
   return next;
 }
 
@@ -143,10 +114,10 @@ export function unlockedFormulaTier(solved: number): 1 | 2 | 3 {
 
 /** Catalogue compounds up to and including `tier`, in catalogue order. */
 export function formulaPool(tier: 1 | 2 | 3): KnownCompound[] {
-  return knownCompounds.filter((c) => formulaTier(c) <= tier);
+  return knownCompounds.filter((compound) => formulaTier(compound) <= tier);
 }
 
-const compoundRank = new Map(knownCompounds.map((c, index) => [c.slug, index]));
+const compoundRank = new Map(knownCompounds.map((compound, index) => [compound.slug, index]));
 
 /**
  * Next compound for "Formülü kur". `prefer` (a slug from the URL) wins when it exists.
@@ -160,18 +131,16 @@ export function pickFormula(
 ): KnownCompound {
   if (prefer && prefer in compoundBySlug) return compoundBySlug[prefer];
   const known = new Set(solved);
-  const notCurrent = (c: KnownCompound) => c.slug !== current;
-  const open = (c: KnownCompound) => notCurrent(c) && !known.has(c.slug);
+  const notCurrent = (compound: KnownCompound) => compound.slug !== current;
+  const open = (compound: KnownCompound) => notCurrent(compound) && !known.has(compound.slug);
   const unlocked = formulaPool(unlockedFormulaTier(solved.length)).filter(open);
   const anyOpen = knownCompounds.filter(open);
   const candidates = [unlocked, anyOpen, knownCompounds.filter(notCurrent)].find(
     (list) => list.length > 0,
   );
   const currentRank = current ? (compoundRank.get(current) ?? -1) : -1;
-  return (
-    nextAfter(candidates ?? knownCompounds, (c) => compoundRank.get(c.slug) ?? 0, currentRank) ??
-    knownCompounds[0]
-  );
+  const rankOf = (compound: KnownCompound) => compoundRank.get(compound.slug) ?? 0;
+  return nextAfter(candidates ?? knownCompounds, rankOf, currentRank) ?? knownCompounds[0];
 }
 
 /** Checks the atom counts against the compound; the message names every wrong element. */
@@ -218,7 +187,7 @@ export interface DetectiveItem {
 export function findElement(symbol: string | null | undefined): ElementItem | undefined {
   const wanted = symbol?.trim().toLowerCase();
   if (!wanted) return undefined;
-  return STATIC_ELEMENTS.find((e) => e.symbol.toLowerCase() === wanted);
+  return STATIC_ELEMENTS.find((element) => element.symbol.toLowerCase() === wanted);
 }
 
 /** True when `text` would give the answer away (mentions the name or symbol). */
@@ -239,7 +208,8 @@ export function detectiveClues(element: ElementItem): string[] {
   if (element.phase && element.phase !== "—")
     clues.push(`Oda koşullarında ${element.phase}.`);
   const usedIn = knownCompounds.find(
-    (c) => parseFormula(c.formula)[element.symbol] && !leaks(c.nameTr, element),
+    (compound) =>
+      parseFormula(compound.formula)[element.symbol] && !leaks(compound.nameTr, element),
   );
   if (usedIn) clues.push(`${usedIn.nameTr} kaydının formülünde yer alır.`);
   if (element.summary && !leaks(element.summary, element)) clues.push(element.summary);
@@ -252,7 +222,7 @@ export function detectiveClues(element: ElementItem): string[] {
 }
 
 const detectiveElements = STATIC_ELEMENTS.filter(
-  (e) => e.atomicNumber <= 36 && detectiveClues(e).length >= 3,
+  (element) => element.atomicNumber <= 36 && detectiveClues(element).length >= 3,
 );
 
 /** Elements the detective game draws from: the first 36 with at least three clues. */
@@ -269,9 +239,10 @@ export function buildDetective(
   if (!element) return undefined;
   const clues = detectiveClues(element);
   if (clues.length < 2) return undefined;
-  const others = detectiveElements.filter((e) => e.symbol !== element.symbol);
+  const others = detectiveElements.filter((candidate) => candidate.symbol !== element.symbol);
   const similar = others.filter(
-    (e) => e.category === element.category || e.period === element.period,
+    (candidate) =>
+      candidate.category === element.category || candidate.period === element.period,
   );
   const choices = [element, ...(similar.length >= 3 ? similar : others).slice(0, 3)];
   for (const extra of others) {
@@ -300,12 +271,14 @@ export function pickDetective(
   const preferred = prefer ? buildDetective(prefer, solved) : undefined;
   if (preferred) return preferred;
   const known = new Set(solved);
-  const notCurrent = (e: ElementItem) => e.symbol !== current;
-  const open = detectiveElements.filter((e) => notCurrent(e) && !known.has(e.symbol));
+  const notCurrent = (element: ElementItem) => element.symbol !== current;
+  const open = detectiveElements.filter(
+    (element) => notCurrent(element) && !known.has(element.symbol),
+  );
   const candidates = open.length ? open : detectiveElements.filter(notCurrent);
   const currentRank = findElement(current)?.atomicNumber ?? 0;
   const next =
-    nextAfter(candidates, (e) => e.atomicNumber, currentRank) ??
+    nextAfter(candidates, (element) => element.atomicNumber, currentRank) ??
     detectiveElements[0] ??
     STATIC_ELEMENTS[0];
   return buildDetective(next.symbol, solved) as DetectiveItem;

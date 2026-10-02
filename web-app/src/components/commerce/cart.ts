@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-  addToCart,
   cartLineKey,
   readCart,
   writeCart,
@@ -8,9 +7,43 @@ import {
   type CompoundSku,
 } from "../../services/api";
 
+/** Most lines the cart keeps; a new line past it pushes out the oldest. */
+const MAX_CART_LINES = 12;
+
 /**
- * The shop's gram cart, persisted in localStorage (`elementapi:elementalCart`) through the
- * api.ts cart helpers. Quantities are capped at the element's stock (`stockOf`).
+ * `cart` with `grams` more of `sku`, capped at `maxGrams`. A new line goes first, the cart
+ * keeps at most 12 lines and a line left at 0 g is dropped. Works only on the given cart,
+ * never on storage, so a blocked or full localStorage cannot undo earlier changes.
+ */
+function withAdded(
+  cart: readonly CartItem[],
+  sku: CompoundSku,
+  grams: number,
+  maxGrams: number,
+): CartItem[] {
+  const key = cartLineKey(sku.elementSymbol, sku.slug);
+  const isSameLine = (item: CartItem) => cartLineKey(item.symbol, item.slug) === key;
+  const existing = cart.find(isSameLine);
+  const line: CartItem = {
+    // A changed quantity is a new request: the old idempotency key must not be replayed.
+    requestId: crypto.randomUUID(),
+    symbol: sku.elementSymbol,
+    slug: sku.slug.toLowerCase(),
+    qty: Math.min(maxGrams, Math.max(0, (existing?.qty ?? 0) + grams)),
+    formula: sku.formula || existing?.formula || sku.elementSymbol,
+    label: sku.nameTr || sku.name || existing?.label || sku.formula,
+    priceMult: sku.priceMult > 0 ? sku.priceMult : (existing?.priceMult ?? 1),
+  };
+  const next = existing
+    ? cart.map((item) => (isSameLine(item) ? line : item))
+    : [line, ...cart].slice(0, MAX_CART_LINES);
+  return next.filter((item) => item.qty > 0);
+}
+
+/**
+ * The shop's gram cart. React state is the source of truth; the effect below is the one
+ * place that saves it to localStorage (`elementapi:elementalCart`), so without storage the
+ * cart still works for this page. Quantities are capped at the element's stock (`stockOf`).
  */
 export function useCart(stockOf: (symbol: string) => number) {
   const [cart, setCart] = useState<CartItem[]>(readCart);
@@ -21,13 +54,8 @@ export function useCart(stockOf: (symbol: string) => number) {
 
   /** Adds `grams` of a product (merged into its line). */
   const add = (sku: CompoundSku, grams: number) => {
-    const next = addToCart(sku.elementSymbol, grams, stockOf(sku.elementSymbol), {
-      slug: sku.slug,
-      formula: sku.formula,
-      label: sku.nameTr || sku.name,
-      priceMult: sku.priceMult,
-    });
-    setCart(next.filter((item) => item.qty > 0));
+    const stock = stockOf(sku.elementSymbol);
+    setCart((current) => withAdded(current, sku, grams, stock));
   };
 
   /** Changes a line by `delta` grams; a line that reaches 0 g is dropped. */

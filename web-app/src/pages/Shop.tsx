@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ export default function Shop() {
   const { elements, walletElx, refreshWallet } = useCommerce();
   const navigate = useNavigate();
   const location = useLocation();
+  const productsHeadingId = useId();
   const loginHref = `/login?returnTo=${encodeURIComponent(location.pathname + location.search)}`;
 
   const [board, setBoard] = useState<BoardRow[]>([]);
@@ -183,7 +184,11 @@ export default function Shop() {
       />
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] lg:items-start lg:gap-8">
-        <section aria-label="Ürünler" className="min-w-0">
+        <section aria-labelledby={productsHeadingId} className="min-w-0">
+          {/* Keeps the outline h1 → h2 → h3: product cards title themselves with h3. */}
+          <h2 id={productsHeadingId} className="sr-only">
+            Ürünler
+          </h2>
           <div className="panel grid gap-4 p-4">
             <ElementPicker
               symbols={picks}

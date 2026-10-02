@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useRef, type ReactNode } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -6,6 +6,7 @@ import {
   Route,
   Routes,
   useLocation,
+  useNavigationType,
 } from "react-router-dom";
 import { MotionConfig, motion, useReducedMotion } from "framer-motion";
 import { CommerceLayout, DemoLayout } from "./components/CommerceLayout";
@@ -80,6 +81,35 @@ function RouteStage({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * A link to another page opens it at the top with focus on `#main-content`,
+ * and a polite region reads the new title. Back/forward leaves the scroll
+ * position to the browser, links with a hash leave it to the page, and
+ * redirects stay silent.
+ */
+function RouteFocus() {
+  const { pathname, hash } = useLocation();
+  const navigationType = useNavigationType();
+  const shownPathname = useRef(pathname);
+  const announcerRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (shownPathname.current === pathname) return;
+    shownPathname.current = pathname;
+    if (hash || navigationType === "REPLACE") return;
+    if (navigationType === "PUSH") window.scrollTo({ top: 0, behavior: "instant" });
+    document.getElementById("main-content")?.focus({ preventScroll: true });
+    const announcer = announcerRef.current;
+    if (!announcer) return;
+    announcer.textContent = "";
+    // Pages set their title in an effect; read it a frame later.
+    const frame = requestAnimationFrame(() => {
+      announcer.textContent = document.title;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pathname, hash, navigationType]);
+  return <p ref={announcerRef} aria-live="polite" className="sr-only" />;
+}
+
 /** Records element/compound page views for opt-in diagnostics. */
 function useRecordTracking() {
   const { pathname } = useLocation();
@@ -150,6 +180,7 @@ export default function App() {
             </Suspense>
           </ProductShell>
           <Toaster />
+          <RouteFocus />
         </SelectedElementProvider>
       </BrowserRouter>
     </MotionConfig>
