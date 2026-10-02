@@ -5,14 +5,14 @@ import type { ElementFamily } from "@/components/ui/element-tile";
 import { SearchField } from "@/components/ui/search-field";
 import { Segmented } from "@/components/ui/segmented";
 import { cn } from "@/lib/utils";
-import { categoryLabels, categoryTokens, STATIC_ELEMENTS } from "@/services/elementData";
+import { categoryLabels, familyColor, STATIC_ELEMENTS } from "@/services/elementData";
 import { LENS_OPTIONS, type Lens } from "./lenses";
 import { FAMILIES, type ExplorerView } from "./model";
 
 const FAMILY_OPTIONS: ChipOption<ElementFamily>[] = FAMILIES.map((family) => ({
   value: family,
   label: categoryLabels[family],
-  color: categoryTokens[family],
+  color: familyColor(family),
 }));
 
 const VIEW_OPTIONS = [

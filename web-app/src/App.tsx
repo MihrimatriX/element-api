@@ -10,9 +10,11 @@ import {
 } from "react-router-dom";
 import { MotionConfig, motion, useReducedMotion } from "framer-motion";
 import { CommerceLayout, DemoLayout } from "./components/CommerceLayout";
+import ErrorBoundary from "./components/ErrorBoundary";
 import PeriodicExplorer from "./components/PeriodicExplorer";
 import ProductShell from "./components/ProductShell";
 import RouteFallback from "./components/RouteFallback";
+import { focusMainContent } from "./components/shell/navigationFocus";
 import { Toaster } from "./components/ui/toaster";
 import { ACCOUNTS_ENABLED } from "./config";
 import { SelectedElementProvider } from "./context/selection";
@@ -97,7 +99,7 @@ function RouteFocus() {
     shownPathname.current = pathname;
     if (hash || navigationType === "REPLACE") return;
     if (navigationType === "PUSH") window.scrollTo({ top: 0, behavior: "instant" });
-    document.getElementById("main-content")?.focus({ preventScroll: true });
+    focusMainContent();
     const announcer = announcerRef.current;
     if (!announcer) return;
     announcer.textContent = "";
@@ -119,6 +121,7 @@ function useRecordTracking() {
   }, [pathname]);
 }
 
+/** Every route. Account and commerce pages sit behind `AccountsOnly`; old URLs redirect. */
 function AppRoutes() {
   useRecordTracking();
   return (
@@ -167,17 +170,32 @@ function AppRoutes() {
   );
 }
 
+/**
+ * The page between header and footer. A page that crashes shows the error
+ * screen inside the shell, so the navigation still works; the next pathname
+ * renders normally again.
+ */
+function Pages() {
+  const { pathname } = useLocation();
+  return (
+    <ErrorBoundary resetKey={pathname}>
+      <Suspense fallback={<RouteFallback />}>
+        <RouteStage>
+          <AppRoutes />
+        </RouteStage>
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+/** Root component: motion preferences, router, selection/session context, shell, toasts and route focus. */
 export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <SelectedElementProvider>
           <ProductShell>
-            <Suspense fallback={<RouteFallback />}>
-              <RouteStage>
-                <AppRoutes />
-              </RouteStage>
-            </Suspense>
+            <Pages />
           </ProductShell>
           <Toaster />
           <RouteFocus />

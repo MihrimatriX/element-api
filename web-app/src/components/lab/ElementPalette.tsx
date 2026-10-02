@@ -45,12 +45,12 @@ export function ElementPalette({
   const headingId = useId();
   const [query, setQuery] = useState("");
   const searching = query.trim() !== "";
-  const matches = elementMaterials.filter((m) => matchesSearch(query, m.name, m.id));
+  const matches = elementMaterials.filter((material) => matchesSearch(query, material.name, material.id));
   const groups = searching
     ? [{ title: "Sonuçlar", items: matches }]
     : [
-        { title: "Sık kullanılanlar", items: elementMaterials.filter((m) => PINNED.has(m.id)) },
-        { title: "Tüm elementler", items: elementMaterials.filter((m) => !PINNED.has(m.id)) },
+        { title: "Sık kullanılanlar", items: elementMaterials.filter((material) => PINNED.has(material.id)) },
+        { title: "Tüm elementler", items: elementMaterials.filter((material) => !PINNED.has(material.id)) },
       ];
 
   return (

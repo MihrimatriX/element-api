@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useNavigationMenuFocus } from "./navigationFocus";
 import { useSignOut } from "./useSignOut";
 
 /**
@@ -20,6 +21,7 @@ import { useSignOut } from "./useSignOut";
 export function AccountMenu() {
   const { isAuthenticated } = useSelectedElement();
   const signOut = useSignOut();
+  const { markNavigation, onCloseAutoFocus } = useNavigationMenuFocus();
   if (!ACCOUNTS_ENABLED) return null;
 
   if (!isAuthenticated)
@@ -45,22 +47,27 @@ export function AccountMenu() {
           <UserRound aria-hidden="true" className="size-4" strokeWidth={1.75} />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" onCloseAutoFocus={onCloseAutoFocus}>
         <DropdownMenuLabel>Hesap</DropdownMenuLabel>
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild onSelect={markNavigation}>
           <Link to="/account">
             <Wallet strokeWidth={1.75} />
             Hesabım
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild onSelect={markNavigation}>
           <Link to="/settings">
             <Settings2 strokeWidth={1.75} />
             Ayarlar
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={signOut}>
+        <DropdownMenuItem
+          onSelect={() => {
+            markNavigation();
+            signOut();
+          }}
+        >
           <LogOut strokeWidth={1.75} />
           Çıkış
         </DropdownMenuItem>

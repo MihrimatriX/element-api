@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
-import { elementInfo, familyColor } from "./elementInfo";
+import { familyColor } from "@/services/elementData";
+import { elementInfo } from "./elementInfo";
 import type { DragState } from "./useLabDrag";
 
 /**

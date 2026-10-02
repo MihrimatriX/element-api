@@ -10,7 +10,7 @@ import { ACCOUNTS_ENABLED } from "../config";
 import { usePolling } from "../hooks/usePolling";
 import { readStorage, writeStorage } from "../lib/storage";
 import { STATIC_ELEMENTS } from "../services/elementData";
-import { tokenUser } from "../services/session";
+import { onSessionChange, tokenUser } from "../services/session";
 
 const SELECTED_SYMBOL_KEY = "elementapi:selectedSymbol";
 const FALLBACK_SYMBOL = "AU";
@@ -60,15 +60,7 @@ export function SelectedElementProvider({ children }: { children: ReactNode }) {
 
   const [isAuthenticated, setIsAuthenticated] = useState(hasSession);
   usePolling(() => setIsAuthenticated(hasSession()), SESSION_CHECK_MS);
-  useEffect(() => {
-    const onSessionChange = () => setIsAuthenticated(hasSession());
-    window.addEventListener("storage", onSessionChange);
-    window.addEventListener("element:session", onSessionChange);
-    return () => {
-      window.removeEventListener("storage", onSessionChange);
-      window.removeEventListener("element:session", onSessionChange);
-    };
-  }, []);
+  useEffect(() => onSessionChange(() => setIsAuthenticated(hasSession())), []);
 
   const setSelectedSymbol = (symbol: string) => {
     const next = symbol.toUpperCase();

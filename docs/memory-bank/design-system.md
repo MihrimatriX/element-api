@@ -31,15 +31,15 @@ Fontlar `index.html` içinde Google Fonts'tan (`display=swap`) yüklenir. `theme
 
 ## Sayfa iskeleti
 
-- Kabuk (`components/ProductShell.tsx` + `components/shell/`): "İçeriğe geç" bağlantısı, `h-14` yapışkan başlık, tek gezinme kırılımı `lg` (1024 px). Masaüstünde birincil menü (Tablo, Bileşikler, Lab, Defter, El kitabı; etkin öğenin altında kayan kuprit çizgi), "Daha fazla" menüsü, mono "API" kısayolu, hesap alanı. `lg` altında soldan açılan Sheet; tüm rotalar ve hesap işlemleri orada, her gezinmede kapanır. Alt bilgi `productNav.siteMap` gruplarını (Keşif, Geliştirici, Proje) kullanır.
-- Kabuk `#main-content` odak hedefini sahiplenir. Her sayfa: `<main className="container-page pt-10 pb-24 lg:pt-14">` → `PageHeader` → `Section`'lar (aralarındaki boşluğu `Section` verir).
-- Rota yüklenirken `RouteFallback` (PageHeader biçiminde iskelet). Bilinmeyen adres `pages/NotFound.tsx`; hesaplar kapalıyken hesap/ticaret rotaları `pages/FeatureUnavailable.tsx`.
+- Kabuk (`components/ProductShell.tsx` + `components/shell/`): "İçeriğe geç" bağlantısı, `h-14` yapışkan başlık, tek gezinme kırılımı `lg` (1024 px). Masaüstünde birincil menü (Tablo, Bileşikler, Lab, Defter, El kitabı; etkin öğenin altında kayan kuprit çizgi), "Daha fazla" menüsü, mono "API" kısayolu, hesap alanı. `lg` altında soldan açılan Sheet; tüm rotalar ve hesap işlemleri orada, bir bağlantı seçilince veya geri/ileri ile kapanır. Menüden veya Sheet'ten açılan sayfada odak tetikleyiciye dönmez, `#main-content`'e geçer (`shell/navigationFocus.ts`). Alt bilgi `productNav.siteMap` gruplarını (Keşif, Geliştirici, Proje) kullanır.
+- Kabuk `#main-content` odak hedefini sahiplenir; yeni sayfa en üstte, odak orada açılır (`App.tsx` `RouteFocus`). `html { scroll-padding-top: 4.5rem }` odaklanan öğeyi ve `#çapa` hedefini yapışkan başlığın altında durdurur; bileşenlerdeki `scroll-mt-*` yalnız bunun üstüne eklenen boşluktur. Her sayfa: `<main className="container-page pt-10 pb-24 lg:pt-14">` → `PageHeader` → `Section`'lar (aralarındaki boşluğu `Section` verir).
+- Rota yüklenirken `RouteFallback` (PageHeader biçiminde iskelet). Çöken sayfa kabuğun içinde `ErrorBoundary` hata ekranını gösterir (başlık ve menü çalışır); başka adrese geçince temizlenir. Bilinmeyen adres `pages/NotFound.tsx`; hesaplar kapalıyken hesap/ticaret rotaları `pages/FeatureUnavailable.tsx`.
 - `/market`, `/shop`, `/account` `CommerceLayout` içinde (canlı fiyat + cüzdan, demo şeridi, bağlantı uyarısı); `/demo` `DemoLayout` içinde (yalnız demo şeridi). Hesaplar kapalıysa `AccountsOnly` bu rotalarda sağlayıcıyı hiç bağlamadan FeatureUnavailable gösterir.
 - Mobil öncelikli; 360 px'te yatay kaydırma olmaz. `h-screen` yerine `min-h-dvh`.
 
 ## Bileşenler (`src/components/ui/`)
 
-İlkel (shadcn/Radix, yeniden boyandı): Button (`default`, `outline`, `secondary`, `ghost`, `link`, `destructive`/`danger`, `plain`; boyutlar `none`, `xs`, `sm`, `default`, `lg`, `icon`, `icon-xs`, `icon-sm`, `icon-lg`), Input, Textarea, NativeSelect, Card (+ CardHeader/Title/Description/Content/Footer), Badge (+ `success`, `warning`, `info` tonları), Dialog, Sheet, DropdownMenu, Tabs (`default`, `line`), Table, Progress, Skeleton, Separator, Disclosure.
+İlkel (shadcn/Radix, yeniden boyandı): Button (`default`, `outline`, `secondary`, `ghost`, `link`, `destructive`/`danger`, `plain`; boyutlar `none`, `xs`, `sm`, `default`, `lg`, `icon`, `icon-xs`, `icon-sm`, `icon-lg`), Input, Textarea, NativeSelect, Badge (+ `success`, `warning`, `info` tonları), Dialog, Sheet, DropdownMenu, Tabs (`default`, `line`), Table, Progress, Skeleton, Disclosure.
 
 Yapı taşları: PageHeader, Section, Stat/StatGrid, ProgressRing, EmptyState, Notice, CodeBlock, CopyButton, ExternalLink, Formula, ElementTile, SearchField, ChipGroup, Segmented, LinkCard, Breadcrumb, KeyValue, Field, ConfirmDialog, Toaster + `toast()`.
 
@@ -51,7 +51,7 @@ Kurallar:
 - Her veri görünümünün yükleniyor (içerik biçiminde Skeleton), boş (EmptyState) ve hata (Notice + yeniden dene) hâli vardır.
 - İkonlar lucide-react, kontrollerde `size-4`, her yerde `strokeWidth={1.75}`.
 - Satır içi stil yalnız CSS özel değişkeni için (`--family`, `--progress`); tür desteği `src/types/css.d.ts`.
-- Periyodik karolar `ElementTile` ile çizilir ve `data-symbol` taşır (e2e buna bakar).
+- Periyodik karolar `ElementTile` ile çizilir ve `data-symbol` taşır (e2e buna bakar). `selected` yalnız görseldir (bağlantıda `aria-current`); tıklayınca açılıp kapanan karo ayrıca `pressed` verir (`aria-pressed`).
 - Eski `#toast` öğesi yok; bildirim için `toast("Kopyalandı", { tone: "success" })`.
 
 ## Yardımcılar
@@ -66,5 +66,3 @@ Kurallar:
 ## Kontrol
 
 `npx tsc -b`, `npm run lint`, `npm test` (web-app içinde). `tests/ui-lib.test.mjs` yardımcıları sınar. Görsel inceleme: `npm run dev` → `/_ui`.
-
-Eski CSS dosyaları (`index.css`, `science.css`, `atlas.css`, `design-system.css`, `product.css`) artık içe aktarılmaz; sayfalar taşındıkça silinecek. Bu dosyalardaki metni arayan eski kaynak-metin testleri yeniden yazılacak.

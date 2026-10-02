@@ -19,7 +19,7 @@ interface DiscoveryNotebookProps {
 
 /** Discovered compounds in catalogue order, each linking to its record, plus the guest reset. */
 export function DiscoveryNotebook({ found, status, canReset, onReset }: DiscoveryNotebookProps) {
-  const entries = knownCompounds.filter((c) => found.includes(c.slug));
+  const entries = knownCompounds.filter((compound) => found.includes(compound.slug));
   const complete = found.length === catalogSize;
   return (
     <Section

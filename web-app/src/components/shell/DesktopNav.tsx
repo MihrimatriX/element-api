@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { NavIcon } from "./NavIcon";
+import { useNavigationMenuFocus } from "./navigationFocus";
 
 /** Primary sections; the active one gets a cuprite bar that slides between items. Visible from `lg`. */
 export function PrimaryNav() {
@@ -55,6 +56,7 @@ export function PrimaryNav() {
 /** "Daha fazla" dropdown with the secondary pages. Visible from `lg`. */
 export function MoreMenu() {
   const { pathname } = useLocation();
+  const { markNavigation, onCloseAutoFocus } = useNavigationMenuFocus();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -71,13 +73,17 @@ export function MoreMenu() {
           />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
+      <DropdownMenuContent
+        align="end"
+        onCloseAutoFocus={onCloseAutoFocus}
+        className="w-60"
+      >
         {moreRoutes.map((route) => {
           const active = isNavActive(route.to, pathname);
           return (
             <Fragment key={route.to}>
               {route.to === "/demo" && <DropdownMenuSeparator />}
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem asChild onSelect={markNavigation}>
                 <Link
                   to={route.to}
                   aria-current={active ? "page" : undefined}

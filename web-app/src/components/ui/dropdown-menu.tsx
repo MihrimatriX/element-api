@@ -2,12 +2,14 @@ import * as React from "react";
 import { DropdownMenu as DropdownMenuPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 
+/** Menu root (opens from a `DropdownMenuTrigger`). */
 function DropdownMenu(
   props: React.ComponentProps<typeof DropdownMenuPrimitive.Root>,
 ) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 
+/** Element that opens the menu (use `asChild` with a Button). */
 function DropdownMenuTrigger(
   props: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>,
 ) {
@@ -57,6 +59,7 @@ function DropdownMenuItem({
   );
 }
 
+/** Eyebrow heading over a group of items. */
 function DropdownMenuLabel({
   className,
   ...props
@@ -70,6 +73,7 @@ function DropdownMenuLabel({
   );
 }
 
+/** Hairline between groups of items. */
 function DropdownMenuSeparator({
   className,
   ...props

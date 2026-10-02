@@ -2,9 +2,8 @@ import GeometryFigure from "../GeometryFigure";
 import { ElementTile } from "@/components/ui/element-tile";
 import { Section } from "@/components/ui/section";
 import type { Geometry } from "@/services/chemistry";
-import { STATIC_ELEMENTS } from "@/services/elementData";
+import { familyOf, STATIC_ELEMENTS } from "@/services/elementData";
 import type { ScientificCompound } from "@/services/science";
-import { familyOf } from "./record";
 
 /**
  * Compound-only sections: the lab geometry class (anchor `#geometry`, linked from

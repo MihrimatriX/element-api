@@ -3,11 +3,10 @@
  * board sorting and filtering, change formatting, order stages, cart totals
  * and sale checks. No React here so the rules are easy to test.
  */
-import type { ElementFamily } from "@/components/ui/element-tile";
 import type { BoardRow, CartItem, Holding } from "../../services/api.ts";
 import { formatGrams, formatNumber } from "../../lib/format.ts";
 import { matchesSearch } from "../../lib/text.ts";
-import { categoryLabels, type ElementItem } from "../../services/elementData.ts";
+import type { ElementItem } from "../../services/elementData.ts";
 
 /** Element lookup by symbol, ignoring case ("AU" from the API finds "Au"). */
 export function findElement(
@@ -24,13 +23,6 @@ export function elementName(
   symbol: string,
 ): string {
   return findElement(elements, symbol)?.name ?? symbol;
-}
-
-/** Narrows a seed category to an ElementTile family ("unknown" when it is not one). */
-export function familyOf(category: string | undefined): ElementFamily {
-  return category && category in categoryLabels
-    ? (category as ElementFamily)
-    : "unknown";
 }
 
 /* ---------- Quote board ---------- */
@@ -260,9 +252,6 @@ export function summarizeCart(
 export function maskApiKey(key: string): string {
   return `${key.slice(0, 13)}...${key.slice(-4)}`;
 }
-
-/** Description the web app gives the key it mints for itself. */
-export const DASHBOARD_KEY_DESCRIPTION = "Web Dashboard Key";
 
 /** Why a webhook URL is rejected before sending, or `null` when it looks usable. */
 export function webhookUrlProblem(value: string): string | null {

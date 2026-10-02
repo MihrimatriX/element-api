@@ -56,11 +56,11 @@ export function normalizeLearning(value: unknown): LearningProgress {
 
 /** Union of two progress records (this device and the account, or a restored backup). */
 export function mergeLearning(
-  a: LearningProgress,
-  b: LearningProgress,
+  first: LearningProgress,
+  second: LearningProgress,
 ): LearningProgress {
   return normalizeLearning({
-    discoveries: [...a.discoveries, ...b.discoveries],
-    lessons: [...a.lessons, ...b.lessons],
+    discoveries: [...first.discoveries, ...second.discoveries],
+    lessons: [...first.lessons, ...second.lessons],
   });
 }

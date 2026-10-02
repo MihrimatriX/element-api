@@ -7,9 +7,9 @@ import { KeyValue } from "@/components/ui/key-value";
 import { cn } from "@/lib/utils";
 import { formatFixed, formatKredi, formatNumber } from "../../lib/format";
 import type { Ticker } from "../../services/api";
-import type { ElementItem } from "../../services/elementData";
+import { familyOf, type ElementItem } from "../../services/elementData";
 import { ChangeValue } from "./ChangeValue";
-import { familyOf, trendOf } from "./model";
+import { trendOf } from "./model";
 import { Sparkline } from "./Sparkline";
 
 const sparklineTone = { up: "text-success", down: "text-danger", flat: "text-ink-3" };
@@ -42,7 +42,10 @@ export function QuoteTicket({ element, ticker, children }: QuoteTicketProps) {
           />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="eyebrow">Seçili element · {element.symbol}</p>
+          <p className="eyebrow">
+            {/* The eyebrow uppercases; a chemical symbol keeps its case (Au, not AU). */}
+            Seçili element · <span className="normal-case">{element.symbol}</span>
+          </p>
           <h2 className="mt-1.5 truncate font-display text-2xl font-semibold tracking-tight text-ink">
             {element.name}
           </h2>

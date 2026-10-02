@@ -8,9 +8,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Notice } from "@/components/ui/notice";
 import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { STATIC_ELEMENTS } from "@/services/elementData";
+import { familyOf, STATIC_ELEMENTS } from "@/services/elementData";
 import { foldTurkish } from "@/lib/text";
-import { familyOf } from "./record";
 
 type Kind = "elements" | "compounds";
 

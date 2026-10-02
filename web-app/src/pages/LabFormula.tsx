@@ -1,4 +1,5 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, Check, SkipForward } from "lucide-react";
 import GeometryFigure from "@/components/GeometryFigure";
@@ -7,11 +8,12 @@ import { LabModes } from "@/components/LabModes";
 import { CountStepper } from "@/components/lab/CountStepper";
 import { GradeNotice, type Grade } from "@/components/lab/GradeNotice";
 import { ProgressAside } from "@/components/lab/ProgressAside";
-import { elementInfo, familyColor } from "@/components/lab/elementInfo";
+import { elementInfo } from "@/components/lab/elementInfo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { geometryOf, parseFormula, prune, type Counts } from "@/services/chemistry";
+import { familyColor } from "@/services/elementData";
 import {
   formulaPool,
   gradeFormula,
@@ -34,6 +36,8 @@ export default function LabFormula() {
   const [counts, setCounts] = useState<Counts>({});
   const [result, setResult] = useState<Grade | null>(null);
   const headingId = useId();
+  const countsRef = useRef<HTMLUListElement>(null);
+  const nextRef = useRef<HTMLButtonElement>(null);
   const symbols = Object.keys(parseFormula(target.formula));
   const solvedNow = result?.ok === true;
 
@@ -49,10 +53,20 @@ export default function LabFormula() {
     setResult(null);
   }
 
+  /** "Sonraki" leaves with the solved puzzle, so focus moves to the new puzzle's first count button. */
+  function continueToNextPuzzle() {
+    flushSync(nextPuzzle);
+    countsRef.current?.querySelector<HTMLButtonElement>("button:enabled")?.focus();
+  }
+
+  /** A correct answer disables "Kontrol et", so focus moves on to "Sonraki" once it renders. */
   function check() {
     const graded = gradeFormula(target.slug, counts);
-    setResult(graded);
-    if (graded.ok) setSolved(rememberGame("formula", target.slug).formula);
+    flushSync(() => {
+      setResult(graded);
+      if (graded.ok) setSolved(rememberGame("formula", target.slug).formula);
+    });
+    if (graded.ok) nextRef.current?.focus();
   }
 
   return (
@@ -112,7 +126,7 @@ export default function LabFormula() {
 
         <div className="bg-canvas-2/40 p-5 sm:p-7">
           <h3 className="font-sans text-base font-semibold tracking-normal text-ink">Atom sayıları</h3>
-          <ul aria-label="Atom sayıları" className="mt-4 grid gap-2">
+          <ul ref={countsRef} aria-label="Atom sayıları" className="mt-4 grid gap-2">
             {symbols.map((symbol) => {
               const { name, family } = elementInfo(symbol);
               return (
@@ -154,7 +168,7 @@ export default function LabFormula() {
 
           {solvedNow && (
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button size="sm" onClick={nextPuzzle}>
+              <Button ref={nextRef} size="sm" onClick={continueToNextPuzzle}>
                 Sonraki
                 <ArrowRight strokeWidth={1.75} />
               </Button>

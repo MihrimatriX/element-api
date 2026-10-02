@@ -1,8 +1,6 @@
 import { readStorage, removeStorage } from "../lib/storage.ts";
 
-export { readStorage };
-
-/** Event fired on `window` whenever the stored session is cleared. */
+/** Event fired on `window` whenever this tab clears the stored session. */
 const SESSION_EVENT = "element:session";
 
 /** Decodes the payload segment of a JWT (base64url JSON). Throws on malformed input. */
@@ -31,6 +29,19 @@ export function clearSession() {
   removeStorage("token");
   removeStorage("apiKey");
   window.dispatchEvent(new Event(SESSION_EVENT));
+}
+
+/**
+ * Calls `listener` whenever the session may have changed: this tab cleared it
+ * or another tab wrote to storage. Returns the unsubscribe function.
+ */
+export function onSessionChange(listener: () => void): () => void {
+  window.addEventListener(SESSION_EVENT, listener);
+  window.addEventListener("storage", listener);
+  return () => {
+    window.removeEventListener(SESSION_EVENT, listener);
+    window.removeEventListener("storage", listener);
+  };
 }
 
 /**

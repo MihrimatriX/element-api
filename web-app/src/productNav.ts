@@ -22,6 +22,7 @@ export const moreRoutes = [
   { to: "/demo", label: "Kredi simülasyonu" },
 ] as const;
 
+/** Where the retired /stack page redirects. */
 export const STACK_REDIRECT = "/hakkinda";
 
 /** A labelled nav destination. */
@@ -30,6 +31,7 @@ export interface NavRoute {
   readonly label: string;
 }
 
+/** The "Daha fazla" routes for `paths`, in that order. */
 function pickMore(...paths: string[]): NavRoute[] {
   return paths.flatMap((path) => moreRoutes.filter((route) => route.to === path));
 }
@@ -60,19 +62,4 @@ export function isNavActive(to: string, pathname: string): boolean {
   return [to, ...(NAV_ALIASES[to] ?? [])].some(
     (base) => path === base || path.startsWith(`${base}/`),
   );
-}
-
-export function isCommerceDemoPath(pathname: string): boolean {
-  const path = pathname.split("?")[0] || "/";
-  return /^\/(demo|market|shop|values|trading)(\/|$)/.test(path);
-}
-
-export function isPrimaryProductPath(pathname: string): boolean {
-  const path = pathname.split("?")[0] || "/";
-  if (path === "/" || path === "/periodic") return true;
-  if (path.startsWith("/element/") || path.startsWith("/compound/"))
-    return true;
-  if (path === "/compounds" || path.startsWith("/lab")) return true;
-  if (path === "/collection" || path === "/nasil") return true;
-  return false;
 }

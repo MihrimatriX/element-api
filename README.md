@@ -2,7 +2,7 @@
 
 Günlük maddelerin hangi elementlerden oluştuğunu keşfet; kısa rotalarla kimyayı anlamlandır.
 
-Türkçe kimya atlası, altı öğrenme rotası ve kişisel keşif koleksiyonu. 118 element, 167 bileşik. İlk keşif için hesap gerekmez. Açık API geliştirici yüzü; sanal ticaret ayrı bir demo (gerçek para / kargo yok).
+Türkçe kimya atlası, altı öğrenme rotası ve kişisel keşif koleksiyonu. 118 element, 214 bileşik. İlk keşif için hesap gerekmez. Açık API geliştirici yüzü; sanal ticaret ayrı bir demo (gerçek para / kargo yok).
 
 **Yerel sunum — tek komut (Docker Desktop):**
 
@@ -14,7 +14,9 @@ Türkçe kimya atlası, altı öğrenme rotası ve kişisel keşif koleksiyonu. 
 
 **Yalnız atlas (DB/broker yok):** `./deploy/scripts/present-local.ps1` → **http://127.0.0.1:5080** · hesap ve ticaret kapalı; misafir koleksiyonu çalışır.
 
-Hangi kutu ne işe yarar → [servis kılavuzu](docs/SERVIS-KILAVUZU.md) (samimi tur). Her klasörün `README.md`’si o kutunun kullanım kılavuzu. Operatör: [deploy/](deploy/README.md) · env: [docker/](docker/README.md) · belge indeksi: [docs/](docs/README.md). Ayrıca: [üç dakikalık sunum](docs/LOCAL-PRESENTATION.md) · [doğrulama](docs/PRODUCT-DELIVERY.md) · [yol haritası](docs/PRODUCT-ROADMAP.md).
+**Kılavuz:** [docs/kilavuz/](docs/kilavuz/README.md) — her servisin ne yaptığı, uçları, mesajları, yapılandırması ve dosya dosya kod haritası (servis başına bir sayfa, ayrıca altyapı ve arayüz). Aynı kılavuz uygulamada **`/kilavuz`** adresinde okunur ve aranır.
+
+Hangi kutu ne işe yarar → [servis kılavuzu](docs/SERVIS-KILAVUZU.md) (kısa tur). Her klasörün `README.md`’si o kutunun kullanım notu. Operatör: [deploy/](deploy/README.md) · env: [docker/](docker/README.md) · belge indeksi: [docs/](docs/README.md). Ayrıca: [üç dakikalık sunum](docs/LOCAL-PRESENTATION.md) · [doğrulama](docs/PRODUCT-DELIVERY.md) · [yol haritası](docs/PRODUCT-ROADMAP.md).
 
 **Bilimsel katalog v2:** Periyodik tablo, anlatımlı kayıtlar, laboratuvar (`/lab`), `view/include/fields`, ETag, açık CORS. Canlı örnekler uygulamada `/docs`. Sözlük: `/sozluk`. Sözleşme: [Bilimsel katalog](deploy/scientific-catalog.md). Başlangıç: `GET /api/v2/elements/fe`, `GET /api/v2/compounds/h2o`.
 
@@ -24,10 +26,10 @@ Yerel geliştirme: **[localhost:5173](http://localhost:5173)** · API kapısı: 
 
 MIT lisansı: [LICENSE](./LICENSE).
 
-**Son iş paketi (Atlas / `/lab` / infra sadeleştirme):** ayrıntılı Türkçe anlatım → [docs/WHAT-WAS-DONE.md](./docs/WHAT-WAS-DONE.md) · agent bellek bankası → [docs/memory-bank/](./docs/memory-bank/).
+**Son iş paketi (2 Ekim 2026, `redesign` dalı):** Mineral arayüzü, servislerde okunabilirlik turu, sistem kılavuzu ve test matrisi → [recent-work.md](./docs/memory-bank/recent-work.md). Önceki işlerin anlatımı: [docs/WHAT-WAS-DONE.md](./docs/WHAT-WAS-DONE.md) · agent bellek bankası: [docs/memory-bank/](./docs/memory-bank/).
 
 [![Stack](https://img.shields.io/badge/stack-.NET%20%7C%20Node%20%7C%20Java%20%7C%20React-blue)](#servis-kataloğu)
-[![Gateway](https://img.shields.io/badge/gateway-YARP-512BD4)](#api-gateway)
+[![Gateway](https://img.shields.io/badge/gateway-YARP-512BD4)](#api-gateway--rota-özeti)
 
 ---
 
@@ -69,35 +71,32 @@ npm --prefix web-app ci
 npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-### Kontrol
+### Testler
 
-SMTP hariç genişletilmiş yerel doğrulama, gerçek hesap yaşam döngüsü ve beş veritabanında yedek/geri yükleme provası: [doğrulama kaydı](docs/LOCAL-VERIFICATION.md). `test-all.ps1 -Live` gerçek tarayıcı akışlarını da çalıştırır; `-Recovery` geri yükleme provasını ekler. E-posta sağlayıcısı tercihi Resend; henüz etkinleştirilmedi.
+| Katman | Komut | Gereken |
+|--------|-------|---------|
+| .NET birim (Gateway 20 + Services 115) | `./deploy/scripts/test-unit.ps1` | .NET 10 SDK |
+| order-service birim | `npm --prefix order-service test` · `npm --prefix order-service run check` | Node 22 |
+| Java birim (wallet, inventory) | `mvn -f wallet-service test` · `mvn -f inventory-service test` | Java 21 + Maven |
+| Web birim | `npm --prefix web-app test` | Node 22 |
+| Entegrasyon (18) | `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker (Testcontainers: Postgres, Redis, RabbitMQ ve gerçek bir wallet-service konteyneri); önce `npm --prefix order-service run build` |
+| Tarayıcı, hesaplar kapalı | `npm --prefix web-app run test:e2e` (`web-app/e2e/`) | science-service ve Vite’ı kendisi açar |
+| Tarayıcı, hesap akışları | `npm --prefix web-app run test:e2e:auth` (`web-app/e2e-auth/`) | Vite’ı kendisi açar; identity API’si tarayıcıda taklit edilir |
+| Tarayıcı, canlı ticaret | `npm --prefix web-app run test:e2e:live` (`web-app/e2e-live/`) | Tam Docker platformu `:6241` (`WEB_BASE`) |
+| Canlı API | `node deploy/scripts/test-scientific-api.mjs` · `node deploy/scripts/test-e2e.mjs` · `./deploy/scripts/test-saga.ps1` · `./deploy/scripts/test-smoke.ps1` · `node deploy/scripts/test-platform.mjs` | Çalışan yerel servisler |
 
-Yeni tarayıcı kontrolleri: `npm --prefix web-app run test:e2e` (atlas → `/lab` → defter + auth smoke under `web-app/e2e/`) ve `npm --prefix web-app run test:e2e:auth` (hesap UI). Çalışan tam sunuma karşı `npm --prefix web-app run test:e2e:live` (`e2e-live/`). **Boş spec klasörü “e2e yeşil” sayılmaz** — CI Jenkins `test:e2e` yalnızca `e2e/` doluyken anlamlıdır ([CI-JENKINS.md](docs/CI-JENKINS.md)). İlk kullanımda `npx playwright install chromium`. `-Browser` tarayıcı kontrollerini de ekler.
+Playwright ilk kullanımdan önce `web-app` içinde bir kez `npx playwright install chromium` ister.
+
+Tek kapı: `./deploy/scripts/test-all.ps1` (kısayol `./scripts/test.ps1`). Her zaman web lint/test/build, order-service build/check, .NET derleme ve birim testleri ile npm audit çalışır. İsteğe bağlı anahtarlar: `-Browser` (`test:e2e` + `test:e2e:auth`), `-Integration`, `-Live` (canlı API script’leri + `test:e2e:live`; web adresi `-WebBase`, varsayılan `http://localhost:6241`), `-Recovery` (PostgreSQL yedek/geri yükleme provası). Java ve order-service birim testleri bu script’te yok; Jenkins onları yol eşleşmesiyle koşar ([CI-JENKINS.md](docs/CI-JENKINS.md)).
+
+Canlı script’ler ne yapar: `test-saga.ps1` gerçek PostgreSQL’de geçici bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar, sonunda şemayı kaldırır. `test-e2e.mjs` ve `test-smoke.ps1` ayrı deneme hesapları açıp sipariş ve satış akışını dener. `test-platform.mjs` sağlık uçlarını, derlenmiş web sayfalarını ve ticker fiyatını doğrular. Hesap yaşam döngüsü ve yedek provasının kaydı: [LOCAL-VERIFICATION.md](docs/LOCAL-VERIFICATION.md).
 
 Kök kısayollar: `./scripts/present.ps1` · `./scripts/up.ps1` · `./scripts/test.ps1` · `./scripts/lint.ps1` — ayrıntı [CONTRIBUTING.md](./CONTRIBUTING.md).
-
-Tüm yerel derleme, birim testi ve npm güvenlik kontrolleri için `./deploy/scripts/test-all.ps1`.
-Docker üzerinde ayrı test konteynerleriyle entegrasyon için `-Integration`; çalışan yerel servislere karşı bilimsel API, alışveriş ve smoke kontrolleri için `-Live` ekleyin. Örneğin `./deploy/scripts/test-all.ps1 -Integration -Live`. Script Docker imajlarını yeniden derlemez; Java 21/Maven ve npm bağımlılıkları kurulu olmalıdır.
-
-```powershell
-./deploy/scripts/test-unit.ps1
-npm --prefix order-service run check
-./deploy/scripts/test-saga.ps1
-node deploy/scripts/test-e2e.mjs
-./deploy/scripts/test-smoke.ps1
-npm --prefix web-app run build
-npm --prefix web-app run lint
-```
-
-`test-saga.ps1`, gerçek PostgreSQL üzerinde geçici ve ayrı bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar; sonunda kendi şemasını kaldırır. `test-e2e.mjs` ve smoke testi çalışan yerel servislere bağlanır, ayrı deneme hesapları açar. Docker web sürümünü denemek için smoke testine `-WebBase http://localhost:6241` ver.
-
-Tam Docker ortamı hazır olduğunda `node deploy/scripts/test-platform.mjs`, backend servislerinin sağlık uçlarını, derlenmiş web sayfalarını (`/lab` dahil) ve REST ticker fiyatını doğrular. Varsayılan web adresi `http://localhost:6241`; başka bir derlenmiş web sunucusu için `WEB_BASE` ortam değişkenini ayarlayın.
 
 ### Bilimsel veri ve alışveriş sözleşmesi
 
 - Elementlerin kütle, yoğunluk, sıcaklık, elektron dizilimi ve elektronegatiflik verisi [PubChem periyodik tablosundan](https://pubchem.ncbi.nlm.nih.gov/periodic-table/) alınan sürümlenmiş dosyadan gelir. Yanıtlarda `sourceUrl`, `retrievedAt` ve `units` bulunur; kaynaktaki bilinmeyen değerler `null` kalır. Atom numarası 119 gibi varsayımsal kayıtlar yayımlanmaz.
-- 167 bileşikte formül, molar kütle ve PubChem CID bulunur. 51 kayıt tam PubChem anlık görüntüsü + yapı görseli taşır; eklenenler eğitim kaydıdır (fiziksel/GHS alanları henüz dolu değil, yapı PNG yok). Allotrop ve preparatlar saf bir bileşik kaydı gibi sunulmaz. Mağaza SKU kataloğu ayrıdır.
+- 214 bileşiğin hepsinde formül, molar kütle, PubChem CID ve 2D yapı görseli bulunur. 51 kayıt tam PubChem anlık görüntüsüdür; kalan 163 kısa eğitim kaydıdır (fiziksel/GHS alanları boş, `null`). Allotrop ve preparatlar saf bir bileşik kaydı gibi sunulmaz. Mağaza SKU kataloğu ayrıdır.
 - Atlas katmanı (Türkçe anlatım, görseller, Wikipedia/PubChem linkleri) `node deploy/scripts/refresh-atlas.mjs` ile yeniden uygulanır; bilimsel yenilemeden sonra otomatik çalışır. Medya indirme: `node deploy/scripts/refresh-atlas.mjs --fetch`.
 - Veriyi bilinçli yenilemek için `node deploy/scripts/refresh-element-properties.mjs` ve `node deploy/scripts/refresh-compound-properties.mjs --force`; API çalışırken dış kaynağa bağımlı değildir.
 - Siparişe gram cinsinden sayısal `quantity` gönderilir (en fazla dört ondalık). `Idempotency-Key` olarak aynı UUID ile tekrar gönderilen aynı sipariş yalnız bir kez ücretlendirilir; farklı içerik `409` döner.
@@ -167,7 +166,7 @@ flowchart TB
     ORD -->|OrderCompleted AssetsCredited| MQ
     MQ --> INV & WAL & CAT & NOT
     ID & CAT & CMP & ORD & WAL & INV & SHP --> PG
-    ID & GW --> RD
+    GW --> RD
 ```
 
 ### Sipariş saga (event-driven)
@@ -189,22 +188,24 @@ POST /api/v1/orders          →  Submitted + OrderSubmittedEvent
 
 ## Servis kataloğu
 
-Hangi kutu ne işe yarar: **[servis kılavuzu](docs/SERVIS-KILAVUZU.md)**. Her klasörün README’si aynı dilde, o kutuya özeldir.
+Hangi kutu ne işe yarar: **[servis kılavuzu](docs/SERVIS-KILAVUZU.md)**. README kutunun nasıl açılacağını, kılavuz sayfası içini (uçlar, mesajlar, kod haritası) anlatır.
 
-| Servis | Port | Stack | Rol | Dokümantasyon |
-|--------|------|-------|-----|---------------|
-| **science-service** | 5080 | .NET 10 | Atlas tek kutu (DB yok) | [README](./science-service/README.md) |
-| **gateway-service** | 5000 | .NET 10 YARP | Kapı, API anahtarı, hız sınırı | [README](./gateway-service/README.md) |
-| **identity-service** | 5001 | .NET 10 | Hesap, JWT, anahtar, öğrenme | [README](./identity-service/README.md) |
-| **catalog-service** | 5002 | .NET 10 | 118 element: bilim + sanal fiyat | [README](./catalog-service/README.md) |
-| **compound-service** | 5007 | .NET 10 | Eğitim bileşiği ≠ mağaza SKU | [README](./compound-service/README.md) |
-| **order-service** | 5003 | Node.js 22 | Sipariş saga orkestrasyonu | [README](./order-service/README.md) |
-| **wallet-service** | 5005 | Java 21 Spring | KREDI cüzdan, ledger, holdings, desk sell | [README](./wallet-service/README.md) |
-| **inventory-service** | 5008 | Java 21 Spring | Stok ayırma / serbest / düşüm | [README](./inventory-service/README.md) |
-| **shipment-service** | 5004 | .NET 10 | Sahte kargo + takip | [README](./shipment-service/README.md) |
-| **notification-service** | 5006 | .NET 10 | Sipariş webhook’u | [README](./notification-service/README.md) |
-| **web-app** | 6241 / 5173 | React + Vite | Tablo · laboratuvar · mağaza | [README](./web-app/README.md) |
-| **shared-lib** | — | .NET 10 lib | Ortak olay ve sağlık uçları | [README](./shared-lib/README.md) |
+| Servis | Port | Stack | Rol | Belgeler |
+|--------|------|-------|-----|----------|
+| **science-service** | 5080 | .NET 10 | Atlas tek kutu (DB yok) | [README](./science-service/README.md) · [kılavuz](docs/kilavuz/science.md) |
+| **gateway-service** | 5000 | .NET 10 YARP | Kapı, API anahtarı, hız sınırı | [README](./gateway-service/README.md) · [kılavuz](docs/kilavuz/gateway.md) |
+| **identity-service** | 5001 | .NET 10 | Hesap, JWT, anahtar, öğrenme | [README](./identity-service/README.md) · [kılavuz](docs/kilavuz/identity.md) |
+| **catalog-service** | 5002 | .NET 10 | 118 element: bilim + sanal fiyat | [README](./catalog-service/README.md) · [kılavuz](docs/kilavuz/catalog.md) |
+| **compound-service** | 5007 | .NET 10 | Eğitim bileşiği ≠ mağaza SKU | [README](./compound-service/README.md) · [kılavuz](docs/kilavuz/compound.md) |
+| **order-service** | 5003 | Node.js 22 | Sipariş saga orkestrasyonu | [README](./order-service/README.md) · [kılavuz](docs/kilavuz/order.md) |
+| **wallet-service** | 5005 | Java 21 Spring | KREDI cüzdan, ledger, holdings, desk sell | [README](./wallet-service/README.md) · [kılavuz](docs/kilavuz/wallet.md) |
+| **inventory-service** | 5008 | Java 21 Spring | Stok ayırma / serbest / düşüm | [README](./inventory-service/README.md) · [kılavuz](docs/kilavuz/inventory.md) |
+| **shipment-service** | 5004 | .NET 10 | Sahte kargo + takip | [README](./shipment-service/README.md) · [kılavuz](docs/kilavuz/shipment.md) |
+| **notification-service** | 5006 | .NET 10 | Sipariş webhook’u | [README](./notification-service/README.md) · [kılavuz](docs/kilavuz/notification.md) |
+| **web-app** | 6241 / 5173 | React + Vite | Tablo · laboratuvar · mağaza | [README](./web-app/README.md) · [kılavuz](docs/kilavuz/web-app.md) |
+| **shared-lib** | — | .NET 10 lib | Ortak olay ve sağlık uçları | [README](./shared-lib/README.md) · [kılavuz](docs/kilavuz/shared-lib.md) |
+
+Compose, script’ler, Caddy, Jenkins ve veri yenileme: [altyapı kılavuzu](docs/kilavuz/altyapi.md).
 
 ---
 
@@ -226,8 +227,9 @@ Gateway üzerinden (`localhost:5000`) erişilen rotalar:
 | `* /api/v1/webhooks/**` | Identity | JWT |
 | `* /api/v1/me/**`, `/desk/**` | **Wallet** | API key |
 | `* /api/v1/orders/**` | Order | API key (`X-API-Key`) |
+| `* /api/v1/shipments/track/**` | Shipment | API key |
 
-**Internal (gateway dışı):** shipment saga worker'ı; identity `POST /api/v1/internal/api-keys/validate`.
+**Internal (gateway dışı):** shipment saga worker'ı; identity `POST /api/v1/internal/api-keys/validate`. Tam rota tablosu ve hata kodları: [gateway kılavuzu](docs/kilavuz/gateway.md#uç-noktalar).
 
 Keşif: `GET http://localhost:5000/info` · RabbitMQ yönetim UI: `localhost:15672` (`docker/.env` kullanıcı/şifre)
 
@@ -326,17 +328,18 @@ SPA: `index.html` varsayılan meta taşır; rota başlıkları istemcide `Seo` i
 
 ---
 
-## Eksikler ve yapmak istediğimizler
+## Eksikler ve yapmak istediklerimiz
 
-Dürüst kesim (24 Eylül 2026). Atlas + laboratuvar + bilimsel API **yerelde gösterime hazır**. İnternete açmak operatör işi + birkaç bilinçli karar; aşağıdaki “eksik”lerin çoğu ürün hatası değil, bilinçli sınır veya sonra iş.
+Dürüst kesim (2 Ekim 2026). Atlas + laboratuvar + bilimsel API **yerelde gösterime hazır**. İnternete açmak operatör işi + birkaç bilinçli karar; aşağıdaki “eksik”lerin çoğu ürün hatası değil, bilinçli sınır veya sonra iş.
 
 ### Zaten yeterince iyi (göstermek / beta)
 
-- 118 element, 167 bileşik, DnD `/lab` (hit/almost/impossible), Formülü kur / Dedektif, 6 öğrenme rotası, misafir koleksiyonu.
+- 118 element, 214 bileşik, DnD `/lab` (hit/almost/impossible), Formülü kur / Dedektif, 6 öğrenme rotası, misafir koleksiyonu.
 - Bilimsel v2 (`fields` / ETag / CORS), `/docs` playground, bağımsız atlas `:5080`.
 - Tam Docker + public overlay (Caddy, dev/test/prod env dosyaları); sağlık uçları `/health` / `/info`.
 - Sipariş saga’sı event-driven (inventory → wallet `PaymentRequested` → shipment); KREDI simülasyon, gerçek para yok.
-- Ürün kabuğu (cabinet plate), marka-öncelikli landing, ticaret demosu menüde geri planda.
+- Mineral arayüzü (yalnız koyu tema, tek kuprit vurgu); ticaret demosu menüde geri planda.
+- Sistem kılavuzu (`docs/kilavuz/`, uygulamada `/kilavuz`) ve yukarıdaki test matrisi.
 
 ### Şimdi yayın için (engeller / kararlar)
 
@@ -352,7 +355,8 @@ Bunlar “güzel olur” değil; public’e çıkmadan önce netleştir. **Repo 
 | **Abuse / hız** | Gateway: kayıt **5/dk**, auth POST **15/dk**, genel **60/10sn**; public `WALLET_WELCOME_GRANT=1000`; login kilit 5→15dk; Caddy headers + body 1MB; **Turnstile** (`CAPTCHA_SECRET_KEY` + `VITE_CAPTCHA_SITE_KEY`, boş = kapalı) | DNS sonrası isteğe Cloudflare orange-cloud (gerçek WAF) |
 | **Gözlem yığını yok** | Kasıtlı 404 | — |
 | **Fotoğraf boşlukları** | 75/118; bilinçli null | Kötü lisansla doldurma |
-| **Playwright** | `e2e/` atlas-lab + auth smoke; Jenkins bağlandı | Canlı sipariş senaryosu `e2e-live` (stack ayaktayken) |
+| **Playwright** | `e2e/` (hesaplar kapalı), `e2e-auth/` (taklit identity), `e2e-live/` (tam platformda ticaret yolculuğu); Jenkins `test:e2e` koşar | `e2e-live`’ı yayın öncesi platforma karşı koşmak |
+| **Kılavuzdaki yerel sırlar** | `/kilavuz` altyapı sayfası compose’un yerel varsayılan sırlarını gösterir (Postgres/RabbitMQ şifresi, `INTERNAL_API_KEY`, JWT yer tutucusu); public overlay JWT ve iç anahtarı zorunlu tutar, `-Server` yer tutucuyu reddeder | Karar: bu satırlar public derlemede görünsün mü ([open-risks.md](docs/memory-bank/open-risks.md)) |
 | **Learning Progress** | Identity + tarayıcı | Ayrı servis (sonra) |
 | **CI** | Jenkins Multibranch + path matrix ([CI-JENKINS.md](docs/CI-JENKINS.md)) | Host’ta Multibranch job + status check |
 
@@ -369,7 +373,7 @@ Kısa operatör adımları (DNS hazır olunca):
 - Öğrenci/öğretmen pilotu; içerik/editöryel gözden geçirme.
 - Playwright canlı auth/sipariş (`test:e2e:live`) staging’de düzenli koşum.
 - Resend (SMTP veya API) + doğrulanmış alan adı — beta e-postasız gidebilir.
-- Bileşik eğitim kayıtlarında fiziksel/GHS + yapı PNG genişletme (51 tam anlık; kalanlar sıkıştırılmış).
+- Bileşik eğitim kayıtlarında fiziksel/GHS genişletme (51 tam anlık görüntü; 163 kısa kayıt).
 - İsteğe Cloudflare orange-cloud (DNS sonrası) — stock Caddy’de `rate_limit` eklentisi yok; Turnstile + gateway RL yeterli.
 - İsteğe hafif ürün ölçümü (keşif/görev) — büyük observability stack değil ([ADR 0001](docs/adr/0001-observability-metrics.md)).
 - Learning Progress’i identity’den ayırma (ancak ihtiyaç kanıtlanınca).
@@ -380,7 +384,7 @@ Kısa operatör adımları (DNS hazır olunca):
 | Alan | İyi olan | Sonra bakılabilir |
 |------|----------|-------------------|
 | **catalog** | v2 element + simülasyon fiyat; Redis yok | Boş özellik bölümlerini UI’da daha net saklamak |
-| **compound** | 167 eğitim ≠ mağaza SKU | Daha fazla PubChem anlık + yapı PNG |
+| **compound** | 214 eğitim kaydı ≠ mağaza SKU; hepsinde yapı görseli | Kısa kayıtlara PubChem fiziksel/GHS |
 | **gateway** | YARP, anahtar, kayıt 5/dk · auth 15/dk · 60/10sn, `TRUSTED_PROXY_CIDRS` | Caddy xcaddy `rate_limit` (bilinçli yok) |
 | **identity** | JWT, anahtar, öğrenme PUT, hesap silme; e-postasız beta; kilit 5→15dk; Turnstile (`CAPTCHA_SECRET_KEY`) | Resend |
 | **wallet** | Java ledger + `PaymentRequested`; `WALLET_WELCOME_GRANT` (yerel 10k / public 1k) | Operasyon/izleme yüzeyi (isteğe) |
@@ -389,7 +393,7 @@ Kısa operatör adımları (DNS hazır olunca):
 | **shipment** | Sahte takip | Gerçek kargo yok ve istenmiyor |
 | **notification** | `order.updated` webhook, SSRF koruması | Kalıcı retry / teslimat geçmişi (ürünleşirse) |
 | **science** | Tek kutu atlas, DB yok | Medya/JSON senkron disiplini |
-| **web-app** | `/` `/periodic` `/lab` / defter; demo dil net | E2e doldurmak; demo rotaları daha da demote |
+| **web-app** | Mineral arayüz, `/kilavuz`, üç Playwright paketi; demo dili net | Demo rotalarını daha da geri plana almak |
 | **deploy / docker** | present-*, `-Server` guard, public matrix | Sunucu runbook pratik tekrarı |
 | **shared-lib** | Ortak olay / health | Büyütme yok; ince tut |
 
@@ -408,12 +412,13 @@ element-api/
 ├── web-app/             shared-lib/
 ├── deploy/              docker/
 ├── docker-compose.yml   docker-compose.science.yml
+├── docs/kilavuz/        (sistem kılavuzu; uygulamada /kilavuz)
 ├── docs/SERVIS-KILAVUZU.md
 └── README.md
 ```
 
-Her servis klasöründe kullanım kılavuzu: `README.md`.
+Her servis klasöründe kullanım notu: `README.md`; içerinin ayrıntısı `docs/kilavuz/`.
 
 ## Ön yüz ve ürün senaryoları
 
-Ön yüz shadcn/ui, Radix ve Tailwind 4 ortak bileşenleriyle düzenlenmiştir. [Ürün senaryoları](docs/PRODUCT-SCENARIOS.md), [tasarım sistemi](docs/memory-bank/design-system.md) ve [güncel memory bank](docs/memory-bank/README.md) devam çalışmaları için başlangıç noktasıdır.
+Ön yüz "Mineral" tasarım sistemiyle kuruldu: yalnız koyu tema, tek vurgu rengi kuprit, yazı tipleri Bricolage Grotesque (başlık), Geist (gövde) ve Geist Mono (sembol, formül, kod). Jetonlar tek dosyada (`web-app/src/styles.css`), bileşenler `web-app/src/components/ui/` altında; Radix tabanlı, Tailwind 4. Bileşen vitrini geliştirme sunucusunda `/_ui` (üretim derlemesine girmez). Kurallar: [tasarım sistemi](docs/memory-bank/design-system.md). Devam çalışmaları için: [ürün senaryoları](docs/PRODUCT-SCENARIOS.md) · [memory bank](docs/memory-bank/README.md).

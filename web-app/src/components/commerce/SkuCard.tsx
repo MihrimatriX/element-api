@@ -53,6 +53,7 @@ export function SkuCard({
   onShowElement,
 }: SkuCardProps) {
   const properties = sku.properties;
+  const name = sku.nameTr || sku.name;
   return (
     <article
       className={cn(
@@ -66,7 +67,7 @@ export function SkuCard({
         </h3>
         <Badge variant="secondary">{KIND_LABEL[sku.kind] ?? sku.kind}</Badge>
       </div>
-      <p className="mt-1 text-sm text-ink-2">{sku.nameTr || sku.name}</p>
+      <p className="mt-1 text-sm text-ink-2">{name}</p>
       <p className="mt-1 text-[13px] text-ink-3">
         <span className="font-mono">{sku.elementSymbol}</span> ·{" "}
         <button type="button" onClick={onShowElement} className="focus-ring text-link rounded-sm">
@@ -123,7 +124,8 @@ export function SkuCard({
           size="sm"
           disabled={disabled}
           onClick={onAdd}
-          aria-label={`${sku.formula}: sepete ${pack} g ekle`}
+          // The name tells same-formula products apart (Au: saf gram and külçe).
+          aria-label={`${name} · ${sku.formula}: sepete ${pack} g ekle`}
         >
           <Plus aria-hidden="true" strokeWidth={1.75} />
           {pack} g

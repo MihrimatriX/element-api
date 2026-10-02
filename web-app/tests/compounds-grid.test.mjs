@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { filterCompounds } from "../src/components/reference/compound-filter.ts";
 import {
+  CARD_PLATE,
   fitToPlate,
   inkBounds,
-  PLATE_RATIO,
 } from "../src/components/reference/structure-fit.ts";
 
 /** Minimal catalogue rows: only the fields the filter reads. */
@@ -90,11 +90,26 @@ describe("structure thumbnail fit", () => {
 
   it("shrinks a tall molecule so it fits the 4:3 plate height", () => {
     const fit = fitToPlate({ left: 0.4, top: 0, right: 0.6, bottom: 1 });
-    assert.ok(fit.scale * 1 <= PLATE_RATIO, "molecule height stays inside the plate");
+    assert.ok(fit.scale * 1 <= CARD_PLATE.ratio, "molecule height stays inside the plate");
   });
 
   it("shifts an off-centre molecule back to the middle", () => {
     const fit = fitToPlate({ left: 0, top: 0, right: 0.2, bottom: 0.2 });
     assert.ok(fit.x > 0 && fit.y > 0);
+  });
+});
+
+describe("structure figure fit (square plate that never shrinks)", () => {
+  const square = { ratio: 1, fill: 0.8, minScale: 1 };
+
+  it("zooms a small drawing up to the cap and centres it", () => {
+    const fit = fitToPlate(inkBounds(canvasWithBox(10, [6, 2, 7, 3]), 10), square);
+    assert.equal(fit.scale, 3);
+    assert.equal(Math.round(fit.x), -60, "moves left toward the drawing");
+    assert.equal(Math.round(fit.y), 60, "moves down toward the drawing");
+  });
+
+  it("never shrinks a drawing that already fills the image", () => {
+    assert.deepEqual(fitToPlate({ left: 0, top: 0, right: 1, bottom: 1 }, square), { scale: 1, x: 0, y: 0 });
   });
 });

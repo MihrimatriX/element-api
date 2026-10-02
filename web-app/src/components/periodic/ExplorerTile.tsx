@@ -1,16 +1,22 @@
-import { useLayoutEffect, useRef, type CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import { ElementTile } from "@/components/ui/element-tile";
 import { cn } from "@/lib/utils";
-import type { ElementItem } from "@/services/elementData";
+import { familyOf, type ElementItem } from "@/services/elementData";
 import type { LensReading } from "./lenses";
-import { familyOf } from "./model";
 
 /*
- * On family and lens tints ElementTile's ink-3 atomic number falls below 4.5:1 at 10px, so
- * explorer tiles lift it to ink-2. The scroll margin keeps a focused tile clear of the sticky
- * site header (3.5rem) and, from `xl`, of the sticky explorer toolbar (bottom edge ≈ 12rem).
+ * The scroll margin keeps a focused tile clear of the sticky site header (3.5rem) and, from `xl`,
+ * of the sticky explorer toolbar (bottom edge ≈ 12rem).
  */
-const explorerTileClass = "[--color-ink-3:var(--color-ink-2)] scroll-mt-18 xl:scroll-mt-52";
+const scrollMarginClass = "scroll-mt-18 xl:scroll-mt-52";
+
+/*
+ * The explorer is where families are told apart at a glance, so its tiles take a stronger family
+ * tint than ElementTile's default (20 % / 28 % on hover instead of 14 % / 22 %). Ink-2 text still
+ * keeps above 5.5:1 on the hover tint.
+ */
+const familyTintClass =
+  "bg-[color-mix(in_oklch,var(--family)_20%,var(--color-surface))] hover:bg-[color-mix(in_oklch,var(--family)_28%,var(--color-surface))]";
 
 /*
  * ElementTile tints itself from an inline `--family` colour. A heat or phase lens repaints the
@@ -24,8 +30,8 @@ const lensPaintClass =
 interface ExplorerTileProps {
   element: ElementItem;
   reading: LensReading;
-  /** Name of the value under the current lens, read with the tile ("Atom kütlesi: 55,85"). */
-  valueLabel: string;
+  /** Name of the value a value lens prints, read with the tile ("Atom kütlesi: 55,85"). */
+  valueLabel?: string;
   selected: boolean;
   /** The grid's single Tab stop (roving tabindex); arrow keys reach the other tiles. */
   tabStop: boolean;
@@ -40,7 +46,10 @@ interface ExplorerTileProps {
   tileClassName?: string;
 }
 
-/** One explorer cell: an ElementTile painted by the active lens; click or Space opens the preview. */
+/**
+ * One explorer cell: an ElementTile painted by the active lens. Click or Space opens the preview;
+ * Enter opens the full record (handled by the grid), and the tile's name says both.
+ */
 export function ExplorerTile({
   element,
   reading,
@@ -53,19 +62,12 @@ export function ExplorerTile({
   style,
   tileClassName,
 }: ExplorerTileProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const paint = reading.missing ? undefined : reading.paint;
+  const valueNote = valueLabel ? `, ${valueLabel}: ${reading.value}` : "";
   const filterNote = dimmed ? ", filtreye uymuyor" : "";
-
-  // ElementTile takes no tabIndex, so the roving tab stop is set on the tile it renders.
-  useLayoutEffect(() => {
-    const tile = wrapperRef.current?.firstElementChild;
-    if (tile instanceof HTMLElement) tile.tabIndex = tabStop ? 0 : -1;
-  }, [tabStop]);
 
   return (
     <div
-      ref={wrapperRef}
       className={cn("min-w-0", className)}
       style={{ ...style, "--lens-edge": paint?.edge, "--lens-fill": paint?.fill }}
     >
@@ -79,8 +81,14 @@ export function ExplorerTile({
         dimmed={dimmed}
         missing={reading.missing}
         onClick={() => onOpen(element.symbol)}
-        label={`${element.name}, ${element.symbol}, atom numarası ${element.atomicNumber}, ${valueLabel}: ${reading.value}${filterNote}; önizle`}
-        className={cn("w-full", explorerTileClass, paint && lensPaintClass, tileClassName)}
+        tabIndex={tabStop ? 0 : -1}
+        label={`${element.name}, ${element.symbol}, atom numarası ${element.atomicNumber}${valueNote}${filterNote}; önizle, Enter ile kaydı aç`}
+        className={cn(
+          "w-full",
+          scrollMarginClass,
+          paint ? lensPaintClass : familyTintClass,
+          tileClassName,
+        )}
       />
     </div>
   );

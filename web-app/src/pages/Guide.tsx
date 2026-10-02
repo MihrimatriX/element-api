@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/disclosure";
 import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
-import { WorkshopMarks } from "../components/AtlasVisual";
+import { WorkshopMarks } from "../components/WorkshopMarks";
 import {
   guideQuestions,
   guideSteps,

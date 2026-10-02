@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ChipGroup, type ChipOption } from "@/components/ui/chip-group";
 import { PageHeader } from "@/components/ui/page-header";
-import { WorkshopMarks } from "../components/AtlasVisual";
+import { WorkshopMarks } from "../components/WorkshopMarks";
 import { GlossaryEntry } from "../components/reference/GlossaryEntry";
 import { GlossaryIndex } from "../components/reference/GlossaryIndex";
 import {

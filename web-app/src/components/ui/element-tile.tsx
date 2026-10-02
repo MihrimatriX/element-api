@@ -41,6 +41,8 @@ interface ElementTileProps {
   to?: string;
   /** Renders a button, a toggle when `pressed` is set. Ignored when `to` is set. */
   onClick?: () => void;
+  /** Tab order, e.g. `-1` on all but one tile of a roving-tabindex grid. */
+  tabIndex?: number;
   /** Accessible name override; by default number, symbol, name and value are read. */
   label?: string;
   className?: string;
@@ -69,6 +71,7 @@ export function ElementTile({
   missing = false,
   to,
   onClick,
+  tabIndex,
   label,
   className,
 }: ElementTileProps) {
@@ -77,6 +80,7 @@ export function ElementTile({
     "data-symbol": symbol,
     "data-family": family,
     "aria-label": label,
+    tabIndex,
     style: { "--family": `var(--color-family-${family})` },
     className: cn(
       tileClass,
@@ -92,7 +96,7 @@ export function ElementTile({
 
   const content = (
     <span className="flex w-full flex-col justify-between gap-[3cqi] p-[9cqi] text-left">
-      <span className="font-mono text-[max(10px,14cqi)] leading-none text-ink-3 tabular">
+      <span className="font-mono text-[max(10px,14cqi)] leading-none text-ink-2 tabular">
         {atomicNumber}
       </span>
       <span className="font-mono text-[max(15px,32cqi)] leading-none font-semibold tracking-tight">

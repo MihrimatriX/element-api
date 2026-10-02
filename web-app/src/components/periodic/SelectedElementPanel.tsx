@@ -4,11 +4,10 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { categoryLabels, type ElementItem } from "@/services/elementData";
+import { categoryLabels, familyColor, familyOf, type ElementItem } from "@/services/elementData";
 import { formatScience, useScience, type ScientificElement } from "@/services/science";
 import { ElementSpecimen } from "./ElementSpecimen";
 import { phaseLabel } from "./lenses";
-import { familyOf } from "./model";
 
 interface SelectedElementPanelProps {
   element: ElementItem;
@@ -30,7 +29,7 @@ export function SelectedElementPanel({ element, className }: SelectedElementPane
   return (
     <aside
       aria-label="Seçili element önizlemesi"
-      style={{ "--family": `var(--color-family-${familyOf(element.category)})` }}
+      style={{ "--family": familyColor(familyOf(element.category)) }}
       className={cn(
         "flex gap-4 overflow-hidden rounded-xl border border-line bg-canvas-2 p-3 shadow-sm contain-size",
         className,

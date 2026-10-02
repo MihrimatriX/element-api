@@ -6,8 +6,9 @@ import { fileURLToPath } from "node:url";
 import {
   STATIC_ELEMENTS,
   categoryLabels,
-  categoryTokens,
   dbCategoryToStaticCategory,
+  familyColor,
+  familyOf,
   mergeElementData,
 } from "../src/services/elementData.ts";
 import {
@@ -16,6 +17,7 @@ import {
   elementMatches,
   tableCell,
   tableNeighbour,
+  tabStopSymbol,
 } from "../src/components/periodic/model.ts";
 import { heatPaint, lensDomain, readLens } from "../src/components/periodic/lenses.ts";
 
@@ -65,9 +67,15 @@ describe("periodic seed (elementData)", () => {
     for (const element of STATIC_ELEMENTS)
       assert.ok(element.category in categoryLabels, `${element.symbol}: unknown family`);
     for (const family of Object.keys(categoryLabels)) {
-      assert.equal(categoryTokens[family], `var(--color-family-${family})`);
+      assert.equal(familyColor(family), `var(--color-family-${family})`);
       assert.match(styles, new RegExp(`--color-family-${family}:`));
     }
+  });
+
+  it("narrows categories to families, never trusting inherited keys", () => {
+    assert.equal(familyOf("halogen"), "halogen");
+    assert.equal(familyOf("constructor"), "unknown");
+    assert.equal(familyOf(undefined), "unknown");
   });
 
   it("maps gateway categories to family keys", () => {
@@ -132,6 +140,13 @@ describe("explorer model", () => {
     assert.equal(tableNeighbour(halogens, bySymbol("F"), "ArrowDown").symbol, "Cl");
   });
 
+  it("keeps the selected tile as the Tab stop only while it passes the filter", () => {
+    const halogens = STATIC_ELEMENTS.filter((element) => element.category === "halogen");
+    assert.equal(tabStopSymbol(STATIC_ELEMENTS, "Fe"), "Fe");
+    assert.equal(tabStopSymbol(halogens, "Fe"), "F", "falls back to the first match");
+    assert.equal(tabStopSymbol([], "Fe"), undefined);
+  });
+
   it("moves through the card grid by one card or one row", () => {
     const sodium = bySymbol("Na");
     assert.equal(cardNeighbour(STATIC_ELEMENTS, sodium, "ArrowRight", 4).symbol, "Mg");
@@ -148,10 +163,13 @@ describe("colour lenses", () => {
     assert.equal(readLens("phase", record(), undefined).missing, true);
   });
 
-  it("prints Turkish numbers and keeps family colours under the family lens", () => {
-    const reading = readLens("category", record({ mass: 55.845 }), undefined);
-    assert.equal(reading.value, "55,85");
-    assert.equal(reading.paint, undefined);
+  it("prints no value and keeps family colours under the family lens", () => {
+    assert.deepEqual(readLens("category", record({ mass: 55.845 }), undefined), { missing: false });
+    assert.deepEqual(readLens("category", undefined, undefined), { missing: false }, "no dash while loading");
+  });
+
+  it("prints values with Turkish separators", () => {
+    assert.equal(readLens("mass", record({ mass: 55.845 }), [1, 294]).value, "55,85");
   });
 
   it("paints numeric lenses on a scale from the lowest to the highest value", () => {

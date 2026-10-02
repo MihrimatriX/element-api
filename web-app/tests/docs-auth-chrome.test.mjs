@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
+import { abortAfter } from "../src/lib/abort.ts";
 import {
   API_KEY_ENV,
   playgroundView,
@@ -77,6 +78,23 @@ describe("API docs logic", () => {
     assert.equal(statusTone(304), "info");
     assert.equal(statusTone(404), "warning");
     assert.equal(statusTone(500), "destructive");
+  });
+
+  it("times requests out with a TimeoutError and passes the caller's abort through", async () => {
+    const timed = abortAfter(5);
+    await new Promise((resolve) => timed.signal.addEventListener("abort", resolve));
+    assert.equal(timed.signal.reason.name, "TimeoutError");
+
+    const caller = new AbortController();
+    const forwarded = abortAfter(60_000, caller.signal);
+    caller.abort("left the page");
+    assert.equal(forwarded.signal.reason, "left the page");
+    // Clears the 60 s timer; without it the test run would wait for it.
+    forwarded.release();
+
+    const settled = abortAfter(60_000, AbortSignal.abort("already gone"));
+    assert.equal(settled.signal.reason, "already gone");
+    settled.release();
   });
 });
 

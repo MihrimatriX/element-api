@@ -26,10 +26,8 @@ import { matchesSearch } from "../lib/text";
 import {
   apiError,
   ApiHttpError,
-  cartLineKey,
   elementService,
   orderService,
-  writeCart,
   type BoardRow,
   type CompoundSku,
 } from "../services/api";
@@ -111,7 +109,6 @@ export default function Shop() {
     setSubmitting(true);
     setCheckoutNote("");
     try {
-      let remaining = cart.cart;
       let accepted = 0;
       // One order per line, in sequence. Each line's requestId is its Idempotency-Key, so retrying
       // after a network error never charges twice; accepted lines leave the cart at once.
@@ -123,10 +120,7 @@ export default function Shop() {
           line.item.requestId,
         );
         orders.upsert(order);
-        const acceptedKey = cartLineKey(line.item.symbol, line.item.slug);
-        remaining = remaining.filter((item) => cartLineKey(item.symbol, item.slug) !== acceptedKey);
-        writeCart(remaining);
-        cart.setCart(remaining);
+        cart.remove(line.item);
         accepted++;
         setCheckoutNote(`${accepted} sipariş iletildi.`);
       }

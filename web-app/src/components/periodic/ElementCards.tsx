@@ -8,7 +8,8 @@ interface ElementCardsProps {
   /** Matching elements only, in atomic-number order. */
   elements: readonly ElementItem[];
   readingOf: (symbol: string) => LensReading;
-  valueLabel: string;
+  /** Name of the value under a value lens; absent under the family lens. */
+  valueLabel?: string;
   selected: string;
   onOpen: (symbol: string) => void;
   /** Delegated focus, hover and keyboard handlers plus the grid ref (useTileNavigation). */

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import AtlasVisual from "@/components/AtlasVisual";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,11 +11,9 @@ import {
 import { KeyValue, type KeyValueItem } from "@/components/ui/key-value";
 import { Notice } from "@/components/ui/notice";
 import { Skeleton } from "@/components/ui/skeleton";
-import { categoryLabels, type ElementItem } from "@/services/elementData";
+import { categoryLabels, familyColor, familyOf, type ElementItem } from "@/services/elementData";
 import { formatScience, useScience, type ScientificElement } from "@/services/science";
-import { ElementVisual } from "./ElementVisual";
 import { phaseLabel } from "./lenses";
-import { familyOf } from "./model";
 
 interface ElementPreviewDialogProps {
   element: ElementItem;
@@ -59,7 +58,7 @@ function PreviewBody({ element }: { element: ElementItem }) {
 
   return (
     <div
-      style={{ "--family": `var(--color-family-${familyOf(element.category)})` }}
+      style={{ "--family": familyColor(familyOf(element.category)) }}
       className="grid md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
     >
       <div className="p-6 sm:p-7">
@@ -105,7 +104,8 @@ function PreviewBody({ element }: { element: ElementItem }) {
       </div>
 
       <div className="border-t border-line bg-canvas-2 p-6 sm:p-7 md:rounded-r-xl md:border-t-0 md:border-l">
-        <ElementVisual
+        <AtlasVisual
+          key={element.symbol}
           symbol={element.symbol}
           shells={record?.atomic_properties.electrons_per_shell}
           photo={record?.media?.photo}

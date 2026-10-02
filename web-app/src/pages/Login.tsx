@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
 import CaptchaWidget from "../components/CaptchaWidget";
 import Seo from "../components/Seo";
+import { loginError } from "../components/auth/accountApi";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { PasswordInput } from "../components/auth/PasswordInput";
 import { Button } from "../components/ui/button";
@@ -12,30 +13,8 @@ import { Notice } from "../components/ui/notice";
 import { useSelectedElement } from "../context/selection";
 import { useAuthCapabilities } from "../hooks/useAuthCapabilities";
 import { isCaptchaConfigured } from "../lib/captcha";
-import { ApiHttpError, apiError, authService } from "../services/api";
+import { authService } from "../services/api";
 import { safeReturnTo } from "../services/session";
-
-/**
- * Turkish text for a failed sign-in. Only a server answer is about the
- * credentials (401 and 429 arrive in English). A failed request means the
- * service is unreachable; any other Error is the client's own sentence, such
- * as blocked browser storage after the server accepted the password.
- */
-function loginError(error: unknown): string {
-  if (error instanceof ApiHttpError) {
-    if (error.status === 401) return "E-posta veya şifre yanlış.";
-    if (error.status === 429)
-      return "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene.";
-    return apiError(error, "Giriş bilgileri geçersiz.");
-  }
-  // fetch rejects with a TypeError when offline and an AbortError on timeout.
-  const unreachable =
-    error instanceof TypeError ||
-    (error instanceof DOMException && error.name === "AbortError");
-  if (unreachable || !(error instanceof Error))
-    return "Servise ulaşılamadı. Biraz sonra yeniden deneyebilirsin.";
-  return error.message;
-}
 
 /** E-mail and password sign-in; returns to `?returnTo` (same-origin only) or the notebook. */
 export default function Login() {

@@ -1,6 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
-import type { ElementItem } from "@/services/elementData";
+import { familyColor, type ElementItem } from "@/services/elementData";
 import { ExplorerTile } from "./ExplorerTile";
 import type { LensReading } from "./lenses";
 import { tableCell, tabStopSymbol } from "./model";
@@ -18,7 +18,8 @@ interface PeriodicTableProps {
   elements: readonly ElementItem[];
   matchingSymbols: ReadonlySet<string>;
   readingOf: (symbol: string) => LensReading;
-  valueLabel: string;
+  /** Name of the value under a value lens; absent under the family lens. */
+  valueLabel?: string;
   selected: string;
   onOpen: (symbol: string) => void;
   /** Delegated focus, hover and keyboard handlers plus the grid ref (useTileNavigation). */
@@ -124,7 +125,7 @@ function SeriesMarker({
     <>
       <span
         aria-hidden="true"
-        style={{ "--row": markerRow, "--family": `var(--color-family-${family})` }}
+        style={{ "--row": markerRow, "--family": familyColor(family) }}
         className="col-start-4 row-start-(--row) grid place-content-center rounded-md border border-dashed border-[color-mix(in_oklch,var(--family)_45%,transparent)] text-center font-mono text-[11px] leading-4 text-ink-3"
       >
         {range}

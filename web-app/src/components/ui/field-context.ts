@@ -8,6 +8,7 @@ export interface FieldControlProps {
   required?: boolean;
 }
 
+/** Provided by `Field`, read by its control through `useFieldControl`. */
 export const FieldContext = createContext<FieldControlProps | null>(null);
 
 /**

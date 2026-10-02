@@ -59,7 +59,7 @@ export default function Laboratory() {
   const [params] = useSearchParams();
   const learning = useLearning();
   const found = learning.progress.discoveries;
-  const lesson = lessons.find((l) => l.id === params.get("lesson"));
+  const lesson = lessons.find((candidate) => candidate.id === params.get("lesson"));
   const bench = useBench(() => {
     const symbol = findLabElement(params.get("material"));
     return symbol ? { [symbol]: 1 } : {};
@@ -114,7 +114,8 @@ export default function Laboratory() {
     });
   }
 
-  function restart() {
+  /** Empties the bench and focuses it: "Temizle" disables itself, so focus must not stay there. */
+  function clearBench() {
     edit(bench.clear);
     benchRef.current?.focus();
   }
@@ -134,9 +135,13 @@ export default function Laboratory() {
   const startChipDrag: ChipDragStart = (event, source) => {
     startDrag(event, source, ({ moved, overBench, overChip }) => {
       if (!moved) return;
-      if (overChip !== null && overChip !== source.index)
+      if (overChip !== null && overChip !== source.index) {
         edit(() => bench.move(source.index, overChip));
-      else if (!overBench) edit(() => bench.remove(source.id));
+      } else if (!overBench) {
+        // Dropped outside: the chip whose handle held focus is gone, so the bench takes focus.
+        edit(() => bench.remove(source.id));
+        benchRef.current?.focus();
+      }
     });
   };
 
@@ -174,7 +179,7 @@ export default function Laboratory() {
           }
         >
           {lessonLeft.length > 0
-            ? `Kalan keşifler: ${lessonLeft.map((c) => c.nameTr).join(" · ")}`
+            ? `Kalan keşifler: ${lessonLeft.map((compound) => compound.nameTr).join(" · ")}`
             : "Hepsi kayıtlı. Koleksiyondaki soruyu aç."}
         </Notice>
       )}
@@ -196,13 +201,13 @@ export default function Laboratory() {
           ref={benchRef}
           tabIndex={-1}
           aria-labelledby={benchTitleId}
-          className="panel flex min-w-0 flex-col p-4 outline-none sm:p-6"
+          className="panel flex min-w-0 flex-col p-4 sm:p-6"
         >
           <div className="flex items-center justify-between gap-3">
             <h2 id={benchTitleId} className="font-sans text-base font-semibold tracking-normal text-ink">
               Tezgâh
             </h2>
-            <Button variant="ghost" size="sm" disabled={!hasAtoms} onClick={() => edit(bench.clear)}>
+            <Button variant="ghost" size="sm" disabled={!hasAtoms} onClick={clearBench}>
               <RotateCcw strokeWidth={1.75} />
               Temizle
             </Button>
@@ -247,7 +252,7 @@ export default function Laboratory() {
             discovered={found.length}
             nextUp={nextUp}
             onLoad={(counts) => edit(() => bench.load(counts))}
-            onRestart={restart}
+            onRestart={clearBench}
           />
 
           <p className="mt-5 text-[13px] text-ink-3">

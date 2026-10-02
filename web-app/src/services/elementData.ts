@@ -1,3 +1,5 @@
+import type { ElementFamily } from "@/components/ui/element-tile";
+
 /** One element as the app uses it: table position from the seed, plus optional gateway and commerce fields. */
 export interface ElementItem {
   atomicNumber: number;
@@ -48,13 +50,17 @@ export const categoryLabels: Record<string, string> = {
   actinide: "Aktinit",
 };
 
-/** CSS colour of each family: the `--color-family-*` design tokens (usable anywhere CSS takes a colour). */
-export const categoryTokens: Record<string, string> = Object.fromEntries(
-  Object.keys(categoryLabels).map((family) => [
-    family,
-    `var(--color-family-${family})`,
-  ]),
-);
+/** Narrows a seed or catalogue category to an ElementTile family; anything else becomes "unknown". */
+export function familyOf(category: string | undefined): ElementFamily {
+  return category !== undefined && Object.hasOwn(categoryLabels, category)
+    ? (category as ElementFamily)
+    : "unknown";
+}
+
+/** CSS colour of a family: its `--color-family-*` token, for the `--family` custom property. */
+export function familyColor(family: ElementFamily): string {
+  return `var(--color-family-${family})`;
+}
 
 // ponytail: layout seed (row/col) for the table; full atlas is scientific-elements.json; commerce SKUs are EF + element-properties.json. Merge only if the table can live without this compact string.
 // Keep the rawElements declaration below a one-line string literal, and never quote its opening

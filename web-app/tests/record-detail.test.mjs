@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { drawingFocus } from "../src/components/detail/drawingFocus.ts";
 import {
   formatPropertyNumber,
   isPopulated,
@@ -64,28 +63,6 @@ describe("scientific record properties", () => {
     assert.equal(formatPropertyNumber(1234.5), "1.234,5");
     assert.equal(formatPropertyNumber(1735, "discovered_year"), "1735");
     assert.equal(formatPropertyNumber(2244, "pubchem_cid"), "2244");
-  });
-});
-
-describe("structure depiction focus", () => {
-  // 10×10 white canvas with a 2×2 ink square at x 6–7, y 2–3.
-  const pixels = new Uint8ClampedArray(10 * 10 * 4).fill(245);
-  for (const [x, y] of [[6, 2], [7, 2], [6, 3], [7, 3]]) pixels.set([20, 20, 20, 255], (y * 10 + x) * 4);
-
-  it("zooms a small drawing up to the cap and centres it", () => {
-    const focus = drawingFocus(pixels, 10, 10);
-    assert.equal(focus.zoom, 3);
-    assert.equal(Math.round(focus.shiftX), -20, "moves left toward the drawing");
-    assert.equal(Math.round(focus.shiftY), 20, "moves down toward the drawing");
-  });
-
-  it("never shrinks a drawing that already fills the canvas", () => {
-    const full = new Uint8ClampedArray(4 * 4 * 4).fill(20);
-    assert.deepEqual(drawingFocus(full, 4, 4), { zoom: 1, shiftX: 0, shiftY: 0 });
-  });
-
-  it("returns null for a blank image", () => {
-    assert.equal(drawingFocus(new Uint8ClampedArray(4 * 4 * 4).fill(255), 4, 4), null);
   });
 });
 

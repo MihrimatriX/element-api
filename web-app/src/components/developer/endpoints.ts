@@ -10,7 +10,9 @@ export interface PlaygroundEndpoint {
   keyed?: boolean;
 }
 
+/** The full iron record: the playground's first request and a preset. */
 export const IRON_PATH = "/api/v2/elements/fe";
+/** Water trimmed with `fields`: the second preset and the docs' field-selection example. */
 export const WATER_PATH =
   "/api/v2/compounds/h2o?fields=slug,names,display_formula,composition,editorial.summary";
 

@@ -1,7 +1,7 @@
 import { ElementTile } from "@/components/ui/element-tile";
 import { cn } from "@/lib/utils";
-import type { ElementItem } from "../../services/elementData";
-import { familyOf, findElement } from "./model";
+import { familyOf, type ElementItem } from "../../services/elementData";
+import { findElement } from "./model";
 
 interface ElementPickerProps {
   /** Symbols offered as tiles. */
@@ -30,6 +30,7 @@ export function ElementPicker({ symbols, elements, value, onValueChange }: Eleme
       {symbols.map((symbol) => {
         const element = findElement(elements, symbol);
         if (!element) return null;
+        const active = value === element.symbol.toUpperCase();
         return (
           <ElementTile
             key={element.symbol}
@@ -38,8 +39,10 @@ export function ElementPicker({ symbols, elements, value, onValueChange }: Eleme
             name={element.name}
             family={familyOf(element.category)}
             label={element.name}
-            selected={value === element.symbol.toUpperCase()}
-            onClick={() => onValueChange(element.symbol)}
+            selected={active}
+            pressed={active}
+            // A toggle: pressing the active tile again goes back to "Tümü".
+            onClick={() => onValueChange(active ? null : element.symbol)}
             className="w-14"
           />
         );

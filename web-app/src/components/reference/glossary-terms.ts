@@ -1,7 +1,9 @@
 /** Glossary content for /sozluk: 25 terms in three groups, each with a "try it" deep link. */
 
+/** Glossary section a term belongs to: lab bench, catalogue and API, or the credit demo. */
 export type GlossaryGroupId = "tezgah" | "kablo" | "kasa";
 
+/** One glossary section with its heading and the short badge text its terms carry. */
 export interface GlossaryGroup {
   id: GlossaryGroupId;
   title: string;
@@ -9,11 +11,13 @@ export interface GlossaryGroup {
   short: string;
 }
 
+/** The "try it" link under a definition. */
 export interface GlossaryLink {
   to: string;
   label: string;
 }
 
+/** One glossary entry. */
 export interface GlossaryTerm {
   /** Anchor id, unique on the page. */
   id: string;
@@ -27,6 +31,7 @@ export interface GlossaryTerm {
   geometry?: boolean;
 }
 
+/** The three sections, in page order. */
 export const GLOSSARY_GROUPS: readonly GlossaryGroup[] = [
   { id: "tezgah", title: "Laboratuvar tezgâhı", short: "Tezgâh" },
   { id: "kablo", title: "Katalog ve kablo", short: "Katalog" },

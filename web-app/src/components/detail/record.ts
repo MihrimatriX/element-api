@@ -1,4 +1,3 @@
-import type { ElementFamily } from "@/components/ui/element-tile";
 import { labElements } from "@/services/chemistry";
 import { compoundBySlug } from "@/services/lab";
 import type {
@@ -12,24 +11,6 @@ import type {
 export type DetailSubject =
   | { kind: "elements"; element: ScientificElement }
   | { kind: "compounds"; compound: ScientificCompound };
-
-const FAMILIES = new Set<string>([
-  "alkali",
-  "alkaline",
-  "transition",
-  "post",
-  "metalloid",
-  "nonmetal",
-  "halogen",
-  "noble",
-  "lanthanide",
-  "actinide",
-]);
-
-/** Periodic family token for a catalogue category; anything unexpected becomes "unknown". */
-export function familyOf(category: string | undefined): ElementFamily {
-  return category && FAMILIES.has(category) ? (category as ElementFamily) : "unknown";
-}
 
 /** Lab entry point for the record, or undefined when the lab does not know it. */
 export function labHref(subject: DetailSubject): string | undefined {

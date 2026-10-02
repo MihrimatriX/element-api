@@ -38,9 +38,10 @@ function seoTitle(guide: GuideData, page: GuidePage | undefined): string {
 }
 
 /**
- * The loaded guide: grouped sidebar with a search across every function (a
- * select and the search field above the content below `lg`), the chosen page
- * or the search results on the right, deep links down to single table rows.
+ * The loaded guide: grouped sidebar with a search across every function (below
+ * `lg`, a page-list button and the search field above the content instead), the
+ * chosen page or the search results on the right, deep links down to single
+ * table rows.
  */
 function GuideBrowser({ guide }: { guide: GuideData }) {
   const { slug } = useParams();

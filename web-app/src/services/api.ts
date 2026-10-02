@@ -20,7 +20,7 @@ const CATALOG_TIMEOUT_MS = 8_000;
 const PAGE_SIZE = 100;
 
 /** Description of the key the web app mints for itself; also used to find old ones to retire. */
-const DASHBOARD_KEY_DESCRIPTION = "Web Dashboard Key";
+export const DASHBOARD_KEY_DESCRIPTION = "Web Dashboard Key";
 const DASHBOARD_KEY_TPS = 10;
 
 /** Wallet, holdings, desk and order endpoints need the dashboard API key besides the JWT. */
@@ -158,24 +158,39 @@ async function request<T>(
 }
 
 /**
- * Picks a user-facing message from a gateway error body (`error`, `message`,
- * `detail` or ASP.NET validation `errors`), else returns `fallback`.
+ * Turkish sentences for the ASP.NET Identity error codes registration can hit.
+ * The user name is the e-mail, so a taken address reports both duplicate codes.
+ */
+const IDENTITY_ERRORS: Record<string, string> = {
+  DuplicateEmail: "Bu e-posta zaten kayıtlı.",
+  DuplicateUserName: "Bu e-posta zaten kayıtlı.",
+  InvalidEmail: "Geçerli bir e-posta adresi girin.",
+  InvalidUserName: "Bu e-posta adresi kullanılamıyor.",
+  PasswordTooShort: "Şifre en az 10 karakter olmalı.",
+};
+
+/**
+ * Picks a user-facing message from a gateway error body, else returns `fallback`.
+ * Reads `error`, `message` or `detail`, then message lists keyed by field or
+ * error code: ASP.NET validation `errors`, or Identity's `BadRequest(ModelState)`
+ * (`{"DuplicateEmail": ["…"]}`). Known Identity codes become Turkish sentences;
+ * other lists pass the server's text through.
  */
 export function apiError(error: unknown, fallback: string): string {
   if (!(error instanceof ApiHttpError)) return fallback;
   const data = error.data;
   if (typeof data === "string") return data;
-  if (data && typeof data === "object") {
-    const body = data as Record<string, unknown>;
-    if (typeof body.error === "string") return body.error;
-    if (typeof body.message === "string") return body.message;
-    if (typeof body.detail === "string") return body.detail;
-    if (body.errors && typeof body.errors === "object")
-      return Object.values(body.errors as object)
-        .flat()
-        .join(" ");
+  if (!data || typeof data !== "object") return fallback;
+  const body = data as Record<string, unknown>;
+  for (const key of ["error", "message", "detail"]) {
+    const text = body[key];
+    if (typeof text === "string") return text;
   }
-  return fallback;
+  const lists = body.errors && typeof body.errors === "object" ? body.errors : body;
+  const messages = Object.entries(lists).flatMap(([code, list]) =>
+    Array.isArray(list) ? (IDENTITY_ERRORS[code] ?? list.map(String)) : [],
+  );
+  return [...new Set(messages)].join(" ") || fallback;
 }
 
 /**
@@ -191,7 +206,7 @@ function storeCredential(key: "token" | "apiKey", value: string) {
 // Auth and API keys
 // ---------------------------------------------------------------------------
 
-/** Sign-in, registration and local sign-out. */
+/** Sign-in and registration. Signing out is `clearSession` in services/session. */
 export const authService = {
   /** Signs in and stores the JWT; any previous user's dashboard key is dropped first. */
   login: async (credentials: {
@@ -215,11 +230,6 @@ export const authService = {
     password: string;
     captchaToken?: string;
   }) => request("POST", "/auth/register", { body: userData }),
-  /** Forgets the stored credentials without notifying listeners (see `clearSession`). */
-  logout: () => {
-    removeStorage("token");
-    removeStorage("apiKey");
-  },
 };
 
 /** An API key as listed for its owner; the secret itself is only shown once at creation. */
@@ -272,6 +282,14 @@ export const apiKeyService = {
   list: async () => request<ApiKeyRow[]>("GET", "/api-keys"),
   revoke: async (id: string) => {
     await request("DELETE", `/api-keys/${id}`);
+  },
+  /** Makes `apiKey` this browser's dashboard key when it has none yet. Returns whether it did. */
+  adoptDashboardKey: (apiKey: string) =>
+    !readStorage("apiKey") && writeStorage("apiKey", apiKey),
+  /** Forgets the stored dashboard key when `matches` accepts it (e.g. it was just revoked). Returns whether it did. */
+  forgetDashboardKey: (matches: (apiKey: string) => boolean) => {
+    const stored = readStorage("apiKey");
+    return stored !== null && matches(stored) && removeStorage("apiKey");
   },
   /**
    * Returns the stored dashboard key, minting one if needed. Parallel callers
@@ -488,8 +506,7 @@ export const webhookService = {
 // ---------------------------------------------------------------------------
 
 /** localStorage key of the shop cart. */
-export const CART_KEY = "elementapi:elementalCart";
-const MAX_CART_LINES = 12;
+const CART_KEY = "elementapi:elementalCart";
 const ELEMENTAL_SLUG = "elemental";
 
 /** One cart line. `requestId` doubles as the order's idempotency key. */
@@ -544,46 +561,6 @@ export function readCart(): CartItem[] {
 /** Stores the cart. Without storage the cart simply lives for this page only. */
 export function writeCart(items: CartItem[]) {
   writeJson(CART_KEY, items);
-}
-
-/**
- * Adds `grams` (negative to remove) to a line, capped at `maxGrams`. A new
- * line goes first and the cart keeps at most 12 lines. Stores the cart without
- * empty lines and returns it with them (callers filter `qty > 0`).
- */
-export function addToCart(
-  symbol: string,
-  grams: number,
-  maxGrams?: number,
-  sku?: { slug?: string; formula?: string; label?: string; priceMult?: number },
-) {
-  const cart = readCart();
-  const slug = (sku?.slug || ELEMENTAL_SLUG).toLowerCase();
-  const key = cartLineKey(symbol, slug);
-  const isSameLine = (item: CartItem) =>
-    cartLineKey(item.symbol, item.slug) === key;
-  const existing = cart.find(isSameLine);
-  const requested = Math.max(0, (existing?.qty ?? 0) + grams);
-  const line: CartItem = {
-    requestId: crypto.randomUUID(),
-    symbol,
-    slug,
-    qty: maxGrams != null ? Math.min(requested, maxGrams) : requested,
-    formula: sku?.formula || existing?.formula || symbol,
-    label:
-      sku?.label ||
-      existing?.label ||
-      (slug === ELEMENTAL_SLUG ? symbol : sku?.formula || symbol),
-    priceMult:
-      sku?.priceMult && sku.priceMult > 0
-        ? sku.priceMult
-        : (existing?.priceMult ?? 1),
-  };
-  const next = existing
-    ? cart.map((item) => (isSameLine(item) ? line : item))
-    : [line, ...cart].slice(0, MAX_CART_LINES);
-  writeCart(next.filter((item) => item.qty > 0));
-  return next;
 }
 
 // ---------------------------------------------------------------------------

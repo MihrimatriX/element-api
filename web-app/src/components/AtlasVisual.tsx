@@ -4,13 +4,13 @@ import { ExternalLink } from "@/components/ui/external-link";
 import { Segmented, type SegmentOption } from "@/components/ui/segmented";
 import { cn } from "@/lib/utils";
 import type { AtlasMedia } from "../services/science";
-import { focusOnImage, type DrawingFocus } from "./detail/drawingFocus";
 import { ShellDiagram } from "./periodic/ShellDiagram";
-
-// The header chip row lives in ./WorkshopMarks; kept here until the pages import it from there.
-export { WorkshopMarks, type WorkshopBeat } from "./WorkshopMarks";
+import { measureStructure, type Plate, type StructureFit } from "./reference/structure-fit";
 
 type View = "photo" | "structure" | "schematic";
+
+/** The structure image is a square as tall as the frame: fill 80 % of it, never shrink a drawing. */
+const STRUCTURE_PLATE: Plate = { ratio: 1, fill: 0.8, minScale: 1 };
 
 /** Photo or structure image; on a load error shows the schematic with a short note instead. */
 function MediaImage({
@@ -28,7 +28,7 @@ function MediaImage({
 }) {
   const [failed, setFailed] = useState(false);
   // Undefined until a structure is measured, so it never paints as a speck first.
-  const [focus, setFocus] = useState<DrawingFocus | null>();
+  const [fit, setFit] = useState<StructureFit>();
   if (failed)
     return (
       <div className="relative size-full bg-canvas-2">
@@ -55,23 +55,22 @@ function MediaImage({
       alt={media.caption}
       loading={eager ? "eager" : "lazy"}
       decoding="async"
-      onLoad={(event) => setFocus(focusOnImage(event.currentTarget))}
+      onLoad={(event) => setFit(measureStructure(event.currentTarget, STRUCTURE_PLATE))}
       onError={() => setFailed(true)}
       style={
-        focus
-          ? { "--zoom": focus.zoom, "--shift-x": `${focus.shiftX}%`, "--shift-y": `${focus.shiftY}%` }
-          : undefined
+        fit ? { "--fit-scale": fit.scale, "--fit-x": `${fit.x}%`, "--fit-y": `${fit.y}%` } : undefined
       }
       className={cn(
         // Dark-on-white depiction: darken melts its white square into the plate.
         "mx-auto aspect-square h-full object-contain mix-blend-darken transition-opacity duration-200",
-        "[transform:scale(var(--zoom,1))_translate(var(--shift-x,0%),var(--shift-y,0%))]",
-        focus === undefined && "opacity-0",
+        "[transform:translate(var(--fit-x,0%),var(--fit-y,0%))_scale(var(--fit-scale,1))]",
+        fit === undefined && "opacity-0",
       )}
     />
   );
 }
 
+/** Author and licence links of a photo or drawing (both open in a new tab). */
 function Credits({ media }: { media: AtlasMedia }) {
   return (
     <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-ink-3">
@@ -93,7 +92,8 @@ function Credits({ media }: { media: AtlasMedia }) {
  * Media figure for an element or compound: a licensed photo, a PubChem structure
  * (on a light plate) or a schematic (electron shells for elements, the formula for
  * compounds), with a view switch and caption with credit and licence.
- * `compact` drops the switch and uses tighter type, for previews and lab results.
+ * `compact` drops the switch and uses tighter type, for lab results.
+ * The shell schematic takes `--family` from an ancestor (the brand accent without one).
  */
 export default function AtlasVisual({
   symbol,
@@ -106,7 +106,7 @@ export default function AtlasVisual({
 }: {
   symbol?: string;
   formula?: string;
-  shells?: number[];
+  shells?: readonly number[];
   photo?: AtlasMedia | null;
   structure?: AtlasMedia | null;
   compact?: boolean;
@@ -118,17 +118,13 @@ export default function AtlasVisual({
   if (symbol || !structure)
     views.push({ value: "schematic", label: symbol ? "Atom şeması" : "Formül", icon: symbol ? Atom : Sigma });
 
-  const [chosen, setChosen] = useState<View>(views[0].value);
-  const view = views.some((option) => option.value === chosen) ? chosen : views[0].value;
+  // The viewer's pick while it is offered, else the first view (the photo once a late record has one).
+  const [chosen, setChosen] = useState<View>();
+  const view = views.find((option) => option.value === chosen)?.value ?? views[0].value;
   const media = { photo, structure, schematic: null }[view] ?? null;
 
-  // The shared diagram takes its colour from `--family`; the atlas figure uses the brand accent.
   const schematic = symbol ? (
-    <ShellDiagram
-      symbol={symbol}
-      shells={shells}
-      className="size-full p-4 [--family:var(--color-brand-ink)]"
-    />
+    <ShellDiagram symbol={symbol} shells={shells} className="size-full p-4" />
   ) : (
     <div className="grid size-full place-content-center gap-2 text-center">
       <span className={cn("font-mono font-semibold text-ink", compact ? "text-3xl" : "text-5xl")}>

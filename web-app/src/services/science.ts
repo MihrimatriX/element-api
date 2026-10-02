@@ -89,12 +89,6 @@ export interface ScientificCompound extends AtlasFields {
 
 type ScienceKind = "elements" | "compounds";
 
-const SUBSCRIPT_DIGITS = "₀₁₂₃₄₅₆₇₈₉";
-
-/** Renders formula digits as Unicode subscripts: "H2O" → "H₂O". */
-export const displayFormula = (value: string) =>
-  value.replace(/\d/g, (digit) => SUBSCRIPT_DIGITS[Number(digit)]);
-
 const REQUEST_TIMEOUT_MS = 15_000;
 const PAGE_QUERY = "pageSize=100&view=summary";
 
@@ -109,17 +103,21 @@ export const scienceUrl = (path: string) => `${SCIENCE_BASE_URL}/${path}`;
 /** In-flight and settled responses by path; a failed request is evicted so it can be retried. */
 const responseCache = new Map<string, Promise<unknown>>();
 
+const UNREACHABLE_MESSAGE = "Bilimsel veri servisine ulaşılamadı.";
+
+/** The API answered 404: the record does not exist, which is not the same as the service being down. */
+class ScienceNotFoundError extends Error {}
+
 async function fetchJson(path: string): Promise<unknown> {
+  // A network failure or timeout rejects with a browser message; the UI shows ours instead.
   const response = await fetch(scienceUrl(path), {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     credentials: "omit",
+  }).catch(() => {
+    throw new Error(UNREACHABLE_MESSAGE);
   });
-  if (!response.ok)
-    throw new Error(
-      response.status === 404
-        ? "Kayıt bulunamadı."
-        : "Bilimsel veri servisine ulaşılamadı.",
-    );
+  if (response.status === 404) throw new ScienceNotFoundError("Kayıt bulunamadı.");
+  if (!response.ok) throw new Error(UNREACHABLE_MESSAGE);
   return response.json();
 }
 
@@ -139,15 +137,15 @@ function getCached<T>(path: string): Promise<T> {
  * Every record of a kind (summary view, all pages in parallel), merged over
  * the local snapshot. Falls back to the snapshot alone when the API fails.
  */
-export async function listScience<T>(kind: ScienceKind): Promise<T[]> {
+async function listScience<T>(kind: ScienceKind): Promise<T[]> {
   const local = loadCatalog().catch(() => undefined);
   try {
     const first = await getCached<{ info: { pages: number }; results: T[] }>(
       `${kind}?${PAGE_QUERY}`,
     );
     const later = await Promise.all(
-      Array.from({ length: first.info.pages - 1 }, (_, i) =>
-        getCached<{ results: T[] }>(`${kind}?${PAGE_QUERY}&page=${i + 2}`),
+      Array.from({ length: first.info.pages - 1 }, (_, index) =>
+        getCached<{ results: T[] }>(`${kind}?${PAGE_QUERY}&page=${index + 2}`),
       ),
     );
     const rows = [first, ...later].flatMap((page) => page.results);
@@ -171,12 +169,14 @@ interface RemoteResult<T> {
   key: string;
   data?: T;
   error?: string;
+  notFound?: boolean;
 }
 
 /**
  * One record (`id` given) or the whole list of a kind. The local snapshot
  * paints first once its chunk loads; the API response replaces it. `error`
- * is set only when neither source has the record.
+ * is set only when neither source has the record; `notFound` then tells a
+ * record the API does not know (404) from an unreachable service.
  */
 export function useScience<T>(kind: ScienceKind, id?: string) {
   const key = `${kind}/${id ?? ""}`;
@@ -207,6 +207,7 @@ export function useScience<T>(kind: ScienceKind, id?: string) {
             key,
             data: fallback,
             error: fallback ? undefined : error.message,
+            notFound: !fallback && error instanceof ScienceNotFoundError,
           });
       });
     return () => {
@@ -218,6 +219,7 @@ export function useScience<T>(kind: ScienceKind, id?: string) {
   return {
     data: current ? current.data : local,
     error: current?.error,
+    notFound: current?.notFound ?? false,
     retry: () => {
       setRemote(null);
       setAttempt((count) => count + 1);
@@ -234,11 +236,3 @@ export const formatScience = (value: number | null | undefined, unit = "") =>
   value == null
     ? "—"
     : `${scienceNumber.format(value)}${unit ? ` ${unit}` : ""}`;
-
-/** Turkish labels for `standard_state`. */
-export const phaseLabels: Record<string, string> = {
-  solid: "Katı",
-  liquid: "Sıvı",
-  gas: "Gaz",
-  unknown: "Bilinmiyor",
-};

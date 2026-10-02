@@ -9,17 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Notice } from "@/components/ui/notice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/toast";
-import { readStorage, removeStorage, writeStorage } from "../../lib/storage";
-import { apiError, apiKeyService, type ApiKeyRow } from "../../services/api";
-import { DASHBOARD_KEY_DESCRIPTION, maskApiKey } from "./model";
+import {
+  DASHBOARD_KEY_DESCRIPTION,
+  apiError,
+  apiKeyService,
+  type ApiKeyRow,
+} from "../../services/api";
+import { maskApiKey } from "./model";
 
 type KeysState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "ready"; keys: ApiKeyRow[] };
 
-/** localStorage key holding the key this browser uses for the wallet and orders. */
-const DASHBOARD_KEY_STORAGE = "apiKey";
 const NEW_KEY_TPS = 5;
 
 interface ApiKeysPanelProps {
@@ -62,10 +64,7 @@ export function ApiKeysPanel({ onDashboardKeyChange }: ApiKeysPanelProps) {
       );
       setFreshKey(apiKey);
       // The first key becomes this browser's dashboard key when it has none.
-      if (!readStorage(DASHBOARD_KEY_STORAGE)) {
-        writeStorage(DASHBOARD_KEY_STORAGE, apiKey);
-        onDashboardKeyChange();
-      }
+      if (apiKeyService.adoptDashboardKey(apiKey)) onDashboardKeyChange();
       await reload();
     } catch (error) {
       setFailure(apiError(error, "İşlem tamamlanamadı. Lütfen yeniden deneyin."));
@@ -84,11 +83,8 @@ export function ApiKeysPanel({ onDashboardKeyChange }: ApiKeysPanelProps) {
       });
       throw error;
     }
-    const stored = readStorage(DASHBOARD_KEY_STORAGE);
-    if (stored && maskApiKey(stored) === key.maskedKey) {
-      removeStorage(DASHBOARD_KEY_STORAGE);
+    if (apiKeyService.forgetDashboardKey((stored) => maskApiKey(stored) === key.maskedKey))
       onDashboardKeyChange();
-    }
     setFreshKey("");
     toast("Anahtar iptal edildi", { tone: "success" });
     await reload();

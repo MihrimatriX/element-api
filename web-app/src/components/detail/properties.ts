@@ -7,7 +7,7 @@ import { matchesSearch } from "../../lib/text.ts";
  * becomes a collapsible property section on the detail page; nested keys use
  * the same map for their row labels.
  */
-export const PROPERTY_LABELS: Record<string, string> = {
+const PROPERTY_LABELS: Record<string, string> = {
   precautionary_codes: "Önlem kodları",
   signal_words: "Uyarı sözcükleri",
   names: "Adlandırma",

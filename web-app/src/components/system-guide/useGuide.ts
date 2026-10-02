@@ -18,6 +18,7 @@ export interface GuideData {
   searchIndex: GuideSearchEntry[];
 }
 
+/** What `useGuide` returns: loading, failed (with `retry`) or the loaded guide. */
 export type GuideState =
   | { status: "loading" }
   | { status: "error"; retry: () => void }

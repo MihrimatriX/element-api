@@ -192,6 +192,8 @@
   html {
     color-scheme: dark;
     scroll-behavior: smooth;
+    /* Focused elements and #anchors stop below the sticky h-14 header, plus 1rem of air. */
+    scroll-padding-top: 4.5rem;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }

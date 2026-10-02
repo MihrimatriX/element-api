@@ -1,16 +1,19 @@
 /** Content of the /nasil handbook: the first-ten-minutes steps and the FAQ. */
 
+/** An in-app link inside a handbook step. */
 export interface GuideLink {
   to: string;
   label: string;
 }
 
+/** One numbered step of the handbook. */
 export interface GuideStep {
   title: string;
   body: string;
   links: GuideLink[];
 }
 
+/** One FAQ entry. */
 export interface GuideQuestion {
   question: string;
   answer: string;

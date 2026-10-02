@@ -12,9 +12,11 @@ export const LENS_OPTIONS = [
   { value: "phase", label: "Fiziksel hâl" },
 ] as const satisfies readonly { value: Lens; label: string }[];
 
-/** Name of the value printed on each tile under a lens (the family lens prints atomic mass). */
-export const LENS_VALUE_LABEL: Record<Lens, string> = {
-  category: "Atom kütlesi",
+/** Lenses that print a value on each tile; the family lens colours by family and prints none. */
+type ValueLens = Exclude<Lens, "category">;
+
+/** Name of the value each value lens prints on the tiles. */
+export const LENS_VALUE_LABEL: Record<ValueLens, string> = {
   mass: "Atom kütlesi",
   electronegativity: "Elektronegatiflik",
   phase: "Fiziksel hâl",
@@ -28,8 +30,8 @@ export interface LensPaint {
 
 /** What one tile shows under a lens. */
 export interface LensReading {
-  /** Tile text: "55,85", "Katı" or "—". */
-  value: string;
+  /** Tile text: "55,85", "Katı", or "—" while records load. None under the family lens. */
+  value?: string;
   /** Data is loaded but has no value for this element: the tile is hatched. */
   missing: boolean;
   /** Present for heat and phase lenses; absent keeps the family colour. */
@@ -110,14 +112,16 @@ export function lensDomain(
 }
 
 /**
- * Reads one element under a lens. `record` is undefined while data loads (tile shows "—",
- * not hatched); a loaded record without a value is `missing` (hatched).
+ * Reads one element under a lens. The family lens has no value. Otherwise `record` is undefined
+ * while data loads (tile shows "—", not hatched); a loaded record without a value is `missing`
+ * (hatched).
  */
 export function readLens(
   lens: Lens,
   record: ScientificElement | undefined,
   domain: LensDomain | undefined,
 ): LensReading {
+  if (lens === "category") return { missing: false };
   if (lens === "phase") {
     const phase = PHASES[record?.thermodynamic_properties.standard_state ?? ""];
     if (!phase) return { value: "—", missing: record !== undefined };
@@ -128,10 +132,8 @@ export function readLens(
     };
   }
 
-  const value = record ? NUMERIC_LENSES[lens === "category" ? "mass" : lens].read(record) : null;
-  if (value == null)
-    return { value: "—", missing: lens !== "category" && record !== undefined };
-  if (lens === "category") return { value: formatLensNumber(value), missing: false };
+  const value = record ? NUMERIC_LENSES[lens].read(record) : null;
+  if (value == null) return { value: "—", missing: record !== undefined };
 
   const [min, max] = domain ?? [value, value];
   const position = max > min ? (value - min) / (max - min) : 0;

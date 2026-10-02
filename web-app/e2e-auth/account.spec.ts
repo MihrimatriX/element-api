@@ -60,8 +60,12 @@ async function mockIdentityApi(page: Page): Promise<MockApi> {
       case "POST /auth/register": {
         const body = request.postDataJSON();
         if (users.has(body.email))
-          // ASP.NET Identity errors come back as BadRequest(ModelState).
-          return json(400, { DuplicateUserName: [`Username '${body.email}' is already taken.`] });
+          // ASP.NET Identity errors come back as BadRequest(ModelState). The user name is the
+          // e-mail, so a taken address fails both uniqueness checks.
+          return json(400, {
+            DuplicateUserName: [`Username '${body.email}' is already taken.`],
+            DuplicateEmail: [`Email '${body.email}' is already taken.`],
+          });
         users.set(body.email, { id: crypto.randomUUID(), ...body });
         return json(200, { message: "User registered successfully." });
       }
@@ -145,8 +149,8 @@ test.describe("register", () => {
     await page.getByLabel("E-posta").fill(EXISTING.email);
     await page.getByLabel("Şifre tekrar").fill("uzun-parola-1");
     await submit.click();
-    // ponytail: apiError() does not read ModelState bodies yet, so the generic fallback is accepted too.
-    await expect(page.getByRole("alert")).toContainText(/already taken|Hesap oluşturulamadı/);
+    // apiError() puts the Identity codes in Turkish and says it once for both.
+    await expect(page.getByRole("alert")).toHaveText("Bu e-posta zaten kayıtlı.");
     await expect(page).toHaveURL(/\/register$/);
     expect(api.calls.filter((call) => call === "POST /auth/register")).toHaveLength(1);
   });
@@ -212,19 +216,26 @@ test.describe("login and logout", () => {
     await page.getByLabel("E-posta").fill(EXISTING.email);
     await page.getByLabel("Şifre", { exact: true }).fill(EXISTING.password);
     await page.getByRole("button", { name: "Giriş yap", exact: true }).click();
-    // The URL changes before the lazy page renders; a sheet opened in between closes with the route.
-    await expect(page.getByRole("heading", { level: 1, name: "Keşif defterim" })).toBeVisible();
 
     if (isMobile) {
+      // Opened as soon as the URL changes, while the notebook may still be loading: the sheet
+      // stays open when the page arrives behind it. (The modal sheet hides the page from the
+      // accessibility tree, so the heading is found by its tag.)
+      await expect(page).toHaveURL(onPath("/collection"));
       const sheet = await accountArea(page, true);
+      await expect(page.locator("h1", { hasText: "Keşif defterim" })).toBeVisible();
+      await expect(sheet).toBeVisible();
       await sheet.getByRole("button", { name: "Çıkış" }).click();
     } else {
+      await expect(page.getByRole("heading", { level: 1, name: "Keşif defterim" })).toBeVisible();
       await page.getByRole("banner").getByRole("button", { name: "Hesap menüsü" }).click();
       await page.getByRole("menuitem", { name: "Çıkış" }).click();
     }
 
     await expect(page).toHaveURL(onPath("/"));
     await expect(page.getByRole("heading", { level: 1, name: "Atomdan bileşiğe." })).toBeVisible();
+    // The closing menu hands focus to the new page, not back to its trigger.
+    await expect(page.locator("#main-content")).toBeFocused();
     expect(await page.evaluate(() => localStorage.getItem("token"))).toBeNull();
     const area = await accountArea(page, isMobile);
     await expect(area.getByRole("link", { name: "Giriş yap" })).toBeVisible();

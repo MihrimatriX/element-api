@@ -10,7 +10,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
 import { Stat, StatGrid } from "@/components/ui/stat";
 import { formatNumber } from "@/lib/format";
-import { WorkshopMarks } from "../components/AtlasVisual";
+import { WorkshopMarks } from "../components/WorkshopMarks";
 import Seo from "../components/Seo";
 import coverage from "../data/coverage.json";
 

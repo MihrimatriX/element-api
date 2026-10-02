@@ -16,8 +16,6 @@ type SeoProps = {
   jsonLd?: JsonLd | JsonLd[];
 };
 
-/** Must match `<meta name="theme-color">` in index.html (the canvas colour). */
-const THEME_COLOR = "#080b09";
 const SHARE_IMAGE_ALT = "ElementAPI · kimya atlası";
 const JSON_LD_ID = "json-ld-seo";
 
@@ -104,7 +102,6 @@ export default function Seo({
       "robots",
       noIndex ? "noindex, nofollow" : "index, follow",
     );
-    upsertMeta("name", "theme-color", THEME_COLOR);
     upsertLink("canonical", url);
 
     upsertMeta("property", "og:type", ogType);

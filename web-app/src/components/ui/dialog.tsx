@@ -10,10 +10,12 @@ import {
   overlayCloseClass,
 } from "./classes";
 
+/** Modal dialog root (controlled or with a `DialogTrigger`). */
 function Dialog(props: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
 }
 
+/** Element that opens the dialog (use `asChild` with a Button). */
 function DialogTrigger(
   props: React.ComponentProps<typeof DialogPrimitive.Trigger>,
 ) {
@@ -24,10 +26,6 @@ function DialogPortal(
   props: React.ComponentProps<typeof DialogPrimitive.Portal>,
 ) {
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
-}
-
-function DialogClose(props: React.ComponentProps<typeof DialogPrimitive.Close>) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
 }
 
 function DialogOverlay({
@@ -77,6 +75,7 @@ function DialogContent({
   );
 }
 
+/** Title and description block; leaves room for the close button. */
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -115,6 +114,7 @@ function DialogFooter({
   );
 }
 
+/** Dialog heading; names the dialog for assistive technology. */
 function DialogTitle({
   className,
   ...props
@@ -128,6 +128,7 @@ function DialogTitle({
   );
 }
 
+/** Supporting text under the title; describes the dialog. */
 function DialogDescription({
   className,
   ...props
@@ -143,13 +144,10 @@ function DialogDescription({
 
 export {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogOverlay,
-  DialogPortal,
   DialogTitle,
   DialogTrigger,
 };

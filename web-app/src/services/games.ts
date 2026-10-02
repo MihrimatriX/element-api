@@ -18,7 +18,7 @@ import { readJson, writeJson } from "../lib/storage.ts";
 import { foldTurkish } from "../lib/text.ts";
 
 /** localStorage key of the side-game scores (kept apart from the discovery notebook). */
-export const GAMES_KEY = "elementapi:games:v1";
+const GAMES_KEY = "elementapi:games:v1";
 
 /** Solved puzzle ids per side game: compound slugs and element symbols. */
 export interface GameProgress {
@@ -96,7 +96,7 @@ export function isFormulaUnit(compound: KnownCompound): boolean {
 }
 
 /** Difficulty: 1 = up to 3 atoms of 2 elements, 2 = up to 7 atoms of 3 elements, 3 = the rest. */
-export function formulaTier(compound: KnownCompound): 1 | 2 | 3 {
+function formulaTier(compound: KnownCompound): 1 | 2 | 3 {
   const counts = parseFormula(compound.formula);
   const atoms = atomCount(counts);
   const elements = Object.keys(counts).length;
@@ -199,7 +199,7 @@ function leaks(text: string, element: ElementItem): boolean {
 }
 
 /** Clues from vague to specific; none of them names the element. */
-export function detectiveClues(element: ElementItem): string[] {
+function detectiveClues(element: ElementItem): string[] {
   const family = categoryLabels[element.category]?.toLocaleLowerCase("tr") ?? "element";
   const clues = [
     `Periyodik tabloda bir ${family}.`,

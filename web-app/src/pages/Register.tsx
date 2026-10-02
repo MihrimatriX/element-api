@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Check, LoaderCircle } from "lucide-react";
 import CaptchaWidget from "../components/CaptchaWidget";
 import Seo from "../components/Seo";
+import { loginError } from "../components/auth/accountApi";
 import { AuthLayout } from "../components/auth/AuthLayout";
 import { PasswordInput } from "../components/auth/PasswordInput";
 import { Button } from "../components/ui/button";
@@ -32,8 +33,9 @@ const EMPTY_FORM = {
 };
 
 /**
- * Account sign-up. Without a captcha it signs straight in and returns to `?returnTo`;
- * with one (Turnstile tokens are single-use) it sends the user to the sign-in page.
+ * Account sign-up. Without a captcha it signs straight in and returns to `?returnTo`
+ * (when that sign-in fails it says why and links to the sign-in page); with one
+ * (Turnstile tokens are single-use) it sends the user to the sign-in page.
  */
 export default function Register() {
   const navigate = useNavigate();
@@ -46,6 +48,7 @@ export default function Register() {
   const [mismatch, setMismatch] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [signInProblem, setSignInProblem] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const loginLink = returnTo
     ? `/login?returnTo=${encodeURIComponent(returnTo)}`
@@ -88,10 +91,16 @@ export default function Register() {
         goToLogin();
         return;
       }
-      const login = await authService
-        .login({ email: form.email, password: form.password })
-        .catch(() => null);
-      if (login?.token) {
+      let token: string | undefined;
+      try {
+        ({ token } = await authService.login({ email: form.email, password: form.password }));
+      } catch (caught) {
+        // The account exists; only the automatic sign-in failed. Say why here: blocked
+        // storage would fail on the sign-in page just the same.
+        setSignInProblem(loginError(caught));
+        return;
+      }
+      if (token) {
         setIsAuthenticated(true);
         navigate(safeReturnTo(returnTo));
         return;
@@ -142,6 +151,19 @@ export default function Register() {
         <form className="grid gap-5" onSubmit={handleSubmit}>
           {error && <Notice tone="danger">{error}</Notice>}
           {success && <Notice tone="success">{success}</Notice>}
+          {signInProblem && (
+            <Notice
+              tone="warning"
+              title="Hesap oluştu, oturum açılamadı"
+              action={
+                <Button asChild variant="outline" size="sm">
+                  <Link to={loginLink}>Giriş yap</Link>
+                </Button>
+              }
+            >
+              {signInProblem}
+            </Notice>
+          )}
           <div className="grid gap-5 sm:grid-cols-2">
             <Field label="Ad">
               <Input
@@ -206,7 +228,8 @@ export default function Register() {
             type="submit"
             size="lg"
             className="w-full"
-            disabled={submitting || Boolean(success)}
+            // The account exists once either message shows; a second submit would only collide.
+            disabled={submitting || Boolean(success || signInProblem)}
           >
             {submitting && (
               <LoaderCircle className="animate-spin" strokeWidth={1.75} />

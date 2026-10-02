@@ -7,13 +7,14 @@ import Seo from "@/components/Seo";
 import { LabModes } from "@/components/LabModes";
 import { GradeNotice, type Grade } from "@/components/lab/GradeNotice";
 import { ProgressAside } from "@/components/lab/ProgressAside";
-import { elementInfo, familyColor } from "@/components/lab/elementInfo";
+import { elementInfo } from "@/components/lab/elementInfo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
 import { cn } from "@/lib/utils";
+import { familyColor } from "@/services/elementData";
 import {
   detectivePool,
   gradeDetective,

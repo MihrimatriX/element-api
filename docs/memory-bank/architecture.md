@@ -1,6 +1,6 @@
 # Mimari
 
-İnsan dili tur: [servis kılavuzu](../SERVIS-KILAVUZU.md). Her kutu kendi `README.md`.
+İnsan dili tur: [servis kılavuzu](../SERVIS-KILAVUZU.md). Her kutunun içi (uçlar, mesajlar, kod haritası): [sistem kılavuzu](../kilavuz/README.md), uygulamada `/kilavuz`. Her kutu kendi `README.md`.
 
 ## Çalışma profilleri
 
@@ -17,13 +17,13 @@ Bu makinede ElementAPI PostgreSQL 5432 (veya `POSTGRES_HOST_PORT`), Redis 6380 k
 
 ## Ön yüz
 
-React 19, TypeScript, Vite, Tailwind 4; gerçek shadcn/ui bileşen kaynakları ve Radix primitives. ProductShell tüm rotalarda yan menü/üst çubuk sağlar. Mobil gezinme Sheet, hesap menüsü DropdownMenu, element önizlemesi Dialog, görünüm seçimi Tabs, açılır kayıt bölümleri Collapsible tabanlı Disclosure kullanır.
+React 19, TypeScript, Vite, Tailwind 4, Radix (shadcn kalıbı). Tasarım sistemi **Mineral**: jetonlar `src/styles.css`, bileşenler `src/components/ui/`, vitrin `/_ui` (yalnız dev). ProductShell (`components/shell/`) tüm rotalarda yapışkan üst başlık ve alt bilgi verir; `lg` altında gezinme soldan açılan Sheet, hesap menüsü DropdownMenu, element önizlemesi Dialog, açılır kayıt bölümleri Disclosure. Açılış ve tablo dışındaki sayfalar rota başına tembel yüklenir.
 
-Tema ve bileşen sözleşmesi: [design-system.md](design-system.md). Bilimsel grafikler ve periyodik yerleşim özel alan bileşenleri olarak korunur.
+Tema ve bileşen sözleşmesi: [design-system.md](design-system.md). Rotalar ve dosya dosya kod haritası: [kilavuz/web-app.md](../kilavuz/web-app.md). Bilimsel grafikler ve periyodik yerleşim özel alan bileşenleri olarak korunur.
 
 ## Öğrenme verisi
 
-Lab kuralları tarayıcıda çalışır (`chemistry.ts` + `known-compounds.json`), cüzdanı değiştirmez. Formülü kur / Element dedektifi skorları ayrı `elementapi:games:v1` anahtarındadır. Mağaza SKU listesi (`compounds.json`) bilimsel katalogdan ayrıdır; 167 eğitim bileşiği otomatik ürün olmaz. useLearning + lessons modülü misafir kaydını, kullanıcı başına yerel kopyayı ve sunucu birleştirmesini yönetir. Hesaplı kayıt identity /auth/learning üzerinden PostgreSQL'e gider. Misafir kayıtları kullanıcı aktarımı seçmeden hesaba eklenmez. Şifre değişimi ve hesap silme oturum/anahtar erişimini iptal eder.
+Lab kuralları tarayıcıda çalışır (`chemistry.ts` + `known-compounds.json`), cüzdanı değiştirmez. Formülü kur / Element dedektifi skorları ayrı `elementapi:games:v1` anahtarındadır. Mağaza SKU listesi (`compounds.json`) bilimsel katalogdan ayrıdır; 214 eğitim bileşiği otomatik ürün olmaz. useLearning + lessons modülü misafir kaydını, kullanıcı başına yerel kopyayı ve sunucu birleştirmesini yönetir. Hesaplı kayıt identity /auth/learning üzerinden PostgreSQL'e gider. Misafir kayıtları kullanıcı aktarımı seçmeden hesaba eklenmez. Şifre değişimi ve hesap silme oturum/anahtar erişimini iptal eder.
 
 ## Bilimsel veri ve medya
 

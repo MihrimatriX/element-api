@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Download, FlaskConical } from "lucide-react";
 import AtlasVisual from "../AtlasVisual";
+import { phaseLabel } from "@/components/periodic/lenses";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -10,17 +11,15 @@ import { ExternalLink } from "@/components/ui/external-link";
 import { Formula } from "@/components/ui/formula";
 import { KeyValue, type KeyValueItem } from "@/components/ui/key-value";
 import { PageHeader } from "@/components/ui/page-header";
-import type { Geometry } from "@/services/chemistry";
-import { categoryLabels } from "@/services/elementData";
+import { formulaText, type Geometry } from "@/services/chemistry";
+import { categoryLabels, familyColor, familyOf } from "@/services/elementData";
 import {
-  displayFormula,
   formatScience,
-  phaseLabels,
   type AtlasFields,
   type ScientificCompound,
   type ScientificElement,
 } from "@/services/science";
-import { familyOf, labHref, type DetailSubject } from "./record";
+import { labHref, type DetailSubject } from "./record";
 
 /** "[Ar]4s2 3d6" with the orbital occupancies raised: [Ar]4s² 3d⁶. Superheavy entries are marked predicted. */
 function ElectronConfiguration({ value }: { value: string }) {
@@ -44,7 +43,7 @@ function elementFacts(element: ScientificElement): KeyValueItem[] {
     { label: "Atom kütlesi", value: mono(formatScience(atomic.atomic_mass, "u")) },
     {
       label: "Fiziksel hâl",
-      value: phaseLabels[element.thermodynamic_properties.standard_state ?? "unknown"] ?? "Bilinmiyor",
+      value: phaseLabel(element.thermodynamic_properties.standard_state),
       hint: "Standart koşullarda",
     },
     {
@@ -115,7 +114,7 @@ function FamilyBadge({ category }: { category: string }) {
   return (
     <Badge
       variant="secondary"
-      style={{ "--family": `var(--color-family-${familyOf(category)})` }}
+      style={{ "--family": familyColor(familyOf(category)) }}
       className="font-sans tracking-normal normal-case"
     >
       <span aria-hidden="true" className="size-1.5 rounded-full bg-(--family)" />
@@ -180,7 +179,7 @@ export function RecordHero({ id, subject, atlas, geometry, onDownload }: RecordH
                 {name}
                 {/* The tile is decorative; the heading still names the symbol or formula. */}
                 <span className="sr-only">
-                  {` (${isElement ? subject.element.symbol : displayFormula(subject.compound.display_formula)})`}
+                  {` (${isElement ? subject.element.symbol : formulaText(subject.compound.display_formula)})`}
                 </span>
               </span>
             </span>
@@ -226,7 +225,7 @@ export function RecordHero({ id, subject, atlas, geometry, onDownload }: RecordH
       <AtlasVisual
         key={id}
         symbol={isElement ? subject.element.symbol : undefined}
-        formula={isElement ? undefined : displayFormula(subject.compound.display_formula)}
+        formula={isElement ? undefined : formulaText(subject.compound.display_formula)}
         shells={isElement ? subject.element.atomic_properties.electrons_per_shell : undefined}
         photo={atlas.media?.photo}
         structure={atlas.media?.structure}

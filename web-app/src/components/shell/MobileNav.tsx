@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { LogOut, Menu, Settings2, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { BrandLink } from "./BrandLink";
 import { NavIcon } from "./NavIcon";
+import { useNavigationMenuFocus } from "./navigationFocus";
 import { useSignOut } from "./useSignOut";
 
 const rowClass =
@@ -63,16 +64,23 @@ function MobileAccount({ onNavigate }: { onNavigate: () => void }) {
 /** Hamburger + left sheet with every route and the account actions. Below `lg` only. */
 export function MobileNav() {
   const { pathname } = useLocation();
-  // The sheet belongs to the page it was opened on, so a pathname change (back button, redirect)
-  // closes it. Its links close it too, because a link to the current page keeps the pathname.
-  const [openedOn, setOpenedOn] = useState<string | null>(null);
-  const close = () => setOpenedOn(null);
+  const [open, setOpen] = useState(false);
+  const { markNavigation, onCloseAutoFocus } = useNavigationMenuFocus();
+  // Following a link closes the sheet, and so does back/forward. It does not track `pathname`:
+  // the router updates that only once a lazy page has loaded, possibly after the sheet was
+  // opened again, which would then close by itself.
+  const close = useCallback(() => {
+    markNavigation();
+    setOpen(false);
+  }, [markNavigation]);
+  useEffect(() => {
+    if (!open) return;
+    window.addEventListener("popstate", close);
+    return () => window.removeEventListener("popstate", close);
+  }, [open, close]);
 
   return (
-    <Sheet
-      open={openedOn === pathname}
-      onOpenChange={(open) => setOpenedOn(open ? pathname : null)}
-    >
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
           variant="ghost"
@@ -86,6 +94,7 @@ export function MobileNav() {
       <SheetContent
         side="left"
         aria-describedby={undefined}
+        onCloseAutoFocus={onCloseAutoFocus}
         className="w-[min(20rem,86vw)] gap-0 p-0"
       >
         <SheetTitle className="sr-only">Gezinme</SheetTitle>

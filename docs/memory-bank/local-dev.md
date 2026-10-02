@@ -27,12 +27,20 @@ Portlar (yerel): PostgreSQL `POSTGRES_HOST_PORT` (varsayılan 5432), Redis 6380,
 
 ## Kontroller
 
+Test matrisinin tamamı kök README “Testler” tablosunda. Kısa liste:
+
 - Kök kısayollar: `./scripts/test.ps1` · `./scripts/lint.ps1` · `./scripts/up.ps1` · `./scripts/present.ps1` ([CONTRIBUTING.md](../../CONTRIBUTING.md)).
-- Ön yüz: `npm --prefix web-app run lint` / `run build` / test.
-- Bağımsız tarayıcı: `npm --prefix web-app run test:e2e` (`e2e/` atlas-lab + auth smoke).
-- Mock hesap: `npm --prefix web-app run test:e2e:auth`.
-- Gerçek hesap/ticaret: `npm --prefix web-app run test:e2e:live` (`WEB_BASE`; varsayılan http://localhost:6241).
+- Birim: `./deploy/scripts/test-unit.ps1` (.NET Gateway 20 + Services 115) · `npm --prefix order-service test` · `mvn -f wallet-service test` · `mvn -f inventory-service test` · `npm --prefix web-app test`.
+- Entegrasyon (18, Docker/Testcontainers, gerçek wallet-service konteyneri dahil): önce `npm --prefix order-service run build`, sonra `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"`.
+- Ön yüz: `npm --prefix web-app run lint` / `run build`.
+- Tarayıcı, hesaplar kapalı: `npm --prefix web-app run test:e2e` (`e2e/`; science-service + Vite’ı kendisi açar).
+- Tarayıcı, taklit identity: `npm --prefix web-app run test:e2e:auth` (`e2e-auth/`).
+- Tarayıcı, gerçek hesap/ticaret: `npm --prefix web-app run test:e2e:live` (`e2e-live/`; `WEB_BASE`, varsayılan http://localhost:6241).
+- Playwright ilk kez: `web-app` içinde `npx playwright install chromium`.
+- Canlı API: `test-scientific-api.mjs`, `test-e2e.mjs`, `test-saga.ps1`, `test-smoke.ps1`, `test-platform.mjs` (`deploy/scripts/`).
 - Tam doğrulama: `./deploy/scripts/test-all.ps1 -Configuration Review -Integration -Live -Browser -Recovery -WebBase http://localhost:6241`.
 - Jenkins path CI: [CI-JENKINS.md](../CI-JENKINS.md).
+
+Kılavuz: `docs/kilavuz/*.md` değişince `npm run dev` / `build` / `test` `src/data/guide.json` dosyasını yeniden üretir; elle çalıştırmak için `node web-app/scripts/write-guide.mjs`. Tasarım vitrini: dev sunucusunda `/_ui`.
 
 Atlas yenileme: `node deploy/scripts/refresh-atlas.mjs`; ağdan medya için `--fetch`. Bilimsel JSON değişince ilgili imajı yeniden derle.

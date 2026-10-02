@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { publicApiUrl } from "@/config";
+import { abortAfter } from "@/lib/abort";
 import { playgroundView } from "@/services/apiDocs";
 
 /** A finished HTTP exchange, as the playground shows it. */
@@ -24,11 +25,12 @@ async function requestApi(
   signal: AbortSignal,
 ): Promise<Outcome | null> {
   const started = performance.now();
+  const abort = abortAfter(TIMEOUT_MS, signal);
   try {
     const response = await fetch(publicApiUrl(path), {
       headers,
       cache: "no-store",
-      signal: AbortSignal.any([signal, AbortSignal.timeout(TIMEOUT_MS)]),
+      signal: abort.signal,
     });
     const etag = response.headers.get("ETag");
     const data: unknown = await response.json().catch(() => null);
@@ -51,6 +53,8 @@ async function requestApi(
         ? "10 saniye içinde yanıt gelmedi."
         : "Sunucuya ulaşılamadı.",
     };
+  } finally {
+    abort.release();
   }
 }
 

@@ -26,20 +26,12 @@ export {
 /** Feedback for a failed mix: wrong ratio, chemically impossible, not in the catalogue, or nothing on the bench. */
 export type MissTone = "almost" | "impossible" | "unknown" | "empty";
 
-/** Sandbox feedback for any mix: a catalogue hit or one of the miss tones. */
-export type MixTone = "hit" | MissTone;
-
 /** Maps a failed formCompound result to its miss tone. */
 export function missTone(result: Extract<FormResult, { ok: false }>): MissTone {
   if (result.code === "wrong_ratio") return "almost";
   if (result.code === "empty") return "empty";
   if (result.code === "noble" || result.code === "unstable") return "impossible";
   return "unknown";
-}
-
-/** Maps a formCompound result to the sandbox feedback tone. */
-export function mixOutcome(result: FormResult): MixTone {
-  return result.ok ? "hit" : missTone(result);
 }
 
 /** Moves the chip at `from` to `to`; out-of-range or equal indexes return the order unchanged. */
@@ -62,8 +54,9 @@ export function syncChipOrder(
   return [...kept, ...added];
 }
 
-/** Version and key of the pre-notebook discovery store; useLearning still reads it once for guests. */
-export const LAB_VERSION = 1;
+/** Version stamp inside the pre-notebook discovery store. */
+const LAB_VERSION = 1;
+/** Storage key of the pre-notebook discovery store; useLearning still reads it once for guests. */
 export const LAB_STORAGE_KEY = "elementapi:lab:v1";
 
 /** Number of compounds the lab can discover. */
@@ -77,7 +70,7 @@ export interface LabMaterial {
   kind: "element" | "compound";
 }
 
-const elementBySymbol = new Map(STATIC_ELEMENTS.map((e) => [e.symbol, e]));
+const elementBySymbol = new Map(STATIC_ELEMENTS.map((element) => [element.symbol, element]));
 const atomicNumber = (symbol: string) =>
   elementBySymbol.get(symbol)?.atomicNumber ?? Number.MAX_SAFE_INTEGER;
 
@@ -85,31 +78,31 @@ const materials: LabMaterial[] = [
   ...[...labElements]
     .sort((a, b) => atomicNumber(a) - atomicNumber(b))
     .map((id) => ({
-    id,
-    name: elementBySymbol.get(id)?.name ?? id,
-    formula: id,
-    kind: "element" as const,
-  })),
-  ...knownCompounds.map((c) => ({
-    id: c.slug,
-    name: c.nameTr,
-    formula: c.formula,
+      id,
+      name: elementBySymbol.get(id)?.name ?? id,
+      formula: id,
+      kind: "element" as const,
+    })),
+  ...knownCompounds.map((compound) => ({
+    id: compound.slug,
+    name: compound.nameTr,
+    formula: compound.formula,
     kind: "compound" as const,
   })),
 ];
 
 /** Every material by id: element symbols and compound slugs. */
 export const materialById: Record<string, LabMaterial> = Object.fromEntries(
-  materials.map((m) => [m.id, m]),
+  materials.map((material) => [material.id, material]),
 );
 
 /** Palette elements (every element used in the catalogue plus He, Ne, Ar) in atomic-number order. */
-export const elementMaterials = materials.filter((m) => m.kind === "element");
+export const elementMaterials = materials.filter((material) => material.kind === "element");
 
 /** Palette symbol for a URL value such as "fe" or "Fe"; undefined when the lab has no such element. */
 export function findLabElement(value: string | null): string | undefined {
   const wanted = value?.trim().toLowerCase();
-  return elementMaterials.find((m) => m.id.toLowerCase() === wanted)?.id;
+  return elementMaterials.find((material) => material.id.toLowerCase() === wanted)?.id;
 }
 
 /** Unique, known compound slugs; anything else is dropped. */
@@ -132,7 +125,7 @@ export function discover(discovered: string[], slug: string): string[] {
 /** First catalogue compound not discovered yet. */
 export function hint(discovered: string[]): KnownCompound | undefined {
   const known = new Set(normalizeDiscoveries(discovered));
-  return knownCompounds.find((c) => !known.has(c.slug));
+  return knownCompounds.find((compound) => !known.has(compound.slug));
 }
 
 /** Reads the legacy `elementapi:lab:v1` value; anything unreadable gives no discoveries. */

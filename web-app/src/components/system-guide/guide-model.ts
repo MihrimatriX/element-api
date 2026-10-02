@@ -21,12 +21,14 @@ export interface GuideTableRow {
   cells: GuideInline[][];
 }
 
+/** A markdown table: header cells and the rows below them. */
 export interface GuideTable {
   type: "table";
   columns: string[];
   rows: GuideTableRow[];
 }
 
+/** One bullet or numbered item, with its nested list if it has one. */
 export interface GuideListItem {
   content: GuideInline[];
   items?: GuideListItem[];
@@ -41,6 +43,7 @@ export interface GuideFile {
   tables: GuideTable[];
 }
 
+/** One block of a section, in document order. */
 export type GuideBlock =
   | { type: "paragraph"; content: GuideInline[] }
   | { type: "list"; ordered: boolean; items: GuideListItem[] }
@@ -48,6 +51,7 @@ export type GuideBlock =
   | GuideTable
   | GuideFile;
 
+/** A `##` section of a page; `anchor` is its deep-link id. */
 export interface GuideSection {
   heading: string;
   anchor: string;
@@ -78,6 +82,7 @@ export const GUIDE_GROUPS: readonly { label: string; slugs: readonly string[] }[
   { label: "Arayüz", slugs: ["web-app"] },
 ];
 
+/** A sidebar group with its pages resolved. */
 export interface GuideNavGroup {
   label: string;
   pages: GuidePage[];

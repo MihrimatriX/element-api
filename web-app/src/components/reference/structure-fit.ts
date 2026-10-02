@@ -19,16 +19,24 @@ export interface StructureFit {
   y: number;
 }
 
-/** Plate height / width of the compound card (4:3). */
-export const PLATE_RATIO = 3 / 4;
-/** Share of the plate the molecule should cover. */
-const FILL = 0.72;
-const MIN_SCALE = 0.6;
+/** Plate shape and zoom floor that `fitToPlate` fits a molecule into. */
+export interface Plate {
+  /** Plate height / width; the square image is as wide as the plate. */
+  ratio: number;
+  /** Share of the plate the molecule should cover. */
+  fill: number;
+  /** Lowest zoom: below 1 a molecule too big for the plate shrinks, at 1 it never does. */
+  minScale: number;
+}
+
+/** The 4:3 plate of a compound card, where a tall molecule may shrink to fit. */
+export const CARD_PLATE: Plate = { ratio: 3 / 4, fill: 0.72, minScale: 0.6 };
 const MAX_SCALE = 3;
 /** Side of the downscaled copy that is scanned for ink. */
 const SAMPLE_SIZE = 96;
 
-export const NO_FIT: StructureFit = { scale: 1, x: 0, y: 0 };
+/** No zoom or shift: used when an image's pixels cannot be read. */
+const NO_FIT: StructureFit = { scale: 1, x: 0, y: 0 };
 
 /**
  * Bounding box of the pixels that differ from the background (the top-left pixel)
@@ -69,14 +77,14 @@ export function inkBounds(
 
 /**
  * Zoom and shift that centre the molecule in a plate as wide as the (square) image
- * and `PLATE_RATIO` as tall, filling `FILL` of the tighter side.
+ * and `plate.ratio` as tall, filling `plate.fill` of the tighter side.
  */
-export function fitToPlate(bounds: InkBounds): StructureFit {
+export function fitToPlate(bounds: InkBounds, plate: Plate = CARD_PLATE): StructureFit {
   const width = Math.max(bounds.right - bounds.left, 0.02);
   const height = Math.max(bounds.bottom - bounds.top, 0.02);
   const scale = Math.min(
     MAX_SCALE,
-    Math.max(MIN_SCALE, Math.min(FILL / width, (FILL * PLATE_RATIO) / height)),
+    Math.max(plate.minScale, Math.min(plate.fill / width, (plate.fill * plate.ratio) / height)),
   );
   const centerX = (bounds.left + bounds.right) / 2;
   const centerY = (bounds.top + bounds.bottom) / 2;
@@ -88,7 +96,7 @@ export function fitToPlate(bounds: InkBounds): StructureFit {
 }
 
 /** Measures a loaded structure image; falls back to no zoom when its pixels cannot be read. */
-export function measureStructure(image: HTMLImageElement): StructureFit {
+export function measureStructure(image: HTMLImageElement, plate: Plate = CARD_PLATE): StructureFit {
   const canvas = document.createElement("canvas");
   canvas.width = SAMPLE_SIZE;
   canvas.height = SAMPLE_SIZE;
@@ -98,7 +106,7 @@ export function measureStructure(image: HTMLImageElement): StructureFit {
   try {
     const { data } = context.getImageData(0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
     const bounds = inkBounds(data, SAMPLE_SIZE);
-    return bounds ? fitToPlate(bounds) : NO_FIT;
+    return bounds ? fitToPlate(bounds, plate) : NO_FIT;
   } catch {
     // A cross-origin image without CORS headers taints the canvas.
     return NO_FIT;

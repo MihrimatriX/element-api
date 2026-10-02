@@ -29,7 +29,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={cn("mt-16 scroll-mt-24 first:mt-0 lg:mt-20", className)}
+      className={cn("mt-16 scroll-mt-6 first:mt-0 lg:mt-20", className)}
     >
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div className="min-w-0">

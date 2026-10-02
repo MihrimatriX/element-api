@@ -19,6 +19,8 @@ import { elementService, type BoardRow } from "../services/api";
 
 const BOARD_POLL_MS = 20_000;
 const MOVERS_LIMIT = 16;
+/** The wallet's slug for pure-element holdings; the sell form starts on that product. */
+const ELEMENTAL_SLUG = "elemental";
 
 /** Holdings of one element for the sell form: `null` while loading, empty when the vault failed to load. */
 function holdingsOf(state: HoldingsState, symbol: string): HoldingRow[] | null {
@@ -40,7 +42,12 @@ export default function Market() {
   const [board, setBoard] = useState<BoardRow[]>([]);
   const [movers, setMovers] = useState<BoardRow[]>([]);
   const [boardStatus, setBoardStatus] = useState<"loading" | "ready" | "error">("loading");
-  const [draft, setDraft] = useState<SaleDraft>({ slug: "elemental", grams: "" });
+  // Account's "Sat" link hands over the holding's product as `state.slug`, so an NaCl row
+  // preselects NaCl rather than pure Na for someone who holds both.
+  const [draft, setDraft] = useState<SaleDraft>(() => ({
+    slug: (location.state as { slug?: string } | null)?.slug ?? ELEMENTAL_SLUG,
+    grams: "",
+  }));
   const { ticker, reload: reloadTicker } = useTicker(selectedSymbol);
   const holdings = useHoldings(isAuthenticated);
 
@@ -79,7 +86,7 @@ export default function Market() {
     <main className="container-page pb-24 pt-10 lg:pt-14">
       <Seo
         title="Piyasa · ElementAPI"
-        description={`${selectedElement.name} (${selectedSymbol}) fiyat tablosu: son fiyat, alış, satış.`}
+        description={`${selectedElement.name} (${selectedElement.symbol}) fiyat tablosu: son fiyat, alış, satış.`}
         path="/market"
       />
       <PageHeader
@@ -112,6 +119,7 @@ export default function Market() {
           elements={elements}
           loading={boardStatus === "loading"}
           failed={boardStatus === "error"}
+          pollMs={BOARD_POLL_MS}
           selectedSymbol={selectedSymbol}
           onSelect={setSelectedSymbol}
           onRetry={loadBoard}

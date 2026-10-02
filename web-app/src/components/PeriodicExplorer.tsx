@@ -76,7 +76,7 @@ export default function PeriodicExplorer() {
 
   const tileProps = {
     readingOf,
-    valueLabel: LENS_VALUE_LABEL[lens],
+    valueLabel: lens === "category" ? undefined : LENS_VALUE_LABEL[lens],
     selected,
     onOpen: openPreview,
     gridProps,

@@ -4,7 +4,7 @@ const rawBase =
 /** Account and commerce gateway (`/api/v1`), no trailing slash. Build-time `VITE_API_BASE_URL`. */
 export const API_BASE_URL = rawBase.replace(/\/$/, "");
 /** Gateway origin: `API_BASE_URL` without its `/api/v1` suffix. */
-export const API_ORIGIN = API_BASE_URL.replace(/\/api\/v1$/i, "");
+const API_ORIGIN = API_BASE_URL.replace(/\/api\/v1$/i, "");
 
 /** Public web origin for canonical / OG URLs. Build-time env, else the browser origin. */
 export function getPublicSiteUrl(): string {

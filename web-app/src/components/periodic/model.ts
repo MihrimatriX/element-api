@@ -8,11 +8,6 @@ export type ExplorerView = "table" | "cards";
 /** Family filter keys in legend order. */
 export const FAMILIES = Object.keys(categoryLabels) as ElementFamily[];
 
-/** Narrows a seed category to an ElementTile family ("unknown" if it is not one). */
-export function familyOf(category: string): ElementFamily {
-  return category in categoryLabels ? (category as ElementFamily) : "unknown";
-}
-
 /**
  * Explorer filter: the element is in one of the selected families (none selected = all) and
  * every search word appears in its symbol, Turkish name, atomic number or English name.

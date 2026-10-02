@@ -12,10 +12,9 @@ import { RecordOverview } from "./detail/RecordOverview";
 import { RecordSources } from "./detail/RecordSources";
 import { RecordError, RecordNotFound, RecordSkeleton } from "./detail/RecordStates";
 import { RelatedCompounds } from "./detail/RelatedCompounds";
-import { geometryOf } from "../services/chemistry";
+import { formulaText, geometryOf } from "../services/chemistry";
 import { compoundBySlug } from "../services/lab";
 import {
-  displayFormula,
   useScience,
   type AtlasFields,
   type ScientificCompound,
@@ -24,9 +23,6 @@ import {
 } from "../services/science";
 
 type Kind = "elements" | "compounds";
-
-/** Error text `services/science` uses for an HTTP 404. */
-const NOT_FOUND_MESSAGE = "Kayıt bulunamadı.";
 
 /** Scrolls to `location.hash` once the record has rendered (the router does not for late anchors). */
 function useScrollToHash(ready: boolean) {
@@ -51,7 +47,7 @@ function RecordPage({ kind, id, record }: { kind: Kind; id: string; record: Scie
   const labCompound = compound ? compoundBySlug[compound.slug] : undefined;
   const geometry = labCompound ? geometryOf(labCompound) : undefined;
   const names = record.names as { tr: string };
-  const mark = element?.symbol ?? displayFormula(compound?.display_formula ?? "");
+  const mark = element?.symbol ?? formulaText(compound?.display_formula ?? "");
   const download = () => downloadRecord(record);
 
   const toc: TocItem[] = [
@@ -102,12 +98,12 @@ function RecordPage({ kind, id, record }: { kind: Kind; id: string; record: Scie
 export default function ScientificDetail({ kind }: { kind: Kind }) {
   const params = useParams();
   const id = (params.symbol ?? params.slug ?? "").toLowerCase();
-  const { data, error, retry } = useScience<ScientificRecord>(kind, id);
+  const { data, error, notFound, retry } = useScience<ScientificRecord>(kind, id);
   const path = `/${kind === "elements" ? "element" : "compound"}/${id}`;
   useScrollToHash(Boolean(data));
 
   if (data) return <RecordPage kind={kind} id={id} record={data} />;
-  if (error === NOT_FOUND_MESSAGE) return <RecordNotFound kind={kind} id={id} path={path} />;
+  if (notFound) return <RecordNotFound kind={kind} id={id} path={path} />;
   if (error) return <RecordError kind={kind} message={error} path={path} onRetry={retry} />;
   return <RecordSkeleton kind={kind} path={path} />;
 }

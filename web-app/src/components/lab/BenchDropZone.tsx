@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Formula } from "@/components/ui/formula";
 import { cn } from "@/lib/utils";
 import type { Counts } from "@/services/chemistry";
+import { familyColor } from "@/services/elementData";
 import { CountStepper } from "./CountStepper";
-import { elementInfo, familyColor } from "./elementInfo";
+import { elementInfo } from "./elementInfo";
 import type { DragSource, DragState } from "./useLabDrag";
 
 /** Ready-made mixes for a quick start; choosing one loads it and runs "Dene". */

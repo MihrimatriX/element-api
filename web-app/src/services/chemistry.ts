@@ -164,7 +164,7 @@ export function prune(counts: Counts): Counts {
 }
 
 /** Order-independent identity of a composition, e.g. "H:2|O:1". */
-export function compositionKey(counts: Counts): string {
+function compositionKey(counts: Counts): string {
   return Object.entries(prune(counts))
     .map(([symbol, count]) => `${symbol}:${count}`)
     .join("|");
@@ -215,7 +215,7 @@ function compareForFormula(a: string, b: string, symbols: string[]): number {
 }
 
 /** Writes counts as a conventional formula: `{ O: 1, H: 2 }` → "H2O". */
-export function writeFormula(counts: Counts): string {
+function writeFormula(counts: Counts): string {
   const pruned = prune(counts);
   const symbols = Object.keys(pruned);
   return [...symbols]
@@ -246,7 +246,7 @@ export function bagFormula(counts: Counts): string {
 }
 
 /** Catalogue compounds made of exactly the same elements, in any ratio. */
-export function sameElements(counts: Counts): KnownCompound[] {
+function sameElements(counts: Counts): KnownCompound[] {
   const symbols = Object.keys(prune(counts)).sort().join("|");
   return knownCompounds.filter(
     (compound) =>
@@ -277,10 +277,10 @@ function canBalanceCharges(counts: Counts): boolean {
     const { count, states } = elements[index];
     if (states.some((state) => balances(index + 1, charge + state * count)))
       return true;
-    for (let a = 0; a < states.length; a++)
-      for (let b = a + 1; b < states.length; b++)
+    for (let first = 0; first < states.length; first++)
+      for (let second = first + 1; second < states.length; second++)
         for (let inFirst = 1; inFirst < count; inFirst++) {
-          const mixed = states[a] * inFirst + states[b] * (count - inFirst);
+          const mixed = states[first] * inFirst + states[second] * (count - inFirst);
           if (balances(index + 1, charge + mixed)) return true;
         }
     return false;

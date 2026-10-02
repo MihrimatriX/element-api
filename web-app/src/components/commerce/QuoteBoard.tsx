@@ -39,6 +39,8 @@ interface QuoteBoardProps {
   loading: boolean;
   /** True when the last refresh failed (stale rows stay visible). */
   failed: boolean;
+  /** How often the page refreshes the rows, for the caption. */
+  pollMs: number;
   selectedSymbol: string;
   onSelect: (symbol: string) => void;
   onRetry: () => void;
@@ -53,6 +55,7 @@ export function QuoteBoard({
   elements,
   loading,
   failed,
+  pollMs,
   selectedSymbol,
   onSelect,
   onRetry,
@@ -105,7 +108,7 @@ export function QuoteBoard({
             Fiyatlar
           </h2>
           <p className="text-[13px] text-ink-3">
-            Kredi / gram · 20 saniyede bir yenilenir
+            Kredi / gram · {pollMs / 1000} saniyede bir yenilenir
           </p>
         </div>
         <SearchField

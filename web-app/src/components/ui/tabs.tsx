@@ -41,6 +41,7 @@ const tabsListVariants = cva(
   },
 );
 
+/** The row of tabs: `default` pill track or `line` underline. */
 function TabsList({
   className,
   variant = "default",
@@ -57,6 +58,7 @@ function TabsList({
   );
 }
 
+/** One tab; selects its `TabsContent` by `value`. */
 function TabsTrigger({
   className,
   ...props
@@ -75,6 +77,7 @@ function TabsTrigger({
   );
 }
 
+/** Panel shown while its tab is selected. */
 function TabsContent({
   className,
   ...props
@@ -88,4 +91,4 @@ function TabsContent({
   );
 }
 
-export { Tabs, TabsContent, TabsList, TabsTrigger, tabsListVariants };
+export { Tabs, TabsContent, TabsList, TabsTrigger };
