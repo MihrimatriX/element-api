@@ -3,7 +3,9 @@ WORKDIR /build
 COPY pom.xml .
 RUN mvn -q dependency:go-offline
 COPY src ./src
-RUN mvn -q package -DskipTests
+# Some build contexts (e.g. Testcontainers' image builder) stamp every file with 1970; Maven then
+# skips copying non-filtered resources and the jar ships without schema.sql. Refresh the times first.
+RUN find src -exec touch {} + && mvn -q package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app

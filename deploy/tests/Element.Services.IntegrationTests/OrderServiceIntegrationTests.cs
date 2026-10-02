@@ -7,8 +7,8 @@ using Npgsql;
 namespace Element.Services.IntegrationTests;
 
 /// <summary>
-/// The real Node order-service process on Testcontainers: order ownership, auth guard, wallet
-/// debit idempotency, desk-sell limits and health.
+/// The real Node order-service process on Testcontainers: order ownership, auth guard and health.
+/// Wallet behaviour lives in wallet-service and is covered by <see cref="WalletServiceIntegrationTests"/>.
 /// </summary>
 [Trait("Category", "Integration")]
 public class OrderServiceIntegrationTests : IClassFixture<IntegrationTestContainers>
@@ -75,40 +75,6 @@ public class OrderServiceIntegrationTests : IClassFixture<IntegrationTestContain
         client.DefaultRequestHeaders.Add("X-User-Id", owner.ToString());
         var own = await client.GetAsync($"/api/v1/orders/{orderId}");
         own.EnsureSuccessStatusCode();
-    }
-
-    [Fact]
-    public async Task WalletDebit_IsIdempotent_AndSellRejectsOverHolding()
-    {
-        await using var host = new OrderNodeTestHost();
-        await host.StartAsync(_containers, UnreachableCatalogUrl);
-        var userId = Guid.NewGuid().ToString();
-        var client = host.CreateClient();
-        client.DefaultRequestHeaders.Add("X-User-Id", userId);
-
-        // The first wallet read creates the account with the 10000 welcome grant.
-        (await client.GetAsync("/api/v1/me/wallet")).EnsureSuccessStatusCode();
-        var granted = await (await client.GetAsync("/api/v1/me/wallet")).Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-        Assert.Equal(10000, granted.GetProperty("balanceElx").GetDecimal());
-
-        var orderId = Guid.NewGuid();
-        await InsertOrderAsync(orderId, Guid.Parse(userId), "StockReserved");
-
-        // The same debit twice must only charge once.
-        var debitBody = new { orderId, customerId = userId, amount = 10 };
-        var first = await client.PostAsJsonAsync("/internal/wallet/debit", debitBody);
-        first.EnsureSuccessStatusCode();
-        var second = await client.PostAsJsonAsync("/internal/wallet/debit", debitBody);
-        second.EnsureSuccessStatusCode();
-
-        var walletResponse = await client.GetAsync("/api/v1/me/wallet");
-        walletResponse.EnsureSuccessStatusCode();
-        var wallet = await walletResponse.Content.ReadFromJsonAsync<JsonElement>(JsonOptions);
-        Assert.Equal(9990, wallet.GetProperty("balanceElx").GetDecimal());
-
-        // The user holds no gold, so selling 50 g must be rejected.
-        var sell = await client.PostAsJsonAsync("/api/v1/desk/sell", new { symbol = "Au", grams = 50 });
-        Assert.Equal(HttpStatusCode.BadRequest, sell.StatusCode);
     }
 
     [Fact]

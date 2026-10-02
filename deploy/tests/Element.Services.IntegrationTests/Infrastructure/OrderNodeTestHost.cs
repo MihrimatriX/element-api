@@ -133,7 +133,7 @@ public sealed class OrderNodeTestHost : IAsyncDisposable
     }
 
     /// <summary>Walks up from the test binaries until it finds the folder that contains order-service.</summary>
-    private static string FindRepoRoot()
+    internal static string FindRepoRoot()
     {
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory != null)

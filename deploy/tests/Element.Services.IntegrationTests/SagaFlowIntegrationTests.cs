@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace Element.Services.IntegrationTests;
 
 /// <summary>
-/// Real Node, catalog and shipment services; payment events are supplied by the test.
-/// The Java worker and wallet debit are covered by deploy/scripts/test-e2e.mjs.
+/// Real Node order-service, catalog and shipment services. The Java inventory and wallet services
+/// are not started, so the test publishes their StockReservedEvent and PaymentProcessedEvent itself.
+/// The real Java services in the saga are covered by deploy/scripts/test-e2e.mjs.
 /// </summary>
 [Trait("Category", "Integration")]
 [Collection("SagaFlow")]
@@ -71,7 +72,7 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
 
     /// <summary>
     /// Polls the order until it is Completed or Failed (or the timeout passes), publishing the
-    /// payment event whenever the saga waits for it. Returns the last status seen.
+    /// stock or payment event whenever the saga waits for one. Returns the last status seen.
     /// </summary>
     private async Task<string> PollAndAdvanceSagaAsync(
         HttpClient orderClient,
@@ -98,10 +99,15 @@ public class SagaFlowIntegrationTests : IClassFixture<IntegrationTestContainers>
         return status;
     }
 
-    /// <summary>The payment worker is not running in this test, so the test plays its part.</summary>
+    /// <summary>
+    /// Inventory and wallet are not running in this test, so the test answers for them. The saga
+    /// ignores a repeated event once the order has moved on, so publishing on every poll is safe.
+    /// </summary>
     private async Task TryAdvanceSagaAsync(Guid orderId, string status)
     {
-        if (status == "StockReserved")
+        if (status == "Submitted")
+            await SagaEventPublisher.PublishStockReservedAsync(_containers, orderId);
+        else if (status == "StockReserved")
             await SagaEventPublisher.PublishPaymentProcessedAsync(_containers, orderId);
     }
 

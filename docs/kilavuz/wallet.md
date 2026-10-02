@@ -199,7 +199,7 @@ Port, veritabanı, RabbitMQ, cüzdan ayarları ve Actuator ayarlarını ortam de
 Açılışta çalışan şema: `wallets`, `holdings`, `ledger`, `processed_messages` tabloları ve sipariş başına tek `buy` / tek `refund` kaydını garanti eden benzersiz indeksler.
 
 ### `wallet-service/Dockerfile` ve `wallet-service/pom.xml`
-Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docker tarifi ve bağımlılık listesi. İmaj `nobody` kullanıcısıyla çalışır, sağlık kontrolü taban imajdaki busybox `wget`'i kullanır ve JVM bellek bitince (`-XX:+ExitOnOutOfMemoryError`) kapanır ki Docker yeniden başlatsın.
+Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docker tarifi ve bağımlılık listesi. İmaj `nobody` kullanıcısıyla çalışır, sağlık kontrolü taban imajdaki busybox `wget`'i kullanır ve JVM bellek bitince (`-XX:+ExitOnOutOfMemoryError`) kapanır ki Docker yeniden başlatsın. Derlemeden önce kaynak dosyaların zamanları yenilenir: Testcontainers gibi bağlamı 1970 tarihli gönderen derleyicilerde Maven aksi halde `schema.sql`'i jar'a koymaz.
 
 ## Yapılandırma
 

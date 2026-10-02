@@ -32,7 +32,9 @@ Bu alanın kendi HTTP uç noktası yoktur. Script'lerin çağırdığı adresler
 
 | Yön | Olay | Ne zaman | Ne yapar |
 |---|---|---|---|
-| Yayınlar | PaymentProcessedEvent | Yalnız `SagaFlowIntegrationTests` içinde, sipariş StockReserved durumundayken | Çalışmayan ödeme tarafının yerine geçer; satın alma saga'sı Completed'a ilerleyebilsin diye MassTransit zarfıyla RabbitMQ'ya yazar |
+| Yayınlar | StockReservedEvent | Yalnız `SagaFlowIntegrationTests` içinde, sipariş Submitted durumundayken | Testte çalışmayan inventory servisinin yerine geçer; saga StockReserved'a ilerleyebilsin diye MassTransit zarfıyla RabbitMQ'ya yazar |
+| Yayınlar | PaymentProcessedEvent | Yalnız `SagaFlowIntegrationTests` içinde, sipariş StockReserved durumundayken | Testte çalışmayan wallet servisinin yerine geçer; satın alma saga'sı Completed'a ilerleyebilsin diye MassTransit zarfıyla RabbitMQ'ya yazar |
+| Yayınlar | PaymentRequestedEvent | Yalnız `WalletServiceIntegrationTests` içinde, aynı sipariş için iki kez | Çalışmayan sipariş saga'sının yerine geçer; gerçek wallet servisinin aynı siparişi tek kez borçlandırdığını doğrulamak için |
 
 ## Komutlar
 
@@ -62,7 +64,7 @@ Bu alanın kendi HTTP uç noktası yoktur. Script'lerin çağırdığı adresler
 | `./deploy/scripts/test-saga.ps1` | Sipariş servisinin saga regresyon kontrolü (yerel Postgres ile) |
 | `node deploy/scripts/test-backup-restore.mjs` | Her veritabanını yedekleyip geçici veritabanına geri yükler ve içerik eşitliğini doğrular |
 | `node --test deploy/tests/public-env-matrix.test.mjs` | Public ortam şablonlarının port/sır kurallarını kontrol eder |
-| `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker'da gerçek Postgres/Redis/RabbitMQ ile entegrasyon testleri |
+| `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker'da gerçek Postgres/Redis/RabbitMQ ve Dockerfile'dan derlenen wallet-service konteyneriyle entegrasyon testleri |
 | `node deploy/scripts/secret-scan.mjs` | Çalışma ağacında sızmış anahtar/demo şifre arar |
 | `./deploy/scripts/fill-public-prod-env.ps1` | `docker/.env.public.prod` dosyasını yeni rastgele sırlarla üretir (`-ServerTemplate` gerçek host için) |
 | `./deploy/scripts/probe-dns.ps1` | Alan adının DNS kayıtlarını ve HTTPS cevabını gösterir |
@@ -460,13 +462,14 @@ Entegrasyon test projesi: xUnit, Testcontainers (Postgres, Redis, RabbitMQ), Mas
 Testlerin paralel çalışmasını kapatan tek satırlık assembly ayarı.
 
 ### `deploy/tests/Element.Services.IntegrationTests/Infrastructure/IntegrationTestContainers.cs`
-Test sınıfı başına geçici Postgres, Redis ve RabbitMQ konteynerlerini açan xUnit fixture'ı.
+Test sınıfı başına geçici Postgres, Redis ve RabbitMQ konteynerlerini açan xUnit fixture'ı. Postgres ve RabbitMQ ayrıca sınıfa özel bir Docker ağına katılır; konteynerde çalışan servis (wallet-service) onlara compose'taki adlarıyla (`postgres`, `rabbitmq`) ulaşır.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `InitializeAsync()` | Konteynerleri başlatır ve testlerin kullandığı veritabanlarını oluşturur. |
+| `Network` | Postgres, RabbitMQ ve testin açtığı servis konteynerlerinin ortak Docker ağı. |
+| `InitializeAsync()` | Konteynerleri başlatır ve testlerin kullandığı veritabanlarını (wallet'ınki dahil) oluşturur. |
 | `EnsureDatabasesExistAsync(databases)` | Veritabanlarını oluşturur; zaten varsa sessizce geçer. |
-| `DisposeAsync()` | Konteynerleri durdurup siler. |
+| `DisposeAsync()` | Konteynerleri ve ağı durdurup siler. |
 | `RedisConnection` / `RabbitHost` / `RabbitPort` | Test makinesinden erişilen Redis bağlantı metni ve RabbitMQ adres/port bilgisi. |
 
 ### `deploy/tests/Element.Services.IntegrationTests/Infrastructure/IntegrationTestSettings.cs`
@@ -490,7 +493,7 @@ Node sipariş servisini test konteynerlerine bağlı ayrı bir süreç olarak ç
 | `CaptureOutput(sender, args)` | Servis çıktısının son 100 satırını hata mesajı için saklar. |
 | `WaitForHealthyAsync()` | 30 sn içinde sağlıklı olmasını bekler; süreç erken ölürse çıktısıyla birlikte hata verir. |
 | `GetFreePort()` | İşletim sisteminden boş bir loopback portu alır. |
-| `FindRepoRoot()` | Test dosyalarından yukarı çıkarak `order-service` klasörünü içeren depo kökünü bulur. |
+| `FindRepoRoot()` | Test dosyalarından yukarı çıkarak `order-service` klasörünü içeren depo kökünü bulur (wallet fixture'ı da Dockerfile'ı bununla bulur). |
 | `DisposeAsync()` | Node süreç ağacını öldürür. |
 
 ### `deploy/tests/Element.Services.IntegrationTests/Infrastructure/SagaEventPublisher.cs`
@@ -499,7 +502,8 @@ Testin, çalışmayan bir servisin yerine MassTransit uyumlu olay yayınlamasın
 | Fonksiyon | Ne yapar |
 |---|---|
 | `PublishAsync(containers, typeName, message)` | Mesajı MassTransit zarfına koyup olay tipinin fanout exchange'ine yayınlar. |
-| `PublishPaymentProcessedAsync(containers, orderId)` | Bir sipariş için "ödeme tamamlandı" olayını yayınlar. |
+| `PublishStockReservedAsync(containers, orderId)` | Bir sipariş için "stok ayrıldı" olayını yayınlar (inventory'nin yerine). |
+| `PublishPaymentProcessedAsync(containers, orderId)` | Bir sipariş için "ödeme tamamlandı" olayını yayınlar (wallet'ın yerine). |
 
 ### `deploy/tests/Element.Services.IntegrationTests/Infrastructure/TestHttpBridge.cs`
 Bellek içi test sunucusunu gerçek bir loopback portuna açar ki ayrı çalışan Node servisi ona ulaşabilsin.
@@ -509,6 +513,17 @@ Bellek içi test sunucusunu gerçek bir loopback portuna açar ki ayrı çalış
 | `StartAsync(client)` | Gelen her GET isteğini verilen test istemcisine aktaran küçük bir web uygulaması başlatır. |
 | `BaseUrl` | Köprünün dinlediği adres. |
 | `DisposeAsync()` | Köprüyü kapatır. |
+
+### `deploy/tests/Element.Services.IntegrationTests/Infrastructure/WalletServiceContainers.cs`
+Gerçek Java wallet-service'i `wallet-service/Dockerfile`'dan derleyip ortak Postgres/RabbitMQ ağında çalıştıran xUnit fixture'ı. Yanında sabit alış fiyatı (gram başına 100) dönen küçük bir nginx catalog taklidi açılır ki masaya satış fiyatı bulabilsin. İmaj `element-wallet-service-it` adıyla bilerek silinmez: sonraki derleme Docker katman önbelleğinden hızlı geçer (compose'un `element-wallet-service` imajına dokunulmaz). İlk çalıştırma Maven bağımlılıklarını indirdiği için birkaç dakika sürer. Testcontainers bağlamdaki dosyaları 1970 tarihiyle gönderdiği için Dockerfile derlemeden önce dosya zamanlarını yeniler; yoksa jar `schema.sql`'siz çıkar ve cüzdan tabloları oluşmaz.
+
+| Fonksiyon | Ne yapar |
+|---|---|
+| `WelcomeGrant` | Servise `WALLET_WELCOME_GRANT` olarak verilen hoş geldin Kredisi (10000). |
+| `Infrastructure` | Ortak Postgres, Redis ve RabbitMQ fixture'ı (`element_wallet_db` diğer veritabanlarıyla birlikte oluşur). |
+| `InitializeAsync()` | Altyapı açılırken imajı derler, sonra catalog taklidini ve wallet'ı başlatıp `/health` 200 dönene kadar (en çok 2 dk) bekler. |
+| `CreateClient(userId)` | Gateway gibi `INTERNAL_API_KEY` ve `X-User-Id` başlıklarını ekleyen HttpClient döndürür. |
+| `DisposeAsync()` | Konteynerleri siler; imaj önbellek için kalır. |
 
 ### `deploy/tests/Element.Services.IntegrationTests/GatewayApiKeyIntegrationTests.cs`
 Gateway + gerçek identity: açık rotalar anonim kalır, korumalı rotalar geçerli X-API-Key ister.
@@ -547,27 +562,35 @@ Hesap özellikleri: öğrenme ilerlemesi, kilitleme, şifre değiştirme/sıfır
 | `CapturingMailer.SendAsync(...)` / `CapturingMailer.Token` / `CapturingMailer.Count` | Son e-postayı saklar, gönderim sayısını tutar ve içindeki linkten token'ı çıkarır. |
 
 ### `deploy/tests/Element.Services.IntegrationTests/OrderServiceIntegrationTests.cs`
-Gerçek Node sipariş servisi: sahiplik, yetki, cüzdan borcunun tek seferliği, satış sınırı ve sağlık.
+Gerçek Node sipariş servisi: sahiplik, yetki ve sağlık. Cüzdan davranışı wallet-service'te olduğu için `WalletServiceIntegrationTests` içinde test edilir.
 
 | Fonksiyon | Ne yapar |
 |---|---|
 | `GetUserOrders_ReturnsEmptyList_WhenNoOrders()` | Siparişi olmayan kullanıcıya boş liste döndüğünü doğrular. |
 | `PostOrder_WithoutUser_Returns401()` | Kullanıcısız siparişin 401 aldığını doğrular. |
 | `GetOrder_WrongUser_Returns404()` | Başkasının siparişinin 404, kendi siparişinin 200 döndüğünü doğrular. |
-| `WalletDebit_IsIdempotent_AndSellRejectsOverHolding()` | Aynı borcun iki kez kesilmediğini ve elde olmayan altının satılamadığını doğrular. |
 | `Health_ReturnsHealthy_WhenDependenciesUp()` | `/health` ucunun sağlıklı cevap verdiğini doğrular. |
 | `InsertOrderAsync(orderId, customerId, status)` | API'yi atlayıp sipariş tablosuna 1 g altın siparişi yazar. |
 
 ### `deploy/tests/Element.Services.IntegrationTests/SagaFlowIntegrationTests.cs`
-Gerçek Node sipariş, catalog ve shipment servisleriyle satın alma saga'sının Completed'a ulaştığını doğrular; ödeme olayını test verir.
+Gerçek Node sipariş, catalog ve shipment servisleriyle satın alma saga'sının Completed'a ulaştığını doğrular; Java inventory ve wallet servisleri açılmadığı için stok ve ödeme olaylarını test verir.
 
 | Fonksiyon | Ne yapar |
 |---|---|
 | `CreateOrder_CompletesSaga_WhenStockAndPaymentSucceed()` | Sipariş açar ve 90 sn içinde Completed olduğunu doğrular. |
-| `PollAndAdvanceSagaAsync(orderClient, orderId, timeout)` | Siparişi 2 sn arayla sorar, gerektiğinde ödeme olayını yayınlar, son durumu döndürür. |
-| `TryAdvanceSagaAsync(orderId, status)` | Durum StockReserved ise ödeme olayını yayınlar. |
+| `PollAndAdvanceSagaAsync(orderClient, orderId, timeout)` | Siparişi 2 sn arayla sorar, gerektiğinde stok ya da ödeme olayını yayınlar, son durumu döndürür. |
+| `TryAdvanceSagaAsync(orderId, status)` | Durum Submitted ise "stok ayrıldı", StockReserved ise "ödeme tamamlandı" olayını yayınlar (saga tekrarlanan olayı yok sayar). |
 | `GetSagaStateAsync(orderId)` | Hata mesajı için saga durumunu veritabanından okur. |
 | `CreateElementFactory()` / `CreateShipmentFactory()` | Konteynerlere bağlı catalog ve shipment test sunucularını kurar. |
+
+### `deploy/tests/Element.Services.IntegrationTests/WalletServiceIntegrationTests.cs`
+Konteynerdeki gerçek Java wallet-service: hoş geldin Kredisi, sipariş başına tek borç ve masaya satış sınırı. Sipariş saga'sı çalışmadığı için `PaymentRequestedEvent`'i test yayınlar.
+
+| Fonksiyon | Ne yapar |
+|---|---|
+| `WalletDebit_IsIdempotent_AndSellRejectsOverHolding()` | İlk cüzdan okumasının 10000 Kredi verdiğini, aynı sipariş için iki kez gelen ödeme isteğinin yalnız bir kez kesildiğini (bakiye 9990) ve elde olmayan 50 g altının satışının `no_holding` sebebiyle 400 aldığını doğrular. |
+| `GetBalanceAsync(client)` | `/api/v1/me/wallet` ucundan bakiyeyi okur. |
+| `WaitForProcessedDeliveriesAsync(orderId, expected)` | Wallet'ın `processed_messages` tablosunda sipariş için beklenen sayıda teslimat işlenene kadar (en çok 30 sn) bekler. |
 
 Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (editoryal metinler), `deploy/data/atlas-media.json` (medya manifesti) ve `deploy/data/atlas-photo-selections.json` (küratör fotoğraf seçimleri) yukarıdaki atlas script'lerinin girdi/çıktısıdır; `deploy/jenkins/` gece işi ve Job DSL tanımlarını tutar.
 
@@ -606,6 +629,6 @@ Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (ed
 ## Testler
 
 - `deploy/tests/public-env-matrix.test.mjs`: public Dev/Test/Prod şablonlarının portlarının ve compose proje adlarının çakışmadığını, her şablonun yerel duman düzenini koruduğunu, `ChangeMe` veya `element-internal-dev-key` taşımadığını, INTERNAL_API_KEY'in en az 32 karakter olduğunu ve `present-public.ps1`'in sunucu korumasını içerdiğini kontrol eder. Çalıştır: `node --test deploy/tests/public-env-matrix.test.mjs`
-- `deploy/tests/Element.Services.IntegrationTests/`: gateway API anahtarı, identity hesap akışları, Node sipariş servisi ve satın alma saga'sı gerçek Postgres/Redis/RabbitMQ konteynerleriyle test edilir. Docker çalışıyor ve `order-service` derlenmiş olmalı (`cd order-service && npm ci && npm run build`). Çalıştır: `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` (yalnız derleme kontrolü: `dotnet build deploy/tests/Element.Services.IntegrationTests`)
+- `deploy/tests/Element.Services.IntegrationTests/`: gateway API anahtarı, identity hesap akışları, Node sipariş servisi, satın alma saga'sı ve Java wallet servisi gerçek Postgres/Redis/RabbitMQ konteynerleriyle test edilir. Docker çalışıyor ve `order-service` derlenmiş olmalı (`cd order-service && npm ci && npm run build`); wallet imajını test kendisi `wallet-service/Dockerfile`'dan derler (ilk seferde Maven indirmesi yüzünden birkaç dakika). Çalıştır: `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` (yalnız derleme kontrolü: `dotnet build deploy/tests/Element.Services.IntegrationTests`)
 - Canlı sistem kontrolleri (platform açıkken): `./deploy/scripts/test-smoke.ps1`, `node deploy/scripts/test-e2e.mjs`, `node deploy/scripts/test-platform.mjs`, `node deploy/scripts/test-scientific-api.mjs`, `./deploy/scripts/test-saga.ps1`, `node deploy/scripts/test-backup-restore.mjs`. Hepsini sırayla çalıştırmak için: `./deploy/scripts/test-all.ps1 -Live -Recovery`
 - Script sözdizimi: her `.ps1` için `pwsh -NoProfile -Command "$null = [System.Management.Automation.Language.Parser]::ParseFile('<yol>', [ref]$null, [ref]$errs); $errs"` hiçbir şey yazmamalı; her `.mjs` için `node --check <dosya>`; compose için `docker compose -f docker-compose.yml --env-file docker/.env.example config -q`.

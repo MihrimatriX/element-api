@@ -6,8 +6,8 @@ using RabbitMQ.Client;
 namespace Element.Services.IntegrationTests.Infrastructure;
 
 /// <summary>
-/// Publishes MassTransit-compatible integration events for saga integration tests, so a test can
-/// play the role of a service that is not running (for example the payment worker).
+/// Publishes MassTransit-compatible integration events for integration tests, so a test can play
+/// the role of a service that is not running (for example inventory, the wallet or the order saga).
 /// </summary>
 public static class SagaEventPublisher
 {
@@ -62,7 +62,11 @@ public static class SagaEventPublisher
         await channel.BasicPublishAsync(exchange, string.Empty, false, properties, body);
     }
 
-    /// <summary>Simulates the wallet/payment side confirming payment for an order.</summary>
+    /// <summary>Simulates inventory-service confirming that stock is reserved for an order.</summary>
+    public static Task PublishStockReservedAsync(IntegrationTestContainers containers, Guid orderId) =>
+        PublishAsync(containers, nameof(StockReservedEvent), new { orderId });
+
+    /// <summary>Simulates wallet-service confirming payment for an order.</summary>
     public static Task PublishPaymentProcessedAsync(IntegrationTestContainers containers, Guid orderId) =>
         PublishAsync(containers, nameof(PaymentProcessedEvent), new { orderId });
 }
