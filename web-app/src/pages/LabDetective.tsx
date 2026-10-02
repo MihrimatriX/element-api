@@ -1,173 +1,212 @@
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useMemo, useState } from "react";
+import { useId, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { ArrowRight, Lightbulb, RotateCcw } from "lucide-react";
-import Seo from "../components/Seo";
-import LabModes from "../components/LabModes";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, ArrowUpRight, Lightbulb, Lock, SkipForward } from "lucide-react";
+import Seo from "@/components/Seo";
+import { LabModes } from "@/components/LabModes";
+import { GradeNotice, type Grade } from "@/components/lab/GradeNotice";
+import { ProgressAside } from "@/components/lab/ProgressAside";
+import { elementInfo, familyColor } from "@/components/lab/elementInfo";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/ui/page-header";
+import { cn } from "@/lib/utils";
 import {
   detectivePool,
   gradeDetective,
-  loadGames,
   pickDetective,
+  readGames,
   rememberGame,
-} from "../services/games";
-import { categorySwatches } from "../services/elementData";
-import type { CSSProperties } from "react";
+} from "@/services/games";
 
+/**
+ * /lab/detective: reveal clues one by one and name the element, by typing or
+ * by picking one of four candidates. `?element=fe` (any case) opens that case.
+ */
 export default function LabDetective() {
   const [params] = useSearchParams();
-  const [solved, setSolved] = useState(() => {
-    try {
-      return loadGames(localStorage).detective;
-    } catch {
-      return [];
-    }
-  });
-  const [item, setItem] = useState(() =>
-    pickDetective(solved, params.get("element")?.toUpperCase()),
-  );
+  const reduceMotion = useReducedMotion();
+  const [solved, setSolved] = useState(() => readGames().detective);
+  const [item, setItem] = useState(() => pickDetective(solved, params.get("element")));
   const [open, setOpen] = useState(1);
   const [guess, setGuess] = useState("");
-  const [message, setMessage] = useState("");
-  const [done, setDone] = useState(false);
-  const pool = useMemo(() => detectivePool(), []);
-  const nextCase = (progress = solved) => {
-    setItem(pickDetective(progress));
+  const [result, setResult] = useState<Grade | null>(null);
+  const [wrongPicks, setWrongPicks] = useState<string[]>([]);
+  const headingId = useId();
+  const { element, clues, choices } = item;
+  const solvedNow = result?.ok === true;
+
+  /** Moves to the next case; "Pas geç" never returns the current element. */
+  function nextCase() {
+    setItem(pickDetective(solved, null, element.symbol));
     setOpen(1);
     setGuess("");
-    setMessage("");
-    setDone(false);
-  };
-  const submit = (value: string) => {
-    const result = gradeDetective(item.element.symbol, value);
-    setMessage(result.message);
-    if (!result.ok) return;
-    const next = rememberGame("detective", item.element.symbol).detective;
-    setSolved(next);
-    setDone(true);
-  };
+    setResult(null);
+    setWrongPicks([]);
+  }
+
+  function submit(value: string) {
+    const graded = gradeDetective(element.symbol, value);
+    setResult(graded);
+    if (graded.ok) setSolved(rememberGame("detective", element.symbol).detective);
+  }
+
+  function pick(symbol: string) {
+    setGuess(symbol);
+    submit(symbol);
+    if (symbol !== element.symbol) setWrongPicks((current) => [...current, symbol]);
+  }
+
   return (
-    <main className="science-detail lab-page">
+    <main className="container-page pt-10 pb-24 lg:pt-14">
       <Seo
         title="Element dedektifi · ElementAPI"
         description="İpucu ipucu element bul. Pas rengi demire götürebilir. Skor keşif defterine yazılmaz."
         path="/lab/detective"
       />
-      <header className="lab-heading">
-        <div>
-          <h1>Element dedektifi</h1>
-          <p>
-            İpucu aç, elementi bul. Null alanlardan tuzak soru çıkmaz; skor
-            deftere yazılmaz.
-          </p>
-        </div>
-        <div className="lab-progress">
-          <strong>
-            {solved.length}
-            <span> / {pool.length}</span>
-          </strong>
-          <span>doğru teşhis · bu tarayıcıda</span>
-        </div>
-      </header>
-      <LabModes />
-      <Card asChild className="gap-0 py-5 max-md:py-3 shadow-none">
-        <section className="lab-bench" aria-label="Element bulmaca">
-          <div className="lab-bench-top">
-            <h2 className="lab-bench-label">İpuçları</h2>
-            <Button
-              variant="plain"
-              size="none"
-              className="lab-clear"
-              onClick={() => nextCase()}
-            >
-              <RotateCcw size={14} /> Pas geç
+      <PageHeader
+        eyebrow="Laboratuvar"
+        title="Element dedektifi"
+        lead="İpucu aç, elementi bul. İpuçları adı veya sembolü söylemez; skor deftere yazılmaz."
+        actions={<LabModes />}
+        aside={
+          <ProgressAside
+            label="Doğru teşhis"
+            value={solved.length}
+            total={detectivePool().length}
+            hint="Bu tarayıcıda"
+          />
+        }
+      />
+
+      <section
+        aria-labelledby={headingId}
+        className="panel mt-10 grid overflow-hidden lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
+      >
+        <div className="border-b border-line p-5 sm:p-7 lg:border-r lg:border-b-0">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <h2 id={headingId} className="font-sans text-base font-semibold tracking-normal text-ink">
+                İpuçları
+              </h2>
+              <Badge variant="secondary" className="font-mono tabular">
+                {open} / {clues.length}
+              </Badge>
+            </div>
+            <Button variant="ghost" size="sm" onClick={nextCase}>
+              <SkipForward strokeWidth={1.75} />
+              Pas geç
             </Button>
           </div>
-          <ol className="lab-clues">
-            {item.clues.slice(0, open).map((clue) => (
-              <li key={clue}>{clue}</li>
-            ))}
+
+          <ol className="mt-5 grid gap-2">
+            {clues.map((clue, index) =>
+              index < open ? (
+                <motion.li
+                  key={clue}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  className="flex gap-3 rounded-lg border border-line bg-surface-2 px-4 py-3 text-[15px] leading-6 text-ink"
+                >
+                  <span className="mt-0.5 font-mono text-[13px] text-brand-ink tabular">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  {clue}
+                </motion.li>
+              ) : (
+                <li
+                  key={clue}
+                  aria-hidden="true"
+                  className="flex items-center gap-3 rounded-lg border border-dashed border-line px-4 py-3 text-[13px] text-ink-3"
+                >
+                  <Lock className="size-3.5" strokeWidth={1.75} />
+                  Kapalı ipucu
+                </li>
+              ),
+            )}
           </ol>
-          {open < item.clues.length && !done && (
-            <Button
-              variant="outline"
-              className="lab-hint"
-              onClick={() => setOpen((n) => Math.min(item.clues.length, n + 1))}
-            >
-              <Lightbulb size={17} /> Başka ipucu ({open}/{item.clues.length})
+
+          {open < clues.length && !solvedNow && (
+            <Button variant="outline" className="mt-4" onClick={() => setOpen((n) => n + 1)}>
+              <Lightbulb strokeWidth={1.75} />
+              Başka ipucu ({open}/{clues.length})
             </Button>
           )}
+        </div>
+
+        <div className="bg-canvas-2/40 p-5 sm:p-7">
           <form
-            className="lab-guess"
-            onSubmit={(e) => {
-              e.preventDefault();
+            className="flex items-end gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
               submit(guess);
             }}
           >
-            <label>
-              Element adı veya sembol
+            <Field label="Element adı veya sembol" className="min-w-0 flex-1">
               <Input
                 value={guess}
-                onChange={(e) => setGuess(e.target.value)}
                 autoComplete="off"
-                disabled={done}
-                aria-label="Element adı veya sembol"
+                spellCheck={false}
+                disabled={solvedNow}
+                onChange={(event) => setGuess(event.target.value)}
               />
-            </label>
-            <Button type="submit" disabled={done || !guess.trim()}>
+            </Field>
+            <Button type="submit" disabled={solvedNow || !guess.trim()}>
               Tahmin et
             </Button>
           </form>
-          <div
-            className="lab-choices"
-            role="group"
-            aria-label="Aday elementler"
-          >
-            {item.choices.map((choice) => (
-              <Button
-                key={choice.symbol}
-                variant="outline"
-                disabled={done}
-                style={
-                  {
-                    "--element-color":
-                      categorySwatches[choice.category] ?? "#4a6d8c",
-                  } as CSSProperties
-                }
-                onClick={() => {
-                  setGuess(choice.symbol);
-                  submit(choice.symbol);
-                }}
-              >
-                {choice.name} <strong>{choice.symbol}</strong>
-              </Button>
-            ))}
+
+          <p className="mt-6 text-[13px] text-ink-3">Ya da adaylardan birini seç</p>
+          <div role="group" aria-label="Aday elementler" className="mt-2 grid grid-cols-2 gap-2">
+            {choices.map((choice) => {
+              const wrong = wrongPicks.includes(choice.symbol);
+              const correct = solvedNow && choice.symbol === element.symbol;
+              return (
+                <button
+                  key={choice.symbol}
+                  type="button"
+                  disabled={solvedNow}
+                  onClick={() => pick(choice.symbol)}
+                  style={{ "--family": familyColor(elementInfo(choice.symbol).family) }}
+                  className={cn(
+                    "focus-ring relative flex items-center justify-between gap-2 overflow-hidden rounded-lg border bg-surface py-2.5 pr-3 pl-4 text-left text-sm transition-[background-color,border-color,transform] duration-150 before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-(--family) hover:bg-surface-2 active:scale-[0.98] disabled:pointer-events-none",
+                    wrong && "border-danger/40 text-ink-3 line-through",
+                    correct && "border-success/50 bg-success-soft text-ink",
+                    !wrong && !correct && "border-line-strong text-ink-2",
+                  )}
+                >
+                  <span className="truncate">{choice.name}</span>
+                  <span className="font-mono text-base font-semibold text-ink">{choice.symbol}</span>
+                </button>
+              );
+            })}
           </div>
-          <p className="lab-announcement" role="status" aria-live="polite">
-            {message || "İlk ipucuyla başla. Yetmezse öbürünü aç."}
-          </p>
-          {done && (
-            <div className="lab-result-actions">
-              <Link to={`/element/${item.element.symbol.toLowerCase()}`}>
-                Element kaydını aç
-              </Link>
-              <Button
-                variant="plain"
-                size="none"
-                onClick={() => nextCase(solved)}
-              >
-                Sonraki <ArrowRight size={15} />
+
+          <GradeNotice grade={result} idle="İlk ipucuyla başla. Yetmezse öbürünü aç." />
+
+          {solvedNow && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button size="sm" onClick={nextCase}>
+                Sonraki
+                <ArrowRight strokeWidth={1.75} />
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/element/${element.symbol.toLowerCase()}`}>
+                  Element kaydını aç
+                  <ArrowUpRight strokeWidth={1.75} />
+                </Link>
               </Button>
             </div>
           )}
-          <p className="lab-science-note">
-            Havuz ilk 36 element. İpucu sembolü ağzından kaçırmaz. Skor deftere
-            yazılmaz.
-          </p>
-        </section>
-      </Card>
+        </div>
+      </section>
+
+      <p className="mt-4 max-w-prose text-[13px] leading-5 text-ink-3">
+        Havuz ilk 36 element. İpucu sembolü ağzından kaçırmaz. Skor deftere yazılmaz.
+      </p>
     </main>
   );
 }

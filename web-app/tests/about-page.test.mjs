@@ -1,28 +1,39 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const about = readFileSync(join(root, "src/pages/About.tsx"), "utf8");
-const product = readFileSync(join(root, "src/product.css"), "utf8");
 
-assert.match(about, /about-page/);
-assert.match(about, /about-sections void-stagger/);
-assert.match(about, /about-card void-panel/);
-assert.match(about, /to="\/nasil"/);
-assert.match(about, /to="\/data"/);
-assert.match(about, /to="\/developers"/);
-assert.match(about, /to="\/docs"/);
-assert.match(about, /to="\/sozluk"/);
-assert.match(about, /to="\/demo"/);
-assert.match(about, /to="\/lab\?lesson=everyday"/);
-assert.doesNotMatch(about, /cursor:\s*url\(/);
+describe("About page (/hakkinda)", () => {
+  it("is built on the design system and keeps its SEO path", () => {
+    assert.match(about, /<PageHeader/);
+    assert.match(about, /<Section/);
+    assert.match(about, /path="\/hakkinda"/);
+    assert.doesNotMatch(about, /about-card|void-panel|explainer|className="kicker"/);
+  });
 
-assert.match(product, /\.about-page \.about-sections/);
-assert.match(product, /\.about-page \.about-card/);
-assert.match(product, /\.about-page \.about-links/);
-assert.match(product, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*\.about-page \.about-card:hover/);
-assert.doesNotMatch(product, /cursor:\s*url\(/);
+  it("links every place the page explains", () => {
+    for (const route of [
+      "/nasil",
+      "/data",
+      "/developers",
+      "/docs",
+      "/sozluk",
+      "/demo",
+      "/kilavuz",
+      "/lab?lesson=everyday",
+    ]) {
+      assert.ok(about.includes(`"${route}"`), `About must link ${route}`);
+    }
+  });
 
-console.log("about-page.test: ok");
+  it("states the honest limits and reads counts from coverage.json", () => {
+    assert.match(about, /simülasyon/);
+    assert.match(about, /gerçek para değil/);
+    assert.match(about, /data\/coverage\.json/);
+    assert.doesNotMatch(about, /github\.com/i);
+  });
+});

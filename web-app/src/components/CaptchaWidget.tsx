@@ -1,12 +1,13 @@
 import { useEffect, useRef } from "react";
+import { Notice } from "@/components/ui/notice";
 import { CAPTCHA_SITE_KEY, isCaptchaConfigured } from "../lib/captcha";
 
 declare global {
   interface Window {
     turnstile?: {
       render: (
-        el: HTMLElement,
-        opts: {
+        element: HTMLElement,
+        options: {
           sitekey: string;
           callback: (token: string) => void;
           "expired-callback"?: () => void;
@@ -20,38 +21,47 @@ declare global {
 }
 
 const SCRIPT_ID = "cf-turnstile-api";
-const SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+const SCRIPT_SRC =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
+/** Loads the Turnstile script once per page, however many widgets ask for it. */
 function loadTurnstile(): Promise<void> {
   if (window.turnstile) return Promise.resolve();
-  const existing = document.getElementById(SCRIPT_ID);
-  if (existing) {
-    return new Promise((resolve, reject) => {
-      existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Turnstile load failed")), {
-        once: true,
-      });
-    });
-  }
-  return new Promise((resolve, reject) => {
-    const script = document.createElement("script");
+  let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
+  if (!script) {
+    script = document.createElement("script");
     script.id = SCRIPT_ID;
     script.src = SCRIPT_SRC;
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Turnstile load failed"));
     document.head.appendChild(script);
+  }
+  const loading = script;
+  return new Promise((resolve, reject) => {
+    loading.addEventListener("load", () => resolve(), { once: true });
+    loading.addEventListener(
+      "error",
+      () => reject(new Error("Turnstile load failed")),
+      { once: true },
+    );
   });
 }
 
-type Props = {
+interface CaptchaWidgetProps {
+  /** Receives the Turnstile token, or "" when it expires or fails. */
   onToken: (token: string) => void;
-};
+  /** The server asks for a captcha (`GET /auth/capabilities`); warns when this build cannot show one. */
+  serverRequiresCaptcha?: boolean;
+}
 
-/** Cloudflare Turnstile. Renders only when VITE_CAPTCHA_SITE_KEY is set. */
-export default function CaptchaWidget({ onToken }: Props) {
+/**
+ * Cloudflare Turnstile check for the auth forms. Renders only when the build has
+ * `VITE_CAPTCHA_SITE_KEY`; without it, warns if the server nevertheless expects a token.
+ */
+export default function CaptchaWidget({
+  onToken,
+  serverRequiresCaptcha = false,
+}: CaptchaWidgetProps) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
   const onTokenRef = useRef(onToken);
 
   useEffect(() => {
@@ -59,13 +69,14 @@ export default function CaptchaWidget({ onToken }: Props) {
   }, [onToken]);
 
   useEffect(() => {
-    if (!isCaptchaConfigured() || !hostRef.current) return;
+    if (!isCaptchaConfigured()) return;
     let cancelled = false;
+    let widgetId: string | null = null;
 
     loadTurnstile()
       .then(() => {
         if (cancelled || !hostRef.current || !window.turnstile) return;
-        widgetIdRef.current = window.turnstile.render(hostRef.current, {
+        widgetId = window.turnstile.render(hostRef.current, {
           sitekey: CAPTCHA_SITE_KEY,
           callback: (token) => onTokenRef.current(token),
           "expired-callback": () => onTokenRef.current(""),
@@ -78,22 +89,27 @@ export default function CaptchaWidget({ onToken }: Props) {
 
     return () => {
       cancelled = true;
-      if (widgetIdRef.current && window.turnstile) {
-        try {
-          window.turnstile.remove(widgetIdRef.current);
-        } catch {
-          /* widget already gone */
-        }
-        widgetIdRef.current = null;
+      if (widgetId === null || !window.turnstile) return;
+      try {
+        window.turnstile.remove(widgetId);
+      } catch {
+        // The widget is already gone (e.g. its iframe was removed with the form).
       }
     };
   }, []);
 
-  if (!isCaptchaConfigured()) return null;
+  if (!isCaptchaConfigured())
+    return serverRequiresCaptcha ? (
+      <Notice tone="warning" role="alert">
+        Sunucu captcha istiyor ama bu derlemede site anahtarı yok. Web imajını
+        VITE_CAPTCHA_SITE_KEY ile yeniden derle.
+      </Notice>
+    ) : null;
 
   return (
-    <div className="field" data-captcha>
-      <div ref={hostRef} />
+    <div data-captcha className="grid gap-2">
+      <p className="text-sm font-medium text-ink">Güvenlik doğrulaması</p>
+      <div ref={hostRef} className="min-h-[65px]" />
     </div>
   );
 }
