@@ -49,6 +49,7 @@ export function ChemistrySection() {
                 family={tile.family}
                 value={tile.mass}
                 selected={selected === tile.symbol}
+                pressed={selected === tile.symbol}
                 onClick={() => setSelected(tile.symbol)}
               />
             ))}

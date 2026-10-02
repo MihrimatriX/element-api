@@ -15,12 +15,10 @@ import { useCommerce } from "../context/commerce";
 import { useSelectedElement } from "../context/selection";
 import { usePolling } from "../hooks/usePolling";
 import { formatFixed } from "../lib/format";
-import { elementService, type BoardRow } from "../services/api";
+import { ELEMENTAL_SLUG, elementService, type BoardRow } from "../services/api";
 
 const BOARD_POLL_MS = 20_000;
 const MOVERS_LIMIT = 16;
-/** The wallet's slug for pure-element holdings; the sell form starts on that product. */
-const ELEMENTAL_SLUG = "elemental";
 
 /** Holdings of one element for the sell form: `null` while loading, empty when the vault failed to load. */
 function holdingsOf(state: HoldingsState, symbol: string): HoldingRow[] | null {
@@ -124,7 +122,7 @@ export default function Market() {
           onSelect={setSelectedSymbol}
           onRetry={loadBoard}
         />
-        <div ref={ticketRef} className="scroll-mt-20">
+        <div ref={ticketRef} className="scroll-mt-2">
           <QuoteTicket element={selectedElement} ticker={ticker}>
             {isAuthenticated ? (
               <SellForm

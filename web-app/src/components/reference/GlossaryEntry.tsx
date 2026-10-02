@@ -21,7 +21,7 @@ export function GlossaryEntry({ term, groupLabel }: GlossaryEntryProps) {
   return (
     <div
       id={term.id}
-      className="grid scroll-mt-36 gap-x-10 gap-y-3 py-6 md:grid-cols-[12rem_minmax(0,1fr)]"
+      className="grid scroll-mt-18 gap-x-10 gap-y-3 py-6 md:grid-cols-[12rem_minmax(0,1fr)]"
     >
       <dt className="flex flex-wrap items-center gap-2.5 md:flex-col md:items-start">
         <span className="text-base font-semibold text-ink">{term.term}</span>

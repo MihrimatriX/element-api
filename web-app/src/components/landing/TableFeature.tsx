@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ElementTile, type ElementFamily } from "@/components/ui/element-tile";
+import { ElementTile } from "@/components/ui/element-tile";
 import coverage from "@/data/coverage.json";
-import { STATIC_ELEMENTS } from "@/services/elementData";
+import { familyOf, STATIC_ELEMENTS } from "@/services/elementData";
 import { Reveal } from "./Reveal";
 
 /** Period 4 (K → Kr): one real row that crosses almost every family. */
@@ -60,8 +60,7 @@ export function TableFeature() {
                 symbol={element.symbol}
                 atomicNumber={element.atomicNumber}
                 name={element.name}
-                // The static seed uses the family names as categories.
-                family={element.category as ElementFamily}
+                family={familyOf(element.category)}
                 to={`/element/${element.symbol.toLowerCase()}`}
               />
             ))}

@@ -53,7 +53,7 @@ export function CartPanel({
   const showWallet = isAuthenticated && walletElx != null;
 
   return (
-    <section id="sepet" aria-labelledby={headingId} className="panel scroll-mt-20">
+    <section id="sepet" aria-labelledby={headingId} className="panel scroll-mt-2">
       <header className="flex items-center justify-between gap-3 border-b border-line px-4 py-3.5">
         <h2 id={headingId} className="flex items-center gap-2 text-base font-semibold text-ink">
           <ShoppingCart aria-hidden="true" strokeWidth={1.75} className="size-4 text-ink-3" />

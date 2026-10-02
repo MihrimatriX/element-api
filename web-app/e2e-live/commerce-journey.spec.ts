@@ -55,7 +55,9 @@ test("register → welcome grant → buy 1 g Au → order delivered → sell →
     await page.getByRole("radiogroup", { name: "Paket gram" }).getByRole("radio", { name: "1 g" }).click();
     const sku = page.getByRole("article").filter({ hasText: "Altın (saf gram)" });
     // Enabled once the live quote (ask, stock) has arrived.
-    await sku.getByRole("button", { name: "Au: sepete 1 g ekle" }).click({ timeout: 30_000 });
+    await sku
+      .getByRole("button", { name: "Altın (saf gram) · Au: sepete 1 g ekle", exact: true })
+      .click({ timeout: 30_000 });
 
     const placed = page.waitForResponse(
       (response) =>

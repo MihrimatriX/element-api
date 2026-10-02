@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { ACCOUNTS_ENABLED, API_BASE_URL } from "../config";
+import { ApiHttpError, fetchJson, isTimeout } from "../lib/http";
 import { readStorage, removeStorage, writeStorage } from "../lib/storage";
 import { track } from "./diagnostics";
 import { LAB_STORAGE_KEY, parseProgress } from "./lab";
@@ -100,36 +101,31 @@ export function useLearning() {
     if (!user) return;
     const token = readStorage("token");
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), SYNC_TIMEOUT_MS);
     let disposed = false;
     const sessionChanged = () => token !== readStorage("token");
 
     async function sync() {
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/learning`, {
+        const { ok, status, data } = await fetchJson(`${API_BASE_URL}/auth/learning`, {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(progress),
+          headers: { Authorization: `Bearer ${token}` },
+          body: progress,
+          timeoutMs: SYNC_TIMEOUT_MS,
           signal: controller.signal,
         });
-        if (response.status === 401 && !sessionChanged()) clearSession();
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const remote = normalizeLearning(await response.json());
-        if (controller.signal.aborted || sessionChanged()) return;
+        if (status === 401 && !sessionChanged()) clearSession();
+        // A 200 without a JSON body is a failed sync as well.
+        if (!ok || data === null) throw new ApiHttpError(status, data);
+        if (disposed || sessionChanged()) return;
         const current = parseRaw(readRaw(user));
-        const merged = mergeLearning(current, remote);
+        const merged = mergeLearning(current, normalizeLearning(data));
         if (JSON.stringify(current) !== JSON.stringify(merged))
           persist(user, merged);
         track("progress_saved");
         setAccountState("synced");
-      } catch {
+      } catch (error) {
         if (disposed || sessionChanged()) return;
-        setAccountState(controller.signal.aborted ? "timedOut" : "failed");
-      } finally {
-        clearTimeout(timeout);
+        setAccountState(isTimeout(error) ? "timedOut" : "failed");
       }
     }
 
@@ -137,7 +133,6 @@ export function useLearning() {
     return () => {
       disposed = true;
       controller.abort();
-      clearTimeout(timeout);
     };
   }, [user, progress, attempt]);
 

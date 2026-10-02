@@ -87,7 +87,7 @@ npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
 
 Playwright ilk kullanımdan önce `web-app` içinde bir kez `npx playwright install chromium` ister.
 
-Tek kapı: `./deploy/scripts/test-all.ps1` (kısayol `./scripts/test.ps1`). Her zaman web lint/test/build, order-service build/check, .NET derleme ve birim testleri ile npm audit çalışır. İsteğe bağlı anahtarlar: `-Browser` (`test:e2e` + `test:e2e:auth`), `-Integration`, `-Live` (canlı API script’leri + `test:e2e:live`; web adresi `-WebBase`, varsayılan `http://localhost:6241`), `-Recovery` (PostgreSQL yedek/geri yükleme provası). Java ve order-service birim testleri bu script’te yok; Jenkins onları yol eşleşmesiyle koşar ([CI-JENKINS.md](docs/CI-JENKINS.md)).
+Tek kapı: `./deploy/scripts/test-all.ps1` (kısayol `./scripts/test.ps1`). Her zaman web lint/test/build, order-service build/check/test, .NET derleme ve birim testleri ile npm audit çalışır. İsteğe bağlı anahtarlar: `-Browser` (`test:e2e` + `test:e2e:auth`), `-Integration`, `-Live` (canlı API script’leri + `test:e2e:live`; web adresi `-WebBase`, varsayılan `http://localhost:6241`), `-Recovery` (PostgreSQL yedek/geri yükleme provası). Java birim testleri bu script’te yok; Jenkins onları yol eşleşmesiyle koşar ([CI-JENKINS.md](docs/CI-JENKINS.md)).
 
 Canlı script’ler ne yapar: `test-saga.ps1` gerçek PostgreSQL’de geçici bir şemada çift ödeme, iade, zaman aşımı ve geç mesajları sınar, sonunda şemayı kaldırır. `test-e2e.mjs` ve `test-smoke.ps1` ayrı deneme hesapları açıp sipariş ve satış akışını dener. `test-platform.mjs` sağlık uçlarını, derlenmiş web sayfalarını ve ticker fiyatını doğrular. Hesap yaşam döngüsü ve yedek provasının kaydı: [LOCAL-VERIFICATION.md](docs/LOCAL-VERIFICATION.md).
 

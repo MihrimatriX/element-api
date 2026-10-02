@@ -101,7 +101,7 @@ export default function Glossary() {
         <section
           key={letter}
           id={letterAnchor(letter)}
-          className="grid scroll-mt-32 border-b border-line md:grid-cols-[4rem_minmax(0,1fr)]"
+          className="grid scroll-mt-14 border-b border-line md:grid-cols-[4rem_minmax(0,1fr)]"
         >
           <h2 className="pt-6 text-3xl text-ink-3 md:sticky md:top-32 md:self-start">
             {letter}

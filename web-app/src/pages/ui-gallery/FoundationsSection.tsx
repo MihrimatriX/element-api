@@ -1,4 +1,6 @@
+import type { ElementFamily } from "@/components/ui/element-tile";
 import { Section } from "@/components/ui/section";
+import { categoryLabels, familyColor, familyOf } from "@/services/elementData";
 import { Specimen } from "./Specimen";
 
 const surfaces = [
@@ -25,19 +27,13 @@ const accents = [
   { token: "info", className: "bg-info" },
 ];
 
-const families = [
-  ["alkali", "Alkali metal"],
-  ["alkaline", "Toprak alkali"],
-  ["transition", "Geçiş metali"],
-  ["post", "Diğer metal"],
-  ["metalloid", "Yarı metal"],
-  ["nonmetal", "Ametal"],
-  ["halogen", "Halojen"],
-  ["noble", "Soy gaz"],
-  ["lanthanide", "Lantanit"],
-  ["actinide", "Aktinit"],
+/** Each family swatch with the label the app shows, plus the grey of unclassified elements. */
+const families: [ElementFamily, string][] = [
+  ...Object.entries(categoryLabels).map(
+    ([category, label]): [ElementFamily, string] => [familyOf(category), label],
+  ),
   ["unknown", "Bilinmiyor"],
-] as const;
+];
 
 const radii = ["rounded-sm", "rounded-md", "rounded-lg", "rounded-xl", "rounded-2xl"];
 const shadows = ["shadow-xs", "shadow-sm", "shadow-md", "shadow-lg", "shadow-glow"];
@@ -97,7 +93,7 @@ export function FoundationsSection() {
               <div key={key} className="flex items-center gap-3">
                 <span
                   className="size-5 rounded-sm border border-line bg-(--swatch)"
-                  style={{ "--swatch": `var(--color-family-${key})` }}
+                  style={{ "--swatch": familyColor(key) }}
                 />
                 <span className="text-sm text-ink-2">{label}</span>
               </div>

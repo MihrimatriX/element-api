@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../config";
+import { ApiHttpError, fetchJson } from "../lib/http";
 import {
   readJson,
   readStorage,
@@ -27,19 +28,8 @@ const DASHBOARD_KEY_TPS = 10;
 const DASHBOARD_PATH = /^\/(me|orders|desk)(\/|$)/;
 
 // ---------------------------------------------------------------------------
-// HTTP core
+// Requests
 // ---------------------------------------------------------------------------
-
-/** A non-2xx gateway response. `data` is the parsed JSON body, raw text, or `null`. */
-export class ApiHttpError extends Error {
-  status: number;
-  data: unknown;
-  constructor(status: number, data: unknown, message?: string) {
-    super(message ?? `HTTP ${status}`);
-    this.status = status;
-    this.data = data;
-  }
-}
 
 interface RequestOptions {
   body?: unknown;
@@ -48,12 +38,6 @@ interface RequestOptions {
   timeout?: number;
   /** Set on the single retry after a stale dashboard key was replaced. */
   retried?: boolean;
-}
-
-interface RawResponse {
-  ok: boolean;
-  status: number;
-  data: unknown;
 }
 
 function authHeaders(): Record<string, string> {
@@ -77,50 +61,6 @@ function toQuery(params?: Record<string, unknown>): string {
   return text ? `?${text}` : "";
 }
 
-/** Parses a JSON body; falls back to the raw text, or `null` for an empty body. */
-async function readBody(response: Response): Promise<unknown> {
-  const text = await response.text();
-  if (!text) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return text;
-  }
-}
-
-/** One fetch with auth headers and a timeout that covers both the response and its body. */
-async function send(
-  method: string,
-  path: string,
-  options: RequestOptions,
-): Promise<RawResponse> {
-  const controller = new AbortController();
-  const timer = setTimeout(
-    () => controller.abort(),
-    options.timeout ?? DEFAULT_TIMEOUT_MS,
-  );
-  const hasBody = options.body !== undefined;
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}${path}${toQuery(options.params)}`,
-      {
-        method,
-        headers: {
-          ...authHeaders(),
-          ...(hasBody ? { "Content-Type": "application/json" } : {}),
-          ...options.headers,
-        },
-        body: hasBody ? JSON.stringify(options.body) : undefined,
-        signal: controller.signal,
-      },
-    );
-    const data = await readBody(response);
-    return { ok: response.ok, status: response.status, data };
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 /** A 401 on account endpoints (other than sign-in itself) means the JWT is no longer valid. */
 function invalidatesSession(path: string): boolean {
   if (path === "/auth/login" || path === "/auth/register") return false;
@@ -131,6 +71,10 @@ function invalidatesSession(path: string): boolean {
   );
 }
 
+/**
+ * One gateway call with the stored credentials, minting the dashboard key first when the
+ * path needs it. Resolves with the body; any other status than 2xx throws `ApiHttpError`.
+ */
 async function request<T>(
   method: string,
   path: string,
@@ -140,7 +84,15 @@ async function request<T>(
   if (needsDashboardKey && readStorage("token") && !readStorage("apiKey"))
     await apiKeyService.ensureDashboardKey();
   const tokenSent = readStorage("token");
-  const { ok, status, data } = await send(method, path, options);
+  const response = await fetchJson(`${API_BASE_URL}${path}${toQuery(options.params)}`, {
+    method,
+    headers: { ...authHeaders(), ...options.headers },
+    body: options.body,
+    timeoutMs: options.timeout ?? DEFAULT_TIMEOUT_MS,
+  });
+  const { ok, status } = response;
+  // ASP.NET answers `BadRequest("…")` in plain text; apiError shows that text as it is.
+  const data = response.data ?? (response.text || null);
 
   if (status === 401) {
     // Skip when another tab signed in meanwhile: that newer token is still good.
@@ -160,11 +112,12 @@ async function request<T>(
 /**
  * Turkish sentences for the ASP.NET Identity error codes registration can hit.
  * The user name is the e-mail, so a taken address reports both duplicate codes.
+ * identity-service asks only for a length (Program.cs), so no PasswordRequires* code occurs.
  */
 const IDENTITY_ERRORS: Record<string, string> = {
   DuplicateEmail: "Bu e-posta zaten kayıtlı.",
   DuplicateUserName: "Bu e-posta zaten kayıtlı.",
-  InvalidEmail: "Geçerli bir e-posta adresi girin.",
+  InvalidEmail: "Geçerli bir e-posta adresi gir.",
   InvalidUserName: "Bu e-posta adresi kullanılamıyor.",
   PasswordTooShort: "Şifre en az 10 karakter olmalı.",
 };
@@ -507,7 +460,8 @@ export const webhookService = {
 
 /** localStorage key of the shop cart. */
 const CART_KEY = "elementapi:elementalCart";
-const ELEMENTAL_SLUG = "elemental";
+/** Product slug of the pure element (no compound), in the cart and in wallet holdings. */
+export const ELEMENTAL_SLUG = "elemental";
 
 /** One cart line. `requestId` doubles as the order's idempotency key. */
 export interface CartItem {

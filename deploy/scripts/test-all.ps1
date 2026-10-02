@@ -1,5 +1,5 @@
 # The full quality gate. Always runs: tracked-file hygiene, web lint/test/build, order-service
-# build/check, all .NET builds, unit tests and npm audits. Heavier suites are opt-in:
+# build/check/test, all .NET builds, unit tests and npm audits. Heavier suites are opt-in:
 #   -Integration  Docker-based .NET integration tests
 #   -Live         checks against an already-running local stack (saga, scientific API, e2e, smoke, platform)
 #   -Browser      Playwright browser tests
@@ -38,6 +38,7 @@ try {
     Invoke-Checked npm @('--prefix', 'web-app', 'run', 'build')
     Invoke-Checked npm @('--prefix', 'order-service', 'run', 'build')
     Invoke-Checked npm @('--prefix', 'order-service', 'run', 'check')
+    Invoke-Checked npm @('--prefix', 'order-service', 'test')
     & ./deploy/scripts/build-all.ps1 -Configuration $Configuration
     & ./deploy/scripts/test-unit.ps1 -Configuration $Configuration
     if ($Browser) {

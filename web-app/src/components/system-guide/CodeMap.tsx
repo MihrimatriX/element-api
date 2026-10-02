@@ -55,7 +55,7 @@ function CodeMapFile({ file, open, onOpenChange, selected }: CodeMapFileProps) {
     </p>
   );
   const frameClass =
-    "group/file relative scroll-mt-24 border-b border-line outline-none data-[selected]:bg-brand-soft/40";
+    "group/file relative scroll-mt-6 border-b border-line outline-none data-[selected]:bg-brand-soft/40";
 
   if (count === 0) {
     return (

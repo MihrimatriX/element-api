@@ -197,7 +197,7 @@ Tam kalite kapısı: her zaman çalışan kontroller + isteğe bağlı ağır te
 | `-Integration` / `-Live` / `-Browser` / `-Recovery` | Parametreler: Docker entegrasyon testleri, çalışan sisteme karşı canlı testler, Playwright tarayıcı testleri, yedekten geri yükleme provası. |
 | `-WebBase` | Parametre: canlı testlerde web adresi (varsayılan http://localhost:6241). |
 | `Invoke-Checked(Command, Arguments)` | Harici komutu çalıştırır, sıfır olmayan çıkış kodunda hata fırlatır. |
-| (ana akış) | Git'te izlenen bin/obj/.env dosyası olmadığını kontrol eder; web lint/test/build, sipariş build/check, .NET build + birim test, npm audit ve seçilen ek grupları çalıştırır; değiştirdiği ortam değişkenlerini geri yükler. |
+| (ana akış) | Git'te izlenen bin/obj/.env dosyası olmadığını kontrol eder; web lint/test/build, sipariş build/check/test, .NET build + birim test, npm audit ve seçilen ek grupları çalıştırır; değiştirdiği ortam değişkenlerini geri yükler. |
 
 ### `deploy/scripts/test-saga.ps1`
 Sipariş servisinin saga regresyon kontrolünü (`src/saga.integration.check.ts`) yerel Postgres'e karşı çalıştırır.

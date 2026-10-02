@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { API_BASE_URL } from "../../config";
-import { abortAfter } from "../../lib/abort";
+import { ApiHttpError, fetchJson, isTimeout } from "../../lib/http";
 import { readStorage } from "../../lib/storage";
-import { ApiHttpError, apiError } from "../../services/api";
+import { apiError } from "../../services/api";
 import { clearSession } from "../../services/session";
 
 const DEFAULT_TIMEOUT_MS = 15_000;
@@ -21,10 +21,8 @@ export function loginError(error: unknown): string {
       return "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene.";
     return apiError(error, "Giriş bilgileri geçersiz.");
   }
-  // fetch rejects with a TypeError when offline and an AbortError on timeout.
-  const unreachable =
-    error instanceof TypeError ||
-    (error instanceof DOMException && error.name === "AbortError");
+  // fetch rejects with a TypeError when offline; fetchJson with a TimeoutError on timeout.
+  const unreachable = error instanceof TypeError || isTimeout(error);
   if (unreachable || !(error instanceof Error)) return UNREACHABLE;
   return error.message;
 }
@@ -70,26 +68,15 @@ export async function accountRequest<T = unknown>(
   }: AccountRequestOptions = {},
 ): Promise<AccountResponse<T>> {
   const token = auth ? readStorage("token") : null;
-  const headers: Record<string, string> = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
-  if (body !== undefined) headers["Content-Type"] = "application/json";
-  const abort = abortAfter(timeoutMs, signal);
-  try {
-    const response = await fetch(API_BASE_URL + path, {
-      method,
-      headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: abort.signal,
-    });
-    if (token && response.status === 401 && token === readStorage("token"))
-      clearSession();
-
-    const data = (await response.json().catch(() => null)) as T | null;
-    const { ok, status } = response;
-    return { ok, status, data, message: messageOf(ok, status, data) };
-  } finally {
-    abort.release();
-  }
+  const { ok, status, data } = await fetchJson<T>(API_BASE_URL + path, {
+    method,
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    body,
+    timeoutMs,
+    signal,
+  });
+  if (token && status === 401 && token === readStorage("token")) clearSession();
+  return { ok, status, data, message: messageOf(ok, status, data) };
 }
 
 /** Outcome of an account action, shown next to the control that started it. */

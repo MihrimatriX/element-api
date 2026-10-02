@@ -101,15 +101,22 @@ Son satır, platform açıkken yalnız arayüz üzerinde çalışmak içindir: V
 
 | Komut | Ne yapar |
 |---|---|
-| `./scripts/test.ps1` | Tam kalite kapısı: web lint, test ve derleme, sipariş servisi kontrolleri, .NET derleme ve birim testleri; `-Integration`, `-Live`, `-Browser` eklenebilir. |
+| `./scripts/test.ps1` | Tam kalite kapısı (`deploy/scripts/test-all.ps1`): web lint, test ve derleme; sipariş servisi derleme, kontrol ve birim testleri; .NET derleme ve birim testleri; npm denetimleri. `-Integration`, `-Live`, `-Browser` eklenebilir. |
 | `./scripts/lint.ps1` | Web ESLint ve sipariş servisi TypeScript derlemesi. |
 | `npm --prefix web-app test` | Arayüzün birim testleri (Node test koşucusu); bu kılavuzun ayrıştırıcısı da burada sınanır. |
-| `npm --prefix web-app run test:e2e` | Playwright tarayıcı testleri (atlas, laboratuvar, giriş). |
+| `npm --prefix web-app run test:e2e` | Playwright, `web-app/e2e`: atlas, kayıt sayfaları, laboratuvar, defter yolu, kılavuz ve hesaplar kapalıyken sayfalar; masaüstü ve telefon. Bilim servisini (5080) ve Vite'ı (5173) kendisi başlatır. Jenkins yalnız bunu çalıştırır; `-Browser` ile de çalışır. |
+| `npm --prefix web-app run test:e2e:auth` | Playwright, `web-app/e2e-auth`: kayıt, giriş ve çıkış; kimlik servisi tarayıcı içinde taklit edilir, arka uç gerekmez. Vite'ı 5174'te hesaplar açık başlatır. `-Browser` ile çalışır. |
+| `npm --prefix web-app run test:e2e:live` | Playwright, `web-app/e2e-live`: çalışan sistemde tek alışveriş yolculuğu (kayıt, 10.000 KREDI, satın alma, saga "Teslim", geri satış). `WEB_BASE` varsayılanı http://localhost:6241. `-Live` ile çalışır. |
+| `npm --prefix order-service test` | Sipariş servisinin birim testleri: istek doğrulama, iç anahtar kontrolü, bileşik fiyatı, ödeme kararı ve saga durumları. |
 | `./deploy/scripts/test-unit.ps1` | Docker gerektirmeyen .NET birim testleri. |
-| `./deploy/scripts/test-smoke.ps1` | Çalışan sisteme hızlı duman testi: katalog, yetki, satın alma, satış. |
-| `node deploy/scripts/test-e2e.mjs` | Uçtan uca regresyon: idempotent sipariş, saga, holdings, eşzamanlı satış. |
-| `node deploy/scripts/test-scientific-api.mjs` | Açık bilim API'sinin (v2) sözleşme kontrolü. |
-| `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Gerçek Postgres, Redis ve RabbitMQ konteynerleriyle entegrasyon testleri (Docker gerekir). |
+| `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Gerçek Postgres, Redis ve RabbitMQ konteynerleriyle entegrasyon testleri (Docker gerekir). `-Integration` ile çalışır. |
+| `docker run --rm -v "${PWD}:/build" -v element-m2:/root/.m2 -w /build maven:3.9-eclipse-temurin-21 mvn -q -B test` | wallet-service ve inventory-service Java birim testleri, Maven kurulu değilse Docker içinde; servis klasöründe çalıştırılır. |
+| `./deploy/scripts/test-saga.ps1` | Sipariş saga'sının regresyon kontrolü (`order-service/src/saga.integration.check.ts`), `docker/.env` içindeki yerel Postgres'e karşı. `-Live` ile çalışır. |
+| `./deploy/scripts/test-smoke.ps1` | Çalışan sisteme hızlı duman testi: katalog, yetki, satın alma, satış. `-Live` ile çalışır. |
+| `node deploy/scripts/test-e2e.mjs` | Uçtan uca regresyon: idempotent sipariş, saga, holdings, eşzamanlı satış. `-Live` ile çalışır. |
+| `node deploy/scripts/test-scientific-api.mjs` | Açık bilim API'sinin (v2) sözleşme kontrolü. `-Live` ile çalışır. |
+| `node deploy/scripts/test-platform.mjs` | Çalışan platform: her servis portunun health/info yanıtı, derlenmiş arayüzün rotaları ve dosyaları, gateway üzerinden iki servisler arası rota. `-Live` ile çalışır. |
+| `node deploy/scripts/test-backup-restore.mjs` | PostgreSQL yedek ve geri yükleme provası; uygulama veritabanlarına dokunmaz. `-Recovery` ile çalışır. |
 
 Her servisin kendi testleri ve nasıl çalıştırıldığı o servisin sayfasındaki "Testler" bölümündedir.
 

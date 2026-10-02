@@ -20,7 +20,7 @@ docker exec element-jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 
 After the wizard (or API bootstrap), local admin credentials live in gitignored `docker/.jenkins-local-admin.txt` (never commit). Login: http://127.0.0.1:8085 — user `admin`.
 
-**Limits of the stock image:** Node 22 / .NET 8 / JDK+Maven / `pwsh` are **not** bundled. Use this controller for job wiring; attach a Windows/Linux agent with those tools (or build a custom agent image) before expecting green Multibranch builds. First Multibranch builds will fail on missing tools until an agent is provisioned — that is expected.
+**Limits of the stock image:** Node 22 / .NET 10 / JDK+Maven / `pwsh` are **not** bundled. Use this controller for job wiring; attach a Windows/Linux agent with those tools (or build a custom agent image) before expecting green Multibranch builds. First Multibranch builds will fail on missing tools until an agent is provisioned — that is expected.
 
 Job DSL paste-ready files:
 
@@ -66,7 +66,7 @@ new javaposse.jobdsl.dsl.DslScriptLoader(jm).runScript(script)
 
 ### Agents
 
-Windows or Linux agents need: Node 22+, .NET 8 SDK, JDK 21 + Maven, PowerShell 7 (`pwsh`), Git. Playwright stage installs Chromium via `npx playwright install chromium`.
+Windows or Linux agents need: Node 22+, .NET 10 SDK, JDK 21 + Maven, PowerShell 7 (`pwsh`), Git. The Playwright stage installs Chromium via `npx playwright install chromium` and starts science-service with `dotnet run`.
 
 Optional compose smoke: set job env `RUN_COMPOSE_SMOKE=1` and Docker available on the agent (`deploy/scripts/jenkins-compose-smoke.ps1`).
 
@@ -75,7 +75,8 @@ Optional compose smoke: set job env `RUN_COMPOSE_SMOKE=1` and Docker available o
 | Path prefix | Stages |
 |-------------|--------|
 | `order-service/**` | `npm ci` + `npm run check` + `npm test` |
-| `web-app/**` | lint + unit test (+ Playwright when e2e specs exist) |
+| `web-app/**` | lint + unit test + Playwright `test:e2e` |
+| `science-service/**` | .NET unit suite + Playwright `test:e2e` (the atlas specs read its API) |
 | `*-service/**` (.NET) / `shared-lib/**` / `deploy/tests/**` | `deploy/scripts/test-unit.ps1` |
 | `gateway-service/**` | same .NET unit suite (includes RateLimit / API key tests) |
 | `wallet-service/**` | `mvn test` |
@@ -93,7 +94,7 @@ Job DSL: `deploy/jenkins/job-dsl-nightly.groovy` (cron `H 2 * * 1-5`), or create
 ```powershell
 pwsh -NoProfile -File ./deploy/scripts/test-all.ps1 -Configuration Review -Integration
 # Optional when stack is up:
-# pwsh -NoProfile -File ./deploy/scripts/test-all.ps1 -Live -Browser -WebBase http://localhost:3000
+# pwsh -NoProfile -File ./deploy/scripts/test-all.ps1 -Live -Browser -WebBase http://localhost:6241
 ```
 
 Partial path CI can miss cross-service breaks — nightly catches those.
@@ -104,11 +105,20 @@ Partial path CI can miss cross-service breaks — nightly catches those.
 |-------|---------|
 | `npm --prefix order-service run check` / `test` | order-service stage |
 | `npm --prefix web-app run lint` / `test` | web-app stage |
+| `npm --prefix web-app run test:e2e` | Playwright smoke stage |
 | `./deploy/scripts/test-unit.ps1` | dotnet unit stage |
 | `mvn test` in wallet/inventory | Java stages |
 | `./deploy/scripts/test-all.ps1` | nightly job (not every PR) |
 | `present-platform.ps1` | **not** CI — local/demo only |
 
-## Empty e2e trap
+## Playwright suites
 
-Playwright configs exist under `web-app/`. Specs live in `e2e/`, `e2e-auth/`, `e2e-live/`. **Zero specs ≠ green product** — if a directory is empty, treat coverage as missing (see README). CI runs `test:e2e` only when `web-app/e2e` exists with specs.
+Three suites live under `web-app/`, each with its own config. Jenkins runs only the first one.
+
+| Suite | Command | Covers | Needs | Runs in |
+|-------|---------|--------|-------|---------|
+| `e2e/` | `npm run test:e2e` (`playwright.config.ts`) | atlas, record pages, lab, notebook path, system guide, accounts-off pages; desktop and mobile | nothing running: it starts science-service on :5080 and Vite on :5173 (accounts off) | Jenkins "Playwright smoke" stage (`web-app/**` or `science-service/**` changed); `test-all.ps1 -Browser` |
+| `e2e-auth/` | `npm run test:e2e:auth` (`playwright.auth.config.ts`) | register, login, logout against an in-browser identity mock; desktop and mobile | nothing running: it starts Vite on :5174 (accounts on) | `test-all.ps1 -Browser` |
+| `e2e-live/` | `npm run test:e2e:live` (`playwright.live.config.ts`) | one commerce journey: register, welcome grant, buy, saga to "Teslim", sell back | the full Docker stack (`WEB_BASE`, default http://localhost:6241) | `test-all.ps1 -Live` |
+
+The nightly job runs `test-all.ps1 -Integration` without `-Browser` or `-Live`, so `e2e-auth` and `e2e-live` run only when someone passes those switches.

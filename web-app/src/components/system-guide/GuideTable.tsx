@@ -59,7 +59,7 @@ function rowTarget(row: GuideTableRow, activeAnchor: string) {
 }
 
 const rowClass =
-  "scroll-mt-24 outline-none data-[state=selected]:bg-brand-soft data-[state=selected]:shadow-[inset_2px_0_0_var(--color-brand-ink)]";
+  "scroll-mt-6 outline-none data-[state=selected]:bg-brand-soft data-[state=selected]:shadow-[inset_2px_0_0_var(--color-brand-ink)]";
 
 /** Bleeds rows 12px into the gutter so a highlighted row has room around its text. */
 const bleedListClass = "-mx-3 border-t border-line [&>*]:px-3";
@@ -113,7 +113,7 @@ function PageIndex({ table }: { table: GuideTableData }) {
         const [link] = row.cells[0];
         const description = inlineText(row.cells[1] ?? []);
         return (
-          <li key={row.anchor} id={row.anchor} tabIndex={-1} className="scroll-mt-24 outline-none">
+          <li key={row.anchor} id={row.anchor} tabIndex={-1} className="scroll-mt-6 outline-none">
             {link?.type === "link" ? (
               <LinkCard to={link.href} title={link.text} description={description} />
             ) : (

@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import ts from "typescript";
-import { abortAfter } from "../src/lib/abort.ts";
+import { abortAfter, fetchJson, isTimeout } from "../src/lib/http.ts";
 import {
   API_KEY_ENV,
   playgroundView,
@@ -95,6 +95,37 @@ describe("API docs logic", () => {
     const settled = abortAfter(60_000, AbortSignal.abort("already gone"));
     assert.equal(settled.signal.reason, "already gone");
     settled.release();
+  });
+
+  it("sends and reads JSON, keeps a plain-text error body and times out with a TimeoutError", async () => {
+    const realFetch = globalThis.fetch;
+    let sent;
+    globalThis.fetch = async (url, init) => {
+      sent = init;
+      return url.endsWith("/text")
+        ? new Response("url and secret are required.", { status: 400 })
+        : new Response('{"ok":1}');
+    };
+    try {
+      const json = await fetchJson("https://example.test/json", { method: "POST", body: { a: 1 } });
+      assert.deepEqual(json.data, { ok: 1 });
+      assert.equal(sent.headers["Content-Type"], "application/json");
+      assert.equal(sent.body, '{"a":1}');
+
+      const text = await fetchJson("https://example.test/text");
+      assert.equal(text.ok, false);
+      assert.equal(text.data, null);
+      assert.equal(text.text, "url and secret are required.");
+      assert.equal(sent.headers, undefined);
+
+      globalThis.fetch = (_url, init) =>
+        new Promise((_resolve, reject) =>
+          init.signal.addEventListener("abort", () => reject(init.signal.reason)),
+        );
+      await assert.rejects(fetchJson("https://example.test/slow", { timeoutMs: 5 }), isTimeout);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
   });
 });
 

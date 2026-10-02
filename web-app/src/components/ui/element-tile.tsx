@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { familyColor } from "@/services/elementData";
 
 /** Periodic-table family; matches the `--color-family-*` tokens and `ElementItem.category`. */
 export type ElementFamily =
@@ -48,11 +49,12 @@ interface ElementTileProps {
   className?: string;
 }
 
+// Family tint 20 %, 28 % on hover: families read at a glance and ink-2 text keeps above 5.5:1.
 const tileClass =
-  "@container group relative flex min-w-0 overflow-hidden rounded-md border border-line bg-[color-mix(in_oklch,var(--family)_14%,var(--color-surface))] text-ink transition-[background-color,border-color,box-shadow,opacity,transform] duration-150 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-(--family) before:opacity-80";
+  "@container group relative flex min-w-0 overflow-hidden rounded-md border border-line bg-[color-mix(in_oklch,var(--family)_20%,var(--color-surface))] text-ink transition-[background-color,border-color,box-shadow,opacity,transform] duration-150 before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:bg-(--family) before:opacity-80";
 
 const interactiveClass =
-  "focus-ring hover:border-line-strong hover:bg-[color-mix(in_oklch,var(--family)_22%,var(--color-surface))] active:scale-[0.97]";
+  "focus-ring hover:border-line-strong hover:bg-[color-mix(in_oklch,var(--family)_28%,var(--color-surface))] active:scale-[0.97]";
 
 /**
  * Periodic-table cell: atomic number, symbol, name and an optional value, tinted
@@ -81,7 +83,7 @@ export function ElementTile({
     "data-family": family,
     "aria-label": label,
     tabIndex,
-    style: { "--family": `var(--color-family-${family})` },
+    style: { "--family": familyColor(family) },
     className: cn(
       tileClass,
       value === undefined ? "aspect-square" : "aspect-[4/5]",

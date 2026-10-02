@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL } from "../config";
+import { fetchJson } from "../lib/http";
 
 /** Optional identity features the server has configured (GET /auth/capabilities). */
 export interface AuthCapabilities {
@@ -30,18 +31,19 @@ export function useAuthCapabilities({ enabled = true } = {}): {
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();
-    fetch(`${API_BASE_URL}/auth/capabilities`, { signal: controller.signal })
-      .then((response) =>
-        response.ok
-          ? (response.json() as Promise<Partial<AuthCapabilities>>)
-          : Promise.reject(new Error(`HTTP ${response.status}`)),
-      )
-      .then((data) =>
-        setCapabilities({
-          passwordRecovery: Boolean(data.passwordRecovery),
-          emailVerification: Boolean(data.emailVerification),
-          captcha: Boolean(data.captcha),
-        }),
+    fetchJson<Partial<AuthCapabilities>>(`${API_BASE_URL}/auth/capabilities`, {
+      signal: controller.signal,
+    })
+      .then(({ ok, data }) =>
+        setCapabilities(
+          ok && data
+            ? {
+                passwordRecovery: Boolean(data.passwordRecovery),
+                emailVerification: Boolean(data.emailVerification),
+                captcha: Boolean(data.captcha),
+              }
+            : ALL_OFF,
+        ),
       )
       .catch(() => {
         if (!controller.signal.aborted) setCapabilities(ALL_OFF);

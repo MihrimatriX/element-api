@@ -32,7 +32,7 @@ function PropertyDisclosure({
   const count = sectionCount(section.value);
   const note = SECTION_NOTES[section.key];
   return (
-    <Disclosure id={section.key} open={open} onOpenChange={onOpenChange} className="scroll-mt-24">
+    <Disclosure id={section.key} open={open} onOpenChange={onOpenChange} className="scroll-mt-6">
       <h3 className="font-sans text-[15px] font-medium tracking-normal">
         <DisclosureTrigger className="rounded-none px-4 py-3.5 hover:bg-surface-2/60 sm:px-5">
           <span className="min-w-0">{section.label}</span>

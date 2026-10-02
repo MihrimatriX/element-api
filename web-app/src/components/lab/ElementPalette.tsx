@@ -133,7 +133,7 @@ function PaletteItem({ material, count, dragging, onAdd, onDragStart }: PaletteI
         family={family}
         selected={count > 0}
         dimmed={dragging}
-        className="transition-transform group-hover/item:border-line-strong group-hover/item:bg-[color-mix(in_oklch,var(--family)_22%,var(--color-surface))] group-active/item:scale-[0.97]"
+        className="transition-transform group-hover/item:border-line-strong group-hover/item:bg-[color-mix(in_oklch,var(--family)_28%,var(--color-surface))] group-active/item:scale-[0.97]"
       />
       <button
         type="button"

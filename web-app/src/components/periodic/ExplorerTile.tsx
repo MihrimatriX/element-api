@@ -5,18 +5,11 @@ import { familyOf, type ElementItem } from "@/services/elementData";
 import type { LensReading } from "./lenses";
 
 /*
- * The scroll margin keeps a focused tile clear of the sticky site header (3.5rem) and, from `xl`,
- * of the sticky explorer toolbar (bottom edge ≈ 12rem).
+ * From `xl` the explorer toolbar sticks below the header (bottom edge ≈ 12rem). The page's
+ * scroll padding already keeps 4.5rem clear for the header; this margin adds the rest, so a
+ * focused tile stops below the toolbar.
  */
-const scrollMarginClass = "scroll-mt-18 xl:scroll-mt-52";
-
-/*
- * The explorer is where families are told apart at a glance, so its tiles take a stronger family
- * tint than ElementTile's default (20 % / 28 % on hover instead of 14 % / 22 %). Ink-2 text still
- * keeps above 5.5:1 on the hover tint.
- */
-const familyTintClass =
-  "bg-[color-mix(in_oklch,var(--family)_20%,var(--color-surface))] hover:bg-[color-mix(in_oklch,var(--family)_28%,var(--color-surface))]";
+const scrollMarginClass = "xl:scroll-mt-34";
 
 /*
  * ElementTile tints itself from an inline `--family` colour. A heat or phase lens repaints the
@@ -86,7 +79,7 @@ export function ExplorerTile({
         className={cn(
           "w-full",
           scrollMarginClass,
-          paint ? lensPaintClass : familyTintClass,
+          paint && lensPaintClass,
           tileClassName,
         )}
       />

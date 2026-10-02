@@ -51,11 +51,12 @@ Kurallar:
 - Her veri görünümünün yükleniyor (içerik biçiminde Skeleton), boş (EmptyState) ve hata (Notice + yeniden dene) hâli vardır.
 - İkonlar lucide-react, kontrollerde `size-4`, her yerde `strokeWidth={1.75}`.
 - Satır içi stil yalnız CSS özel değişkeni için (`--family`, `--progress`); tür desteği `src/types/css.d.ts`.
-- Periyodik karolar `ElementTile` ile çizilir ve `data-symbol` taşır (e2e buna bakar). `selected` yalnız görseldir (bağlantıda `aria-current`); tıklayınca açılıp kapanan karo ayrıca `pressed` verir (`aria-pressed`).
+- Periyodik karolar `ElementTile` ile çizilir ve `data-symbol` taşır (e2e buna bakar). Zemin aile renginin %20'si, üzerine gelince %28'i; atom numarası dahil metin `text-ink-2` veya üstü (en az 5,5:1). Aile rengi her yerde `familyColor(familyOf(category))` ile okunur (`services/elementData.ts`). `selected` yalnız görseldir (bağlantıda `aria-current`); tıklayınca açılıp kapanan karo ayrıca `pressed` verir (`aria-pressed`).
 - Eski `#toast` öğesi yok; bildirim için `toast("Kopyalandı", { tone: "success" })`.
 
 ## Yardımcılar
 
+- `lib/http.ts`: uygulamanın tek HTTP çekirdeği. `fetchJson` JSON gönderir ve okur; zaman aşımı gövdeyi de kapsar, çağıranın iptalini dinler. Yanında `ApiHttpError`, `isTimeout`, `abortAfter`. `services/api.ts`, `auth/accountApi.ts`, `useLearning`, `useAuthCapabilities` ve `developer/useApiRequest` bunu kullanır.
 - `lib/storage.ts`: güvenli localStorage (`readStorage`, `writeStorage`, `removeStorage`, `readJson`, `writeJson`).
 - `lib/format.ts`: tr-TR sayılar (`formatNumber`, `formatFixed`, `formatKredi`, `formatGrams`).
 - `lib/text.ts`: Türkçe arama katlaması (`foldTurkish`, `matchesSearch`; "cinko" → Çinko).

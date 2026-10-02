@@ -14,17 +14,17 @@
 
 Kullanıcının ekranda gördüğü ElementAPI budur. Tek sayfalık bir uygulamadır (SPA): sunucu her adrese aynı `index.html` dosyasını verir, sayfayı tarayıcıdaki React Router seçer. Ürün yüzeyleri şunlardır: atlas (periyodik tablo, bileşik listesi, element ve bileşik kayıt sayfaları), laboratuvar ve iki yan oyun (formül kurma, element dedektifi), keşif defteri ve öğrenme rotaları, el kitabı ve sözlük, geliştirici sayfaları (API tanıtımı, API dokümanları, veri kapsamı, bu kılavuz) ve hesaplar açıkken ayrı bir köşede sanal KREDI demosu (piyasa, mağaza, hesap).
 
-Uygulama `src/main.tsx` dosyasında açılır: `StrictMode` → `ErrorBoundary` (son çare çökme ekranı) → `App`. `App` içinde sağlayıcılar şu sırayla sarılır: `MotionConfig reducedMotion="user"` (işletim sistemi "azaltılmış hareket" diyorsa animasyonlar kapanır) → `BrowserRouter` → `SelectedElementProvider` → `ProductShell` → `Suspense` (`RouteFallback` iskeleti) → `RouteStage` → `AppRoutes`. Yönlendiricinin içinde, kabuğun yanında `Toaster` (bildirimler) ve `RouteFocus` da bağlanır. Yeni bir sürüm yayınlandığında eski sekmenin istediği karma adlı parça artık yoktur; `main.tsx` bu durumda (`vite:preloadError`) sayfayı bir kez yeniden yükler, 60 sn içinde ikinci kez gerekirse çökme ekranına bırakır (`sessionStorage` anahtarı `elementapi:chunk-reload`).
+Uygulama `src/main.tsx` dosyasında açılır: `StrictMode` → `ErrorBoundary` (son çare çökme ekranı) → `App`. `App` içinde sağlayıcılar şu sırayla sarılır: `MotionConfig reducedMotion="user"` (işletim sistemi "azaltılmış hareket" diyorsa animasyonlar kapanır) → `BrowserRouter` → `SelectedElementProvider` → `ProductShell` → `Pages`: `ErrorBoundary` (çöken sayfa kabuğun içinde hata ekranı gösterir, başka adrese geçince temizlenir) → `Suspense` (`RouteFallback` iskeleti) → `RouteStage` → `AppRoutes`. Yönlendiricinin içinde, kabuğun yanında `Toaster` (bildirimler) ve `RouteFocus` da bağlanır. Yeni bir sürüm yayınlandığında eski sekmenin istediği karma adlı parça artık yoktur; `main.tsx` bu durumda (`vite:preloadError`) sayfayı bir kez yeniden yükler, 60 sn içinde ikinci kez gerekirse çökme ekranına bırakır (`sessionStorage` anahtarı `elementapi:chunk-reload`).
 
 `SelectedElementProvider` (`src/context/selection.tsx`) iki ortak şeyi tutar: seçili element (önce `?symbol=`, sonra localStorage `elementapi:selectedSymbol`, yoksa `AU`; bilinmeyen sembol altına döner) ve istemci tarafındaki oturum bayrağı. Bayrak saklanan JWT'nin süresine bakar; 15 sn'de bir, başka sekmede değişiklik olunca (`storage`) ve oturum silinince (`element:session`) yeniden hesaplanır. `ProductShell` her sayfanın çerçevesidir: "İçeriğe geç" bağlantısı, yapışkan üst başlık (masaüstünde birincil menü, "Daha fazla" menüsü, "API" kısayolu ve hesap alanı; `lg` altında soldan açılan menü), `#main-content` odak hedefi ve alt bilgi. Menü içeriği `src/productNav.ts` dosyasındaki listelerden gelir.
 
-Sayfa geçişlerini üç parça yönetir. `RouteStage` sayfayı yaylı bir solma ile gösterir; anahtarı yolun ilk parçası olduğu için `/element/fe` → `/element/cu` geçişinde sayfa yeniden kurulmaz. `RouteFocus` bir bağlantıyla yeni sayfaya geçince en üste kaydırır, odağı `#main-content`'e verir ve yeni başlığı ekran okuyucuya duyurur; geri/ileri gezinmede kaydırmayı tarayıcıya bırakır (odak ve duyuru yine yapılır), `#` içeren bağlantılarda ve yönlendirmelerde hiçbirini yapmaz. `useRecordTracking` element veya bileşik kaydı açıldığında isteğe bağlı tanılama günlüğüne `record_opened` yazar. `/` ve `/periodic` ilk paketle gelir; diğer bütün sayfalar `lazy` ile ayrı parça olarak yüklenir.
+Sayfa geçişlerini üç parça yönetir. `RouteStage` sayfayı yaylı bir solma ile gösterir; anahtarı yolun ilk parçası olduğu için `/element/fe` → `/element/cu` geçişinde sayfa yeniden kurulmaz. `RouteFocus` bir bağlantıyla yeni sayfaya geçince en üste kaydırır, odağı `#main-content`'e verir ve yeni başlığı ekran okuyucuya duyurur; geri/ileri gezinmede kaydırmayı tarayıcıya bırakır (odak ve duyuru yine yapılır), `#` içeren bağlantılarda ve yönlendirmelerde hiçbirini yapmaz. Menüden veya mobil menüden açılan sayfada kapanan panel odağı tetikleyicisine geri vermez, `#main-content`'e bırakır (`shell/navigationFocus.ts`). `html { scroll-padding-top: 4.5rem }` odaklanan öğeyi ve `#` hedefini yapışkan başlığın altında durdurur. `useRecordTracking` element veya bileşik kaydı açıldığında isteğe bağlı tanılama günlüğüne `record_opened` yazar. `/` ve `/periodic` ilk paketle gelir; diğer bütün sayfalar `lazy` ile ayrı parça olarak yüklenir.
 
 Veri dört kaynaktan gelir:
 
 - **Bilim API'si (v2)** — `src/services/science.ts`. `useScience(kind, id)` tek kaydı ya da bütün listeyi, `listScience(kind)` listeyi `pageSize=100&view=summary` ile bütün sayfaları paralel isteyerek getirir. Adres `SCIENCE_BASE_URL`'dir (geliştirmede Vite vekili üzerinden `/api/v2`, derlemede gateway kökeninde `/api/v2`, bağımsız atlasta aynı kökende `/api/v2`). Yanıtlar yol başına bellekte tutulur, başarısız istek önbellekten atılır, istek 15 sn'de zaman aşımına uğrar.
 - **Paketteki veriler** — API'ye ulaşılamazsa `src/services/scienceCatalog.ts` devreye girer: catalog-service ve compound-service'in depodaki bilimsel JSON dosyalarından kurulan yaklaşık 1,4 MB'lık ayrı bir parça. Yerel kayıt önce ekrana gelir, API yanıtı gelince onun yerine geçer; hata yalnız iki kaynakta da kayıt yoksa gösterilir. Ayrıca `src/services/elementData.ts` içindeki `STATIC_ELEMENTS` (118 elementin tablo konumu, ağ olmadan da çalışır), `src/data/known-compounds.json` (laboratuvar kataloğu, 214 bileşik), `src/data/lessons.json` (altı öğrenme rotası; identity-service de okur) ve derleme script'lerinin ürettiği `src/data/coverage.json` ile `src/data/guide.json` kullanılır. `guide.json` pakete gömülmez, `/kilavuz` açılınca ayrı dosya olarak çekilir.
-- **Gateway (v1)** — `src/services/api.ts`, adres `API_BASE_URL`. Giriş ve kayıt, API anahtarları, webhook'lar, element fiyatları (`/elements`, `/market/board`, `/market/movers`, ticker), mağaza ürünleri (`/compounds`), cüzdan ve varlıklar (`/me/wallet`, `/me/holdings`), geri satış (`/desk/sell`) ve siparişler (`/orders`) buradan gider. JWT localStorage'da `token` anahtarında durur. Cüzdan, sipariş ve satış uçları (`/me`, `/orders`, `/desk`) ayrıca API anahtarı istediği için uygulama ilk ihtiyaçta kendine "Web Dashboard Key" adlı, saniyede 10 isteklik bir anahtar üretir (`apiKey`); 20 anahtarlık kota doluysa en eski panel anahtarını iptal edip yeniden dener, başka yerde iptal edilmiş anahtarı 401'de bir kez yeniler. Hesap ayarları `src/components/auth/accountApi.ts` üzerinden `/auth/profile`, `/auth/password/*`, `/auth/email/*`, `/auth/export` ve `/auth/delete` uçlarını, `src/hooks/useAuthCapabilities.ts` de `GET /auth/capabilities` ile sunucunun e-posta ve captcha yeteneklerini kullanır.
+- **Gateway (v1)** — `src/services/api.ts`, adres `API_BASE_URL`. Giriş ve kayıt, API anahtarları, webhook'lar, element fiyatları (`/elements`, `/market/board`, `/market/movers`, ticker), mağaza ürünleri (`/compounds`), cüzdan ve varlıklar (`/me/wallet`, `/me/holdings`), geri satış (`/desk/sell`) ve siparişler (`/orders`) buradan gider. JWT localStorage'da `token` anahtarında durur. Cüzdan, sipariş ve satış uçları (`/me`, `/orders`, `/desk`) ayrıca API anahtarı istediği için uygulama ilk ihtiyaçta kendine "Web Dashboard Key" adlı, saniyede 10 isteklik bir anahtar üretir (`apiKey`); 20 anahtarlık kota doluysa en eski panel anahtarını iptal edip yeniden dener, başka yerde iptal edilmiş anahtarı 401'de bir kez yeniler. Hesap ayarları `src/components/auth/accountApi.ts` üzerinden `/auth/profile`, `/auth/password/*`, `/auth/email/*`, `/auth/export` ve `/auth/delete` uçlarını, `src/hooks/useAuthCapabilities.ts` de `GET /auth/capabilities` ile sunucunun e-posta ve captcha yeteneklerini kullanır. Bu istemcilerin hepsi, defter eşitlemesi ve geliştirici deneme alanı tek HTTP çekirdeğinden geçer: `src/lib/http.ts` içindeki `fetchJson` (JSON gövde, gövdeyi de kapsayan zaman aşımı, çağıranın iptali); her istemci kendi adresini, başlıklarını ve süresini verir.
 - **Tarayıcıda öğrenme** — `src/services/useLearning.ts` keşif defterini `elementapi:learning:<kullanıcı>:v1` (misafirde `guest`) anahtarında tutar; localStorage kapalıysa ilerleme sekme kapanana kadar bellekte kalır. Girişliyken her değişiklik `PUT /auth/learning` ile gönderilir ve sunucunun kopyasıyla birleşimi alınır, böylece cihazlar aynı deftere varır; misafirken biriken ilerleme hesaba aktarılabilir. Diğer yerel anahtarlar: `elementapi:games:v1` (yan oyun skorları, defterden ayrı), `elementapi:lab:v1` (eski laboratuvar kaydı; misafir defterine devredilir), `elementapi:elementalCart` (mağaza sepeti), `elementapi:diagnostics:v1` ve `elementapi:diagnostics:enabled` (yalnız onay verilirse tutulan, hiçbir yere gönderilmeyen tanılama). Bütün erişim `src/lib/storage.ts` üzerinden yapılır; depolama kapalıysa hata fırlatılmaz.
 
 Sayfalar sunucuda üretilmez. Başlık, açıklama, kanonik adres, Open Graph ve `robots` etiketlerini her sayfa `Seo` bileşeniyle çalışma anında yazar; `index.html`, `robots.txt` ve `sitemap.xml` içindeki `__SITE_URL__` yer tutucusu Docker'da konteyner açılışında, bağımsız atlasta derleme sonunda gerçek adresle değiştirilir. Tam platformda derleme nginx ile sunulur; nginx `/health` ve `/info` uçlarına sabit JSON döner ve bilinmeyen her yolu `index.html`'e düşürür. Bağımsız atlas (`science-service`) aynı derlemeyi hesaplar kapalı olarak kendi `wwwroot` klasöründen sunar.
@@ -115,10 +115,11 @@ Uygulamanın kökü: rota tablosunu kurar, sayfaları tembel (lazy) yükler, say
 | `AccountsOnly()` | `ACCOUNTS_ENABLED` açıksa alt rotaları (`Outlet`), kapalıysa "Bu özellik kapalı" sayfasını (`FeatureUnavailable`) gösterir. |
 | `LegacyRedirect({ to })` | Eski bir adresi (`/values`, `/trading`, `/stack`) sorgu dizgisini koruyarak yeni rotaya `replace` ile yönlendirir. |
 | `RouteStage({ children })` | Sayfayı yolun ilk parçasına göre anahtarlayıp yaylı bir geçişle belirginleştirir; aynı bölüm içindeki geçişte (`/element/fe` → `/element/cu`) sayfayı yeniden kurmaz, azaltılmış hareket tercihinde animasyonu atlar. |
-| `RouteFocus()` | Yol değişince odağı `#main-content` öğesine taşır ve yeni sayfa başlığını bir kare sonra görünmez bir `aria-live` bölgesinden okutur; yalnız bağlantıyla (PUSH) gelindiyse sayfanın başına kaydırır (geri/ileri kaydırmayı tarayıcıya bırakır); `#` içeren adreslerde ve yönlendirmelerde (REPLACE) hiçbir şey yapmaz. |
+| `RouteFocus()` | Yol değişince odağı `#main-content` öğesine taşır (`focusMainContent`) ve yeni sayfa başlığını bir kare sonra görünmez bir `aria-live` bölgesinden okutur; yalnız bağlantıyla (PUSH) gelindiyse sayfanın başına kaydırır (geri/ileri kaydırmayı tarayıcıya bırakır); `#` içeren adreslerde ve yönlendirmelerde (REPLACE) hiçbir şey yapmaz. |
 | `useRecordTracking()` | Yol `/element/:symbol` ya da `/compound/:slug` olduğunda isteğe bağlı tanılamaya `record_opened` olayı yazar. |
 | `AppRoutes()` | Bütün rotaları tanımlar: atlas, laboratuvar, defter, rehberler, geliştirici sayfaları, `/kilavuz`, demo, hesap ve ticaret rotaları (`AccountsOnly` + `CommerceLayout` altında), eski adres yönlendirmeleri, yalnız geliştirmede açılan `/_ui` galerisi ve 404. |
-| `App()` | Kök bileşen: `MotionConfig`, `BrowserRouter`, `SelectedElementProvider`, `ProductShell`, `Suspense` (yedek: `RouteFallback`), `Toaster` ve `RouteFocus` katmanlarını sırayla kurar. |
+| `Pages()` | Başlık ile alt bilgi arasındaki sayfa: `ErrorBoundary` → `Suspense` (yedek: `RouteFallback`) → `RouteStage` → `AppRoutes`. Sınır yolu `resetKey` olarak alır; çöken sayfa kabuğun içinde hata ekranı gösterir, menü çalışmaya devam eder ve başka adrese geçince sayfa yeniden çizilir. |
+| `App()` | Kök bileşen: `MotionConfig`, `BrowserRouter`, `SelectedElementProvider`, `ProductShell` (içinde `Pages`), `Toaster` ve `RouteFocus` katmanlarını sırayla kurar. |
 
 ### `web-app/src/config.ts`
 Derleme anındaki ortam değişkenlerinden API adreslerini, genel site adresini ve hesap özelliğinin açık olup olmadığını üretir.
@@ -145,8 +146,6 @@ Derleme anındaki ortam değişkenlerinden API adreslerini, genel site adresini 
 | `siteMap` (sabit) | Alt bilgi ve mobil menü için gruplanmış harita: Keşif, Geliştirici, Proje. |
 | `NAV_ALIASES` (sabit) | Bir menü öğesine ait detay yolları (ör. `/element` → Tablo, `/compound` → Bileşikler, `/docs` → API). |
 | `isNavActive(to, pathname)` | Yol menü öğesinin kendisi, altı (`/lab/formula`) ya da takma adlarından biriyse true döner. |
-| `isCommerceDemoPath(pathname)` | Yolun KREDI demosuna (`/demo`, `/market`, `/shop`, `/values`, `/trading`) ait olup olmadığını söyler. |
-| `isPrimaryProductPath(pathname)` | Yolun ana ürün yüzeyinde (giriş, tablo, element/bileşik kaydı, bileşikler, lab, defter, el kitabı) olup olmadığını söyler. |
 
 ### `web-app/src/context/commerce.tsx`
 KREDI demosu sayfalarının (`/market`, `/shop`, `/account`) paylaştığı canlı element fiyatlarını ve cüzdan bakiyesini tutan bağlam.
@@ -165,7 +164,7 @@ Uygulama genelinde seçili elementi ve istemci tarafı oturum bayrağını tutan
 |---|---|
 | `isKnownSymbol(symbol)` | Sembolün statik 118 element listesinde olup olmadığını söyler. |
 | `hasSession()` | Hesaplar açıksa ve yerel JWT geçerli bir kullanıcı veriyorsa true döner. |
-| `SelectedElementProvider({ children })` | Seçili sembolü sırayla `?symbol=` parametresinden, localStorage'dan ya da altından (AU) alır ve bilinmeyen sembolü altına düşürür; oturum bayrağını 15 sn'de bir, `storage` ve `element:session` olaylarında yeniden hesaplar. |
+| `SelectedElementProvider({ children })` | Seçili sembolü sırayla `?symbol=` parametresinden, localStorage'dan ya da altından (AU) alır ve bilinmeyen sembolü altına düşürür; oturum bayrağını 15 sn'de bir ve `onSessionChange` bildirdiğinde (başka sekmenin `storage` olayı, bu sekmenin `clearSession`'ı) yeniden hesaplar. |
 | `setSelectedSymbol(symbol)` (`SelectedElementProvider` içinde) | Sembolü büyük harfe çevirip saklar, localStorage'a yazar ve adres çubuğundaki `?symbol=` değerini günceller. |
 | `useSelectedElement()` | Seçili element ve oturum bağlamını döner; sağlayıcı dışında çağrılırsa hata fırlatır. |
 
@@ -175,7 +174,7 @@ identity servisinde hangi isteğe bağlı hesap özelliklerinin (şifre kurtarma
 | Fonksiyon | Ne yapar |
 |---|---|
 | `ALL_OFF` (sabit) | Bütün yetenekleri kapalı gösteren varsayılan değer. |
-| `useAuthCapabilities({ enabled })` | `GET /auth/capabilities` isteğini bir kez atar; yüklenirken ve istek başarısız olursa her yeteneği kapalı sayar, böylece sayfa sunucunun tamamlayamayacağı bir akışı önermez; `enabled: false` ile istek atlanır, bileşen kalkınca istek iptal edilir. |
+| `useAuthCapabilities({ enabled })` | `GET /auth/capabilities` isteğini `fetchJson` ile (zaman aşımı olmadan) bir kez atar; yüklenirken ve istek başarısız olursa her yeteneği kapalı sayar, böylece sayfa sunucunun tamamlayamayacağı bir akışı önermez; `enabled: false` ile istek atlanır, bileşen kalkınca istek iptal edilir. |
 
 ### `web-app/src/hooks/usePolling.ts`
 Sekme görünürken bir işi düzenli aralıklarla çalıştıran kanca.
@@ -218,6 +217,17 @@ Bağımlılık kullanmadan JSON metnini renklendiren ve herhangi bir değeri JSO
 | `paint(text, kind)` (`highlightJson` içinde) | Bir parçayı ilgili renk sınıfıyla `span` olarak düğüm listesine ekler. |
 | `jsonSource(value)` | Değeri 2 boşluk girintili JSON metnine çevirir; dizgiyi olduğu gibi bırakır, çevrilemezse `String(value)` döner. |
 
+### `web-app/src/lib/http.ts`
+Uygulamanın tek HTTP çekirdeği: `services/api.ts`, `auth/accountApi.ts`, `useLearning`, `useAuthCapabilities` ve geliştirici deneme alanı istekleri bununla atar; adresi, başlıkları ve süreyi her istemci kendisi verir.
+
+| Fonksiyon | Ne yapar |
+|---|---|
+| `ApiHttpError` (sınıf) | 2xx olmayan yanıtı durum kodu ve ayrıştırılmış gövdeyle (`data`: JSON, ham metin ya da `null`) taşıyan hata; isteği atan istemci fırlatır. |
+| `abortAfter(ms, signal)` | `ms` sonra `TimeoutError` ile (`ms` verilmezse hiç) ya da dış `signal` iptal olunca onun nedeniyle iptal olan bir sinyal üretir; hedef tarayıcılarda (Chrome 111, Safari 16.4) olmayan `AbortSignal.any` yerine geçer. İstek bitince zamanlayıcıyı ve dinleyiciyi temizleyen `release` döner. |
+| `isTimeout(error)` | Hatanın `fetchJson`'un zaman aşımı (`TimeoutError`) olup olmadığını söyler; giriş, defter eşitlemesi ve deneme alanı bunu "ulaşılamadı" ya da "zaman aşımı" cümlesi için kullanır. |
+| `fetchJson(url, { method, headers, body, timeoutMs, signal, cache })` | Tek istek atar: `body` varsa JSON'a çevirip `Content-Type: application/json` ekler; zaman aşımı gövdenin okunmasını da kapsar. Her HTTP durumunda çözülür ve `ok`, `status`, `headers`, `data` (JSON ya da `null`) ve `text` (ham gövde) döner; ağ hatası, zaman aşımı ve çağıranın iptali reddeder. |
+| `parseJson(text)` | Gövdeyi JSON olarak okur; boş ya da JSON olmayan gövdede `null` döner. |
+
 ### `web-app/src/lib/storage.ts`
 localStorage'a güvenli erişim: gizli pencere, engellenmiş site verisi ya da dolu kota hatasını yutar ve sonucu dönüş değeriyle bildirir.
 
@@ -245,27 +255,27 @@ Tailwind sınıflarını birleştiren tek yardımcı.
 | `cn(...inputs)` | Koşullu sınıf listesini `clsx` ile birleştirir, çakışan Tailwind sınıflarını `tailwind-merge` ile ayıklar. |
 
 ### `web-app/src/services/api.ts`
-Hesap ve ticaret kapısının (`/api/v1`) istemcisi: her isteğe saklı JWT'yi ve cüzdan/sipariş uçları için uygulamanın kendine ürettiği panel API anahtarını ekler; giriş, anahtar, katalog, cüzdan, webhook, sepet ve sipariş işlemlerini toplar.
+Hesap ve ticaret kapısının (`/api/v1`) istemcisi: her isteğe saklı JWT'yi ve cüzdan/sipariş uçları için uygulamanın kendine ürettiği panel API anahtarını ekler; giriş, anahtar, katalog, cüzdan, webhook, sepet ve sipariş işlemlerini toplar. İstekleri `lib/http.ts` içindeki `fetchJson` ile atar.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `ApiHttpError` (sınıf) | 2xx olmayan gateway yanıtını durum kodu ve ayrıştırılmış gövdeyle (`data`) taşıyan hata. |
 | `authHeaders()` | localStorage'daki `token` için `Authorization: Bearer`, `apiKey` için `X-API-Key` başlığını hazırlar. |
 | `toQuery(params)` | `?a=1&b=2` sorgu dizgisini kurar; `null`, `undefined` ve boş değerleri atlar. |
-| `readBody(response)` | Yanıt gövdesini JSON olarak ayrıştırır; olmazsa ham metni, gövde boşsa `null` döner. |
-| `send(method, path, options)` | Kimlik başlıkları ve JSON gövdesiyle tek bir `fetch` atar; zaman aşımı (varsayılan 10 sn) hem yanıtı hem gövdenin okunmasını kapsar. |
 | `invalidatesSession(path)` | Giriş ve kayıt dışındaki `/auth/`, `/api-keys` ve `/webhooks` yollarında 401 alınmasının oturumun bittiği anlamına geldiğini söyler. |
-| `request(method, path, options)` | Ortak istek akışı: panel anahtarı gereken yollarda (`/me`, `/orders`, `/desk`) anahtar yoksa önce üretir; 401'de (bu arada başka sekme giriş yapmadıysa) oturumu temizler ve başka cihazda iptal edilmiş panel anahtarını bir kez yenileyip isteği tekrarlar; başarısızlıkta `ApiHttpError` fırlatır. |
-| `apiError(error, fallback)` | Gateway hata gövdesinden kullanıcıya gösterilecek mesajı seçer (`error`, `message`, `detail` ya da ASP.NET `errors`); bulamazsa `fallback` döner. |
+| `DASHBOARD_KEY_DESCRIPTION` (sabit) | Web uygulamasının kendine ürettiği anahtarın açıklaması ("Web Dashboard Key"); eski panel anahtarlarını bulmak ve `ApiKeysPanel`'de "Web paneli" rozeti için de kullanılır. |
+| `request(method, path, options)` | Ortak istek akışı: isteği kimlik başlıkları ve sorgu dizgisiyle `fetchJson`'a verir (varsayılan 10 sn zaman aşımı, gövdenin okunmasını da kapsar); düz metin hata gövdesini (ASP.NET `BadRequest("…")`) olduğu gibi tutar. Panel anahtarı gereken yollarda (`/me`, `/orders`, `/desk`) anahtar yoksa önce üretir; 401'de (bu arada başka sekme giriş yapmadıysa) oturumu temizler ve başka cihazda iptal edilmiş panel anahtarını bir kez yenileyip isteği tekrarlar; başarısızlıkta `ApiHttpError` fırlatır. |
+| `IDENTITY_ERRORS` (sabit) | Kayıtta karşılaşılabilecek ASP.NET Identity kodlarının Türkçe cümleleri: `DuplicateEmail` ve `DuplicateUserName` "Bu e-posta zaten kayıtlı.", `InvalidEmail`, `InvalidUserName`, `PasswordTooShort` "Şifre en az 10 karakter olmalı.". identity-service yalnız uzunluk istediği için `PasswordRequires*` kodları gelmez. |
+| `apiError(error, fallback)` | Gateway hata gövdesinden kullanıcıya gösterilecek mesajı seçer: düz metin gövde olduğu gibi; sonra `error`, `message` ya da `detail`; sonra alan ya da hata koduna göre mesaj listeleri (ASP.NET doğrulamasının `errors` nesnesi ya da Identity'nin `BadRequest(ModelState)` gövdesi, ör. `{"DuplicateEmail": ["…"]}`). Bilinen Identity kodları Türkçe cümleye çevrilir, aynı cümle bir kez yazılır; bulamazsa `fallback` döner. |
 | `storeCredential(key, value)` | Jetonu veya API anahtarını yazar; depolama kapalıysa Türkçe hata fırlatarak girişin görünür biçimde başarısız olmasını sağlar. |
 | `authService.login(credentials)` | `POST /auth/login` atar; jeton gelirse önceki kullanıcının panel anahtarını silip yeni jetonu saklar. |
 | `authService.register(userData)` | `POST /auth/register` ile ad, soyad, e-posta, şifre ve isteğe bağlı CAPTCHA jetonuyla hesap açar. |
-| `authService.logout()` | Saklı jetonu ve API anahtarını siler; dinleyicilere haber vermez (bunu `clearSession` yapar). |
 | `mintDashboardKey(token)` | "Web Dashboard Key" açıklamalı, 10 TPS'lik bir API anahtarı üretir; bu sırada kullanıcı değiştiyse anahtarı reddeder, değişmediyse saklar. |
 | `mintFreeingQuota(token)` | 20 anahtarlık kota doluysa (409) en eski etkin panel anahtarını iptal edip bir kez daha üretmeyi dener. |
 | `apiKeyService.generate(description, rateLimitTps)` | `POST /api-keys/generate` ile yeni API anahtarı üretir (varsayılan 5 TPS). |
 | `apiKeyService.list()` | Kullanıcının anahtarlarını maskeli olarak listeler. |
 | `apiKeyService.revoke(id)` | Bir anahtarı `DELETE /api-keys/{id}` ile iptal eder. |
+| `apiKeyService.adoptDashboardKey(apiKey)` | Tarayıcının henüz panel anahtarı yoksa verilen anahtarı panel anahtarı yapar; yaptıysa true döner. |
+| `apiKeyService.forgetDashboardKey(matches)` | Saklı panel anahtarını `matches` kabul ederse (ör. az önce iptal edildi) siler; sildiyse true döner. |
 | `apiKeyService.ensureDashboardKey()` | Saklı panel anahtarını döner, yoksa üretir; aynı jeton için paralel çağrılar tek üretimi paylaşır, jeton yoksa 401 fırlatır. |
 | `pagesAfterFirst(total)` | Kalan sayfaları paralel çekmek için 2..`total` sayfa numaralarını üretir. |
 | `toCompoundList(data)` | Eski gateway'in düz dizi yanıtını ve yeni sayfa zarfını (eksik alanlı olsa bile) tek `CompoundList` biçimine çevirir. |
@@ -284,11 +294,11 @@ Hesap ve ticaret kapısının (`/api/v1`) istemcisi: her isteğe saklı JWT'yi v
 | `webhookService.create(url, events, secret)` | Yeni webhook adresini olaylar ve imza sırrıyla kaydeder. |
 | `webhookService.remove(id)` | Bir webhook kaydını siler. |
 | `CART_KEY` (sabit) | Sepetin localStorage anahtarı (`elementapi:elementalCart`). |
+| `ELEMENTAL_SLUG` (sabit) | Saf elementin (bileşik olmayan) ürün slug'ı, `elemental`: sepette, siparişte ve kasada; `/market` satış formu bununla başlar. |
 | `cartLineKey(symbol, slug)` | Sepet satırının kimliğini üretir: büyük harfli sembol + küçük harfli ürün slug'ı (saf element için `elemental`). |
 | `normalizeCartItem(raw)` | Saklı satırı onarır (eksik alanlara varsayılan, yoksa yeni `requestId`); sembolü olmayan veya miktarı pozitif olmayan satırı atar. |
 | `readCart()` | Saklı sepeti okur; bozuk veri boş sepet sayılır. |
 | `writeCart(items)` | Sepeti saklar; depolama yoksa sepet yalnız bu sayfada yaşar. |
-| `addToCart(symbol, grams, maxGrams, sku)` | Bir satıra gram ekler (negatifse çıkarır), `maxGrams` ile sınırlar ve satıra yeni `requestId` verir; yeni satır başa gelir, sepet en fazla 12 satır tutar; boş satırları atarak saklar ama onları da içeren listeyi döner. |
 | `orderService.submitOrder(elementSymbol, quantity, compoundSlug, requestId)` | `POST /orders` ile sipariş verir; saf element değilse bileşik slug'ını ekler, `requestId` değerini `Idempotency-Key` olarak yollar ki tekrar gönderim iki kez ücretlendirilmesin. |
 | `orderService.list()` | Kullanıcının siparişlerini listeler. |
 | `orderStatusLabel` (sabit) | Saga durumlarının Türkçe etiketleri (Hazırlanıyor, Ödeme, Kargoda, Teslim, İptal). |
@@ -305,13 +315,14 @@ API dokümanları ve geliştirici sayfalarındaki deneme alanı (playground) ile
 | `statusTone(status)` | HTTP durumunun rozet tonunu seçer: 2xx başarı, 304 bilgi, diğer 4xx uyarı, geri kalanı tehlike. |
 
 ### `web-app/src/services/session.ts`
-Tarayıcıdaki oturumun yardımcıları: JWT'yi okuma, oturumu kapatma ve güvenli geri dönüş adresi.
+Tarayıcıdaki oturumun yardımcıları: JWT'yi okuma, oturumu kapatma, oturum değişikliğini dinleme ve güvenli geri dönüş adresi.
 
 | Fonksiyon | Ne yapar |
 |---|---|
 | `decodeJwtPayload(token)` | JWT'nin orta (payload) parçasını base64url'den çözüp JSON olarak okur; bozuk girdide hata fırlatır. |
 | `tokenUser(token)` | Saklı JWT hâlâ geçerliyse kullanıcı kimliğini (`sub`) döner; jeton yoksa, bozuksa ya da süresi dolduysa `null` döner. |
 | `clearSession()` | Jetonu ve panel anahtarını siler, ardından `window` üzerinde `element:session` olayını yayınlayarak dinleyenlere haber verir. |
+| `onSessionChange(listener)` | Oturum değişmiş olabilecek her an `listener`'ı çağırır: bu sekme oturumu kapattığında (`element:session`) ya da başka sekme depolamaya yazdığında (`storage`); aboneliği bırakan fonksiyonu döner. |
 | `safeReturnTo(value, fallback)` | `returnTo` sorgu değerini aynı kökene ait bir yola çevirir; tarayıcı gibi ayrıştırdığı için `/\t/evil.com` gibi başka siteye kaçan değerleri reddeder ve `fallback` (varsayılan `/collection`) döner. |
 
 ### `web-app/src/services/diagnostics.ts`
@@ -385,12 +396,13 @@ Laboratuvarın, oyunların ve bileşik sayfalarının formül motoru: formülü 
 | `asScienceCompound(compound)` | Katalog bileşiğinden çevrimdışı kullanım için `/api/v2` biçiminde asgari bir bilim kaydı (adlar, PubChem bağlantısı, mol kütlesi, bileşim, kaynak bilgisi) üretir. |
 
 ### `web-app/src/services/elementData.ts`
-118 elementin tablo konumunu taşıyan çevrimdışı tohum listesi, aile etiketleri ve gateway'den gelen canlı satırları bu tohumun üzerine bindiren birleştirici.
+118 elementin tablo konumunu taşıyan çevrimdışı tohum listesi, aile etiketleri ve uygulamanın tek aile yardımcıları (`familyOf`, `familyColor`) ve gateway'den gelen canlı satırları bu tohumun üzerine bindiren birleştirici.
 
 | Fonksiyon | Ne yapar |
 |---|---|
 | `categoryLabels` (sabit) | Her periyodik tablo ailesinin Türkçe etiketi (Alkali metal, Geçiş metali, Soy gaz …). |
-| `categoryTokens` (sabit) | Her ailenin CSS rengi: `var(--color-family-<aile>)` tasarım belirteçleri. |
+| `familyOf(category)` | Tohum ya da katalog kategorisini `ElementTile` ailesine daraltır; `categoryLabels`'ta olmayan her şey `"unknown"` olur. Bütün sayfalar aileyi buradan okur. |
+| `familyColor(family)` | Ailenin CSS rengini (`var(--color-family-<aile>)`) `--family` özel değişkeni için döner. |
 | `rawElements` (veri) | Tek satırlık sıkıştırılmış tohum dizgisi (atom numarası, sembol, Türkçe ad, aile, tablo satırı, sütunu); `write-sitemap.mjs` ve `refresh-scientific-catalog.mjs` bunu ilk regex eşleşmesiyle okuduğu için tek satır kalmalıdır. |
 | `STATIC_ELEMENTS` (sabit) | 118 elementi atom numarası sırasıyla, periyot, grup ve tablo konumuyla döner; f-blok satırlarında (8–9) periyodu 2 azaltır ve grubu 3 yapar; API çağrısından önce, çevrimdışı çalışır. |
 | `enriched` / `genericSummaries` (veri) | Birkaç örnek element (H, C, O, Fe, Au, U) için kütle, faz ve özet; ayrıca gateway özet vermediğinde aile başına yedek özet. |
@@ -403,7 +415,6 @@ Laboratuvarın malzeme listesi ve keşif ilerlemesi yardımcıları; `chemistry.
 | Fonksiyon | Ne yapar |
 |---|---|
 | `missTone(result)` | Başarısız `formCompound` sonucunu geri bildirim tonuna çevirir: yanlış oran "almost", boş tezgâh "empty", soygaz ya da kararsız "impossible", diğerleri "unknown". |
-| `mixOutcome(result)` | Herhangi bir karışım sonucunu tona çevirir: başarı "hit", değilse `missTone`. |
 | `moveChip(order, from, to)` | Tezgâhtaki çipi bir sıradan diğerine taşır; aralık dışı ya da eşit indekste sırayı olduğu gibi döner. |
 | `syncChipOrder(order, counts)` | Çiplerin gösterim sırasını sayımlarla uyumlu tutar: kaldırılan kimlikleri atar, yenilerini sona ekler. |
 | `LAB_VERSION` / `LAB_STORAGE_KEY` (sabit) | Defter öncesi keşif deposunun sürümü (1) ve anahtarı (`elementapi:lab:v1`); `useLearning` misafirler için bunu bir kez okur. |
@@ -452,17 +463,16 @@ Herkese açık bilim API'sinin (`/api/v2`) istemcisi; servis ulaşılamazsa kay�
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `displayFormula(value)` | Formüldeki rakamları Unicode alt simgeye çevirir (`H2O` → `H₂O`). |
 | `loadCatalog()` | Yaklaşık 1,4 MB'lık çevrimdışı veri parçasını ilk bilim görünümünde tembel yükler ve modülü saklar. |
 | `scienceUrl(path)` | `elements/fe` gibi bir yol için tam API adresini üretir. |
 | `responseCache` (sabit) | Süren ve biten yanıtları yola göre tutar; başarısız istek silinir ki yeniden denenebilsin. |
-| `fetchJson(path)` | Çerez göndermeden ve 15 sn zaman aşımıyla GET atar; 404'te "Kayıt bulunamadı.", diğer hatalarda "Bilimsel veri servisine ulaşılamadı." fırlatır. |
+| `ScienceNotFoundError` (sınıf) | API'nin 404 yanıtı: kayıt yok demektir, servisin kapalı olmasından ayrılır. |
+| `fetchJson(path)` | Çerez göndermeden ve 15 sn zaman aşımıyla (`AbortSignal.timeout`) GET atar; 404'te `ScienceNotFoundError` ("Kayıt bulunamadı."), ağ hatası ve zaman aşımı dahil diğer her hatada "Bilimsel veri servisine ulaşılamadı." fırlatır. |
 | `getCached(path)` | Aynı yol için tek bir isteği paylaştırır; hata olursa önbellekten siler. |
 | `listScience(kind)` | Bir türün bütün kayıtlarını (özet görünüm, 100'lük sayfalar paralel) çekip yerel verinin üzerine birleştirir; API başarısız olursa yalnız yerel veriyi döner. |
 | `localFallback(kind, id)` | Yerel verideki kaydı ya da listeyi döner; parça yüklenemezse `undefined` döner. |
-| `useScience(kind, id)` | Tek bir kaydı (`id` verilirse) ya da bütün listeyi veren kanca: yerel veri yüklenince önce o çizilir, API yanıtı gelince yerini alır; `error` yalnız iki kaynakta da kayıt yoksa dolar; `retry()` isteği yeniden başlatır. |
+| `useScience(kind, id)` | Tek bir kaydı (`id` verilirse) ya da bütün listeyi veren kanca: yerel veri yüklenince önce o çizilir, API yanıtı gelince yerini alır; `error` yalnız iki kaynakta da kayıt yoksa dolar ve `notFound` o zaman API'nin kaydı tanımadığını (404) servisin ulaşılamaz olmasından ayırır; `retry()` isteği yeniden başlatır. |
 | `formatScience(value, unit)` | Ölçülen değeri Türkçe gösterimle (7 anlamlı basamak) ve birimiyle yazar; değer yoksa `—` döner. |
-| `phaseLabels` (sabit) | `standard_state` değerlerinin Türkçe etiketleri (Katı, Sıvı, Gaz, Bilinmiyor). |
 
 ### `web-app/src/services/useLearning.ts`
 Öğrenenin defteri: keşfedilen bileşikleri ve tamamlanan rotaları kullanıcıya (ya da misafire) göre localStorage'da tutar, oturum açıkken her değişikliği hesapla eşitler.
@@ -477,8 +487,8 @@ Herkese açık bilim API'sinin (`/api/v2`) istemcisi; servis ulaşılamazsa kay�
 | `parseRaw(value)` | Ham JSON'u doğrulanmış ilerlemeye çevirir; bozuksa boş ilerleme döner. |
 | `persist(user, progress)` | İlerlemeyi doğrulayıp yazar ve bütün kanca örneklerine haber verir; localStorage yazamazsa belleğe koyar ve `false` döner. |
 | `forgetLearning(user)` | Hesap silindikten sonra o kullanıcının ilerlemesini bu cihazdan siler. |
-| `useLearning()` | Defter kancası: ilerlemeyi depodan okur; kullanıcı girişliyse her değişiklikte `PUT /auth/learning` atar (12 sn zaman aşımı), sunucunun kopyasını birleştirip geri yazar, 401'de oturumu kapatır; `progress`, `user`, `syncState`, `status`, `save`, `retry`, `guest` ve `importGuest` döner. |
-| `sync()` (`useLearning` içinde) | Tek bir eşitleme turu: ilerlemeyi gönderir, yanıtı mevcut kayıtla birleştirir, fark varsa saklar, `progress_saved` tanılama olayını yazar ve durumu "synced", "failed" ya da "timedOut" yapar; bu arada oturum değiştiyse sonucu yok sayar. |
+| `useLearning()` | Defter kancası: ilerlemeyi depodan okur; kullanıcı girişliyse her değişiklikte `fetchJson` ile `PUT /auth/learning` atar (12 sn zaman aşımı), sunucunun kopyasını birleştirip geri yazar, 401'de oturumu kapatır; `progress`, `user`, `syncState`, `status`, `save`, `retry`, `guest` ve `importGuest` döner. |
+| `sync()` (`useLearning` içinde) | Tek bir eşitleme turu: ilerlemeyi gönderir, yanıtı mevcut kayıtla birleştirir, fark varsa saklar, `progress_saved` tanılama olayını yazar ve durumu "synced" yapar; HTTP hatası ya da JSON gövdesiz yanıt "failed", zaman aşımı (`isTimeout`) "timedOut" olur; bileşen kalktıysa ya da bu arada oturum değiştiyse sonucu yok sayar. |
 | `save(next)` (`useLearning` dönüşü) | Yeni ilerlemeyi saklar; yalnız belleğe yazılabildiyse durumu "memoryOnly" yapar. |
 | `retry()` (`useLearning` dönüşü) | İlerlemeyi hesaba yeniden göndermek için eşitlemeyi tekrar başlatır. |
 | `importGuest()` (`useLearning` dönüşü) | Bu cihazdaki misafir ilerlemesini girişli hesabın defterine ekler. |
@@ -499,16 +509,17 @@ Sayfanın `<head>` bilgilerini (başlık, açıklama, robots, kanonik adres, Ope
 | `upsertLink(rel, href)` | Verilen `rel` değerli `link` etiketini bulur ya da oluşturur ve adresini yazar. |
 | `withContext(node)` | JSON-LD düğümünde `@context` yoksa `https://schema.org` ekler. |
 | `syncJsonLd(json)` | Sayfanın JSON-LD betiğini (`#json-ld-seo`) yazar; sayfada JSON-LD yoksa betiği kaldırır. |
-| `Seo({ title, description, path, ogType, jsonLd, noIndex })` | Belge başlığını ve dilini (`tr`) ayarlar, açıklama, robots (`noIndex` ile "noindex, nofollow"), tema rengi, kanonik adres, Open Graph (1200×630 `og.png`) ve Twitter etiketlerini günceller; JSON-LD'yi metne çevirerek eşit içerikli yeni nesnenin etkiyi yeniden çalıştırmasını önler. |
+| `Seo({ title, description, path, ogType, jsonLd, noIndex })` | Belge başlığını ve dilini (`tr`) ayarlar, açıklama, robots (`noIndex` ile "noindex, nofollow"), kanonik adres, Open Graph (1200×630 `og.png`) ve Twitter etiketlerini günceller; JSON-LD'yi metne çevirerek eşit içerikli yeni nesnenin etkiyi yeniden çalıştırmasını önler. |
 
 ### `web-app/src/components/ErrorBoundary.tsx`
-Bütün uygulamayı saran son çare çökme ekranı; yönlendiricinin dışında durduğu için düz bağlantı kullanır ve sayfayı yenileyerek toparlanır.
+Çizimde hata veren sayfanın yerine çıkan çökme ekranı. `App` rotaları kabuğun içinde bir tanesiyle sarar (başlık ve menü çalışmaya devam eder); `main.tsx` bütün uygulamayı bir tane daha ile sarar. O ikincisi yönlendiricinin dışında durduğu için ekran düz bağlantı kullanır ve sayfayı yenileyerek toparlanır.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `ErrorBoundary` (sınıf bileşen) | Alt ağaçta hata olmadıkça çocukları çizer; hata olunca "Bu sayfa açılırken bir sorun oluştu" ekranını, keşiflerin silinmediği notunu, "Yeniden dene" ve "Ana sayfa" düğmelerini gösterir. |
+| `ErrorBoundary({ children, resetKey })` (sınıf bileşen) | Alt ağaçta hata olmadıkça çocukları çizer; hata olunca `noindex` başlıklı (`Seo`) "Bu sayfa açılırken bir sorun oluştu" ekranını, keşiflerin silinmediği notunu, "Yeniden dene" ve "Ana sayfa" düğmelerini gösterir. Ekran sayfa düzenindeki `<main>` içindedir; `role="alert"` `<main>`'de değil, içindeki kutudadır. |
 | `getDerivedStateFromError()` | Yakalanan hatada durumu `failed: true` yapar. |
 | `componentDidCatch()` | Hatayı isteğe bağlı tanılamaya `client_error` olayı olarak yazar. |
+| `componentDidUpdate(previous)` | Hata ekranı açıkken `resetKey` değişirse (yönlendirici yolu verir) durumu temizler ve çocukları yeniden çizer. |
 | `render()` | Duruma göre çocukları ya da çökme ekranını çizer. |
 
 ### `web-app/src/components/RouteFallback.tsx`
@@ -527,13 +538,14 @@ Giriş ve kayıt formları için Cloudflare Turnstile doğrulaması; yalnız der
 | `CaptchaWidget({ onToken, serverRequiresCaptcha })` | Site anahtarı varsa "Güvenlik doğrulaması" kutusunu koyu temayla çizer ve jetonu `onToken` ile verir (süresi dolar ya da hata olursa boş dizgi); bileşen kalkınca kutuyu kaldırır; site anahtarı yokken sunucu CAPTCHA istiyorsa derlemenin yeniden yapılması gerektiğini söyleyen uyarı gösterir. |
 
 ### `web-app/src/components/AtlasVisual.tsx`
-Element ya da bileşik için görsel alanı: lisanslı fotoğraf, açık zemin üzerinde PubChem yapı çizimi ya da şema (elementte elektron kabukları, bileşikte formül), görünüm seçici ve kaynak/lisans altyazısıyla; `WorkshopMarks` bileşenini de geçici olarak yeniden dışa verir.
+Element ya da bileşik için görsel alanı: lisanslı fotoğraf, açık zemin üzerinde PubChem yapı çizimi ya da şema (elementte elektron kabukları, bileşikte formül), görünüm seçici ve kaynak/lisans altyazısıyla.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `MediaImage({ media, plate, eager, fallback })` | Fotoğraf ya da yapı görselini çizer; yapı çiziminde (`plate`) görsel yüklenince çizimin kapladığı alanı ölçüp yakınlaştırır ve beyaz zemini plakaya karıştırır, ölçülene kadar gizler; yükleme hatasında şemayı "Görsel yüklenemedi" notuyla gösterir. |
-| `Credits({ media })` | Görselin yaratıcısını kaynak bağlantısıyla ve lisansını (varsa bağlantısıyla) gösterir. |
-| `AtlasVisual({ symbol, formula, shells, photo, structure, compact, className })` | Var olan görsellere göre Fotoğraf, Yapı ve Atom şeması/Formül seçeneklerini kurar, seçili görünümü çizer ve altyazıyı yazar; `compact` modunda seçiciyi kaldırır, yazıyı küçültür ve görseli tembel yükler. |
+| `STRUCTURE_PLATE` (sabit) | Yapı çiziminin plakası: çerçeve kadar yüksek bir kare, molekül bunun %80'ini kaplar, çizim hiç küçültülmez. |
+| `MediaImage({ media, plate, eager, fallback })` | Fotoğraf ya da yapı görselini çizer; yapı çiziminde (`plate`) görsel yüklenince `measureStructure` ile çizimi ölçer, `STRUCTURE_PLATE`'e göre ortalayıp büyütür ve beyaz zemini plakaya karıştırır, ölçülene kadar gizler; yükleme hatasında şemayı "Görsel yüklenemedi" notuyla gösterir. |
+| `Credits({ media })` | Görselin yaratıcısını kaynak bağlantısıyla ve lisansını (varsa bağlantısıyla) gösterir; ikisi de yeni sekmede açılır. |
+| `AtlasVisual({ symbol, formula, shells, photo, structure, compact, className })` | Var olan görsellere göre Fotoğraf, Yapı ve Atom şeması/Formül seçeneklerini kurar, seçili görünümü çizer ve altyazıyı yazar; seçilen görünüm artık sunulmuyorsa ilk görünüme döner (geç gelen kayıtta fotoğraf öne geçer). Kabuk şeması rengini üst öğedeki `--family`'den alır (yoksa marka rengi). `compact` modunda seçiciyi kaldırır, yazıyı küçültür ve görseli tembel yükler. |
 
 ### `web-app/src/components/WorkshopMarks.tsx`
 Bileşik kurmayı anlatan sayfaların başlığında süs amaçlı "A + B → AB" çip dizisi.
@@ -599,17 +611,16 @@ Element (`/element/:symbol`) ya da bileşik (`/compound/:slug`) kayıt sayfası:
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `NOT_FOUND_MESSAGE` (sabit) | `services/science` modülünün 404'te ürettiği hata metni ("Kayıt bulunamadı."). |
 | `useScrollToHash(ready)` | Kayıt çizildikten sonra adresteki `#` bölümüne kaydırır (yönlendirici geç gelen bağlantı noktalarına kendisi kaydırmaz). |
 | `RecordPage({ kind, id, record })` | Kaydın tam sayfasını kurar: SEO, kahraman alanı (`RecordHero`), içindekiler (Kullanım, molekül geometrisi, içindeki elementler, bilimsel özellik alt bölümleri, bileşikleri, kaynaklar, API ve JSON), genel bakış, bileşik yapısı, özellik bölümleri, ilgili bileşikler, kaynaklar ve geliştirici paneli; JSON indirme düğmesini bağlar. |
-| `ScientificDetail({ kind })` | Adresteki sembolü ya da slug'ı küçük harfe çevirip kaydı yükler; veriye, 404'e, hataya ya da yükleme durumuna göre `RecordPage`, `RecordNotFound`, `RecordError` veya `RecordSkeleton` çizer. |
+| `ScientificDetail({ kind })` | Adresteki sembolü ya da slug'ı küçük harfe çevirip kaydı yükler; veriye, 404'e (`useScience`'ın `notFound` bayrağı), hataya ya da yükleme durumuna göre `RecordPage`, `RecordNotFound`, `RecordError` veya `RecordSkeleton` çizer. |
 
 ### `web-app/src/components/shell/AccountMenu.tsx`
 Üst bilginin hesap alanı (`lg` ve üstü): misafire giriş düğmeleri, girişli kullanıcıya avatar menüsü, hesaplar kapalı derlemede hiçbir şey.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `AccountMenu()` | Hesaplar kapalıysa hiçbir şey çizmez; misafire "Giriş yap" ve "Hesap aç" düğmelerini, girişli kullanıcıya Hesabım, Ayarlar ve Çıkış seçenekli açılır menüyü gösterir. |
+| `AccountMenu()` | Hesaplar kapalıysa hiçbir şey çizmez; misafire "Giriş yap" ve "Hesap aç" düğmelerini, girişli kullanıcıya Hesabım, Ayarlar ve Çıkış seçenekli açılır menüyü gösterir; bir öğe seçilince kapanan menü odağı tetikleyiciye değil yeni sayfaya bırakır (`useNavigationMenuFocus`). |
 
 ### `web-app/src/components/shell/BrandLink.tsx`
 Ana sayfaya giden marka bağlantısı.
@@ -624,7 +635,7 @@ Masaüstü (`lg` ve üstü) üst bilgi gezinmesi: ana menü, "Daha fazla" menüs
 | Fonksiyon | Ne yapar |
 |---|---|
 | `PrimaryNav()` | Ana bölümleri bağlantı olarak çizer; etkin öğenin altındaki bakır renkli çizgi öğeler arasında yaylı animasyonla kayar; etkin öğe `aria-current="page"` alır. |
-| `MoreMenu()` | "Daha fazla" açılır menüsünde ikincil sayfaları simgeleriyle listeler, etkin olanı vurgular ve "Kredi simülasyonu" öğesini ayraçla ayırır. |
+| `MoreMenu()` | "Daha fazla" açılır menüsünde ikincil sayfaları simgeleriyle listeler, etkin olanı vurgular ve "Kredi simülasyonu" öğesini ayraçla ayırır; seçilen sayfa açılınca odak menü düğmesine dönmez, sayfada kalır (`useNavigationMenuFocus`). |
 | `ApiShortcut()` | `/developers` sayfasına giden eş aralıklı yazılı "API" kısayolunu çizer; `/developers` ve `/docs` adreslerinde etkin görünür. |
 
 ### `web-app/src/components/shell/MobileNav.tsx`
@@ -633,8 +644,16 @@ Masaüstü (`lg` ve üstü) üst bilgi gezinmesi: ana menü, "Daha fazla" menüs
 | Fonksiyon | Ne yapar |
 |---|---|
 | `MobileAccount({ onNavigate })` | Misafire giriş ve kayıt bağlantılarını, girişli kullanıcıya Hesabım, Ayarlar ve Çıkış satırlarını gösterir; her biri menüyü kapatmak için `onNavigate` çağırır. |
-| `MobileNav()` | Menüyü açıldığı yola bağlar, böylece yol değişince (geri tuşu, yönlendirme) kendiliğinden kapanır; site haritasını gruplar hâlinde etkin satırı vurgulayarak listeler ve hesaplar açıksa alt kısma hesap alanını koyar. |
-| `close()` (`MobileNav` içinde) | Menüyü kapatır; bağlantılar aynı sayfaya gitse bile menünün kapanmasını sağlar. |
+| `MobileNav()` | Menünün açık durumunu düz bir `useState` ile tutar: menü yalnız bir bağlantı seçilince (`close`) ya da geri/ileri (`popstate`) ile kapanır. Yolu izlemez, çünkü yönlendirici yolu tembel sayfa yüklendikten sonra günceller ve o arada yeniden açılmış menü kendiliğinden kapanırdı. Site haritasını gruplar hâlinde etkin satırı vurgulayarak listeler, hesaplar açıksa alt kısma hesap alanını koyar; kapanırken odağı yeni sayfaya bırakır (`useNavigationMenuFocus`). |
+| `close()` (`MobileNav` içinde) | Gezinmeyi işaretler (`markNavigation`) ve menüyü kapatır; bağlantı aynı sayfaya gitse bile menü kapanır. |
+
+### `web-app/src/components/shell/navigationFocus.ts`
+Bir menüden ya da mobil menüden sayfa açılınca odağın yeni sayfada kalmasını sağlayan yardımcılar.
+
+| Fonksiyon | Ne yapar |
+|---|---|
+| `focusMainContent()` | Kabuğun `#main-content` odak hedefine kaydırmadan odaklanır; `RouteFocus` ve kapanan menüler kullanır. |
+| `useNavigationMenuFocus()` | Radix menüsü ya da Sheet için `markNavigation` ve `onCloseAutoFocus` döner; ikisi de çizimler arasında aynı kalır. Radix panel kapanınca odağı tetikleyiciye verir, bu da `RouteFocus`'tan sonra olabilir. Sayfa açan öğe `markNavigation`'ı çağırdıysa kapanış odağı `#main-content`'e gönderir; Escape ve dışarı tıklama odağı yine tetikleyiciye verir. |
 
 ### `web-app/src/components/shell/NavIcon.tsx`
 Menülerde satırların hizalı durması için her rotaya ayrı bir simge.
@@ -808,7 +827,8 @@ Hesaplar kapalı derlemede (yalnız atlas kurulumu) hesap ve ticaret rotalarınd
 | `LabFormula()` | Çözülenleri tarayıcıdan okur, adresteki ya da sıradaki bileşikle başlar; bileşiğin adını, özetini, geometri şemasını ve molekül/formül birimi notunu, her element için sayaçlı satırları, "Kontrol et" düğmesini, sonucu ve çözülünce "Sonraki" ile "Bilimsel kaydı aç" düğmelerini çizer; yanda doğru sayısını ve açık seviyeyi gösterir. |
 | `step(symbol, delta)` (`LabFormula` içinde) | Bir elementin sayısını bir artırır ya da azaltır (sıfırı atar) ve önceki sonucu temizler. |
 | `nextPuzzle()` (`LabFormula` içinde) | Mevcut bileşiği asla geri getirmeden sıradakine geçer ve sayıları ile sonucu sıfırlar. |
-| `check()` (`LabFormula` içinde) | Sayıları değerlendirir; doğruysa bileşiği çözülenlere kaydeder. |
+| `continueToNextPuzzle()` (`LabFormula` içinde) | "Sonraki": yeni bulmacayı hemen çizdirip (`flushSync`) odağı ilk etkin sayı düğmesine taşır. |
+| `check()` (`LabFormula` içinde) | Sayıları değerlendirir; doğruysa bileşiği çözülenlere kaydeder ve "Kontrol et" kapanacağı için odağı "Sonraki" düğmesine taşır. |
 
 ### `web-app/src/pages/Laboratory.tsx`
 `/lab`: serbest stokiyometri tezgâhı; elementler paletten tezgâha (tık, klavye ya da sürükleme) gider, "Dene" karışımı katalogla eşleştirir, bulunan bileşik öğrenme defterine yazılır; `?material=Fe` tezgâha bir atom koyar, `?lesson=<id>` bir öğrenme rotasını izler.
@@ -821,19 +841,18 @@ Hesaplar kapalı derlemede (yalnız atlas kurulumu) hesap ve ticaret rotalarınd
 | `edit(change)` (`Laboratory` içinde) | Tezgâhta bir değişiklik yapar ve son sonucu geçersiz kılar. |
 | `mix(override)` (`Laboratory` içinde) | Tezgâhtaki (ya da başlangıç tarifinden gelen) atomları katalogla eşleştirir; olmazsa ton ve açıklamalı "miss" sonucunu, olursa bileşiği deftere yazıp (ilk keşifse `discovery_completed` olayıyla) "hit" sonucunu gösterir. |
 | `showHint()` (`Laboratory` içinde) | Rotanın ya da kataloğun sıradaki bileşiği için ipucu gösterir; hepsi bulunduysa bunu söyler. |
-| `restart()` (`Laboratory` içinde) | Tezgâhı temizler ve odağı tezgâha taşır. |
+| `clearBench()` (`Laboratory` içinde) | Tezgâhı temizler ve odağı tezgâha taşır ("Temizle" kendini kapattığı için odak orada kalamaz); sonuç kartındaki "Yeniden karıştır" da bunu kullanır. |
 | `resetNotebook()` (`Laboratory` içinde) | Misafir için keşif listesini sıfırlar, tezgâhı temizler ve "Yeni keşif defteri açıldı." bildirimi gösterir. |
 | `startPaletteDrag(event, id, addOnTap)` (`Laboratory` içinde) | Paletten sürüklemeyi başlatır; tezgâhın üstüne bırakılırsa (ya da dokunuşla eklemede hareket olmadıysa) elementi ekler. |
-| `startChipDrag(event, source)` (`Laboratory` içinde) | Tezgâhtaki çipin sürüklenmesini başlatır; başka bir çipin üstüne bırakılırsa sırasını değiştirir, tezgâhın dışına bırakılırsa çıkarır. |
+| `startChipDrag(event, source)` (`Laboratory` içinde) | Tezgâhtaki çipin sürüklenmesini başlatır; başka bir çipin üstüne bırakılırsa sırasını değiştirir, tezgâhın dışına bırakılırsa çıkarır ve odağı tezgâha verir. |
 
 ### `web-app/src/pages/Login.tsx`
 E-posta ve şifreyle giriş; başarıda `?returnTo` adresine (yalnız aynı köken) ya da deftere döner.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `loginError(error)` | Başarısız girişin Türkçe mesajını seçer: 401 "E-posta veya şifre yanlış.", 429 yaklaşık 15 dakika bekleme uyarısı, diğer sunucu yanıtlarında gövdedeki mesaj; ağ hatası ya da zaman aşımında "Servise ulaşılamadı", istemcinin kendi hatasında (ör. depolama kapalı) o hatanın metni. |
 | `Login()` | Kimlik yeteneklerini yükler; e-posta, şifre ve CAPTCHA alanlı formu, şifre kurtarma açıksa "Şifremi unuttum" bağlantısını, kapalıysa e-postasız beta notunu ve `returnTo` korunarak kayıt bağlantısını çizer. |
-| `handleSubmit(event)` (`Login` içinde) | CAPTCHA yapılandırılmışsa jeton ister, girişi dener, jeton gelirse oturum bayrağını açıp güvenli geri dönüş adresine gider; hatada Türkçe mesaj gösterir. |
+| `handleSubmit(event)` (`Login` içinde) | CAPTCHA yapılandırılmışsa jeton ister, girişi dener, jeton gelirse oturum bayrağını açıp güvenli geri dönüş adresine gider; hatada `loginError`'ın Türkçe mesajını gösterir. |
 
 ### `web-app/src/pages/Market.tsx`
 `/market`: sanal KREDI fiyat masası; hareketli elementler şeridi ve sıralanabilir fiyat tahtası elementi seçer, fiyat kartı canlı fiyatları alış bağlantısı ve satış formuyla gösterir, kasa varlıkları listeler.
@@ -841,7 +860,7 @@ E-posta ve şifreyle giriş; başarıda `?returnTo` adresine (yalnız aynı kök
 | Fonksiyon | Ne yapar |
 |---|---|
 | `holdingsOf(state, symbol)` | Satış formu için bir elementin varlıklarını döner: yüklenirken `null`, kasa yüklenemediyse boş liste. |
-| `Market()` | Tahtayı ve hareketlileri 20 sn'de bir yükler, seçili elementin fiyat kartını ve varlıkları getirir; girişliyse cüzdan bakiyesini, satış formunu ve "Satış için seç" düğmeli varlık tablosunu, misafire satış için giriş bağlantısını gösterir. |
+| `Market()` | Tahtayı ve hareketlileri 20 sn'de bir yükler (aralığı `QuoteBoard`'a `pollMs` olarak verir); satış taslağı Hesabım'daki "Sat" bağlantısının `location.state.slug` değeriyle (ör. NaCl), yoksa saf elementle (`ELEMENTAL_SLUG`) başlar; seçili elementin fiyat kartını ve varlıkları getirir; girişliyse cüzdan bakiyesini, satış formunu ve "Satış için seç" düğmeli varlık tablosunu, misafire satış için giriş bağlantısını gösterir. |
 | `loadBoard()` (`Market` içinde) | En çok hareket eden 16 elementi ve bütün piyasa tahtasını çeker; tahta hatasında durumu "error" yapar. |
 | `bidOf(symbol)` (`Market` içinde) | Bir sembolün tahtadaki satış (bid) fiyatını döner. |
 | `selectForSale(row)` (`Market` içinde) | Varlık satırının elementini seçer, satış taslağını o ürün ve en fazla 10 gramla doldurur ve fiyat kartını görünür alana kaydırır. |
@@ -860,7 +879,7 @@ E-posta ve şifreyle giriş; başarıda `?returnTo` adresine (yalnız aynı kök
 | `FormSkeleton()` | Sunucunun kurtarma yeteneği kontrol edilirken e-posta formunun yerinde iskelet gösterir ve "Kurtarma seçenekleri kontrol ediliyor…" okutur. |
 
 ### `web-app/src/pages/Register.tsx`
-Hesap açma; CAPTCHA yoksa doğrudan giriş yapıp `?returnTo` adresine döner, CAPTCHA varsa (Turnstile jetonları tek kullanımlık olduğu için) kullanıcıyı giriş sayfasına yollar.
+Hesap açma; CAPTCHA yoksa doğrudan giriş yapıp `?returnTo` adresine döner (bu giriş olmazsa nedenini söyler ve giriş bağlantısı verir), CAPTCHA varsa (Turnstile jetonları tek kullanımlık olduğu için) kullanıcıyı giriş sayfasına yollar.
 
 | Fonksiyon | Ne yapar |
 |---|---|
@@ -868,7 +887,7 @@ Hesap açma; CAPTCHA yoksa doğrudan giriş yapıp `?returnTo` adresine döner, 
 | `Register()` | Fayda listesini, ad, soyad, e-posta, şifre ve şifre tekrarı alanlarını, CAPTCHA'yı ve `returnTo` korunarak giriş bağlantısını çizer. |
 | `handleChange(event)` (`Register` içinde) | Değişen alanı forma yazar; şifre alanlarından biri değişince eşleşmeme uyarısını kaldırır. |
 | `goToLogin()` (`Register` içinde) | "Hesap oluştu" mesajını gösterip 1,2 sn sonra giriş sayfasına gider. |
-| `handleSubmit(event)` (`Register` içinde) | Şifre eşleşmesini ve gerekiyorsa CAPTCHA jetonunu kontrol eder, hesabı açar; CAPTCHA yoksa hemen giriş yapıp güvenli geri dönüş adresine gider, giriş olmazsa ya da CAPTCHA varsa giriş sayfasına yönlendirir; hatada sunucunun mesajını gösterir. |
+| `handleSubmit(event)` (`Register` içinde) | Şifre eşleşmesini ve gerekiyorsa CAPTCHA jetonunu kontrol eder, hesabı açar; CAPTCHA yoksa hemen giriş yapıp güvenli geri dönüş adresine gider; otomatik giriş reddedilirse nedenini (`loginError`) "Hesap oluştu, oturum açılamadı" uyarısında "Giriş yap" bağlantısıyla gösterir ve formu kilitler (hesap zaten var); jeton gelmezse ya da CAPTCHA varsa giriş sayfasına yönlendirir; hesap açılamazsa sunucunun mesajını `apiError` ile gösterir (Identity kodları Türkçe: "Bu e-posta zaten kayıtlı."). |
 
 ### `web-app/src/pages/Settings.tsx`
 `/settings`: hesap ayarları; profil, e-posta doğrulama, şifre, anahtarlar, veri dışa aktarma ve hesap silme.
@@ -897,7 +916,7 @@ Hesap açma; CAPTCHA yoksa doğrudan giriş yapıp `?returnTo` adresine döner, 
 |---|---|
 | `eyebrowOf(guide, page)` | Sayfanın üst etiketini kurar: kenar çubuğundaki grup adı ve sayfanın belgelediği klasör (ör. "Ticaret demosu · order-service"). |
 | `seoTitle(guide, page)` | Sekme başlığını seçer: sayfa yoksa "Bölüm bulunamadı", genel bakışta kılavuz başlığı, diğerlerinde sayfa adı + kılavuz başlığı. |
-| `GuideBrowser({ guide })` | Yüklenmiş kılavuz: gruplu kenar çubuğu ve her fonksiyonda arama (`lg` altında içeriğin üstünde seçici ve arama kutusu), sağda seçili sayfa, arama sonuçları ya da "Bu bölüm yok" ekranı; arama metni yazıldığı konuma bağlıdır, herhangi bir gezinme sonuçları kapatır; sonuçlar açılınca sayfanın başına kaydırır ve bağlantı noktalarına (tek tablo satırına kadar) kaydırmayı yönetir. |
+| `GuideBrowser({ guide })` | Yüklenmiş kılavuz: gruplu kenar çubuğu ve her fonksiyonda arama (`lg` altında içeriğin üstünde sayfa listesi düğmesi ve arama kutusu), sağda seçili sayfa, arama sonuçları ya da "Bu bölüm yok" ekranı; arama metni yazıldığı konuma bağlıdır, herhangi bir gezinme sonuçları kapatır; sonuçlar açılınca sayfanın başına kaydırır ve bağlantı noktalarına (tek tablo satırına kadar) kaydırmayı yönetir. |
 | `focusFirstResult(event)` (`GuideBrowser` içinde) | Arama kutusunda aşağı ok tuşuna basılınca odağı ilk sonuca taşır. |
 | `setQuery(value)` (`GuideBrowser` içinde) | Arama metnini o anki konumun anahtarıyla birlikte saklar. |
 | `SystemGuide()` | Kılavuz verisini `useGuide` ile yükler; hazırsa `GuideBrowser`, hatada "Kılavuz yüklenemedi" uyarısını "Yeniden dene" düğmesiyle, yüklenirken iskeleti çizer; her durumda arama motorlarına kapalıdır. |
@@ -931,7 +950,7 @@ Galerinin "Kimya bileşenleri" bölümü: her aileden ve her hâlden element kar
 | Fonksiyon | Ne yapar |
 |---|---|
 | `TILES` / `FORMULAS` (veri) | On bir ailenin her birinden örnek element (kütlesiyle) ve alt simge, katsayı, iyon yükü örnekleri içeren formüller (H₂O, aspirin, Ca(OH)₂, göztaşı, sülfat, amonyum). |
-| `ChemistrySection()` | Tıklanınca seçilen element karolarını, seçili/filtre dışı/değersiz/bağlantı hâllerini, formül gösterimlerini ve adların gizlendiği yoğun küçük karo ızgarasını örnekler. |
+| `ChemistrySection()` | Tıklanınca seçilen (`pressed` ile aç-kapa düğmesi olan) element karolarını, seçili/filtre dışı/değersiz/bağlantı hâllerini, formül gösterimlerini ve adların gizlendiği yoğun küçük karo ızgarasını örnekler. |
 
 ### `web-app/src/pages/ui-gallery/CodeSection.tsx`
 Galerinin "Kod ve bağlantılar" bölümü.
@@ -969,7 +988,7 @@ Galerinin "Temeller" bölümü: tasarım jetonları.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `surfaces` / `inks` / `accents` / `families` / `radii` / `shadows` (veri) | Yüzey, mürekkep, vurgu ve durum renkleri, element aile renkleri, köşe yarıçapları ve gölge jetonlarının listeleri. |
+| `surfaces` / `inks` / `accents` / `families` / `radii` / `shadows` (veri) | Yüzey, mürekkep, vurgu ve durum renkleri, element aile renkleri (uygulamanın `categoryLabels` adları ve `familyColor` ile, artı "Bilinmiyor"), köşe yarıçapları ve gölge jetonlarının listeleri. |
 | `FoundationsSection()` | Yüzeyleri, metin renklerini, vurgu (kuprit) ve durum renklerini, aile renklerini, yazı ölçeğini (Bricolage Grotesque, Geist, Geist Mono), köşe yarıçaplarını ve gölgeleri örnekler. |
 
 **Bileşenler.** Aşağıdaki dosyalar ortak arayüz parçaları (`components/ui`) ve özellik klasörlerindeki bileşenlerdir (landing, periodic, detail, reference, lab, notebook, auth, commerce, developer, system-guide), ardından derleme betikleri.
@@ -1042,7 +1061,6 @@ Radix Dialog üzerine kurulu, ortalanmış kalıcı pencere (modal) parçaları.
 | `Dialog(props)` | Radix kökünü `data-slot` işaretiyle sarar. |
 | `DialogTrigger(props)` | Pencereyi açan öğeyi sarar. |
 | `DialogPortal(props)` | Pencereyi belgenin sonuna taşıyan portalı sarar. |
-| `DialogClose(props)` | Pencereyi kapatan öğeyi sarar. |
 | `DialogOverlay({ className })` | Arkadaki karartılmış katmanı `overlayClass` ile çizer. |
 | `DialogContent({ showCloseButton, closeLabel, ... })` | Portal, karartma ve ortalanmış paneli bir arada çizer; istenirse köşeye kapatma düğmesi koyar (Escape ve dış tıklama da kapatır). |
 | `DialogHeader({ className })` | Başlık ve açıklama için dikey düzen kutusu. |
@@ -1076,7 +1094,7 @@ Periyodik tablo hücresi: atom numarası, sembol, ad ve isteğe bağlı değer; 
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `ElementTile({ symbol, atomicNumber, name, family, value, selected, pressed, dimmed, missing, to, onClick, label })` | `to` varsa router bağlantısı, `onClick` varsa düğme (gerekirse `aria-pressed`), yoksa `<div>` çizer; değer varsa 4:5 oranına geçer, seçili, soluk ve eksik durumlarını stillendirir ve testler için `data-symbol` koyar. |
+| `ElementTile({ symbol, atomicNumber, name, family, value, selected, pressed, dimmed, missing, to, onClick, tabIndex, label })` | `to` varsa router bağlantısı (`selected` iken `aria-current`), `onClick` varsa düğme (`pressed` verilirse aç-kapa düğmesi, `aria-pressed`), yoksa `<div>` çizer. Zemin aile renginin (`familyColor`) %20'si, üzerine gelince %28'i; atom numarası ve ad `text-ink-2` ile en az 5,5:1 kontrast tutar. Değer varsa 4:5 oranına geçer, seçili, soluk ve eksik durumlarını stillendirir, `tabIndex`'i (gezici Tab durağı) iletir ve testler için `data-symbol` koyar. |
 
 ### `web-app/src/components/ui/empty-state.tsx`
 "Burada bir şey yok" durumu: simge, başlık, kısa metin ve eylemler kesik çizgili panelde.
@@ -1201,14 +1219,10 @@ Ekran kenarına yapışık panel (mobil menü, filtreler); Radix Dialog üzerine
 |---|---|
 | `Sheet(props)` | Panel kökünü sarar. |
 | `SheetTrigger(props)` | Paneli açan öğeyi sarar. |
-| `SheetClose(props)` | Paneli kapatan öğeyi sarar. |
 | `SheetPortal(props)` | Paneli belgenin sonuna taşıyan portalı sarar. |
 | `SheetOverlay({ className })` | Arkadaki karartmayı `overlayClass` ile çizer. |
 | `SheetContent({ side, showCloseButton, className, children })` | `sideClass` haritasına göre sağ, sol, üst ya da alt kenardan kayarak açılan paneli çizer; istenirse köşeye kapatma düğmesi koyar. |
-| `SheetHeader({ className })` | Panelin üst düzen kutusu. |
-| `SheetFooter({ className })` | Panelin en alta itilen düzen kutusu. |
 | `SheetTitle({ className })` | Panel başlığını çizer. |
-| `SheetDescription({ className })` | Panel açıklamasını çizer. |
 
 ### `web-app/src/components/ui/skeleton.tsx`
 Yüklenirken gösterilen yer tutucu.
@@ -1233,11 +1247,9 @@ Yatay kaydırılabilir çerçevede veri tablosu parçaları.
 | `Table({ className })` | `<table>`'ı yatay taşmada kayan bir kutuya sarar. |
 | `TableHeader({ className })` | `<thead>` çizer ve satırların altına kalın çizgi koyar. |
 | `TableBody({ className })` | `<tbody>` çizer; son satırın çizgisini kaldırır. |
-| `TableFooter({ className })` | Üst çizgili, hafif dolgulu `<tfoot>` çizer. |
 | `TableRow({ className })` | Üzerine gelinince ve `data-state="selected"` iken renk değiştiren `<tr>` çizer. |
 | `TableHead({ className })` | Küçük, soluk yazılı başlık hücresi çizer. |
 | `TableCell({ className })` | Veri hücresi çizer; ilk ve son hücrenin kenar boşluğunu sıfırlar. |
-| `TableCaption({ className })` | Tablonun altına küçük açıklama yazar. |
 
 ### `web-app/src/components/ui/tabs.tsx`
 Radix Tabs üzerine kurulu sekme parçaları.
@@ -1355,12 +1367,12 @@ Kart görünümü: filtreye uyan elementler, adlarını gösterecek kadar büyü
 | `ElementCards({ elements, readingOf, valueLabel, selected, onOpen, gridProps })` | Her eşleşen element için bir `ExplorerTile` çizer; `tabStopSymbol` ile ızgaranın tek Tab durağını seçer ve `useTileNavigation`'dan gelen olay işleyicilerini ızgara kutusuna yayar. |
 
 ### `web-app/src/components/periodic/ElementPreviewDialog.tsx`
-Tek bir elementin kalıcı pencere önizlemesi: özet, temel bilgiler, örnek fotoğrafı ya da kabuk şeması ve tam kayda bağlantı.
+Tek bir elementin kalıcı pencere önizlemesi: özet, temel bilgiler, kayıt sayfasıyla aynı görsel alanı (`AtlasVisual`) ve tam kayda bağlantı.
 
 | Fonksiyon | Ne yapar |
 |---|---|
 | `ElementPreviewDialog({ element, open, onOpenChange, onReturnFocus })` | `Dialog` içinde önizlemeyi açar; kapanınca odağı varsayılan yere değil, `onReturnFocus` ile pencereyi açan hücreye geri verir. |
-| `PreviewBody({ element })` | `useScience` ile bilimsel kaydı yükler; Türkçe ve İngilizce adı, editoryal özeti, temel bilgileri, "Tam kaydı aç" bağlantısını ve `ElementVisual`'ı çizer; yükleme başarısızsa "Yeniden dene" düğmeli uyarı gösterir. |
+| `PreviewBody({ element })` | `useScience` ile bilimsel kaydı yükler; Türkçe ve İngilizce adı, editoryal özeti, temel bilgileri, "Tam kaydı aç" bağlantısını ve `AtlasVisual`'ı (fotoğraf ya da kabuk şeması; element değişince `key` ile sıfırlanır) çizer; yükleme başarısızsa "Yeniden dene" düğmeli uyarı gösterir. |
 | `facts(record)` | Atom kütlesi, standart hâl, elektronegatiflik (Pauling), elektron dizilimi, erime noktası ve yoğunluk satırlarını üretir; kayıt yüklenirken değer yerine iskelet koyar. |
 
 ### `web-app/src/components/periodic/ElementSpecimen.tsx`
@@ -1370,28 +1382,19 @@ Seçili element için büyük, süs amaçlı hücre (numara, sembol, kütle); ü
 |---|---|
 | `ElementSpecimen({ element, mass, className })` | Kare hücreyi çizer, kütle yoksa "—" yazar; aynı bilgiler yanında metin olarak bulunduğu için yardımcı teknolojilerden gizlenir. |
 
-### `web-app/src/components/periodic/ElementVisual.tsx`
-Kaynak ve lisans bilgili örnek fotoğrafı; kabuk şemasına geçilebilir.
-
-| Fonksiyon | Ne yapar |
-|---|---|
-| `ElementVisual({ symbol, shells, photo })` | Fotoğraf varsa "Fotoğraf / Atom şeması" anahtarını gösterir; fotoğraf yoksa ya da yüklenemezse (`onError` bozuk adresi hatırlar) `ShellDiagram`'a düşer ve altyazıyı buna göre seçer. |
-| `PhotoCredit({ photo })` | Fotoğrafın altyazısını, yazar bağlantısını ve lisansını (bağlantısı varsa yeni sekmede) yazar. |
-
 ### `web-app/src/components/periodic/ExplorerTile.tsx`
 Tablo gezgininin tek hücresi: etkin lensin boyadığı bir `ElementTile`; tıklama ya da Boşluk önizlemeyi açar.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `ExplorerTile({ element, reading, valueLabel, selected, tabStop, dimmed, onOpen, className, style, tileClassName })` | Lens rengini `--lens-edge` ve `--lens-fill` değişkenleriyle sarmalayıcıya koyar, hücreye okunabilir uzun bir erişilebilir ad verir ("…, filtreye uymuyor; önizle"), renkli zeminde 4,5:1 kontrast için atom numarası rengini bir kademe belirginleştirir ve odaklanan hücreyi yapışık başlığın altında kalmayacak şekilde kaydırma payı verir. |
-| (layout effect'i) | `ElementTile` `tabIndex` almadığı için, gezici Tab durağını çizilen hücrenin üzerinde 0 ya da -1 olarak ayarlar. |
+| `ExplorerTile({ element, reading, valueLabel, selected, tabStop, dimmed, onOpen, className, style, tileClassName })` | Lens rengini `--lens-edge` ve `--lens-fill` değişkenleriyle sarmalayıcıya koyar (lens boyamıyorsa `ElementTile`'ın aile tonu kalır); hücreye uzun bir erişilebilir ad verir ("Demir, Fe, atom numarası 26, Atom kütlesi: 55,85, filtreye uymuyor; önizle, Enter ile kaydı aç"; aile lensinde değer okunmaz); gezici Tab durağını `tabIndex` ile verir; `xl` üstünde odaklanan hücreyi yapışık araç çubuğunun altında durduran kaydırma payını ekler (başlığın payını sayfanın `scroll-padding-top`'u verir). |
 
 ### `web-app/src/components/periodic/ExplorerToolbar.tsx`
 Gezgin denetimleri: canlı sayaçlı arama, renk lensi, tablo/kart anahtarı ve aynı zamanda çoklu filtre olan aile göstergesi.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `FAMILY_OPTIONS` | `FAMILIES` listesini Türkçe ad ve aile rengiyle çip seçeneklerine çevirir. |
+| `FAMILY_OPTIONS` | `FAMILIES` listesini Türkçe ad ve aile rengiyle (`familyColor`) çip seçeneklerine çevirir. |
 | `ExplorerToolbar({ query, onQueryChange, onSearchSubmit, matchCount, lens, onLensChange, view, onViewChange, families, onFamiliesChange, onClear })` | Arama kutusunda Enter'ı `onSearchSubmit`'e bağlar ve sayacı "n / 118" biçiminde gösterir; lens çipinin seçimi kaldırılınca `category`'ye döner; filtre varsa sayı durumunu ve "Temizle" düğmesini gösterir; `xl` üstünde site başlığının altında yapışık durur. |
 
 ### `web-app/src/components/periodic/lenses.ts`
@@ -1400,7 +1403,7 @@ Periyodik tablonun renk lensleri (aile, atom kütlesi, elektronegatiflik, fiziks
 | Fonksiyon | Ne yapar |
 |---|---|
 | `LENS_OPTIONS` | Araç çubuğundaki lens çiplerinin değer ve etiketleri. |
-| `LENS_VALUE_LABEL` | Her lens altında hücrede yazan değerin adı (aile lensi atom kütlesi yazar). |
+| `LENS_VALUE_LABEL` | Her değer lensinin hücrede yazdığı değerin adı; aile lensi yalnız renk verir, değer yazmaz. |
 | `NUMERIC_LENSES` | Sayısal lenslerin birimini ve kayıttan değeri okuyan fonksiyonunu tutar (kütle `u`, elektronegatiflik Pauling). |
 | `PHASES` | Hâl lensinin renkleri: katı nötr, sıvı ve gaz öne çıkar. |
 | `phaseLabel(state)` | Standart hâlin Türkçe adını döner ("solid" → "Katı"); bilinmiyorsa "Bilinmiyor". |
@@ -1409,7 +1412,7 @@ Periyodik tablonun renk lensleri (aile, atom kütlesi, elektronegatiflik, fiziks
 | `tint(color, percent)` | Rengi yüzey rengiyle oklab'da karıştırır; oklch'nin turuncu ve pembeyi yeşile kaydırmasını önler. |
 | `heatPaint(position)` | 0–1 konumu için maviden yeşile, oradan turuncuya giden ve açıklığı da artan ısı rengini (`edge`) ve en fazla %28'lik dolguyu (`fill`) üretir. |
 | `lensDomain(lens, records)` | Sayısal lensin yüklü kayıtlardaki en küçük ve en büyük değerini döner; değer yoksa ya da lens sayısal değilse `undefined`. |
-| `readLens(lens, record, domain)` | Bir elementin lens altında hücrede yazacağı metni, eksik (taralı) olup olmadığını ve boyasını hesaplar; kayıt henüz yüklenmediyse "—" yazar ama taramaz. |
+| `readLens(lens, record, domain)` | Bir elementin lens altında hücrede yazacağı metni, eksik (taralı) olup olmadığını ve boyasını hesaplar; kayıt henüz yüklenmediyse "—" yazar ama taramaz; aile lensinde değer yoktur (`{ missing: false }`). |
 
 ### `web-app/src/components/periodic/LensLegend.tsx`
 Etkin renk lensinin açıklaması: sayısal renk ölçeği ve aralığı ya da üç hâl rengi, artı eksik veri taraması.
@@ -1428,7 +1431,6 @@ Gezginin saf (yan etkisiz) modeli: aileler, filtre, en iyi eşleşme, tablo hüc
 | Fonksiyon | Ne yapar |
 |---|---|
 | `FAMILIES` | Aile filtresi anahtarları, gösterge sırasıyla (`categoryLabels` anahtarları). |
-| `familyOf(category)` | Tohum verideki kategoriyi `ElementFamily` türüne daraltır; tanınmıyorsa `"unknown"`. |
 | `elementMatches(element, query, families, englishName)` | Element seçili ailelerden birindeyse (hiç seçili değilse hepsi) ve her arama kelimesi sembol, Türkçe ad, atom numarası ya da İngilizce adda geçiyorsa true döner. |
 | `bestMatch(query, matches)` | Arama kutusunda Enter'ın açacağı elementi seçer: tam sembol, Türkçe ad ya da numara eşleşmesi kazanır ("c" → karbon), yoksa ilk eşleşme. |
 | `tableCell(element)` | Elementin tablo ızgarasındaki satır ve sütununu hesaplar; eksen satır/sütunu için bir kaydırır ve f-bloğu boşluğun altına indirir. |
@@ -1458,7 +1460,7 @@ Bohr tarzı şema: sembollü çekirdek ve her kabuk için bir elektron halkası 
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `ShellDiagram({ symbol, shells, className })` | Her kabuk için bir çember ve elektronları eşit açıyla (kabuk başına hafif kaydırarak) dizer, ortaya çekirdeği ve sembolü koyar; renkleri üst öğenin `--family` değişkeninden alır ve kabuk dağılımını erişilebilir ada yazar. |
+| `ShellDiagram({ symbol, shells, className })` | Her kabuk için bir çember ve elektronları eşit açıyla (kabuk başına hafif kaydırarak) dizer, ortaya çekirdeği ve sembolü koyar; renkleri üst öğenin `--family` değişkeninden, o yoksa marka renginden alır (çekirdek dolgusu oklab karışımıdır, sıcak renkler yeşile kaymaz) ve kabuk dağılımını erişilebilir ada yazar. |
 
 ### `web-app/src/components/periodic/useTileNavigation.ts`
 Tablo ve kart görünümlerinin ortak klavye ve işaretçi davranışı; ızgara kutusundan devredilir, böylece `ElementTile` sade kalır.
@@ -1493,14 +1495,6 @@ Kayıt sayfasının "Bu sayfada" dizini: masaüstünde iç içe bağlantılı ya
 | Fonksiyon | Ne yapar |
 |---|---|
 | `DeveloperPanel({ kind, id, record, onDownload })` | "JSON indir", `scienceUrl` ile kurulan API kaydı bağlantısı ve `/docs` düğmelerini dizer; kaydı `jsonSource` ile bir kez metne çevirip (`useMemo`) `GET /api/v2/<tür>/<id>` başlıklı açılır panelde renkli gösterir. |
-
-### `web-app/src/components/detail/drawingFocus.ts`
-PubChem yapı çizimlerini kendi boş tuvalinde ortalayıp büyütmek için gereken yakınlaştırma ve kaydırmayı hesaplar.
-
-| Fonksiyon | Ne yapar |
-|---|---|
-| `drawingFocus(pixels, width, height, maxZoom)` | RGBA piksellerinde mürekkepli (kanalı 200'ün altında) alanın sınır kutusunu bulur ve çizimin levhanın %80'ini dolduracağı yakınlaştırmayı (1 ile `maxZoom` arası) ve yüzde kaydırmayı döndürür; çizim yoksa `null`. |
-| `focusOnImage(image)` | Yüklenmiş görseli bir canvas üzerinden okuyup `drawingFocus`'a verir; tarayıcı (çapraz köken nedeniyle) izin vermezse `null` döner. |
 
 ### `web-app/src/components/detail/properties.ts`
 Bilimsel kayıt anahtarlarının Türkçe etiketleri ve özellik bölümlerini hazırlayan saf yardımcılar.
@@ -1543,11 +1537,10 @@ Her biçimdeki bilimsel değeri çizer: sayı ya da metin, çip listesi, alt kay
 | `PropertyValue({ value, fieldKey, showMissing })` | Değerin türüne göre `Missing`, `ValueList`, `FieldList` ya da `ScalarValue`'ya yönlendirir; null "Veri yok" demektir, sıfır değil. |
 
 ### `web-app/src/components/detail/record.ts`
-Ayrıntı sayfasının kayıt yardımcıları: aile, laboratuvar bağlantısı, JSON indirme, kaynaklar ve tarih (`DetailSubject` türünü de dışa verir).
+Ayrıntı sayfasının kayıt yardımcıları: laboratuvar bağlantısı, JSON indirme, kaynaklar ve tarih (`DetailSubject` türünü de dışa verir).
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `familyOf(category)` | Katalog kategorisini periyodik aile belirtecine çevirir; beklenmeyen her şey `"unknown"` olur. |
 | `labHref(subject)` | Element laboratuvarda varsa `/lab?material=<sembol>`, bileşik laboratuvar kataloğundaysa `/lab/formula?compound=<slug>` döner; yoksa `undefined`. |
 | `downloadRecord(record)` | Tam kaydı tarayıcıda `<id>.json` olarak indirir ve geçici nesne adresini 1 sn sonra serbest bırakır. |
 | `recordSources(record, atlas)` | Kaynak bilgisindeki (provenance) veri kaynaklarını ve editoryal kaynakları birleştirir, aynı adresi bir kez bırakır. |
@@ -1651,10 +1644,10 @@ PubChem yapı küçük resimlerinde molekülü bulup her levhayı aynı oranda d
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `PLATE_RATIO` / `NO_FIT` | Bileşik kartı levhasının yükseklik/genişlik oranı (3:4) ve yakınlaştırmasız varsayılan dönüşüm. |
+| `CARD_PLATE` / `NO_FIT` | Bileşik kartının 4:3 levhası (molekül dar kenarın %72'sini kaplar, uzun molekül 0,6'ya kadar küçülebilir) ve okunamayan görsel için yakınlaştırmasız dönüşüm. Kayıt sayfası kendi levhasını (`AtlasVisual` `STRUCTURE_PLATE`) verir. |
 | `inkBounds(pixels, size, tolerance)` | Kare RGBA arabelleğinde sol üst piksel (arka plan) renginden farklı piksellerin sınır kutusunu 0–1 kesirleri olarak döner; görsel boşsa `null`. |
-| `fitToPlate(bounds)` | Molekülü 4:3 levhada ortalayan ve dar kenarın %72'sini dolduran ölçeği (0,6–3) ve yüzde kaydırmayı hesaplar. |
-| `measureStructure(image)` | Yüklenmiş görseli 96 px'lik bir canvas kopyasında tarar ve `fitToPlate` sonucunu döner; pikseller okunamazsa (CORS başlıksız çapraz köken) `NO_FIT`. |
+| `fitToPlate(bounds, plate)` | Molekülü levhada (varsayılan `CARD_PLATE`) ortalayan ve dar kenarın `plate.fill` kadarını dolduran ölçeği (`plate.minScale`–3) ve yüzde kaydırmayı hesaplar. |
+| `measureStructure(image, plate)` | Yüklenmiş görseli 96 px'lik bir canvas kopyasında tarar ve verilen levha için `fitToPlate` sonucunu döner; pikseller okunamazsa (CORS başlıksız çapraz köken) `NO_FIT`. |
 
 ### `web-app/src/components/lab/BenchDropZone.tsx`
 Laboratuvar tezgâhı: her element için bir çip tutan bırakma alanı (`data-lab-drop`); çipler sürüklenerek ya da ok tuşlarıyla sıralanır.
@@ -1699,8 +1692,7 @@ Laboratuvar hücre ve çipleri için element görüntüleme bilgileri.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `elementInfo(symbol)` | Sembolün adını, atom numarasını ve ailesini `STATIC_ELEMENTS`'ten döner; bilinmeyen sembolde adı sembol, ailesi `"unknown"` olur. |
-| `familyColor(family)` | Aile belirtecinin CSS rengini (`var(--color-family-…)`) döner. |
+| `elementInfo(symbol)` | Sembolün adını, atom numarasını ve ailesini (`familyOf`) `STATIC_ELEMENTS`'ten döner; bilinmeyen sembolde adı sembol, ailesi `"unknown"` olur. |
 
 ### `web-app/src/components/lab/ElementPalette.tsx`
 Aranabilir element paleti; tıklama, dokunma, Enter ya da Boşluk tezgâha bir atom ekler.
@@ -1845,13 +1837,13 @@ Tek bir çoktan seçmeli soru.
 | `pick(index)` | Seçimi kaydeder ve doğruysa `onCorrect` çağırır. |
 
 ### `web-app/src/components/auth/accountApi.ts`
-identity servisinin hesap uçlarına (`/auth/profile`, `/auth/delete` …) giden istemci ve tek bir hesap formunun durumunu tutan hook.
+identity servisinin hesap uçlarına (`/auth/profile`, `/auth/delete` …) giden istemci, giriş hatalarının Türkçe metni ve tek bir hesap formunun durumunu tutan hook.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `abortAfter(ms, signal)` | `ms` sonra ya da dış `signal` iptal olunca iptal olan bir sinyal üretir (hedef tarayıcılarda olmayan `AbortSignal.any` yerine); istek bitince zamanlayıcıyı ve dinleyiciyi temizleyen `release` döner. |
+| `loginError(error)` | Başarısız girişin Türkçe metnini seçer: 401 "E-posta veya şifre yanlış.", 429 "Çok fazla hatalı deneme…", diğer sunucu yanıtlarında `apiError`; ağ hatası (`TypeError`) ve zaman aşımı (`isTimeout`) "Servise ulaşılamadı…", başka bir `Error` kendi cümlesi (ör. kapalı tarayıcı depolaması). Giriş ve kayıt sayfaları kullanır. |
 | `messageOf(ok, status, data)` | Sunucunun cümlesini bulur: başarıda gövdedeki `message`, hatada `apiError`'un hata gövdesinden çıkardığı metin. |
-| `accountRequest(path, { method, body, auth, timeoutMs, signal })` | Oturum belirteciyle (varsayılan) 15 sn zaman aşımlı istek atar; HTTP hatasını `ok: false` ile çözer, geçerli belirteç için 401 gelirse oturumu kapatır; ağ hatası, zaman aşımı ve iptalde reddeder. |
+| `accountRequest(path, { method, body, auth, timeoutMs, signal })` | `fetchJson` ile oturum belirteciyle (varsayılan) 15 sn zaman aşımlı istek atar; HTTP hatasını `ok: false` ile çözer, geçerli belirteç için 401 gelirse oturumu kapatır; ağ hatası, zaman aşımı ve iptalde reddeder. |
 | `useAccountAction()` | Bir hesap formu ya da düğmesi için `busy`, `result`, `run` ve `clear` döndürür. |
 | `run(path, body, { auth, fallback })` | Uca POST atar, meşgul durumunu izler ve sonucu (sunucu mesajı ya da yedek metin, ağ hatasında "Servise ulaşılamadı…") satır içi bildirim için saklar; yanıtı ya da `null` döner. |
 
@@ -1926,8 +1918,8 @@ Hesabın API anahtarları paneli: anahtar üretme (bir kez gösterilir, açılan
 |---|---|
 | `ApiKeysPanel({ onDashboardKeyChange })` | Açıklama formunu, yeni anahtar kutusunu, hata kutusunu ve anahtar listesini çizer; yeni anahtar saniyede 5 istek (`NEW_KEY_TPS`) iznidir. |
 | `reload()` | `apiKeyService.list()` ile anahtarları yükler; başarıda `ready`, hatada `error` durumuna geçer. |
-| `generate(event)` | Açıklamayla yeni anahtar üretir ve gösterir; tarayıcıda henüz panel anahtarı (`localStorage` `apiKey`) yoksa bunu panel anahtarı yapıp `onDashboardKeyChange`'i çağırır, sonra listeyi yeniler. |
-| `revoke(key)` | Anahtarı iptal eder (hatada bildirim gösterip reddeder, böylece onay penceresi açık kalır); iptal edilen anahtar bu tarayıcının panel anahtarıysa onu siler ve haber verir, sonra listeyi yeniler. |
+| `generate(event)` | Açıklamayla yeni anahtar üretir ve gösterir; tarayıcıda henüz panel anahtarı yoksa `apiKeyService.adoptDashboardKey` bunu panel anahtarı yapar ve `onDashboardKeyChange` çağrılır, sonra liste yenilenir. |
+| `revoke(key)` | Anahtarı iptal eder (hatada bildirim gösterip reddeder, böylece onay penceresi açık kalır); iptal edilen anahtar bu tarayıcının panel anahtarıysa `apiKeyService.forgetDashboardKey` onu siler ve haber verilir, sonra liste yenilenir. |
 | `FreshKey({ value })` | Yeni üretilen anahtarı ilk 8 karakteri dışında maskeli gösterir; göz düğmesiyle açılır, kopyalanır ve "yalnız şimdi gösterilir" uyarısı taşır. |
 | `KeyList({ state, onRetry, onRevoke })` | Yüklenirken iskelet, hatada "Yeniden dene", boşken not, doluyken açıklama, "Web paneli"/"İptal edildi" rozetleri, maske ve TPS ile listeyi çizer; etkin anahtarlara onaylı "İptal et" düğmesi koyar. |
 
@@ -1979,7 +1971,7 @@ Mağaza kataloğunu süzen "Tümü" düğmesi ve sembol başına element hücrel
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `ElementPicker({ symbols, elements, value, onValueChange })` | "Tümü" düğmesini (`aria-pressed`) ve her sembol için tıklanınca o elementi seçen `ElementTile`'ı çizer; etkin filtreyi halka ile vurgular. |
+| `ElementPicker({ symbols, elements, value, onValueChange })` | "Tümü" düğmesini ve her sembol için bir `ElementTile` aç-kapa düğmesini (`pressed`, `aria-pressed`) çizer; karoya tıklamak o elemente süzer, etkin karoya yeniden tıklamak "Tümü"ne döner; etkin filtreyi halka ile vurgular. |
 
 ### `web-app/src/components/commerce/HoldingsTable.tsx`
 Kasa tablosu: ürün başına gram, ortalama maliyet ve alış (bid) fiyatıyla bugünkü değer.
@@ -1996,7 +1988,6 @@ KREDI demosu sayfalarının (/market, /shop, /account) React'sız, test edilebil
 |---|---|
 | `findElement(elements, symbol)` | Elementi büyük/küçük harfe bakmadan sembolle bulur ("AU" → "Au"). |
 | `elementName(elements, symbol)` | Sembolün Türkçe adını, bilinmiyorsa sembolün kendisini döner. |
-| `familyOf(category)` | Tohum kategorisini `ElementFamily`'ye daraltır; değilse `"unknown"`. |
 | `nextSort(current, key)` | Etkin sütuna tıklanınca yönü çevirir; yeni sütun sembolde A→Z, sayılarda büyükten küçüğe başlar. |
 | `sortBoard(rows, sort)` | Fiyat tablosunun sıralı kopyasını döner; eksik 24 saatlik değişim en düşük sayılır. |
 | `filterBoard(rows, query, elements)` | Sembolü ya da Türkçe adı aramaya uyan satırları bırakır ("altin" → Altın). |
@@ -2013,7 +2004,6 @@ KREDI demosu sayfalarının (/market, /shop, /account) React'sız, test edilebil
 | `quoteFor(board, elements, symbol)` | Sembolün satış (ask) fiyatını ve stoğunu tablodan okur; tabloda satır yoksa fiyatsız sayar (ask 0, stok 0) ki hiçbir şey eklenemesin. |
 | `summarizeCart(cart, elements, quoteOf)` | Her satırı ask × ürün çarpanıyla fiyatlar, ara toplamı hesaplar ve element başına toplam gramın stoğu aşıp aşmadığına bakar. |
 | `maskApiKey(key)` | Anahtarı sunucunun maskeli biçimine çevirir (ilk 13 karakter + "..." + son 4), saklı anahtarı liste satırıyla eşleştirmek için. |
-| `DASHBOARD_KEY_DESCRIPTION` | Web uygulamasının kendisi için ürettiği anahtarın açıklaması ("Web Dashboard Key"). |
 | `webhookUrlProblem(value)` | Webhook adresini göndermeden denetler: boş, `https://` olmayan ya da geçersiz adres için Türkçe sebep, uygunsa `null` döner. |
 
 ### `web-app/src/components/commerce/MoversStrip.tsx`
@@ -2038,7 +2028,7 @@ Tüm elementlerin yoğun, sıralanabilir fiyat tablosu: sembol ve ad, son fiyat,
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `QuoteBoard({ rows, elements, loading, failed, selectedSymbol, onSelect, onRetry })` | Arama kutusunu ve sıralama durumunu tutar, satırları `filterBoard` ve `sortBoard` ile (`useMemo`) hazırlar; yüklenirken iskelet, eşleşme yoksa "Aramayı temizle" düğmeli boş durum, son yenileme başarısızsa eski satırlar dururken uyarı gösterir. |
+| `QuoteBoard({ rows, elements, loading, failed, pollMs, selectedSymbol, onSelect, onRetry })` | Başlık altında yenileme aralığını `pollMs`'ten yazar ("20 saniyede bir yenilenir"); arama kutusunu ve sıralama durumunu tutar, satırları `filterBoard` ve `sortBoard` ile (`useMemo`) hazırlar; yüklenirken iskelet, eşleşme yoksa "Aramayı temizle" düğmeli boş durum, son yenileme başarısızsa eski satırlar dururken uyarı gösterir. |
 | `changeSort(key)` | Sıralamayı `nextSort` ile günceller. |
 | `QuoteTable({ rows, elements, sort, onSort, selectedSymbol, onSelect })` | Satırları yüksekliği sınırlı, başlığı yapışık bir kaydırıcıda çizer; satırın tamamını kaplayan (`::after`) basılı/basılı değil düğmeyle tıklanan satırı seçer; telefonda alış/satış sütunlarını gizler. |
 | `SortableHead({ column, sort, onSort, numeric, className, children })` | Tıklanınca tabloyu o sütuna göre sıralayan başlık hücresi; yönü okla gösterir ve `aria-sort` ile ekran okuyucuya söyler. |
@@ -2049,7 +2039,7 @@ Seçili elementin alım-satım kartı.
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `QuoteTicket({ element, ticker, children })` | Element hücresini ve adını, son fiyatı 24 saatlik değişim ve yöne göre renklenen `Sparkline` ile (en düşük/en yüksek), alış, satış ve stok satırlarını, `/shop?symbol=<sembol>` "Satın al" bağlantısını ve altında satış formunu (ya da giriş çağrısını) gösterir. |
+| `QuoteTicket({ element, ticker, children })` | Element hücresini ve adını (üst etikette sembol büyük harfe çevrilmez: "Au"), son fiyatı 24 saatlik değişim ve yöne göre renklenen `Sparkline` ile (en düşük/en yüksek), alış, satış ve stok satırlarını, `/shop?symbol=<sembol>` "Satın al" bağlantısını ve altında satış formunu (ya da giriş çağrısını) gösterir. |
 
 ### `web-app/src/components/commerce/SagaSteps.tsx`
 Sipariş saga'sını dört adımlı bir şema ve başarısızlıktaki telafi yoluyla anlatan kutu.
@@ -2075,7 +2065,7 @@ Mağazadaki tek ürün kartı.
 | Fonksiyon | Ne yapar |
 |---|---|
 | `KIND_LABEL` | Ürün türlerinin Türkçe adı: başka biçim (allotrop), bileşik, preparat. |
-| `SkuCard({ sku, elementName, unitPrice, stock, inCart, pack, disabled, onAdd, onShowElement })` | Formülü, türü, Türkçe adı, katalogu ana elemente süzen bağlantıyı, varsa açılır "Kimyasal özellikler" (molar kütle, IUPAC adı, PubChem kaynağı) panelini, gram fiyatını, stoğu ya da sepetteki gramı ve "+paket g" düğmesini çizer; sepetteyse kenarı vurgular. |
+| `SkuCard({ sku, elementName, unitPrice, stock, inCart, pack, disabled, onAdd, onShowElement })` | Formülü, türü, Türkçe adı, katalogu ana elemente süzen bağlantıyı, varsa açılır "Kimyasal özellikler" (molar kütle, IUPAC adı, PubChem kaynağı) panelini, gram fiyatını, stoğu ya da sepetteki gramı ve "+paket g" düğmesini çizer; sepetteyse kenarı vurgular. Düğmenin erişilebilir adı ürün adını da içerir ("Altın (saf gram) · Au: sepete 1 g ekle"), böylece aynı formüllü ürünler ayrılır. |
 
 ### `web-app/src/components/commerce/SkuCatalog.tsx`
 Yükleniyor, hata ve boş durumları olan, 24'er gösteren ürün ızgarası.
@@ -2224,7 +2214,7 @@ Tezgâhlar için API'ye GET isteği atan hook (`ApiResponse` türünü de dışa
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `requestApi(path, headers, signal)` | İsteği önbelleksiz ve 10 sn zaman aşımıyla atar; durum, ETag, `playgroundView` ile hazırlanmış gövde ve süreyle yanıt sonucu döner; zaman aşımında "10 saniye içinde yanıt gelmedi.", ağ hatasında "Sunucuya ulaşılamadı." der, iptalde `null` döner. |
+| `requestApi(path, headers, signal)` | İsteği `fetchJson` ile önbelleksiz ve 10 sn zaman aşımıyla atar; durum, ETag, `playgroundView` ile hazırlanmış gövde ve süreyle yanıt sonucu döner; zaman aşımında "10 saniye içinde yanıt gelmedi.", ağ hatasında "Sunucuya ulaşılamadı." der, iptalde `null` döner. |
 | `useApiRequest(initialPath)` | Açılışta `initialPath`'i yükler, `response`, `error`, `pending` ve `send` döndürür; yeni istek gelirken son yanıt görünür kalır, bileşen kalkınca uçuştaki istek iptal edilir. |
 | `start(path, headers)` | Uçuştaki isteği iptal edip yenisini başlatır; yalnız en son isteğin sonucunu duruma yazar. |
 | `send(path, headers)` | Beklemede durumunu açıp `start`'ı çağırır. |
@@ -2437,19 +2427,19 @@ Kod `import.meta.env.DEV` değerini de okur: geliştirme sunucusunda `/_ui` rota
 Birim testleri `tests/*.test.mjs` altındaki 23 dosyadır ve Node'un yerleşik test koşucusuyla (`node --experimental-strip-types --test`) çalışır; testler `.ts` kaynaklarını doğrudan içe aktarır. `npm test` önce şemaları ve `guide.json`'u yeniden yazar. Bir kısmı saf fonksiyonları sınar, bir kısmı kaynak dosyanın metnini okuyup sayfa sözleşmesini (rota yolu, `noindex`, eski sınıf adlarının yokluğu) denetler. Konulara göre:
 
 - **Sistem kılavuzu** — `system-guide.test.mjs`: ayrıştırıcının tablo satırını yalnız kaçırılmamış dikey çizgilerden böldüğünü (`\|` hücrede kalır), satır içi kod/kalın/bağlantıyı, başlık-özet-özellik tablosunu, olmayan sayfaya bağlantının düz metne döndüğünü, listeleri, kod haritası dosyalarını ve kod bloklarını, ilk `##`'den önceki metnin dosya:satır hatasıyla reddedildiğini denetler; ayrıca gerçek `docs/kilavuz` sayfalarının hepsinin ayrıştığını, her servis sayfasında özet, en az dört özellik ve amaçlı dosyalardan oluşan kod haritası bulunduğunu, bağlantıların benzersiz olduğunu ve aramanın `createOrderWithSaga` fonksiyonunu bulduğunu doğrular.
-- **Periyodik tablo, kayıtlar, bileşikler** — `periodic-swatches.test.mjs` (118 elementlik tohum ve `rawElements` metni, f-bloğunun 8–9. satırlara ayrılması, aile jetonları, gateway kategorisi eşlemesi, gezgin yerleşimi, Türkçe katlamalı arama, Enter ile tam eşleşme, tabloda ve kartlarda klavye gezinmesi, renk mercekleri), `museum-preview-dialog.test.mjs` (önizleme penceresinin genişliği, adlı kapatma düğmesi, kendi içinde kayması, odağı karoya geri vermesi; kayıtların tam sayfa yüklemeden açılması, `data-symbol`, tek başlık), `record-detail.test.mjs` (boş değerin sıfır sayılmaması, bölüm listesi ve sayaçları, alan süzme, kafes `c` ile Celsius ayrımı, Türkçe sayı biçimi, yapı çiziminin odaklanması, JSON'un CodeBlock ile gösterilmesi, `#geometry` bağlantısı, bulunamadı ve hata görünümlerinde `noindex`), `compounds-grid.test.mjs` (bileşik süzgecinde aksansız Türkçe ad, İngilizce ad, formül ve PubChem CID araması, grupla birleşme; yapı küçük resminin mürekkep sınırı, yakınlaştırma, sığdırma ve ortalama), `element-photos.test.mjs` (75 seçilmiş fotoğraf, Pm/Tc/H'nin bilerek boş kalması, önemli örneklerin dosyasının diskte ve katalogla eşit olması, S/Ga/Hg seçimleri).
+- **Periyodik tablo, kayıtlar, bileşikler** — `periodic-swatches.test.mjs` (118 elementlik tohum ve `rawElements` metni, f-bloğunun 8–9. satırlara ayrılması, aile jetonları ve `familyOf`'un yalnız bilinen aileleri kabul etmesi, gateway kategorisi eşlemesi, gezgin yerleşimi, Türkçe katlamalı arama, Enter ile tam eşleşme, tabloda ve kartlarda klavye gezinmesi ve tek Tab durağı, renk mercekleri ve aile merceğinde değer yazılmaması), `museum-preview-dialog.test.mjs` (önizleme penceresinin genişliği, adlı kapatma düğmesi, kendi içinde kayması, odağı karoya geri vermesi; kayıtların tam sayfa yüklemeden açılması, `data-symbol`, tek başlık), `record-detail.test.mjs` (boş değerin sıfır sayılmaması, bölüm listesi ve sayaçları, alan süzme, kafes `c` ile Celsius ayrımı, Türkçe sayı biçimi, JSON'un CodeBlock ile gösterilmesi, `#geometry` bağlantısı, bulunamadı ve hata görünümlerinde `noindex`), `compounds-grid.test.mjs` (bileşik süzgecinde aksansız Türkçe ad, İngilizce ad, formül ve PubChem CID araması, grupla birleşme; yapı küçük resminin mürekkep sınırı, yakınlaştırma, sığdırma ve ortalama; kayıt sayfasının hiç küçültmeyen kare levhası), `element-photos.test.mjs` (75 seçilmiş fotoğraf, Pm/Tc/H'nin bilerek boş kalması, önemli örneklerin dosyasının diskte ve katalogla eşit olması, S/Ga/Hg seçimleri).
 - **Laboratuvar, oyunlar, defter** — `lab-games.test.mjs` (formül ve dedektif oyununda "Başka kayıt" ve "Pas geç"in sıradakine geçmesi, URL'den gelen sembolün harf büyüklüğünden bağımsız çözülmesi, dört farklı aday, sembol veya Türkçe adla cevap, yanlış atom sayılarının adlandırılması, oyun kaydının temizlenmesi), `lab-sandbox-outcome.test.mjs` (karışım sonucunun isabet, neredeyse, imkânsız ve boş ayrımı; çip sırası yardımcıları), `lab-void-chrome.test.mjs` (laboratuvar sayfalarının PageHeader, mod seçici ve SEO yolları, eski sınıfların yokluğu, tanılama olayları, sürükle-bırak hedefleri, dokunmatikte paletin kayabilmesi, atla düğmelerinin mevcut bulmacayı geçirmesi), `notebook-backup.test.mjs` (bilinmeyen bileşiklerin ve eksik rotaların atılması, iki cihazın birleşimi, sürüm 1 yedek dosyasının gidiş-dönüşü ve başka biçimlerin reddi).
-- **Kabuk, gezinme, tasarım yardımcıları** — `product-nav.test.mjs` (birincil menünün atlas → lab → defter sırası, görünür API kısayolu, demonun "Daha fazla"nın sonunda olması, ürün ve ticaret yollarının ayrımı, `/stack` → `/hakkinda`), `ui-lib.test.mjs` (Türkçe katlama, formül parçalama, tr-TR sayı biçimleri, detay rotalarında etkin menü öğesi), `product-chrome.test.mjs` (başvuru sayfalarının ortak çerçevesi ve eski sınıfların yokluğu; KREDI şeridinin "gerçek para" uyarısı ve bütün ticaret rotalarını ve demoyu sarması).
+- **Kabuk, gezinme, tasarım yardımcıları** — `product-nav.test.mjs` (birincil menünün atlas → lab → defter sırası, görünür API kısayolu, demonun "Daha fazla"nın sonunda olması, `/stack` → `/hakkinda`), `ui-lib.test.mjs` (Türkçe katlama, formül parçalama, tr-TR sayı biçimleri, detay rotalarında etkin menü öğesi), `product-chrome.test.mjs` (başvuru sayfalarının ortak çerçevesi ve eski sınıfların yokluğu; KREDI şeridinin "gerçek para" uyarısı ve bütün ticaret rotalarını ve demoyu sarması).
 - **İçerik sayfaları** — `product-landing-css.test.mjs` (adı eskidir, artık CSS denetlemez: açılış sloganı, kristal görsel, WebSite JSON-LD, sayıların `coverage.json`'dan okunması, jeton kullanımı ve API örneğinin paketteki Fe kaydıyla eşleşmesi), `about-page.test.mjs` (tasarım sistemi, SEO yolu, açıklanan her sayfaya bağlantı, dürüst sınırlar), `guide-cards.test.mjs` (el kitabının laboratuvar, oyun ve deftere derin bağlantıları, hesaplar kapalıyken hesap sayfasına göndermemesi, laboratuvarı bugünkü hâliyle anlatması; sözlükte benzersiz bağlantılar, Türkçe alfabe sırası ve hesaplar kapalıyken `/demo`'ya yönlendirme).
-- **Geliştirici sayfaları** — `docs-auth-chrome.test.mjs`: deneme alanında 304'ün not olarak gösterilmesi, açık API için anahtarsız, v1 için anahtarı ortam değişkeninden okuyan kod örnekleri, durum kodu tonları, JSON renklendirmesinin işaretlemeyi kaçırması, API sayfalarının SEO'su, CodeBlock kullanımı, korunan bağlantılar ve deneme sayacı.
+- **Geliştirici sayfaları** — `docs-auth-chrome.test.mjs`: deneme alanında 304'ün not olarak gösterilmesi, açık API için anahtarsız, v1 için anahtarı ortam değişkeninden okuyan kod örnekleri, durum kodu tonları, `lib/http.ts` çekirdeği (`abortAfter`'ın zaman aşımında `TimeoutError` vermesi ve çağıranın iptalini iletmesi; `fetchJson`'un JSON gönderip okuması, düz metin hata gövdesini `text`'te tutması ve zaman aşımında `isTimeout`'un tanıdığı hatayla reddetmesi), JSON renklendirmesinin işaretlemeyi kaçırması, API sayfalarının SEO'su, CodeBlock kullanımı, korunan bağlantılar ve deneme sayacı.
 - **Hesap, güvenlik, gizlilik** — `safe-return-to.test.mjs` (`returnTo`'nun yalnız aynı kökenli yolu kabul etmesi), `captcha-config.test.mjs` (Turnstile'ın `VITE_CAPTCHA_SITE_KEY`'e bağlı, koyu temalı olması, giriş ve kaydın `captchaToken` göndermesi ve sunucu captcha beklerken uyarması), `feedback-void-chrome.test.mjs` (tanılamanın onaydan önce hiçbir şey yazmaması, onay geri alınınca silinmesi, e-posta gibi serbest metni saklamaması; geri bildirim sayfasının ağ çağrısı yapmayıp yalnız JSON indirmesi).
 - **KREDI demosu** — `commerce-model.test.mjs` (fiyat panosu sıralama ve süzme, işaretli Türkçe yüzdeler, ürün tanımları, varlık değerinin bid × çarpan olması ve imkânsız satışın engellenmesi, saga durumundan ilerleme ve rozet tonu, sepette ask × çarpan fiyatı ve stok aşımı, anahtar maskeleme ve yalnız https webhook adresi), `demo-vitrin-chrome.test.mjs` (demo sayfasının sanal kredi olduğunu açıkça söylemesi ve bağlantıları, ticaret sayfalarının tek PageHeader'lı ortak çerçevesi, SEO yolları, hesap sayfasının `noindex` olması, eski CSS ve satır içi stil olmaması).
-- **SEO** — `seo-static.test.mjs`: `robots.txt` ve `sitemap.xml`'deki `__SITE_URL__` yer tutucusu ve kapalı yollar, `index.html`'deki Open Graph, Twitter ve JSON-LD etiketleri, `og.png`, `theme-color`'ın `index.html` ve `Seo.tsx`'te aynı (`#080b09`) olması, giriş ve hesap sayfalarında `noindex`.
+- **SEO** — `seo-static.test.mjs`: `robots.txt` ve `sitemap.xml`'deki `__SITE_URL__` yer tutucusu ve kapalı yollar, `index.html`'deki Open Graph, Twitter ve JSON-LD etiketleri, `og.png`, `index.html`'deki `theme-color`'ın tuval rengi (`#080b09`) olması, giriş ve hesap sayfalarında `noindex`.
 
 Tarayıcı testleri Playwright ile üç yapılandırmada koşar:
 
 - **`playwright.config.ts` → `e2e/`** — masaüstü (1365×900) ve telefon (390×844, dokunmatik) Chromium projeleri, 2 işçi. `PLAYWRIGHT_BASE_URL` yoksa iki sunucu açar: `dotnet run` ile science-service (`127.0.0.1:5080`, .NET 10 SDK gerekir) ve hesaplar kapalı, bilim API'si 5080'e bağlı Vite (`127.0.0.1:5173`). `atlas-lab-notebook.spec.ts` tablo, laboratuvar ve defterin açıldığını; `periodic.spec.ts` "demir" + Enter'ın tam sayfa yüklemeden `/element/fe` açtığını ve aile çipinin kartları daralttığını; `record-detail.spec.ts` Fe kaydının başlık, temel değerler ve `fe-26.json` indirmesini, H₂O formülünü ve `/element/zz` için bulunamadı hâlini; `lab.spec.ts` yalnız klavyeyle suyun keşfedilip deftere düştüğünü, dedektifin `?element=fe` ile demiri açıp "Pas geç" ile başka vakaya geçtiğini ve formül oyununda "Başka kayıt"ın bileşiği değiştirdiğini; `system-guide.spec.ts` kılavuz aramasının `consumeSagaEvents` satırına derin bağlantıyla gittiğini; `accounts-off.spec.ts` `/market`'in hesap kapalı sayfası gösterdiğini ve `/`, `/periodic`, `/lab`, `/kilavuz` sayfalarının 390 px'te yatay taşmadığını; `auth-smoke.spec.ts` `/login`'in her iki derlemede çökmediğini denetler.
-- **`playwright.auth.config.ts` → `e2e-auth/account.spec.ts`** — hesaplar açık, `VITE_API_BASE_URL=/api/v1` ile Vite `127.0.0.1:5174`'te açılır; arka uç yoktur, her `/api/v1` çağrısını identity-service biçiminde bellekteki bir sahte yanıtlar, beklenmeyen çağrı testi düşürür. Kayıtta doğrulama hatalarının isteği engellediğini, başarılı kaydın giriş yapıp aynı kökenli `returnTo` ile ayarlara gittiğini, yanlış şifrenin reddedildiğini, girişte hesap menüsünün çıktığını ve site dışı `returnTo`'nun yok sayıldığını, çıkışın oturumu sildiğini denetler.
+- **`playwright.auth.config.ts` → `e2e-auth/account.spec.ts`** — hesaplar açık, `VITE_API_BASE_URL=/api/v1` ile Vite `127.0.0.1:5174`'te açılır; arka uç yoktur, her `/api/v1` çağrısını identity-service biçiminde bellekteki bir sahte yanıtlar, beklenmeyen çağrı testi düşürür. Kayıtta doğrulama hatalarının isteği engellediğini ve alınmış e-postanın Identity gövdesinden (`DuplicateUserName`, `DuplicateEmail`) tek bir "Bu e-posta zaten kayıtlı." cümlesiyle reddedildiğini, başarılı kaydın giriş yapıp aynı kökenli `returnTo` ile ayarlara gittiğini, yanlış şifrenin reddedildiğini, girişte hesap menüsünün çıktığını ve site dışı `returnTo`'nun yok sayıldığını, çıkışın oturumu sildiğini ve kapanan menünün odağı yeni sayfanın `#main-content`'ine bıraktığını denetler; telefonda menü, tembel sayfa yüklenirken açılsa da kendiliğinden kapanmaz.
 - **`playwright.live.config.ts` → `e2e-live/commerce-journey.spec.ts`** — çalışan Docker platformuna (`WEB_BASE`, gateway 5000) karşı tek yolculuk: arayüzden yeni hesap, 10.000 KREDI hoş geldin bakiyesi, `/shop`'ta 1 g altın siparişi (202), saga "Teslim" olunca kasada altın ve düşen bakiye, `/market`'te geri satış ve cüzdanın satış tutarı kadar artması. Tek işçi, yeniden deneme yok; her koşuda gerçek bir hesap açar (rastgele `@example.test` adresi, şifre loglanmaz).
 
 Çalıştırma:

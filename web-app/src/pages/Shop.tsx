@@ -22,10 +22,10 @@ import { useCommerce } from "../context/commerce";
 import { useSelectedElement } from "../context/selection";
 import { usePolling } from "../hooks/usePolling";
 import { formatFixed } from "../lib/format";
+import { ApiHttpError } from "../lib/http";
 import { matchesSearch } from "../lib/text";
 import {
   apiError,
-  ApiHttpError,
   elementService,
   orderService,
   type BoardRow,
