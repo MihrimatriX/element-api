@@ -87,11 +87,11 @@ Yerel çalıştırma profilleri: `http://localhost:5062` ve `https://localhost:7
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
 | `IdentityServiceInternalUrl` | `http://localhost:5001` (Compose'ta `http://identity-service:8080`) | Webhook listesinin alındığı identity-service adresi. |
-| `INTERNAL_API_KEY` | kodda boş, `appsettings.json`'da `element-internal-dev-key` | identity iç ucuna gönderilen servisler arası anahtar; `Production` ortamında 32 karakterden kısa veya geliştirme değeri ise servis açılmaz. |
+| `INTERNAL_API_KEY` | kodda boş, `appsettings.json`'da `<yerel-varsayılan>` | identity iç ucuna gönderilen servisler arası anahtar; `Production` ortamında 32 karakterden kısa veya geliştirme değeri ise servis açılmaz. |
 | `RabbitMQ:Host` (`RabbitMQ__Host`) | `localhost` | RabbitMQ sunucusu. |
 | `RabbitMQ:Port` | `5672` | RabbitMQ portu. |
 | `RabbitMQ:Username` | `guest` | RabbitMQ kullanıcı adı. |
-| `RabbitMQ:Password` | `guest` | RabbitMQ parolası. |
+| `RabbitMQ:Password` | `<yerel-varsayılan>`| RabbitMQ parolası. |
 | `ASPNETCORE_ENVIRONMENT` | `Production` (Compose'ta `${ASPNETCORE_ENVIRONMENT:-Development}`) | `Production` ise ortak koruma geliştirme anahtarlarını reddeder. |
 
 ## Testler

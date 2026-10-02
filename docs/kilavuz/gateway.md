@@ -127,7 +127,7 @@ Yapılandırma ve dağıtım dosyaları: `appsettings.json` (YARP rotaları, kü
 |---|---|---|
 | `RedisConnection` | `localhost:6379` | API anahtarı sayaçları ve hazırlık kontrolü için Redis bağlantısı. |
 | `IdentityServiceInternalUrl` | `http://localhost:5001` | API anahtarının sorulduğu identity servisinin iç adresi. |
-| `INTERNAL_API_KEY` | `element-internal-dev-key` (appsettings) | Identity'ye iç sorguda ve arka servislere iletilen iç servis anahtarı; Production'da geliştirme değeri kabul edilmez. |
+| `INTERNAL_API_KEY` | `<yerel-varsayılan>` (appsettings) | Identity'ye iç sorguda ve arka servislere iletilen iç servis anahtarı; Production'da geliştirme değeri kabul edilmez. |
 | `PUBLIC_WEB_ORIGIN` | yok | Genel yayındaki web sitesinin kökeni; CORS izin listesine eklenir. |
 | `TRUSTED_PROXY_CIDRS` | boş (loopback + özel/yerel ağlar) | Virgülle ayrılmış CIDR listesi; yalnızca bu vekillerden gelen `X-Forwarded-For` başlığına güvenilir. |
 | `Cors:AllowedOrigins` | `appsettings.json`: `http://localhost:3000`, `http://localhost:5173`, `http://localhost:6241` ve aynılarının `127.0.0.1` biçimi (ayar hiç yoksa koddaki yedek liste 6241'siz ilk dördüdür) | Çerezli/kimlikli çağrılara izin verilen web kökenleri. |

@@ -207,17 +207,17 @@ Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docke
 |---|---|---|
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5434/element_wallet_db` | Cüzdan veritabanının adresi. |
 | `SPRING_DATASOURCE_USERNAME` | `postgres` | Veritabanı kullanıcı adı. |
-| `SPRING_DATASOURCE_PASSWORD` | `mysecretpassword` | Veritabanı parolası (yalnızca yerel geliştirme varsayılanı). |
+| `SPRING_DATASOURCE_PASSWORD` | `<yerel-varsayılan>` | Veritabanı parolası (yalnızca yerel geliştirme varsayılanı). |
 | `RABBITMQ_HOST` | `localhost` | RabbitMQ sunucusu. |
 | `RABBITMQ_PORT` | `5672` | RabbitMQ portu. |
 | `RABBITMQ_USERNAME` | `guest` | RabbitMQ kullanıcı adı. |
-| `RABBITMQ_PASSWORD` | `guest` | RabbitMQ parolası. |
+| `RABBITMQ_PASSWORD` | `<yerel-varsayılan>`| RabbitMQ parolası. |
 | `CREDIT_LIMIT` | `50000` | Tek bir siparişte düşülebilecek en yüksek KREDI tutarı (`wallet.credit-limit`). |
 | `WALLET_WELCOME_GRANT` | `10000` | Yeni cüzdana yazılan hoş geldin bakiyesi; herkese açık kurulum 1000 kullanır. |
 | `CATALOG_SERVICE_URL` | `http://localhost:5002` | Ticker (`bid`/`last`) için katalog servisinin adresi. |
 | `COMPOUND_SERVICE_URL` | `http://localhost:5007` | Bileşik ürün bilgisi için bileşik servisinin adresi. |
 | `MARKET_SPREAD_PCT` | `0.008` | Ticker'da `bid` yoksa `last` fiyatından düşülen oran. |
-| `INTERNAL_API_KEY` | `element-internal-dev-key` | Kapıdan gelen isteklerin taşıması gereken iç servis anahtarı. |
+| `INTERNAL_API_KEY` | `<yerel-varsayılan>` | Kapıdan gelen isteklerin taşıması gereken iç servis anahtarı. |
 | `ELEMENT_ENV` | (boş) | `prod` ise üretim benzeri sayılır ve zayıf `INTERNAL_API_KEY` ile açılış engellenir. |
 | `SPRING_PROFILES_ACTIVE` | (boş) | `production` ya da `prod` profili de üretim benzeri sayılır. |
 

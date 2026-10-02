@@ -346,12 +346,12 @@ Gerçek yerel PostgreSQL üzerinde, geçici bir şemada saga senaryolarını (ö
 | `RABBITMQ_HOST` | `localhost` | RabbitMQ sunucusu. |
 | `RABBITMQ_PORT` | `5672` | RabbitMQ portu. |
 | `RABBITMQ_USERNAME` | `guest` | RabbitMQ kullanıcı adı. |
-| `RABBITMQ_PASSWORD` | `guest` | RabbitMQ parolası. |
+| `RABBITMQ_PASSWORD` | `<yerel-varsayılan>`| RabbitMQ parolası. |
 | `CATALOG_SERVICE_URL` | `http://localhost:5002` | Fiyat (ticker) için catalog-service adresi. |
 | `COMPOUND_SERVICE_URL` | `http://localhost:5007` | Bileşik çarpanı için compound-service adresi. |
 | `WALLET_SERVICE_URL` | `http://localhost:5005` | Bakiye ön kontrolü için wallet-service adresi. |
 | `INVENTORY_SERVICE_URL` | `http://localhost:5008` | Satılabilir gram için inventory-service adresi. |
-| `INTERNAL_API_KEY` | `element-internal-dev-key` | Servisler arası paylaşılan anahtar; gelen isteklerde zorunlu, wallet çağrısında gönderilir; üretimde en az 32 karakter ve benzersiz olmalı. |
+| `INTERNAL_API_KEY` | `<yerel-varsayılan>` | Servisler arası paylaşılan anahtar; gelen isteklerde zorunlu, wallet çağrısında gönderilir; üretimde en az 32 karakter ve benzersiz olmalı. |
 | `MARKET_SPREAD_PCT` | `0.008` | catalog spread vermediğinde kullanılan varsayılan alış/satış makası. |
 | `OUTBOX_POLL_MS` | `500` | Outbox dağıtıcısının tarama aralığı (ms). |
 | `SAGA_SWEEP_MS` | `5000` | Zaman aşımı süpürücüsünün çalışma aralığı (ms). |

@@ -596,12 +596,14 @@ Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (ed
 
 ## Yapılandırma
 
+Şifre ve anahtarların yerel geliştirme değerleri bu kılavuzda `<yerel-varsayılan>` olarak gösterilir; gerçek değerler `docker/.env.example` dosyasındadır. Production modunda servisler bu varsayılanlarla açılmayı reddeder.
+
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` | `postgres` / `mysecretpassword` | Bütün servis veritabanlarının kullanıcı adı ve şifresi. |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` | `postgres` / `<yerel-varsayılan>` | Bütün servis veritabanlarının kullanıcı adı ve şifresi. |
 | `POSTGRES_HOST_PORT` | `5432` | Postgres'in host'ta yayınlandığı port (dolu ise ör. 5434). |
-| `JWT_SECRET` | yerelde `ChangeMeInProduction_...`; public'te zorunlu | Identity'nin JWT imza anahtarı. |
-| `INTERNAL_API_KEY` | yerelde `element-internal-dev-key`; public'te zorunlu | Servisler arası iç uçların anahtarı. |
+| `JWT_SECRET` | yerelde `<yerel-varsayılan>`; public'te zorunlu | Identity'nin JWT imza anahtarı. |
+| `INTERNAL_API_KEY` | yerelde `<yerel-varsayılan>`; public'te zorunlu | Servisler arası iç uçların anahtarı. |
 | `WEB_HOST_PORT` | `6241` | Web uygulamasının host portu; compose'taki CORS listesi ve origin varsayılanları bunu izler. |
 | `PUBLIC_WEB_ORIGIN` | `http://localhost:${WEB_HOST_PORT:-6241}` | Identity ve gateway'in CORS ve e-posta linklerinde kullandığı web adresi. |
 | `VITE_PUBLIC_SITE_URL` | `http://localhost:${WEB_HOST_PORT:-6241}` | Web paketine gömülen canonical/OG/sitemap adresi (değişince web imajı yeniden derlenir). |
@@ -609,7 +611,7 @@ Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (ed
 | `VITE_CAPTCHA_SITE_KEY` / `CAPTCHA_SECRET_KEY` | boş | Cloudflare Turnstile anahtarları; boşsa captcha kapalı. |
 | `PUBLIC_API_BASE` | `http://localhost:5000` | Catalog/compound HATEOAS ve swagger linklerinin kökü. |
 | `TRUSTED_PROXY_CIDRS` | yerelde boş, public'te `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` | Gateway'in istemci IP'si için güvendiği proxy ağları. |
-| `RABBITMQ_DEFAULT_USER` / `RABBITMQ_DEFAULT_PASS` | `guest` / `guest` | Broker kullanıcı bilgileri (servislere de aktarılır). |
+| `RABBITMQ_DEFAULT_USER` / `RABBITMQ_DEFAULT_PASS` | `guest` / `<yerel-varsayılan>` | Broker kullanıcı bilgileri (servislere de aktarılır). |
 | `SMTP_HOST` / `SMTP_PORT` / `SMTP_FROM` / `SMTP_USER` / `SMTP_PASSWORD` / `SMTP_ENABLE_SSL` | boş / `587` / boş / boş / boş / `true` | E-posta gönderimi; host boşsa şifre kurtarma bilinçli olarak kapalı. |
 | `ELEMENT_ENV` | `prod` | Public yığında konteyner adlarının ön eki (`element-<env>-...`). |
 | `ASPNETCORE_ENVIRONMENT` / `NODE_ENV` | yerelde `Development` / `development`, public'te `Production` / `production` | Servislerin çalışma ortamı (env dosyasından ezilebilir). |
@@ -628,7 +630,7 @@ Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (ed
 
 ## Testler
 
-- `deploy/tests/public-env-matrix.test.mjs`: public Dev/Test/Prod şablonlarının portlarının ve compose proje adlarının çakışmadığını, her şablonun yerel duman düzenini koruduğunu, `ChangeMe` veya `element-internal-dev-key` taşımadığını, INTERNAL_API_KEY'in en az 32 karakter olduğunu ve `present-public.ps1`'in sunucu korumasını içerdiğini kontrol eder. Çalıştır: `node --test deploy/tests/public-env-matrix.test.mjs`
+- `deploy/tests/public-env-matrix.test.mjs`: public Dev/Test/Prod şablonlarının portlarının ve compose proje adlarının çakışmadığını, her şablonun yerel duman düzenini koruduğunu, `ChangeMe` veya `<yerel-varsayılan>` taşımadığını, INTERNAL_API_KEY'in en az 32 karakter olduğunu ve `present-public.ps1`'in sunucu korumasını içerdiğini kontrol eder. Çalıştır: `node --test deploy/tests/public-env-matrix.test.mjs`
 - `deploy/tests/Element.Services.IntegrationTests/`: gateway API anahtarı, identity hesap akışları, Node sipariş servisi, satın alma saga'sı ve Java wallet servisi gerçek Postgres/Redis/RabbitMQ konteynerleriyle test edilir. Docker çalışıyor ve `order-service` derlenmiş olmalı (`cd order-service && npm ci && npm run build`); wallet imajını test kendisi `wallet-service/Dockerfile`'dan derler (ilk seferde Maven indirmesi yüzünden birkaç dakika). Çalıştır: `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` (yalnız derleme kontrolü: `dotnet build deploy/tests/Element.Services.IntegrationTests`)
 - Canlı sistem kontrolleri (platform açıkken): `./deploy/scripts/test-smoke.ps1`, `node deploy/scripts/test-e2e.mjs`, `node deploy/scripts/test-platform.mjs`, `node deploy/scripts/test-scientific-api.mjs`, `./deploy/scripts/test-saga.ps1`, `node deploy/scripts/test-backup-restore.mjs`. Hepsini sırayla çalıştırmak için: `./deploy/scripts/test-all.ps1 -Live -Recovery`
 - Script sözdizimi: her `.ps1` için `pwsh -NoProfile -Command "$null = [System.Management.Automation.Language.Parser]::ParseFile('<yol>', [ref]$null, [ref]$errs); $errs"` hiçbir şey yazmamalı; her `.mjs` için `node --check <dosya>`; compose için `docker compose -f docker-compose.yml --env-file docker/.env.example config -q`.

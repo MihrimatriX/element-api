@@ -170,11 +170,11 @@ Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docke
 |---|---|---|
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5434/element_inventory_db` | Stok veritabanının adresi. |
 | `SPRING_DATASOURCE_USERNAME` | `postgres` | Veritabanı kullanıcı adı. |
-| `SPRING_DATASOURCE_PASSWORD` | `mysecretpassword` | Veritabanı parolası (yalnızca yerel geliştirme varsayılanı). |
+| `SPRING_DATASOURCE_PASSWORD` | `<yerel-varsayılan>` | Veritabanı parolası (yalnızca yerel geliştirme varsayılanı). |
 | `RABBITMQ_HOST` | `localhost` | RabbitMQ sunucusu. |
 | `RABBITMQ_PORT` | `5672` | RabbitMQ portu. |
 | `RABBITMQ_USERNAME` | `guest` | RabbitMQ kullanıcı adı. |
-| `RABBITMQ_PASSWORD` | `guest` | RabbitMQ parolası. |
+| `RABBITMQ_PASSWORD` | `<yerel-varsayılan>`| RabbitMQ parolası. |
 | `DEFAULT_STOCK_GRAMS` | `100000` | Bir sembol ilk kez yazıldığında (ör. ilk rezervasyonda) kaydedilen ve görülmemiş sembol için `GET` ucunda raporlanan başlangıç stoğu (`inventory.default-stock-grams`). |
 
 ## Testler

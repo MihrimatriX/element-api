@@ -131,7 +131,7 @@ Veri dosyaları: `Infrastructure/Data/compounds.json` (mağaza tohumları), `com
 
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
-| `ConnectionStrings__DefaultConnection` | `Host=localhost;Database=element_compound_db;Username=postgres;Password=mysecretpassword` | PostgreSQL bağlantısı; sağlık kontrolü de bunu kullanır. |
+| `ConnectionStrings__DefaultConnection` | `Host=localhost;Database=element_compound_db;Username=postgres;Password=<yerel-varsayılan>` | PostgreSQL bağlantısı; sağlık kontrolü de bunu kullanır. |
 | `PUBLIC_API_BASE` | yok (Docker'da `http://localhost:5000`) | Sayfalama bağlantılarının dış adresi; boşsa istek başlıklarından hesaplanır. |
 | `ASPNETCORE_ENVIRONMENT` | `Production` (Docker ve yerelde `Development`) | Ortam adı; `/info` içinde görünür ve üretim kontrollerini açar. |
 | `INTERNAL_API_KEY`, `JwtSettings__Secret` | yok | Bu servis kullanmaz; yalnız üretimde tanımlıysa ortak kütüphane zayıf/dev değerleri reddeder. |

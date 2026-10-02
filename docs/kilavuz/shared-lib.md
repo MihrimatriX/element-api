@@ -84,7 +84,7 @@ Production ortamında geliştirme sırlarıyla açılmayı engelleyen güvenlik 
 | Fonksiyon | Ne yapar |
 |---|---|
 | `ValidateProductionConfiguration(builder)` | Ortam Production ise `INTERNAL_API_KEY` ve `JwtSettings:Secret` tanımlıysa zayıf olup olmadıklarına bakar, zayıfsa hata fırlatır. |
-| `IsDevelopmentSecret(secretValue)` | Değer 32 karakterden kısaysa, "ChangeMe" içeriyorsa ya da git geçmişinde açıkta olan bilinen geliştirme sırlarından biriyse (`element-internal-dev-key`, eski JWT geliştirme sırrı) true döner. |
+| `IsDevelopmentSecret(secretValue)` | Değer 32 karakterden kısaysa, "ChangeMe" içeriyorsa ya da git geçmişinde açıkta olan bilinen geliştirme sırlarından biriyse (`<yerel-varsayılan>`, eski JWT geliştirme sırrı) true döner. |
 
 ### `shared-lib/Extensions/RabbitMqExtensions.cs`
 `RabbitMQ:*` ayarlarını her MassTransit veri yolu için aynı varsayılanlarla okur.
@@ -149,7 +149,7 @@ Proje dosyası: `Element.Shared.csproj` (paket bağımlılıkları). `README.md`
 | `RabbitMQ:Host` | `localhost` | RabbitMQ sunucusunun adı. |
 | `RabbitMQ:Port` | `5672` | RabbitMQ portu; geçersiz bir sayı verilirse MassTransit için 5672 kullanılır. |
 | `RabbitMQ:Username` | `guest` | RabbitMQ kullanıcı adı. |
-| `RabbitMQ:Password` | `guest` | RabbitMQ şifresi. |
+| `RabbitMQ:Password` | `<yerel-varsayılan>`| RabbitMQ şifresi. |
 | `INTERNAL_API_KEY` | yok | Servisler arası iç anahtar; Production'da tanımlıysa en az 32 karakter olmalı, "ChangeMe" içermemeli ve geliştirme anahtarı olmamalıdır. |
 | `JwtSettings:Secret` | yok | JWT imza sırrı; Production'da `INTERNAL_API_KEY` ile aynı kurallarla denetlenir. |
 | `ASPNETCORE_ENVIRONMENT` | `Production` | Production'da sır denetimi açılır; Development'ta hata yanıtlarında hata mesajı gösterilir. |

@@ -339,11 +339,11 @@ Veri dosyaları: `Infrastructure/Data/scientific-elements.json` (v2 bilimsel kay
 
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
-| `ConnectionStrings__DefaultConnection` | `Host=localhost;Database=element_market_db;Username=postgres;Password=mysecretpassword` | PostgreSQL bağlantısı; sağlık kontrolü de bunu kullanır. |
+| `ConnectionStrings__DefaultConnection` | `Host=localhost;Database=element_market_db;Username=postgres;Password=<yerel-varsayılan>` | PostgreSQL bağlantısı; sağlık kontrolü de bunu kullanır. |
 | `RabbitMQ__Host` | `localhost` | RabbitMQ sunucusu. |
 | `RabbitMQ__Port` | `5672` | RabbitMQ portu. |
 | `RabbitMQ__Username` | `guest` | RabbitMQ kullanıcı adı. |
-| `RabbitMQ__Password` | `guest` | RabbitMQ parolası. |
+| `RabbitMQ__Password` | `<yerel-varsayılan>`| RabbitMQ parolası. |
 | `Market__SpreadPct` | `0.008` | Bid/ask için last fiyatın iki yanına konan oran; 0 veya negatifse 0,008 kullanılır. |
 | `PriceSimulator__Enabled` | `true` | `false` olursa 15 saniyelik fiyat simülatörü hiç başlamaz (testlerde kapatılır). |
 | `PUBLIC_API_BASE` | yok (Docker'da `http://localhost:5000`) | Yanıtlardaki bağlantıların dış adresi; boşsa istek başlıklarından hesaplanır. |

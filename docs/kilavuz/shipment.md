@@ -96,7 +96,7 @@ EF Core veritabanı bağlamı; `ShipmentRecord` varlığını `Shipments` tablos
 Tek bir kargo kaydı (Id, OrderId, CustomerId, ElementSymbol, Quantity, Status, TrackingNumber, CreatedAt, DispatchedAt); API bu nesneyi olduğu gibi JSON olarak döner.
 
 ### `shipment-service/Element.Services.Shipment.API/appsettings.json`
-Yalnızca log seviyelerini ve `AllowedHosts` değerini tutar; `appsettings.Development.json` aynı log ayarlarına ek olarak geliştirme `INTERNAL_API_KEY` değerini (`element-internal-dev-key`) içerir.
+Yalnızca log seviyelerini ve `AllowedHosts` değerini tutar; `appsettings.Development.json` aynı log ayarlarına ek olarak geliştirme `INTERNAL_API_KEY` değerini (`<yerel-varsayılan>`) içerir.
 
 ### `shipment-service/Element.Services.Shipment.API/Properties/launchSettings.json`
 Yerel çalıştırma profilleri: `http://localhost:5155` ve `https://localhost:7090`, ortam `Development`.
@@ -108,13 +108,13 @@ Yerel çalıştırma profilleri: `http://localhost:5155` ve `https://localhost:7
 
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
-| `ConnectionStrings:DefaultConnection` (`ConnectionStrings__DefaultConnection`) | `Host=localhost;Port=5432;Database=element_shipment_db;Username=postgres;Password=mysecretpassword` | PostgreSQL bağlantısı; sağlık kontrolü de bunu kullanır. |
+| `ConnectionStrings:DefaultConnection` (`ConnectionStrings__DefaultConnection`) | `Host=localhost;Port=5432;Database=element_shipment_db;Username=postgres;Password=<yerel-varsayılan>` | PostgreSQL bağlantısı; sağlık kontrolü de bunu kullanır. |
 | `RabbitMQ:Host` (`RabbitMQ__Host`) | `localhost` | RabbitMQ sunucusu. |
 | `RabbitMQ:Port` | `5672` | RabbitMQ portu. |
 | `RabbitMQ:Username` | `guest` | RabbitMQ kullanıcı adı. |
-| `RabbitMQ:Password` | `guest` | RabbitMQ parolası. |
+| `RabbitMQ:Password` | `<yerel-varsayılan>`| RabbitMQ parolası. |
 | `Shipment:FailQuantityGte` (`Shipment__FailQuantityGte`) | `0` (kapalı) | Bu gram değerine eşit veya büyük siparişleri reddeder; hata senaryosu denemek için. |
-| `INTERNAL_API_KEY` | kodda yok (tanımsızsa her REST isteği 401), `appsettings.Development.json`'da ve Compose'ta `element-internal-dev-key` | REST uçlarının istediği servisler arası anahtar; gateway'deki değerle aynı olmalı. |
+| `INTERNAL_API_KEY` | kodda yok (tanımsızsa her REST isteği 401), `appsettings.Development.json`'da ve Compose'ta `<yerel-varsayılan>` | REST uçlarının istediği servisler arası anahtar; gateway'deki değerle aynı olmalı. |
 | `ASPNETCORE_ENVIRONMENT` | `Production` (Compose'ta `${ASPNETCORE_ENVIRONMENT:-Development}`) | `Production` ise ortak koruma, tanımlıysa `INTERNAL_API_KEY` / `JwtSettings:Secret` için geliştirme değerlerini reddeder. |
 | `ASPNETCORE_URLS` | ASP.NET varsayılanı (Compose'ta `http://+:8080`) | Dinlenecek adres. |
 
