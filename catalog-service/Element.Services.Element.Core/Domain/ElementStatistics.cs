@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Element.Services.Element.Core.Domain;
 
 /// <summary>Lightweight reference to an element that wins/loses on some metric.</summary>

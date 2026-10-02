@@ -8,7 +8,7 @@ Dış dünyanın konuştuğu tek adres. Kendisi element bilmez; isteği doğru o
 |--|--|
 | **Port** | `5000` (konteyner içi 8080) |
 | **Teknoloji** | .NET 10, **YARP** |
-| **Veritabanı** | Yok. Redis: hız sınırı ve anahtar önbelleği |
+| **Veritabanı** | Yok. Redis: API anahtarı başına saniyelik hız sayacı |
 | **Komşular** | Tüm HTTP odaları (YARP) · identity (anahtar doğrula) · Redis |
 
 ---
@@ -24,8 +24,8 @@ Dış dünyanın konuştuğu tek adres. Kendisi element bilmez; isteği doğru o
 - `/api/v1/stock/**` → **inventory**
 - `/api/v1/orders` → **order** (API anahtarı şart)
 
-Ayrıca: `X-API-Key` doğrular (identity’ye sorar, yanıtı Redis’te kısa tutar). IP başına:
-**kayıt 5/dk**, diğer auth POST **15/dk**, kalan **60 / 10 sn** (ayrıntı `RateLimitPolicy`); anahtarlı uçlarda ayrıca Redis TPS. Aşan 429. Captcha identity’de (Turnstile); Caddy’de stock `rate_limit` yok — security headers + body 1MB.
+Ayrıca: `X-API-Key` doğrular (her istekte identity’ye sorar; iptal edilen anahtar anında düşer, yanıt önbelleğe alınmaz). IP başına:
+**kayıt + şifre sıfırlama + doğrulama e-postası 5/dk**, diğer auth POST **15/dk**, kalan **60 / 10 sn** (ayrıntı `RateLimitPolicy`); anahtarlı uçlarda ayrıca Redis TPS. Aşan 429. Captcha identity’de (Turnstile); Caddy’de stock `rate_limit` yok — security headers + body 1MB.
 
 Bilimsel GET’ler herkese açık, CORS açık.
 
@@ -70,7 +70,7 @@ Tek satır UI için tüm imajları `--build` etme. Vite CSS için `npm --prefix 
 
 | Değişken | Ne işe yarar |
 |----------|----------------|
-| `RedisConnection` | hız sınırı / anahtar önbelleği |
+| `RedisConnection` | API anahtarı başına saniyelik hız sayacı |
 | `IdentityServiceInternalUrl` | “bu anahtar kimin?” |
 | `INTERNAL_API_KEY` | identity’ye iç sorgu |
 | `PUBLIC_WEB_ORIGIN` | ekstra CORS kökeni (public host) |

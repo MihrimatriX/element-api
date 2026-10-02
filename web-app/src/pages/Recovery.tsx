@@ -1,161 +1,214 @@
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { API_BASE_URL } from "../config";
+import { LoaderCircle } from "lucide-react";
 import Seo from "../components/Seo";
+import { AuthLayout } from "../components/auth/AuthLayout";
+import { AuthStatus } from "../components/auth/AuthStatus";
+import { PasswordInput } from "../components/auth/PasswordInput";
+import { useAccountAction } from "../components/auth/accountApi";
+import { Button } from "../components/ui/button";
+import { Field } from "../components/ui/field";
+import { Input } from "../components/ui/input";
+import { Notice } from "../components/ui/notice";
+import { Skeleton } from "../components/ui/skeleton";
+import { useAuthCapabilities } from "../hooks/useAuthCapabilities";
 import { clearSession } from "../services/session";
 
+/** verify: confirm an address from a mailed link · reset: set a new password from a mailed link · request: ask for that link. */
+type Mode = "verify" | "reset" | "request";
+
+const MODES: Record<
+  Mode,
+  { title: string; lead: string; submit: string; done: string; path: string }
+> = {
+  verify: {
+    title: "E-posta adresini doğrula",
+    lead: "Doğrulama bağlantısındaki adresi onayla; hesabın sana ait olduğu kayda geçsin.",
+    submit: "Adresimi doğrula",
+    done: "Adresin doğrulandı",
+    path: "/auth/email/verify",
+  },
+  reset: {
+    title: "Yeni şifreni belirle",
+    lead: "Yeni şifre tüm cihazlardaki oturumları kapatır. Keşif defterin olduğu yerde kalır.",
+    submit: "Şifreyi yenile",
+    done: "Şifren yenilendi",
+    path: "/auth/password/reset",
+  },
+  request: {
+    title: "Şifreni yenile",
+    lead: "Hesabının e-posta adresini yaz; yenileme bağlantısı oraya gider. Keşif defterin olduğu yerde kalır.",
+    submit: "Yenileme bağlantısı gönder",
+    done: "İsteğin alındı",
+    path: "/auth/password/forgot",
+  },
+};
+
+function modeFor(verify: boolean, token: string | null): Mode {
+  if (verify) return "verify";
+  return token ? "reset" : "request";
+}
+
+/** Link parameters arrive in the hash (`#token=…&email=…`) so they stay out of server logs; the query string also works. */
+function readLinkParams(query: URLSearchParams): URLSearchParams {
+  return new URLSearchParams(window.location.hash.slice(1) || query.toString());
+}
+
+/**
+ * Password recovery and e-mail verification, driven by the link the user followed:
+ * `/reset-password` (with or without a token) and `/verify-email` (with a token).
+ */
 export default function Recovery({ verify = false }: { verify?: boolean }) {
-  const [params] = useSearchParams();
-  const [linkParams] = useState(
-    () =>
-      new URLSearchParams(window.location.hash.slice(1) || params.toString()),
-  );
+  const [searchParams] = useSearchParams();
+  const [linkParams] = useState(() => readLinkParams(searchParams));
   const token = linkParams.get("token");
+  const mode = modeFor(verify, token);
+  const copy = MODES[mode];
+  const { loading, capabilities } = useAuthCapabilities({
+    enabled: mode === "request",
+  });
+  const { busy, result, run } = useAccountAction();
   const [email, setEmail] = useState(linkParams.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [repeat, setRepeat] = useState("");
-  const [message, setMessage] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [mismatch, setMismatch] = useState(false);
   const [done, setDone] = useState(false);
-  const [enabled, setEnabled] = useState<boolean | null>(token ? true : null);
-  useEffect(() => {
-    if (token) return;
-    const controller = new AbortController();
-    fetch(`${API_BASE_URL}/auth/capabilities`, { signal: controller.signal })
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((data) => setEnabled(data.passwordRecovery))
-      .catch(() => {
-        if (!controller.signal.aborted) setEnabled(false);
-      });
-    return () => controller.abort();
-  }, [token]);
-  async function submit(event: React.FormEvent) {
+  // Mailed links carry the token; asking for a link needs the server to send mail.
+  const formAvailable =
+    mode === "request" ? capabilities.passwordRecovery : token !== null;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setMessage("");
-    if (!verify && token && password !== repeat) {
-      setMessage("Şifreler eşleşmiyor.");
+    if (mode === "reset" && password !== repeat) {
+      setMismatch(true);
       return;
     }
-    setBusy(true);
-    try {
-      const path = verify
-        ? "/auth/email/verify"
-        : token
-          ? "/auth/password/reset"
-          : "/auth/password/forgot";
-      const response = await fetch(API_BASE_URL + path, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          ...(token ? (verify ? { token } : { token, password }) : {}),
-        }),
-        signal: AbortSignal.timeout(15000),
-      });
-      const data = await response.json();
-      setMessage(
-        data.message ??
-          "İşlem tamamlanamadı. Bağlantıyı kontrol edip yeniden dene.",
-      );
-      if (response.ok) {
-        window.history.replaceState(null, "", window.location.pathname);
-        setDone(true);
-        if (token && !verify) clearSession();
-      }
-    } catch {
-      setMessage("Servise ulaşılamadı. Biraz sonra yeniden deneyebilirsin.");
-    } finally {
-      setBusy(false);
-    }
+    const body: Record<string, string | null> = { email };
+    if (mode !== "request") body.token = token;
+    if (mode === "reset") body.password = password;
+    const response = await run(copy.path, body, {
+      auth: false,
+      fallback: "İşlem tamamlanamadı. Bağlantıyı kontrol edip yeniden dene.",
+    });
+    if (!response?.ok) return;
+    window.history.replaceState(null, "", window.location.pathname);
+    setDone(true);
+    if (mode === "reset") clearSession();
   }
-  const title = verify
-    ? "E-posta adresini doğrula"
-    : token
-      ? "Yeni şifreni belirle"
-      : "Şifreni yenile";
+
   return (
-    <div className="auth-container">
+    <>
       <Seo
-        title={`${title} · ElementAPI`}
-        description={title}
+        title={`${copy.title} · ElementAPI`}
+        description={copy.title}
         path={verify ? "/verify-email" : "/reset-password"}
         noIndex
       />
-      <div className="auth-sheet">
-        <p className="auth-kicker">Hesap</p>
-        <h1>{title}</h1>
-        <p className="auth-lead">
-          Keşif defteri tarayıcıda durur. Şifre, hesabın kablosunu yeniler;
-          suyu yeniden kurmana gerek yok.
-        </p>
-        {enabled === null && (
-          <p role="status">Kurtarma seçenekleri kontrol ediliyor…</p>
-        )}
-        {enabled === false && (
-          <p role="status">
-            E-postasız beta: e-posta ile şifre kurtarma henüz yok. Şifreni
-            unuttuysan yeni hesap açabilir veya giriş yapabildiğin bir oturumda
-            hesap ayarlarından şifreyi değiştirebilirsin. Kurtarma e-postası
-            sonra (Resend) açılabilir.
+      <AuthLayout
+        title={copy.title}
+        lead={copy.lead}
+        footer={
+          <p>
+            <Link to="/login" className="text-link">
+              Girişe dön
+            </Link>
           </p>
+        }
+      >
+        {mode === "verify" && !token && (
+          <AuthStatus tone="warning" title="Doğrulama bağlantısı eksik">
+            E-postandaki bağlantıyı yeniden aç ya da{" "}
+            <Link to="/settings" className="text-link">
+              ayarlardan
+            </Link>{" "}
+            yeni bağlantı iste.
+          </AuthStatus>
         )}
-        {!done && enabled && (
-          <form className="fields" onSubmit={submit}>
-            <label className="field">
-              E-posta
+        {mode === "request" && loading && <FormSkeleton />}
+        {mode === "request" && !loading && !capabilities.passwordRecovery && (
+          <AuthStatus tone="info" title="E-postasız beta">
+            E-posta ile şifre kurtarma henüz yok. Şifreni unuttuysan{" "}
+            <Link to="/register" className="text-link">
+              yeni hesap açabilir
+            </Link>{" "}
+            veya giriş yapabildiğin bir oturumda hesap ayarlarından şifreyi
+            değiştirebilirsin.
+          </AuthStatus>
+        )}
+        {done && result && (
+          <AuthStatus tone="success" title={copy.done}>
+            {result.message}
+          </AuthStatus>
+        )}
+        {!done && formAvailable && (
+          <form className="grid gap-5" onSubmit={submit}>
+            {result && <Notice tone="danger">{result.message}</Notice>}
+            <Field label="E-posta">
               <Input
-                required
                 type="email"
                 autoComplete="email"
+                required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="sen@ornek.com"
               />
-            </label>
-            {!verify && token && (
+            </Field>
+            {mode === "reset" && (
               <>
-                <label className="field">
-                  Yeni şifre
-                  <Input
-                    required
-                    minLength={10}
-                    type="password"
+                <Field label="Yeni şifre" hint="En az 10 karakter.">
+                  <PasswordInput
                     autoComplete="new-password"
+                    minLength={10}
+                    required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      setMismatch(false);
+                    }}
                   />
-                  <small>En az 10 karakter.</small>
-                </label>
-                <label className="field">
-                  Yeni şifre tekrar
-                  <Input
-                    required
-                    minLength={10}
-                    type="password"
+                </Field>
+                <Field
+                  label="Yeni şifre tekrar"
+                  error={mismatch ? "Şifreler eşleşmiyor." : undefined}
+                >
+                  <PasswordInput
                     autoComplete="new-password"
+                    minLength={10}
+                    required
                     value={repeat}
-                    onChange={(e) => setRepeat(e.target.value)}
+                    onChange={(event) => {
+                      setRepeat(event.target.value);
+                      setMismatch(false);
+                    }}
                   />
-                </label>
+                </Field>
               </>
             )}
-            <Button variant="default" className="btn primary" disabled={busy}>
-              {busy
-                ? "İşleniyor…"
-                : verify
-                  ? "Adresimi doğrula"
-                  : token
-                    ? "Şifreyi yenile"
-                    : "Yenileme bağlantısı gönder"}
+            <Button type="submit" size="lg" className="w-full" disabled={busy}>
+              {busy && (
+                <LoaderCircle className="animate-spin" strokeWidth={1.75} />
+              )}
+              {busy ? "İşleniyor…" : copy.submit}
             </Button>
           </form>
         )}
-        {message && <p role="status">{message}</p>}
-        <p className="auth-switch">
-          <Link to="/login">Girişe dön</Link>
-        </p>
+      </AuthLayout>
+    </>
+  );
+}
+
+/** Stands in for the e-mail form while the server's recovery capability is checked. */
+function FormSkeleton() {
+  return (
+    <div className="grid gap-5" aria-busy="true">
+      <span className="sr-only" role="status">
+        Kurtarma seçenekleri kontrol ediliyor…
+      </span>
+      <div className="grid gap-2">
+        <Skeleton className="h-4 w-16" />
+        <Skeleton className="h-10 w-full" />
       </div>
+      <Skeleton className="h-11 w-full" />
     </div>
   );
 }

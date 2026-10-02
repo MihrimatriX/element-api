@@ -1,28 +1,59 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const product = readFileSync(join(root, "src/product.css"), "utf8");
-const about = readFileSync(join(root, "src/pages/About.tsx"), "utf8");
-const guide = readFileSync(join(root, "src/pages/Guide.tsx"), "utf8");
-const data = readFileSync(join(root, "src/pages/DataCoverage.tsx"), "utf8");
-const lab = readFileSync(join(root, "src/pages/Laboratory.tsx"), "utf8");
+const read = (path) => readFileSync(join(root, path), "utf8");
 
-assert.match(product, /\.science-meta\s*\{/);
-assert.match(product, /\.lab-bench-label\s*\{/);
-assert.match(product, /Shared product mast/);
-assert.doesNotMatch(product, /text-transform:\s*uppercase/);
-assert.doesNotMatch(about, /className="kicker"/);
-assert.doesNotMatch(guide, /className="kicker"/);
-assert.doesNotMatch(data, /science-eyebrow/);
-assert.match(lab, /lab-bench-label/);
-assert.doesNotMatch(lab, /science-eyebrow">Tezgâh/);
+/** Reference pages and the route each one declares to the Seo component. */
+const REFERENCE_PAGES = {
+  "src/pages/Compounds.tsx": "/compounds",
+  "src/pages/Glossary.tsx": "/sozluk",
+  "src/pages/Guide.tsx": "/nasil",
+  "src/pages/DataCoverage.tsx": "/data",
+};
 
-const app = readFileSync(join(root, "src/App.tsx"), "utf8");
-assert.match(app, /simulation-banner/);
-assert.match(app, /gerçek para/);
-assert.match(app, /\/\(market\|shop\|account\|demo\)/);
+/** Class names from the retired stylesheets; they render unstyled now. */
+const LEGACY_CLASSES =
+  /className="[^"]*\b(kicker|science-eyebrow|explorer-heading|explorer-toolbar|atlas-lenses|science-compounds|science-compound-card|guide-page|guide-steps|glossary-row|coverage-facts|void-page|def-card|code-window)\b/;
 
-console.log("product-chrome: ok");
+describe("reference page chrome", () => {
+  for (const [file, path] of Object.entries(REFERENCE_PAGES)) {
+    const source = read(file);
+
+    it(`${file} uses the shared page frame`, () => {
+      assert.match(source, /<main className="container-page pb-24 pt-10 lg:pt-14">/);
+      assert.match(source, /<PageHeader\b/, "one h1, from PageHeader");
+      assert.doesNotMatch(source, /<h1\b/);
+      assert.match(source, new RegExp(`path="${path}"`), "Seo keeps the route path");
+    });
+
+    it(`${file} carries no retired class names`, () => {
+      assert.doesNotMatch(source, LEGACY_CLASSES);
+    });
+  }
+});
+
+describe("KREDI simulation banner", () => {
+  const layout = read("src/components/CommerceLayout.tsx");
+  const app = read("src/App.tsx");
+
+  it("says plainly that no real money is involved", () => {
+    assert.match(layout, /gerçek para/);
+    assert.match(layout, /role="note"/);
+  });
+
+  it("wraps every commerce route and the demo tour", () => {
+    assert.match(layout, /export function DemoLayout[\s\S]*<DemoBanner \/>/);
+    assert.match(layout, /export function CommerceLayout[\s\S]*<DemoBanner \/>/);
+    assert.match(app, /<Route element={<DemoLayout \/>}>\s*<Route path="\/demo"/);
+    const commerceRoutes = app.match(
+      /<Route element={<CommerceLayout \/>}>([\s\S]*?)<\/Route>/,
+    )?.[1];
+    assert.ok(commerceRoutes, "App.tsx has a CommerceLayout route group");
+    for (const path of ["/market", "/shop", "/account"])
+      assert.ok(commerceRoutes.includes(`path="${path}"`), `${path} sits inside CommerceLayout`);
+  });
+});

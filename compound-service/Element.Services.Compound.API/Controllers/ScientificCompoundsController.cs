@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Element.Services.Compound.API.Controllers;
 
+/// <summary>
+/// Read-only scientific compound records (v2) served straight from scientific-compounds.json,
+/// with sourced measurements and no simulated prices.
+/// </summary>
 [ApiController]
 [Route("api/v2/compounds")]
 public sealed class ScientificCompoundsController : ControllerBase

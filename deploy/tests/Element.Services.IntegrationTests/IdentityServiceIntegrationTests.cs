@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -5,13 +6,18 @@ using Element.Services.Identity.API.Controllers;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.IntegrationTests.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Npgsql;
 
 namespace Element.Services.IntegrationTests;
 
+/// <summary>
+/// Identity service on real Postgres/Redis: register -> login -> API key -> internal key validation,
+/// plus webhook CRUD against the migrated schema (URL validation, per-user cap, internal list auth).
+/// </summary>
 [Trait("Category", "Integration")]
 public class IdentityServiceIntegrationTests : IClassFixture<IntegrationTestContainers>
 {
+    private const string TestInternalApiKey = "test-internal-key";
+
     private readonly IntegrationTestContainers _containers;
 
     public IdentityServiceIntegrationTests(IntegrationTestContainers containers)
@@ -23,10 +29,11 @@ public class IdentityServiceIntegrationTests : IClassFixture<IntegrationTestCont
         new WebApplicationFactory<AuthController>()
             .WithWebHostBuilder(builder =>
             {
-                builder.UseSetting("ConnectionStrings:DefaultConnection", BuildConnectionString("element_identity_db"));
+                builder.UseSetting("ConnectionStrings:DefaultConnection",
+                    IntegrationTestSettings.BuildPostgresConnection(_containers, "element_identity_db"));
                 builder.UseSetting("RedisConnection", _containers.RedisConnection);
                 builder.UseSetting("JwtSettings:Secret", "IntegrationTestSecretKey_Minimum32Chars!");
-                builder.UseSetting("INTERNAL_API_KEY", "test-internal-key");
+                builder.UseSetting("INTERNAL_API_KEY", TestInternalApiKey);
             });
 
     [Fact]
@@ -51,13 +58,15 @@ public class IdentityServiceIntegrationTests : IClassFixture<IntegrationTestCont
         var keyResponse = await client.SendAsync(keyRequest);
         keyResponse.EnsureSuccessStatusCode();
 
-        var keyDoc = await keyResponse.Content.ReadFromJsonAsync<JsonElement>();
-        var rawKey = keyDoc.GetProperty("apiKey").GetString();
+        // Raw keys look like "ele_live_" + 32 characters.
+        var keyDocument = await keyResponse.Content.ReadFromJsonAsync<JsonElement>();
+        var rawKey = keyDocument.GetProperty("apiKey").GetString();
         Assert.StartsWith("ele_live_", rawKey);
         Assert.Equal(41, rawKey!.Length);
 
+        // The gateway-facing validation endpoint only answers callers with the internal key.
         var validate = new HttpRequestMessage(HttpMethod.Post, "/api/v1/internal/api-keys/validate");
-        validate.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", "test-internal-key");
+        validate.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", TestInternalApiKey);
         validate.Content = JsonContent.Create(new ValidateKeyRequest(rawKey));
         var validateResponse = await client.SendAsync(validate);
         validateResponse.EnsureSuccessStatusCode();
@@ -87,14 +96,27 @@ public class IdentityServiceIntegrationTests : IClassFixture<IntegrationTestCont
         (await client.DeleteAsync($"/api/v1/webhooks/{hookId}")).EnsureSuccessStatusCode();
         hooks = await client.GetFromJsonAsync<JsonElement>("/api/v1/webhooks");
         Assert.Empty(hooks.EnumerateArray());
-    }
+        // Delete is a hard delete, so a second delete of the same hook finds nothing.
+        Assert.Equal(HttpStatusCode.NotFound, (await client.DeleteAsync($"/api/v1/webhooks/{hookId}")).StatusCode);
 
-    private string BuildConnectionString(string database)
-    {
-        var builder = new NpgsqlConnectionStringBuilder(_containers.Postgres.GetConnectionString())
-        {
-            Database = database
-        };
-        return builder.ConnectionString;
+        // Single-label (container-internal) hosts are rejected.
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/v1/webhooks",
+            new { url = "https://identity-service:8080/api/v1/internal/webhooks", events = new[] { "order.updated" }, secret = "s" })).StatusCode);
+
+        // 11 concurrent creates: the per-user cap of 10 holds, exactly one gets 409.
+        var burst = await Task.WhenAll(Enumerable.Range(0, 11).Select(i => client.PostAsJsonAsync("/api/v1/webhooks",
+            new { url = $"https://example.test/hook-{i}", events = new[] { "order.updated" }, secret = "s" })));
+        Assert.Equal(10, burst.Count(r => r.IsSuccessStatusCode));
+        Assert.Single(burst, r => r.StatusCode == HttpStatusCode.Conflict);
+
+        // The notification-facing list needs the exact internal key and returns at most 10 hooks.
+        var internalList = $"/api/v1/internal/webhooks?event=order.updated&customerId={dto.UserId}";
+        var wrongKey = new HttpRequestMessage(HttpMethod.Get, internalList);
+        wrongKey.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", "test-internal-kez");
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.SendAsync(wrongKey)).StatusCode);
+        var listForNotification = new HttpRequestMessage(HttpMethod.Get, internalList);
+        listForNotification.Headers.TryAddWithoutValidation("INTERNAL_API_KEY", TestInternalApiKey);
+        var delivered = await (await client.SendAsync(listForNotification)).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(10, delivered.GetArrayLength());
     }
 }

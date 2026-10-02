@@ -1,8 +1,8 @@
 import { config } from "../config.js";
-import { compoundLineElx } from "../compoundPrice.js";
+import { ELEMENTAL_SLUG, roundToFourDecimals } from "../compoundPrice.js";
+import { fetchJson } from "../http.js";
 
-export { compoundLineElx };
-
+/** Market quote for one element in KREDI per gram, plus the grams available to sell. */
 export interface TickerQuote {
   last: number;
   bid: number;
@@ -11,120 +11,113 @@ export interface TickerQuote {
   availableStock: number;
 }
 
-function quotesFromLast(
-  last: number,
-  spreadPct = config.defaultSpreadPct,
-): TickerQuote {
+/** The product an order buys: a compound of the element (or the pure element) and its price multiplier. */
+export interface CompoundQuote {
+  slug: string;
+  formula: string;
+  priceMult: number;
+}
+
+/** Builds bid/ask around a last price with the default spread; availableStock 0 means "unknown, do not sell". */
+function quotesFromLast(last: number): TickerQuote {
+  const spreadPct = config.defaultSpreadPct;
   return {
     last,
-    bid: Math.round(last * (1 - spreadPct) * 10000) / 10000,
-    ask: Math.round(last * (1 + spreadPct) * 10000) / 10000,
+    bid: roundToFourDecimals(last * (1 - spreadPct)),
+    ask: roundToFourDecimals(last * (1 + spreadPct)),
     spreadPct,
     availableStock: 0,
   };
 }
 
+/**
+ * Fetches the live quote for an element from catalog-service and the sellable grams from inventory-service.
+ * Returns null when catalog has no positive last price, so the order is refused instead of priced from stale data.
+ */
 export async function resolveTicker(
   symbol: string,
 ): Promise<TickerQuote | null> {
-  const url = `${config.catalogServiceUrl}/api/v1/elements/${encodeURIComponent(symbol)}/ticker`;
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (res.ok) {
-      const data = (await res.json()) as Record<string, unknown>;
-      const last = Number(data.last ?? data.Last ?? 0);
-      const ask = Number(data.ask ?? data.Ask ?? 0);
-      const bid = Number(data.bid ?? data.Bid ?? 0);
-      if (last > 0 && ask > 0) {
-        const availableStock = await resolveAvailableStock(symbol);
-        return {
-          last,
-          bid: bid || quotesFromLast(last).bid,
-          ask,
-          spreadPct: Number(
-            data.spreadPct ?? data.SpreadPct ?? config.defaultSpreadPct,
-          ),
-          availableStock:
-            availableStock ??
-            Number(data.availableStock ?? data.AvailableStock ?? 0),
-        };
-      }
-      if (last > 0) return quotesFromLast(last);
-    }
-  } catch {
-    /* fallback */
-  }
+  const encodedSymbol = encodeURIComponent(symbol);
+  const ticker = await fetchJson(
+    `${config.catalogServiceUrl}/api/v1/elements/${encodedSymbol}/ticker`,
+  );
+  if (!ticker) return null;
 
-  // A stale last price is not an executable quote.
-  return null;
+  // Field names are accepted in camelCase and PascalCase.
+  const last = Number(ticker.last ?? ticker.Last ?? 0);
+  const ask = Number(ticker.ask ?? ticker.Ask ?? 0);
+  const bid = Number(ticker.bid ?? ticker.Bid ?? 0);
+  if (!(last > 0)) return null;
+  if (!(ask > 0)) return quotesFromLast(last);
+
+  const inventoryStock = await resolveAvailableStock(symbol);
+  const catalogStock = Number(
+    ticker.availableStock ?? ticker.AvailableStock ?? 0,
+  );
+  return {
+    last,
+    bid: bid || quotesFromLast(last).bid,
+    ask,
+    spreadPct: Number(
+      ticker.spreadPct ?? ticker.SpreadPct ?? config.defaultSpreadPct,
+    ),
+    availableStock: inventoryStock ?? catalogStock,
+  };
 }
 
+/** Sellable grams from inventory-service, or null when it cannot answer (the catalog figure is used instead). */
 async function resolveAvailableStock(symbol: string): Promise<number | null> {
-  try {
-    const res = await fetch(
-      `${config.inventoryServiceUrl}/api/v1/stock/${encodeURIComponent(symbol)}`,
-      { signal: AbortSignal.timeout(5000) },
-    );
-    if (!res.ok) return null;
-    const data = (await res.json()) as { availableGrams?: number };
-    const n = Number(data.availableGrams);
-    return Number.isFinite(n) ? n : null;
-  } catch {
-    return null;
-  }
+  const stock = await fetchJson(
+    `${config.inventoryServiceUrl}/api/v1/stock/${encodeURIComponent(symbol)}`,
+  );
+  if (!stock) return null;
+  const availableGrams = Number(stock.availableGrams);
+  return Number.isFinite(availableGrams) ? availableGrams : null;
 }
 
-export async function resolveAsk(symbol: string): Promise<number> {
-  const ticker = await resolveTicker(symbol);
-  return ticker?.ask ?? 0;
-}
-
-export interface CompoundQuote {
-  slug: string;
-  formula: string;
-  label: string;
-  priceMult: number;
+/** True when a slug names the pure element: "elemental", the bare symbol ("fe") or "elemental-fe". */
+function isPureElementSlug(slug: string, upperSymbol: string): boolean {
+  const lowerSymbol = upperSymbol.toLowerCase();
+  return (
+    slug === ELEMENTAL_SLUG ||
+    slug.toLowerCase() === lowerSymbol ||
+    slug === `elemental-${lowerSymbol}`
+  );
 }
 
 /**
- * Resolve the product price multiplier; holdings retain the product's compound slug.
- * Missing slug → elemental (priceMult 1) so POST /orders without compoundSlug stays valid.
+ * Resolves the product an order buys and its price multiplier. A missing or pure-element slug means
+ * the element itself (priceMult 1), so POST /orders without compoundSlug stays valid.
+ * Returns null when compound-service does not know the slug, the compound names no parent element or another one,
+ * or its multiplier is invalid.
  */
 export async function resolveCompound(
   symbol: string,
   slug?: string | null,
 ): Promise<CompoundQuote | null> {
-  const sym = symbol.toUpperCase();
-  if (
-    !slug ||
-    slug === "elemental" ||
-    slug.toLowerCase() === sym.toLowerCase() ||
-    slug === `elemental-${sym.toLowerCase()}`
-  ) {
-    return { slug: "elemental", formula: sym, label: sym, priceMult: 1 };
+  const upperSymbol = symbol.toUpperCase();
+  if (!slug || isPureElementSlug(slug, upperSymbol)) {
+    return { slug: ELEMENTAL_SLUG, formula: upperSymbol, priceMult: 1 };
   }
 
-  const url = `${config.compoundServiceUrl}/api/v1/compounds/${encodeURIComponent(slug)}`;
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) return null;
-    const data = (await res.json()) as Record<string, unknown>;
-    const parent = String(
-      data.elementSymbol ?? data.ElementSymbol ?? "",
-    ).toUpperCase();
-    if (parent && parent !== sym) return null;
-    const priceMult = Number(data.priceMult ?? data.PriceMult ?? 0);
-    if (!Number.isFinite(priceMult) || !(priceMult > 0)) return null;
-    const formula = String(data.formula ?? data.Formula ?? slug);
-    const nameTr = String(data.nameTr ?? data.NameTr ?? "");
-    const name = String(data.name ?? data.Name ?? formula);
-    return {
-      slug: String(data.slug ?? data.Slug ?? slug),
-      formula,
-      label: nameTr || name || formula,
-      priceMult,
-    };
-  } catch {
-    return null;
-  }
+  const compound = await fetchJson(
+    `${config.compoundServiceUrl}/api/v1/compounds/${encodeURIComponent(slug)}`,
+  );
+  if (!compound) return null;
+
+  const parentSymbol = String(
+    compound.elementSymbol ?? compound.ElementSymbol ?? "",
+  ).toUpperCase();
+  // priceMult is relative to the parent's ask: a missing parent must not let a pricey
+  // compound be bought at a cheap element's price.
+  if (parentSymbol !== upperSymbol) return null;
+
+  const priceMult = Number(compound.priceMult ?? compound.PriceMult ?? 0);
+  if (!Number.isFinite(priceMult) || !(priceMult > 0)) return null;
+
+  return {
+    slug: String(compound.slug ?? compound.Slug ?? slug),
+    formula: String(compound.formula ?? compound.Formula ?? slug),
+    priceMult,
+  };
 }

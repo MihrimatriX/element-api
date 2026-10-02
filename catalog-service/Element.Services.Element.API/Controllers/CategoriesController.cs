@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Element.Services.Element.API.DTOs;
 using Element.Services.Element.Core.Entities;
 using Element.Services.Element.Infrastructure.Persistence;
@@ -12,39 +8,22 @@ namespace Element.Services.Element.API.Controllers;
 
 /// <summary>
 /// Manages chemical element categories and classification groups.
+/// Category rows are migration seed data (change only on deploy); element pages carry live prices.
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
+[ResponseCache(Duration = 300)]
 public class CategoriesController : ControllerBase
 {
+    private const int DefaultPageSize = 20;
+    private const int MaxPageSize = 100;
+
     private readonly ElementDbContext _context;
 
     public CategoriesController(ElementDbContext context)
     {
         _context = context;
     }
-
-    private string GetBaseUrl() => PublicBaseUrl.Resolve(Request);
-
-    private CategoryResponseDto MapToDto(ElementCategory cat)
-    {
-        var baseUrl = GetBaseUrl();
-        return new CategoryResponseDto
-        {
-            Id = cat.Id,
-            Name = cat.Name,
-            Slug = cat.Slug,
-            Description = cat.Description,
-            Links = new Dictionary<string, string>
-            {
-                { "self", $"{baseUrl}/api/v1/categories/{cat.Slug}" },
-                { "elements", $"{baseUrl}/api/v1/categories/{cat.Slug}/elements" }
-            }
-        };
-    }
-
-    private ElementResponseDto MapElementToDto(ChemicalElement element) =>
-        ElementDtoMapper.ToDto(element, GetBaseUrl());
 
     /// <summary>
     /// Retrieves a list of all chemical element categories.
@@ -53,12 +32,12 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<CategoryResponseDto>), 200)]
     public async Task<IActionResult> GetAll()
     {
-        var categories = await _context.Categories
-            .OrderBy(c => c.Id)
+        var categories = await _context.Categories.AsNoTracking()
+            .OrderBy(category => category.Id)
             .ToListAsync();
 
-        var dtos = categories.Select(MapToDto).ToList();
-        return Ok(dtos);
+        var categoryDtos = categories.Select(MapToDto).ToList();
+        return Ok(categoryDtos);
     }
 
     /// <summary>
@@ -69,14 +48,15 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> GetBySlug(string slug)
     {
-        if (string.IsNullOrWhiteSpace(slug)) return BadRequest("Slug is required.");
-
-        var category = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Slug.ToLower() == slug.ToLower());
-
-        if (category == null)
+        if (string.IsNullOrWhiteSpace(slug))
         {
-            return NotFound($"Category '{slug}' was not found.");
+            return BadRequest("Slug is required.");
+        }
+
+        var category = await FindCategoryAsync(slug);
+        if (category is null)
+        {
+            return CategoryNotFound(slug);
         }
 
         return Ok(MapToDto(category));
@@ -86,36 +66,52 @@ public class CategoriesController : ControllerBase
     /// Retrieves all elements belonging to a specific category.
     /// </summary>
     [HttpGet("{slug}/elements")]
+    [ResponseCache(Duration = 5)]
     [ProducesResponseType(typeof(PaginatedResponse<ElementResponseDto>), 200)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> GetElements(string slug, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> GetElements(string slug, [FromQuery] int page = 1, [FromQuery] int pageSize = DefaultPageSize)
     {
-        if (string.IsNullOrWhiteSpace(slug)) return BadRequest("Slug is required.");
-        if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 20;
-
-        var category = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Slug.ToLower() == slug.ToLower());
-
-        if (category == null)
+        if (string.IsNullOrWhiteSpace(slug))
         {
-            return NotFound($"Category '{slug}' was not found.");
+            return BadRequest("Slug is required.");
         }
 
-        // Search chemical elements matching category name
-        var query = _context.ChemicalElements
-            .Where(e => e.Category.ToLower() == category.Name.ToLower())
-            .OrderBy(e => e.AtomicNumber);
+        if (page < 1)
+        {
+            page = 1;
+        }
 
-        var totalCount = await query.CountAsync();
-        var elements = await query
-            .Skip((page - 1) * pageSize)
+        if (pageSize < 1)
+        {
+            pageSize = DefaultPageSize;
+        }
+        else if (pageSize > MaxPageSize)
+        {
+            pageSize = MaxPageSize;
+        }
+
+        var category = await FindCategoryAsync(slug);
+        if (category is null)
+        {
+            return CategoryNotFound(slug);
+        }
+
+        // Elements store the category name as text, so the match is by name, not by id.
+        var elementsInCategory = _context.ChemicalElements.AsNoTracking()
+            .Where(element => element.Category.ToLower() == category.Name.ToLower())
+            .OrderBy(element => element.AtomicNumber);
+
+        var totalCount = await elementsInCategory.CountAsync();
+        var pageElements = await elementsInCategory
+            // long math: an int overflow here became a negative OFFSET, i.e. a Postgres error and a 500.
+            .Skip((int)Math.Min((long)(page - 1) * pageSize, int.MaxValue))
             .Take(pageSize)
             .ToListAsync();
 
         var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
         var baseUrl = GetBaseUrl();
-        var dtos = elements.Select(MapElementToDto).ToList();
+        string PageLink(int targetPage) =>
+            $"{baseUrl}/api/v1/categories/{slug}/elements?page={targetPage}&pageSize={pageSize}";
 
         var response = new PaginatedResponse<ElementResponseDto>
         {
@@ -123,12 +119,41 @@ public class CategoriesController : ControllerBase
             {
                 Count = totalCount,
                 Pages = totalPages,
-                Next = page < totalPages ? $"{baseUrl}/api/v1/categories/{slug}/elements?page={page + 1}&pageSize={pageSize}" : null,
-                Prev = page > 1 ? $"{baseUrl}/api/v1/categories/{slug}/elements?page={page - 1}&pageSize={pageSize}" : null
+                Next = page < totalPages ? PageLink(page + 1) : null,
+                Prev = page > 1 ? PageLink(page - 1) : null
             },
-            Results = dtos
+            Results = pageElements.Select(element => ElementDtoMapper.ToDto(element, baseUrl)).ToList()
         };
 
         return Ok(response);
+    }
+
+    private string GetBaseUrl() => PublicBaseUrl.Resolve(Request);
+
+    /// <summary>Case-insensitive, untracked slug lookup; null when no category has this slug.</summary>
+    private Task<ElementCategory?> FindCategoryAsync(string slug)
+    {
+        return _context.Categories.AsNoTracking()
+            .FirstOrDefaultAsync(category => category.Slug.ToLower() == slug.ToLower());
+    }
+
+    private NotFoundObjectResult CategoryNotFound(string slug) =>
+        NotFound($"Category '{slug}' was not found.");
+
+    private CategoryResponseDto MapToDto(ElementCategory category)
+    {
+        var baseUrl = GetBaseUrl();
+        return new CategoryResponseDto
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Slug = category.Slug,
+            Description = category.Description,
+            Links = new Dictionary<string, string>
+            {
+                { "self", $"{baseUrl}/api/v1/categories/{category.Slug}" },
+                { "elements", $"{baseUrl}/api/v1/categories/{category.Slug}/elements" }
+            }
+        };
     }
 }

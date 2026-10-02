@@ -1,10 +1,10 @@
-using System;
-
 namespace Element.Shared.Events;
 
-/// <summary>
-/// Sipariş oluşturma talebi fırlatıldığında yayınlanan event.
-/// </summary>
+// Message contracts shared by the .NET, Node (order-service) and Java (wallet/inventory) services.
+// The type names and the "Element.Shared.Events" namespace form the MassTransit message URN:
+// renaming a type or a property silently breaks the other languages.
+
+/// <summary>Published by order-service when a new order is placed; starts the order saga.</summary>
 public record OrderSubmittedEvent(
     Guid OrderId,
     Guid CustomerId,
@@ -13,24 +13,18 @@ public record OrderSubmittedEvent(
     decimal TotalPrice
 );
 
-/// <summary>
-/// Element servisinin stok ayırma işleminin başarılı olduğunu bildiren event.
-/// </summary>
+/// <summary>Stock for the order was reserved successfully.</summary>
 public record StockReservedEvent(
     Guid OrderId
 );
 
-/// <summary>
-/// Element servisinin stok ayırma işleminin başarısız olduğunu (stok yetersiz vb.) bildiren event.
-/// </summary>
+/// <summary>Stock could not be reserved for the order (for example, not enough stock).</summary>
 public record StockReservationFailedEvent(
     Guid OrderId,
     string Reason
 );
 
-/// <summary>
-/// Stok ayrıldıktan sonra cüzdanın KREDI düşmesi için yayınlanan istek.
-/// </summary>
+/// <summary>Asks the wallet to debit credits once stock is reserved.</summary>
 public record PaymentRequestedEvent(
     Guid OrderId,
     Guid CustomerId,
@@ -39,24 +33,18 @@ public record PaymentRequestedEvent(
     decimal Quantity
 );
 
-/// <summary>
-/// Ödeme servisinin ödemeyi başarıyla aldığını bildiren event.
-/// </summary>
+/// <summary>The wallet debited the payment successfully.</summary>
 public record PaymentProcessedEvent(
     Guid OrderId
 );
 
-/// <summary>
-/// Ödeme işleminin başarısız olduğunu (bakiye yetersiz vb.) bildiren event.
-/// </summary>
+/// <summary>The payment failed (for example, insufficient balance).</summary>
 public record PaymentFailedEvent(
     Guid OrderId,
     string Reason
 );
 
-/// <summary>
-/// Sipariş iptal/timeout sonrası daha önce düşülmüş KREDI iadesi.
-/// </summary>
+/// <summary>Refunds credits that were already debited after an order is cancelled or times out.</summary>
 public record PaymentRefundRequestedEvent(
     Guid OrderId,
     Guid CustomerId,
@@ -64,9 +52,7 @@ public record PaymentRefundRequestedEvent(
     decimal? Quantity = null
 );
 
-/// <summary>
-/// Sevkiyat tamamlanınca holdings’e gram yazılması.
-/// </summary>
+/// <summary>Writes the purchased grams into the customer's holdings once the shipment is complete.</summary>
 public record AssetsCreditedEvent(
     Guid OrderId,
     Guid CustomerId,
@@ -77,36 +63,28 @@ public record AssetsCreditedEvent(
     string? ProductLabel = null
 );
 
-/// <summary>
-/// Sipariş iptal edildiğinde veya başarısız olduğunda ayrılan stoğun geri bırakılması için fırlatılan event.
-/// </summary>
+/// <summary>Releases reserved stock when an order is cancelled or fails.</summary>
 public record OrderStockReleaseEvent(
     Guid OrderId,
     string ElementSymbol,
     decimal Quantity
 );
 
-/// <summary>
-/// Element piyasa fiyatı değiştiğinde yayınlanan entegrasyon event'i.
-/// </summary>
+/// <summary>Published when an element's market price changes.</summary>
 public record ElementPriceChangedIntegrationEvent(
     string ElementSymbol,
     decimal NewPrice,
     DateTime ChangedAt
 );
 
-/// <summary>
-/// Sipariş başarıyla tamamlandığında stoğu kalıcı olarak düşürmek için yayınlanan event.
-/// </summary>
+/// <summary>Permanently deducts the reserved stock once an order completes successfully.</summary>
 public record OrderCompletedEvent(
     Guid OrderId,
     string ElementSymbol,
     decimal Quantity
 );
 
-/// <summary>
-/// Saga durum makinesinin Sipariş tablosundaki statüyü güncellemesi için yayınlanan event.
-/// </summary>
+/// <summary>Carries the saga's new order status (and optional error / tracking number) to listeners such as notification-service.</summary>
 public record UpdateOrderStatusEvent(
     Guid OrderId,
     string Status,
@@ -115,9 +93,7 @@ public record UpdateOrderStatusEvent(
     Guid? CustomerId = null
 );
 
-/// <summary>
-/// Desk satışı: kasa düşer, katalog stok iade eder, last aşağı iter.
-/// </summary>
+/// <summary>Desk sale: the vault is debited, the catalog returns the stock and the last price is pushed down.</summary>
 public record ElementSoldEvent(
     string ElementSymbol,
     decimal Grams,

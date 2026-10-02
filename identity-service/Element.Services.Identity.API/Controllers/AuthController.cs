@@ -1,84 +1,88 @@
-using System.Threading.Tasks;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.Identity.Core.Entities;
 using Element.Services.Identity.Infrastructure.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Element.Services.Identity.API.Controllers;
 
+/// <summary>Public sign-up and sign-in. Sign-in returns the JWT the web app sends with every later request.</summary>
 [ApiController]
 [Route("api/v1/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(
+    UserManager<ApplicationUser> userManager,
+    SignInManager<ApplicationUser> signInManager,
+    TokenService tokenService,
+    ICaptchaVerifier captchaVerifier) : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly TokenService _tokenService;
-    private readonly SignInManager<ApplicationUser> _signInManager;
-    private readonly ICaptchaVerifier _captcha;
+    private const string CaptchaFailedMessage = "Robot olmadığını doğrula (captcha eksik veya geçersiz).";
+    private const string InvalidCredentialsMessage = "Invalid credentials.";
 
-    public AuthController(
-        UserManager<ApplicationUser> userManager,
-        TokenService tokenService,
-        SignInManager<ApplicationUser> signInManager,
-        ICaptchaVerifier captcha)
-    {
-        _userManager = userManager;
-        _tokenService = tokenService;
-        _signInManager = signInManager;
-        _captcha = captcha;
-    }
-
+    /// <summary>Creates an account after the captcha check; Identity enforces unique e-mail and password length.</summary>
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken ct)
     {
-        if (!await _captcha.VerifyAsync(request.CaptchaToken, ct))
-            return BadRequest(new { message = "Robot olmadığını doğrula (captcha eksik veya geçersiz)." });
+        if (!await captchaVerifier.VerifyAsync(request.CaptchaToken, ct))
+        {
+            return BadRequest(new { message = CaptchaFailedMessage });
+        }
 
         var user = new ApplicationUser
         {
             UserName = request.Email,
             Email = request.Email,
             FirstName = request.FirstName,
-            LastName = request.LastName
+            LastName = request.LastName,
         };
 
-        var result = await _userManager.CreateAsync(user, request.Password);
+        var result = await userManager.CreateAsync(user, request.Password);
         if (!result.Succeeded)
         {
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(error.Code, error.Description);
             }
+
             return BadRequest(ModelState);
         }
 
         return Ok(new { Message = "User registered successfully." });
     }
 
+    /// <summary>Checks e-mail and password (with lockout) and returns a signed JWT.</summary>
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken ct)
     {
-        if (!await _captcha.VerifyAsync(request.CaptchaToken, ct))
-            return BadRequest(new { message = "Robot olmadığını doğrula (captcha eksik veya geçersiz)." });
+        if (!await captchaVerifier.VerifyAsync(request.CaptchaToken, ct))
+        {
+            return BadRequest(new { message = CaptchaFailedMessage });
+        }
 
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null)
-            return Unauthorized("Invalid credentials.");
+        var user = await userManager.FindByEmailAsync(request.Email);
+        if (user is null)
+        {
+            return Unauthorized(InvalidCredentialsMessage);
+        }
 
-        // Lockout: 5 failed attempts → 15 min (Identity options). Gateway also caps auth POST at 15/min/IP.
-        var signIn = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
-        if (signIn.IsLockedOut)
-            return StatusCode(StatusCodes.Status429TooManyRequests,
+        // Five failed attempts lock the account for 15 minutes (Identity options in Program.cs).
+        // The gateway additionally limits auth POSTs to 15 per minute per IP.
+        var signInResult = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+        if (signInResult.IsLockedOut)
+        {
+            return StatusCode(
+                StatusCodes.Status429TooManyRequests,
                 "Too many failed sign-in attempts. Try again in about 15 minutes.");
-        if (!signIn.Succeeded)
-            return Unauthorized("Invalid credentials.");
+        }
 
-        var token = _tokenService.GenerateJwtToken(user);
+        if (!signInResult.Succeeded)
+        {
+            return Unauthorized(InvalidCredentialsMessage);
+        }
+
+        var token = tokenService.GenerateJwtToken(user);
         return Ok(new AuthResponse(
             Token: token,
             Email: user.Email ?? string.Empty,
-            FullName: $"{user.FirstName} {user.LastName}"
-        ));
+            FullName: $"{user.FirstName} {user.LastName}"));
     }
 }

@@ -1,81 +1,38 @@
-import { motion } from "framer-motion";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { FlaskConical, Search, Sigma } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const modes = [
-  { to: "/lab", label: "Serbest oyun", icon: FlaskConical, end: true },
+const MODES = [
+  { to: "/lab", label: "Tezgâh", icon: FlaskConical, end: true },
   { to: "/lab/formula", label: "Formülü kur", icon: Sigma, end: false },
-  {
-    to: "/lab/detective",
-    label: "Element dedektifi",
-    icon: Search,
-    end: false,
-  },
+  { to: "/lab/detective", label: "Element dedektifi", icon: Search, end: false },
 ] as const;
 
-const quests = [
-  {
-    to: "/lab/formula",
-    icon: Sigma,
-    title: "Formülü kur",
-    blurb: "Adı oku, atom sayısını bas",
-  },
-  {
-    to: "/lab/detective",
-    icon: Search,
-    title: "Dedektif",
-    blurb: "İpuçlarından elementi bul",
-  },
-] as const;
-
-/** On /lab: inviting side-quest chips. On formula/detective: full mode switcher. */
-export default function LabModes({ secondary = false }: { secondary?: boolean }) {
-  if (secondary) {
-    return (
-      <nav className="lab-quests" aria-label="Yan görevler">
-        <span className="lab-quests-label">Yan görev</span>
-        <div className="lab-quests-row">
-          {quests.map((q) => (
-            <Link key={q.to} to={q.to} className="lab-quest">
-              <span className="lab-quest-icon" aria-hidden="true">
-                <q.icon size={16} />
-              </span>
-              <span className="lab-quest-copy">
-                <strong>{q.title}</strong>
-                <em>{q.blurb}</em>
-              </span>
-            </Link>
-          ))}
-        </div>
-      </nav>
-    );
-  }
-
+/** Segmented navigation between the three lab modes: free bench, formula builder and element detective. */
+export function LabModes() {
   return (
-    <nav className="lab-modes" aria-label="Laboratuvar modları">
-      {modes.map((mode) => (
-        <NavLink
-          key={mode.to}
-          to={mode.to}
-          end={mode.end}
-          className={({ isActive }) => (isActive ? "is-active" : undefined)}
-        >
-          {({ isActive }) => (
-            <>
-              {isActive && (
-                <motion.span
-                  layoutId="lab-mode-pill"
-                  className="lab-mode-pill"
-                  aria-hidden="true"
-                  transition={{ type: "spring", stiffness: 480, damping: 38 }}
-                />
-              )}
-              <mode.icon size={15} />
-              <span className="lab-mode-label">{mode.label}</span>
-            </>
-          )}
-        </NavLink>
-      ))}
+    <nav aria-label="Laboratuvar modları">
+      <ul className="inline-flex h-10 items-center gap-0.5 rounded-lg border border-line bg-canvas-2 p-0.5">
+        {MODES.map(({ to, label, icon: Icon, end }) => (
+          <li key={to} className="h-full">
+            <NavLink
+              to={to}
+              end={end}
+              className={({ isActive }) =>
+                cn(
+                  "focus-ring inline-flex h-full items-center gap-2 rounded-md border px-3 text-[13px] font-medium whitespace-nowrap transition-colors duration-150 sm:px-3.5 sm:text-sm",
+                  isActive
+                    ? "border-line-strong bg-surface-3 text-ink shadow-xs"
+                    : "border-transparent text-ink-3 hover:text-ink-2",
+                )
+              }
+            >
+              <Icon aria-hidden="true" strokeWidth={1.75} className="hidden size-4 sm:block" />
+              {label}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
     </nav>
   );
 }

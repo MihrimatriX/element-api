@@ -7,13 +7,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Element.Services.Compound.Infrastructure.Persistence;
 
+/// <summary>
+/// Fills the compound table at startup from Data/compounds.json and adds one
+/// "elemental-xx" gram preparation per element. Only missing slugs are inserted,
+/// so restarts are safe and hand-made rows are never overwritten.
+/// </summary>
 public static class CompoundSeeder
 {
-    private static readonly HashSet<string> Kinds = new(StringComparer.OrdinalIgnoreCase)
+    private const string DefaultKind = "compound";
+    private const string SeedFileName = "compounds.json";
+
+    private static readonly HashSet<string> AllowedKinds = new(StringComparer.OrdinalIgnoreCase)
     {
         "allotrope", "compound", "preparation"
     };
 
+    // English and Turkish names used for the generated "elemental-xx" preparations.
     private static readonly Dictionary<string, (string En, string Tr)> ElementNames = new(StringComparer.OrdinalIgnoreCase)
     {
         ["H"] = ("Hydrogen", "Hidrojen"),
@@ -136,97 +145,132 @@ public static class CompoundSeeder
         ["Og"] = ("Oganesson", "Oganesson")
     };
 
+    /// <summary>Inserts every seed compound whose slug is not in the database yet.</summary>
     public static async Task EnsureSeededAsync(IServiceProvider services, IHostEnvironment env)
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<CompoundDbContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("CompoundSeeder");
 
-        var path = FindSeed(env);
-        var rows = Load(path, logger);
-        var existing = (await db.Compounds.Select(c => c.Slug).ToListAsync()).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var missing = rows.Where(c => !existing.Contains(c.Slug)).ToList();
-        db.Compounds.AddRange(missing);
+        var seedPath = FindSeedFile(env);
+        var seedCompounds = LoadSeedCompounds(seedPath, logger);
+
+        var existingSlugs = await db.Compounds
+            .Select(compound => compound.Slug)
+            .ToListAsync();
+        var existingSlugSet = existingSlugs.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var missingCompounds = seedCompounds
+            .Where(compound => !existingSlugSet.Contains(compound.Slug))
+            .ToList();
+
+        db.Compounds.AddRange(missingCompounds);
         await db.SaveChangesAsync();
-        logger.LogInformation("Added {Count} missing products from {Path}.", missing.Count, path);
+        logger.LogInformation("Added {Count} missing products from {Path}.", missingCompounds.Count, seedPath);
     }
 
-    private static string FindSeed(IHostEnvironment env)
+    /// <summary>Looks for compounds.json next to the content root first, then in the build output.</summary>
+    private static string FindSeedFile(IHostEnvironment env)
     {
-        var names = new[]
+        var candidatePaths = new[]
         {
-            Path.Combine(env.ContentRootPath, "Data", "compounds.json"),
-            Path.Combine(AppContext.BaseDirectory, "Data", "compounds.json"),
-            Path.Combine(AppContext.BaseDirectory, "compounds.json")
+            Path.Combine(env.ContentRootPath, "Data", SeedFileName),
+            Path.Combine(AppContext.BaseDirectory, "Data", SeedFileName),
+            Path.Combine(AppContext.BaseDirectory, SeedFileName)
         };
-        return names.FirstOrDefault(File.Exists)
+
+        return candidatePaths.FirstOrDefault(File.Exists)
             ?? throw new FileNotFoundException("compounds.json seed file was not found.");
     }
 
-    private static List<ChemicalCompound> Load(string path, ILogger logger)
+    /// <summary>
+    /// Reads the JSON rows (skipping rows without symbol or slug; the first row wins on a
+    /// duplicate slug) and then adds an "elemental-xx" preparation for every element.
+    /// </summary>
+    private static List<ChemicalCompound> LoadSeedCompounds(string path, ILogger logger)
     {
         var json = File.ReadAllText(path);
-        var parsed = JsonSerializer.Deserialize<List<SeedRow>>(json, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        }) ?? [];
+        var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        var seedRows = JsonSerializer.Deserialize<List<SeedRow>>(json, options) ?? [];
 
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var ok = new List<ChemicalCompound>(parsed.Count + 64);
-        foreach (var row in parsed)
+        var seenSlugs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var compounds = new List<ChemicalCompound>();
+
+        foreach (var row in seedRows)
         {
             if (string.IsNullOrWhiteSpace(row.ElementSymbol) || string.IsNullOrWhiteSpace(row.Slug))
-                continue;
-            var symbol = row.ElementSymbol.Trim();
-            var slug = row.Slug.Trim().ToLowerInvariant();
-            if (!seen.Add(slug)) continue;
-
-            var kind = Kinds.Contains(row.Kind) ? row.Kind.Trim().ToLowerInvariant() : "compound";
-            ok.Add(new ChemicalCompound
             {
-                Id = Guid.NewGuid(),
-                Slug = slug,
-                Formula = string.IsNullOrWhiteSpace(row.Formula) ? symbol : row.Formula.Trim(),
-                Name = string.IsNullOrWhiteSpace(row.Name) ? slug : row.Name.Trim(),
-                NameTr = string.IsNullOrWhiteSpace(row.NameTr) ? row.Name.Trim() : row.NameTr.Trim(),
-                Kind = kind,
-                ElementSymbol = symbol,
-                GramsPerUnit = row.GramsPerUnit > 0 ? row.GramsPerUnit : 1,
-                PriceMult = row.PriceMult > 0 ? row.PriceMult : 1,
-                Summary = (row.Summary ?? "").Trim(),
-                ImageUrl = string.IsNullOrWhiteSpace(row.ImageUrl) ? NullIfBlank(row.ImageHint) : row.ImageUrl.Trim()
-            });
+                continue;
+            }
+
+            var slug = row.Slug.Trim().ToLowerInvariant();
+            if (!seenSlugs.Add(slug))
+            {
+                continue;
+            }
+
+            compounds.Add(FromSeedRow(row, slug));
         }
 
-        foreach (var symbol in ElementNames.Keys)
+        foreach (var (symbol, names) in ElementNames)
         {
             var slug = $"elemental-{symbol.ToLowerInvariant()}";
-            if (!seen.Add(slug)) continue;
-            var names = ElementNames.TryGetValue(symbol, out var n)
-                ? n
-                : (En: symbol, Tr: symbol);
-            ok.Add(new ChemicalCompound
+            if (!seenSlugs.Add(slug))
             {
-                Id = Guid.NewGuid(),
-                Slug = slug,
-                Formula = symbol,
-                Name = $"{names.En} (elemental gram)",
-                NameTr = $"{names.Tr} (saf gram)",
-                Kind = "preparation",
-                ElementSymbol = symbol,
-                GramsPerUnit = 1,
-                PriceMult = 1,
-                Summary = "Saf elementin gram bazında simülasyon ürünü. Fiziksel satış veya teslimat yapılmaz."
-            });
+                continue;
+            }
+
+            compounds.Add(ElementalPreparation(symbol, slug, names.En, names.Tr));
         }
 
-        logger.LogInformation("Prepared {Count} compound rows (JSON + elemental).", ok.Count);
-        return ok;
+        logger.LogInformation("Prepared {Count} compound rows (JSON + elemental).", compounds.Count);
+        return compounds;
+    }
+
+    /// <summary>Turns one JSON row into an entity, filling blanks with safe defaults.</summary>
+    private static ChemicalCompound FromSeedRow(SeedRow row, string slug)
+    {
+        var symbol = row.ElementSymbol.Trim();
+        var kind = AllowedKinds.Contains(row.Kind) ? row.Kind.Trim().ToLowerInvariant() : DefaultKind;
+
+        return new ChemicalCompound
+        {
+            Id = Guid.NewGuid(),
+            Slug = slug,
+            Formula = string.IsNullOrWhiteSpace(row.Formula) ? symbol : row.Formula.Trim(),
+            Name = string.IsNullOrWhiteSpace(row.Name) ? slug : row.Name.Trim(),
+            NameTr = string.IsNullOrWhiteSpace(row.NameTr) ? row.Name.Trim() : row.NameTr.Trim(),
+            Kind = kind,
+            ElementSymbol = symbol,
+            GramsPerUnit = row.GramsPerUnit > 0 ? row.GramsPerUnit : 1,
+            PriceMult = row.PriceMult > 0 ? row.PriceMult : 1,
+            Summary = (row.Summary ?? "").Trim(),
+            ImageUrl = string.IsNullOrWhiteSpace(row.ImageUrl) ? NullIfBlank(row.ImageHint) : row.ImageUrl.Trim()
+        };
+    }
+
+    /// <summary>One gram of the pure element as a simulated product.</summary>
+    private static ChemicalCompound ElementalPreparation(string symbol, string slug, string englishName, string turkishName)
+    {
+        return new ChemicalCompound
+        {
+            Id = Guid.NewGuid(),
+            Slug = slug,
+            Formula = symbol,
+            Name = $"{englishName} (elemental gram)",
+            NameTr = $"{turkishName} (saf gram)",
+            Kind = "preparation",
+            ElementSymbol = symbol,
+            GramsPerUnit = 1,
+            PriceMult = 1,
+            Summary = "Saf elementin gram bazında simülasyon ürünü. Fiziksel satış veya teslimat yapılmaz."
+        };
     }
 
     private static string? NullIfBlank(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
+    /// <summary>Shape of one row in compounds.json.</summary>
     private sealed class SeedRow
     {
         public string ElementSymbol { get; set; } = "";
@@ -234,7 +278,7 @@ public static class CompoundSeeder
         public string Formula { get; set; } = "";
         public string Name { get; set; } = "";
         public string NameTr { get; set; } = "";
-        public string Kind { get; set; } = "compound";
+        public string Kind { get; set; } = DefaultKind;
         public decimal GramsPerUnit { get; set; } = 1;
         public decimal PriceMult { get; set; } = 1;
         public string Summary { get; set; } = "";

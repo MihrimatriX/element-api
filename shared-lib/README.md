@@ -21,8 +21,8 @@
 |--------|---------|
 | `Events/` | Sipariş / stok / ödeme olay tipleri. **Kaynak gerçek.** İsim değiştirmek üç dilde migrasyon ister. |
 | `Extensions/ServiceOpsExtensions` | `/info`, `/health/live`, `/health/ready` |
-| `Health/` | Kısa `/health` JSON, Rabbit kontrolü |
-| `Messaging/` | `ConfigureRabbitMqHost` (MassTransit 8.3.4) |
+| `Health/` | Kısa `/health` JSON |
+| `Extensions/RabbitMqExtensions` | `ConfigureRabbitMqHost` (MassTransit 8.3.4) |
 | `Science/` | v2 `fields` / ETag yardımcısı (catalog + compound + science host) |
 | `Middleware/` | genel hata |
 | `Extensions/LoggingExtensions` | JSON konsol log |

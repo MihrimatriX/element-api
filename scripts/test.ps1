@@ -1,11 +1,12 @@
+# Shortcut for deploy/scripts/test-all.ps1 with the Review configuration.
 param(
     [switch]$Integration,
     [switch]$Live,
     [switch]$Browser
 )
 $ErrorActionPreference = 'Stop'
-$args = @('-Configuration', 'Review')
-if ($Integration) { $args += '-Integration' }
-if ($Live) { $args += '-Live' }
-if ($Browser) { $args += '-Browser' }
-& "$PSScriptRoot/../deploy/scripts/test-all.ps1" @args
+$testAllArgs = @('-Configuration', 'Review')
+if ($Integration) { $testAllArgs += '-Integration' }
+if ($Live) { $testAllArgs += '-Live' }
+if ($Browser) { $testAllArgs += '-Browser' }
+& "$PSScriptRoot/../deploy/scripts/test-all.ps1" @testAllArgs

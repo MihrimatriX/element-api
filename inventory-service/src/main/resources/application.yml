@@ -11,12 +11,24 @@ spring:
   sql:
     init:
       mode: always
-      continue-on-error: true
+      # schema.sql is idempotent; a failed statement must crash startup (restart), not run without tables.
+      continue-on-error: false
+  lifecycle:
+    # Graceful shutdown is the Boot 3.4 default; keep listener + web stop phases under Docker's 10s kill.
+    timeout-per-shutdown-phase: 4s
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        # Back off instead of instant infinite requeue; after 5 attempts park in inventory-service_failed.
+        retry:
+          enabled: true
+          max-attempts: 5
+          initial-interval: 1s
+          multiplier: 2
 
 inventory:
   default-stock-grams: ${DEFAULT_STOCK_GRAMS:100000}

@@ -8,13 +8,15 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Health and info endpoints in the same JSON shape as the .NET services, used by Docker and the gateway. */
 @RestController
 public class HealthController {
+
+    private static final double NANOS_PER_MILLI = 1_000_000.0;
 
     private final JdbcTemplate jdbc;
     private final ConnectionFactory connectionFactory;
@@ -24,38 +26,32 @@ public class HealthController {
         this.connectionFactory = connectionFactory;
     }
 
+    /** Readiness: pings PostgreSQL and RabbitMQ; 200 when both answer, otherwise 503. */
     @GetMapping({"/health", "/health/ready"})
     public ResponseEntity<Map<String, Object>> health() {
-        List<Map<String, Object>> checks = new ArrayList<>();
-        long dbStart = System.nanoTime();
-        boolean dbOk = false;
-        try {
-            jdbc.queryForObject("SELECT 1", Integer.class);
-            dbOk = true;
-        } catch (Exception ignored) {
-        }
-        checks.add(check("PostgreSQL", dbOk, (System.nanoTime() - dbStart) / 1_000_000.0));
+        long postgresStart = System.nanoTime();
+        boolean isPostgresUp = pingPostgres();
+        Map<String, Object> postgresCheck = check("PostgreSQL", isPostgresUp, elapsedMillis(postgresStart));
 
         long rabbitStart = System.nanoTime();
-        boolean rabbitOk = false;
-        try (Connection c = connectionFactory.createConnection()) {
-            rabbitOk = c.isOpen();
-        } catch (Exception ignored) {
-        }
-        checks.add(check("RabbitMQ", rabbitOk, (System.nanoTime() - rabbitStart) / 1_000_000.0));
+        boolean isRabbitUp = pingRabbit();
+        Map<String, Object> rabbitCheck = check("RabbitMQ", isRabbitUp, elapsedMillis(rabbitStart));
 
-        boolean ok = dbOk && rabbitOk;
+        boolean isHealthy = isPostgresUp && isRabbitUp;
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("status", ok ? "Healthy" : "Unhealthy");
-        body.put("checks", checks);
-        return ResponseEntity.status(ok ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE).body(body);
+        body.put("status", isHealthy ? "Healthy" : "Unhealthy");
+        body.put("checks", List.of(postgresCheck, rabbitCheck));
+        HttpStatus status = isHealthy ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+        return ResponseEntity.status(status).body(body);
     }
 
+    /** Liveness: the process is up; no dependency checks. */
     @GetMapping("/health/live")
     public Map<String, Object> live() {
         return Map.of("status", "Healthy", "checks", List.of());
     }
 
+    /** Service name, version and the most useful links. */
     @GetMapping("/info")
     public Map<String, Object> info() {
         return Map.of(
@@ -64,11 +60,34 @@ public class HealthController {
                 "links", Map.of("stock", "/api/v1/stock/{symbol}", "health", "/health"));
     }
 
-    private static Map<String, Object> check(String name, boolean ok, double ms) {
-        Map<String, Object> m = new LinkedHashMap<>();
-        m.put("name", name);
-        m.put("ok", ok);
-        m.put("ms", ms);
-        return m;
+    private boolean pingPostgres() {
+        try {
+            jdbc.queryForObject("SELECT 1", Integer.class);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private boolean pingRabbit() {
+        boolean isOpen = false;
+        try (Connection connection = connectionFactory.createConnection()) {
+            isOpen = connection.isOpen();
+        } catch (Exception ignored) {
+            // An unreachable broker leaves isOpen false; an error while closing keeps the observed state.
+        }
+        return isOpen;
+    }
+
+    private static double elapsedMillis(long startNanos) {
+        return (System.nanoTime() - startNanos) / NANOS_PER_MILLI;
+    }
+
+    private static Map<String, Object> check(String name, boolean ok, double elapsedMs) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("name", name);
+        result.put("ok", ok);
+        result.put("ms", elapsedMs);
+        return result;
     }
 }

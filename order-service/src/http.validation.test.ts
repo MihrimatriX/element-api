@@ -17,11 +17,11 @@ describe("keysMatch (timingSafeEqual)", () => {
 
 describe("createOrderBodySchema", () => {
   it("accepts a valid body", () => {
-    const r = createOrderBodySchema.safeParse({
+    const result = createOrderBodySchema.safeParse({
       elementSymbol: "Fe",
       quantity: 1.5,
     });
-    assert.equal(r.success, true);
+    assert.equal(result.success, true);
   });
 
   it("rejects bad symbol or quantity", () => {
@@ -56,9 +56,9 @@ describe("problem+json", () => {
     const server = app.listen(0, "127.0.0.1");
     await once(server, "listening");
     try {
-      const addr = server.address();
-      assert(addr && typeof addr === "object");
-      const res = await fetch(`http://127.0.0.1:${addr.port}/x`);
+      const address = server.address();
+      assert(address && typeof address === "object");
+      const res = await fetch(`http://127.0.0.1:${address.port}/x`);
       assert.equal(res.status, 400);
       assert.match(res.headers.get("content-type") ?? "", /problem\+json/);
       const body = (await res.json()) as { detail: string; error: string };

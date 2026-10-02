@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.Identity.Infrastructure.Persistence;
 using Element.Services.Identity.Infrastructure.Services;
@@ -11,97 +7,108 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Identity.API.Controllers;
 
+/// <summary>Lets a signed-in user issue, list and revoke the API keys that unlock the public market API.</summary>
 [Authorize]
 [ApiController]
 [Route("api/v1/api-keys")]
-public class ApiKeyController : ControllerBase
+public class ApiKeyController(ApiKeyService apiKeyService, IdentityAppDbContext database) : ControllerBase
 {
-    private readonly ApiKeyService _apiKeyService;
-    private readonly IdentityAppDbContext _context;
+    private const int MaxActiveKeysPerAccount = 20;
+    private const int MaxRevokedKeysKept = 20;
+    private const string InvalidUserMessage = "Invalid user identification in token.";
 
-    public ApiKeyController(ApiKeyService apiKeyService, IdentityAppDbContext context)
-    {
-        _apiKeyService = apiKeyService;
-        _context = context;
-    }
-
+    /// <summary>
+    /// Issues a new API key; the raw key appears only in this response.
+    /// Also prunes the caller's revoked keys down to the newest 20.
+    /// </summary>
     [HttpPost("generate")]
     public async Task<IActionResult> GenerateKey([FromBody] GenerateKeyRequest request)
     {
-        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
-                           ?? User.FindFirst("sub")?.Value;
-
-        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+        if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized("Invalid user identification in token.");
+            return Unauthorized(InvalidUserMessage);
         }
 
-        await using var transaction = await _context.Database.BeginTransactionAsync();
-        // Serialize issuance per account and recheck the session after acquiring the lock.
-        var owners = await _context.Users.FromSqlInterpolated($"SELECT * FROM \"AspNetUsers\" WHERE \"Id\" = {userId} FOR UPDATE").AsNoTracking().ToArrayAsync();
-        if (owners.Length != 1 || owners[0].SecurityStamp != User.FindFirst("security_stamp")?.Value) return Unauthorized();
-        if (await _context.ApiKeys.CountAsync(k => k.UserId == userId && k.IsActive) >= 20)
-            return Conflict(new { message = "En fazla 20 etkin API anahtarı kullanabilirsin. Kullanmadıklarını iptal et." });
-        var (rawKey, apiKeyRecord) = await _apiKeyService.GenerateKeyAsync(userId, request.Description, request.RateLimitTps);
+        await using var transaction = await database.Database.BeginTransactionAsync();
 
+        // Lock the account row so parallel requests cannot exceed the key limit, then
+        // re-check the session in case the password changed while we waited for the lock.
+        var lockedAccounts = await database.Users
+            .FromSqlInterpolated($"SELECT * FROM \"AspNetUsers\" WHERE \"Id\" = {userId} FOR UPDATE")
+            .AsNoTracking()
+            .ToArrayAsync();
+        var tokenSecurityStamp = User.FindFirst(TokenService.SecurityStampClaimType)?.Value;
+        var sessionIsCurrent = lockedAccounts.Length == 1 && lockedAccounts[0].SecurityStamp == tokenSecurityStamp;
+        if (!sessionIsCurrent)
+        {
+            return Unauthorized();
+        }
+
+        var activeKeyCount = await database.ApiKeys.CountAsync(key => key.UserId == userId && key.IsActive);
+        if (activeKeyCount >= MaxActiveKeysPerAccount)
+        {
+            return Conflict(new { message = $"En fazla {MaxActiveKeysPerAccount} etkin API anahtarı kullanabilirsin. Kullanmadıklarını iptal et." });
+        }
+
+        // Every web login mints a key, so revoked history grows forever; keep only the newest revoked rows.
+        var staleRevokedKeyIds = await database.ApiKeys
+            .Where(key => key.UserId == userId && !key.IsActive)
+            .OrderByDescending(key => key.CreatedAt)
+            .Skip(MaxRevokedKeysKept)
+            .Select(key => key.Id)
+            .ToListAsync();
+        if (staleRevokedKeyIds.Count > 0)
+        {
+            await database.ApiKeys.Where(key => staleRevokedKeyIds.Contains(key.Id)).ExecuteDeleteAsync();
+        }
+
+        var (rawKey, apiKey) = await apiKeyService.GenerateKeyAsync(userId, request.Description, request.RateLimitTps);
         await transaction.CommitAsync();
+
         return Ok(new
         {
             Message = "API Key generated successfully. Please copy it now, it will not be shown again.",
             ApiKey = rawKey,
-            Details = new ApiKeyResponseDto(
-                Id: apiKeyRecord.Id,
-                UserId: apiKeyRecord.UserId,
-                MaskedKey: apiKeyRecord.MaskedKey,
-                Description: apiKeyRecord.Description,
-                IsActive: apiKeyRecord.IsActive,
-                CreatedAt: apiKeyRecord.CreatedAt,
-                RateLimitTps: apiKeyRecord.RateLimitTps
-            )
+            Details = ApiKeyResponseDto.FromEntity(apiKey),
         });
     }
 
+    /// <summary>Lists the caller's keys (masked, including revoked ones), newest first.</summary>
     [HttpGet]
     public async Task<IActionResult> GetUserKeys()
     {
-        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
-                           ?? User.FindFirst("sub")?.Value;
-
-        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+        if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized("Invalid user identification in token.");
+            return Unauthorized(InvalidUserMessage);
         }
 
-        var keys = await _context.ApiKeys
-            .Where(k => k.UserId == userId)
-            .OrderByDescending(k => k.CreatedAt)
-            .Select(k => new ApiKeyResponseDto(
-                k.Id,
-                k.UserId,
-                k.MaskedKey,
-                k.Description,
-                k.IsActive,
-                k.CreatedAt,
-                k.RateLimitTps
-            ))
+        var keys = await database.ApiKeys
+            .Where(key => key.UserId == userId)
+            .OrderByDescending(key => key.CreatedAt)
+            .Select(key => new ApiKeyResponseDto(
+                key.Id,
+                key.UserId,
+                key.MaskedKey,
+                key.Description,
+                key.IsActive,
+                key.CreatedAt,
+                key.RateLimitTps))
             .ToListAsync();
 
         return Ok(keys);
     }
 
+    /// <summary>Revokes one of the caller's keys; someone else's key is reported as not found.</summary>
     [HttpDelete("{id}")]
     public async Task<IActionResult> RevokeKey(Guid id)
     {
-        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
-                           ?? User.FindFirst("sub")?.Value;
-
-        if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+        if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized("Invalid user identification in token.");
+            return Unauthorized(InvalidUserMessage);
         }
 
-        var success = await _apiKeyService.RevokeKeyAsync(userId, id);
-        if (!success)
+        var revoked = await apiKeyService.RevokeKeyAsync(userId, id);
+        if (!revoked)
         {
             return NotFound("API Key not found or does not belong to you.");
         }

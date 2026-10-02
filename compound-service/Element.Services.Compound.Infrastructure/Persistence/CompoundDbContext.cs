@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Compound.Infrastructure.Persistence;
 
+/// <summary>EF Core context of the compound database (element_compound_db); one table of compounds.</summary>
 public class CompoundDbContext : DbContext
 {
     public CompoundDbContext(DbContextOptions<CompoundDbContext> options) : base(options)

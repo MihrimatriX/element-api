@@ -80,5 +80,6 @@ URN zarfı MassTransit ile aynı: `Element.Shared.Events:*`.
 | Sipariş Submitted kaldı, ödeme yok | Bu worker veya Rabbit; `PaymentRequested` gelmiyor |
 | Holdings boş ama sipariş Completed | `AssetsCredited` async — biraz bekle / smoke poll |
 | 402 `INSUFFICIENT_ELX` | Bakiye yetmiyor; değer yine KREDI |
+| Olay hiç işlenmedi | 5 denemede (≈15 sn backoff) düşen mesaj `wallet-service_failed` kuyruğunda — Rabbit UI’dan bak / geri taşı |
 
 [← Ana README](../README.md) · [Servis kılavuzu](../docs/SERVIS-KILAVUZU.md)

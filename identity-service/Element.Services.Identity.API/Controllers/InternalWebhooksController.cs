@@ -4,49 +4,56 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Identity.API.Controllers;
 
+/// <summary>Service-to-service endpoint the notification service calls to find the webhooks to deliver for an event.</summary>
 [ApiController]
 [Route("api/v1/internal/webhooks")]
-public class InternalWebhooksController : ControllerBase
+public class InternalWebhooksController(IdentityAppDbContext database, IConfiguration configuration) : ControllerBase
 {
-    private readonly IdentityAppDbContext _db;
-    private readonly IConfiguration _configuration;
+    private const string OrderUpdatedEvent = "order.updated";
 
-    public InternalWebhooksController(IdentityAppDbContext db, IConfiguration configuration)
-    {
-        _db = db;
-        _configuration = configuration;
-    }
+    /// <summary>The notification service delivers to at most this many hooks per event.</summary>
+    private const int MaxDeliveredSubscriptions = 10;
 
+    /// <summary>
+    /// Lists up to 10 active subscriptions (URL, signing secret, events) for an event, oldest first;
+    /// requires the INTERNAL_API_KEY header.
+    /// </summary>
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] string? @event, [FromQuery] Guid? customerId)
     {
-        if (!InternalKeyOk()) return Unauthorized();
-
-        var query = _db.WebhookSubscriptions.AsNoTracking().Where(w => w.IsActive);
-        if (@event == "order.updated")
+        if (!InternalApiKey.IsAuthorized(Request, configuration))
         {
-            if (customerId == null || customerId == Guid.Empty) return Ok(Array.Empty<object>());
-            query = query.Where(w => w.UserId == customerId);
+            return Unauthorized();
         }
+
+        var subscriptions = database.WebhookSubscriptions
+            .AsNoTracking()
+            .Where(subscription => subscription.IsActive);
+
+        // An order belongs to one customer, so its updates may only reach that customer's endpoints.
+        if (@event == OrderUpdatedEvent)
+        {
+            if (customerId is null || customerId == Guid.Empty)
+            {
+                return Ok(Array.Empty<object>());
+            }
+
+            subscriptions = subscriptions.Where(subscription => subscription.UserId == customerId);
+        }
+
         if (!string.IsNullOrWhiteSpace(@event))
         {
-            var ev = @event.Trim().ToLowerInvariant();
-            query = query.Where(w => w.Events.ToLower().Contains(ev));
+            var normalizedEvent = @event.Trim().ToLowerInvariant();
+            subscriptions = subscriptions.Where(subscription => subscription.Events.ToLower().Contains(normalizedEvent));
         }
 
-        var rows = await query.Select(w => new
-        {
-            w.Url,
-            w.Secret,
-            events = w.Events
-        }).ToListAsync();
+        // ponytail: for broadcast price.updated this is 10 platform-wide (oldest first);
+        // page or fan out per user before price.updated is ever published.
+        var rows = await subscriptions
+            .OrderBy(subscription => subscription.CreatedAt)
+            .Take(MaxDeliveredSubscriptions)
+            .Select(subscription => new { subscription.Url, subscription.Secret, events = subscription.Events })
+            .ToListAsync();
         return Ok(rows);
-    }
-
-    private bool InternalKeyOk()
-    {
-        var expected = _configuration["INTERNAL_API_KEY"];
-        if (string.IsNullOrEmpty(expected)) return false;
-        return Request.Headers.TryGetValue("INTERNAL_API_KEY", out var got) && got == expected;
     }
 }

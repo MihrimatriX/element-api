@@ -3,26 +3,35 @@
  * Policy (content-and-games-plan): gas tube / mineral / product / solution must not
  * be labeled as a pure element specimen photo. Prefer null over a lie.
  *
+ * For every symbol in REPLACE it tries the preferred Commons file, then its fallbacks, and stores
+ * the first openly licensed photo in web-app/public/media/atlas plus both atlas JSON files.
+ * A summary is written to artifacts/local/photo-fix-report.json.
+ *
  * Run: node deploy/scripts/fix-element-photos.mjs
- * Then: node deploy/scripts/refresh-atlas.mjs --fetch --only=S,Ga,Fe,Cu,Au,Hg,Bi,W,As,Se,Be,V,Mo,Cd,Sc,Y,Zr,Nb,Ru,Hf,Ta,Re,Os,Hg,Bi
+ * Then re-apply the atlas layer: node deploy/scripts/refresh-atlas.mjs
+ *   (add --fetch --only=<symbols> to re-download those photos through refresh-atlas as well)
  */
-import { readFile, writeFile, unlink } from 'node:fs/promises';
+import { readFile, writeFile, unlink, mkdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
+import { cleanMetadataText, imageExtension, OPEN_LICENSE_PATTERN, PHOTO_MIME_TYPES } from './refresh-atlas.mjs';
 
 const root = new URL('../../', import.meta.url);
 const selectionsPath = new URL('deploy/data/atlas-photo-selections.json', root);
 const manifestPath = new URL('deploy/data/atlas-media.json', root);
 const publicDir = new URL('web-app/public/media/atlas/', root);
+const USER_AGENT = 'ElementAPI/1.0 (educational atlas photo fix)';
+const COMMONS_ATTEMPTS = 5;
+/** Commons answers rate-limited requests with an HTML page; back off 8 s, 16 s, 24 s, ... */
+const COMMONS_BACKOFF_STEP_MS = 8000;
+const PAUSE_AFTER_FAILED_FILE_MS = 2000;
+const PAUSE_AFTER_REPLACED_SYMBOL_MS = 2500;
 
-const clean = (value) =>
-  String(value ?? '')
-    .replace(/<[^>]*>/g, '')
-    .replace(/&amp;/g, '&')
-    .trim();
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/** Returns Commons imageinfo (urls, licence metadata) for a file; retries while Commons is rate limiting. */
 async function commonsInfo(file) {
-  const u = new URL('https://commons.wikimedia.org/w/api.php');
-  u.search = new URLSearchParams({
+  const infoUrl = new URL('https://commons.wikimedia.org/w/api.php');
+  infoUrl.search = new URLSearchParams({
     action: 'query',
     format: 'json',
     formatversion: '2',
@@ -31,52 +40,48 @@ async function commonsInfo(file) {
     iiprop: 'url|extmetadata|mime|size',
     iiurlwidth: '640',
   });
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const r = await fetch(u, {
-      headers: { 'User-Agent': 'ElementAPI/1.0 (educational atlas photo fix)' },
+  for (let attempt = 0; attempt < COMMONS_ATTEMPTS; attempt++) {
+    const response = await fetch(infoUrl, {
+      headers: { 'User-Agent': USER_AGENT },
       signal: AbortSignal.timeout(25000),
     });
-    const text = await r.text();
+    const text = await response.text();
     if (text.startsWith('{')) {
       const page = JSON.parse(text).query.pages[0];
       const info = page.imageinfo?.[0];
       if (!info) throw new Error(`No imageinfo for ${file}`);
       return info;
     }
-    await new Promise((res) => setTimeout(res, 8000 * (attempt + 1)));
+    await pause(COMMONS_BACKOFF_STEP_MS * (attempt + 1));
   }
   throw new Error(`Commons rate-limited for ${file}`);
 }
 
-async function downloadPhoto(symbol, file, caption, creator, attributionUrl) {
+/** Downloads one Commons file as <symbol>.<ext> and returns its manifest photo entry; throws when unusable. */
+async function downloadPhoto(symbol, file, caption) {
   const info = await commonsInfo(file);
-  const meta = info.extmetadata;
-  const license = clean(meta?.LicenseShortName?.value);
-  if (!/CC BY|CC0|Public domain|FAL|Free Art License/i.test(license)) {
+  const metadata = info.extmetadata;
+  const license = cleanMetadataText(metadata?.LicenseShortName?.value);
+  if (!OPEN_LICENSE_PATTERN.test(license)) {
     throw new Error(`Bad license ${license} for ${file}`);
   }
-  const remote = info.thumburl ?? info.url;
-  const img = await fetch(remote, {
-    headers: { 'User-Agent': 'ElementAPI/1.0 (educational atlas photo fix)' },
+  const image = await fetch(info.thumburl ?? info.url, {
+    headers: { 'User-Agent': USER_AGENT },
     signal: AbortSignal.timeout(30000),
   });
-  const mime = img.headers.get('content-type');
-  if (!['image/jpeg', 'image/png', 'image/webp'].includes(mime)) {
+  const mime = image.headers.get('content-type');
+  if (!PHOTO_MIME_TYPES.includes(mime)) {
     throw new Error(`Bad mime ${mime} for ${file}`);
   }
-  const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
-  const filename = `${symbol.toLowerCase()}.${ext}`;
-  const buf = Buffer.from(await img.arrayBuffer());
-  await writeFile(new URL(filename, publicDir), buf);
+  const filename = `${symbol.toLowerCase()}.${imageExtension(mime)}`;
+  await writeFile(new URL(filename, publicDir), Buffer.from(await image.arrayBuffer()));
   return {
     url: `/media/atlas/${filename}`,
     caption,
-    source_url:
-      attributionUrl ??
-      `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, '_'))}`,
-    creator: creator ?? clean(meta?.Artist?.value),
+    source_url: `https://commons.wikimedia.org/wiki/File:${encodeURIComponent(file.replace(/ /g, '_'))}`,
+    creator: cleanMetadataText(metadata?.Artist?.value),
     license,
-    license_url: clean(meta?.LicenseUrl?.value) || null,
+    license_url: cleanMetadataText(metadata?.LicenseUrl?.value) || null,
     retrieved_at: new Date().toISOString().slice(0, 10),
   };
 }
@@ -242,89 +247,77 @@ const REPLACE = {
 
 // Null these: misleading as "pure element specimen" (solution / mineral / display toy / foil).
 const NULL_OUT = {
-  Pm: 'solution vial, not a metal specimen',
-  Tc: 'gold-foil powder mount, not a readable specimen',
-  S_mineral_kept_if_replaced: null,
+  Pm: 'Pm-147 solution looks like other actinide solutions; not a metal specimen',
+  Tc: 'tiny gold-foil powder mount; unreadable as element specimen',
 };
 
+/** Deletes a photo file from web-app/public/media/atlas; a file that is already gone is fine. */
+async function removeAtlasFile(photoUrl) {
+  try {
+    await unlink(new URL(photoUrl.split('/').pop(), publicDir));
+  } catch {
+    /* already gone */
+  }
+}
+
+/** Tries the preferred file, then each fallback; returns the first that downloads, else rethrows the last error. */
 async function tryDownload(symbol, spec) {
-  const files = [spec.file, ...(spec.fallback ?? [])];
-  let lastErr;
-  for (const file of files) {
+  const candidateFiles = [spec.file, ...(spec.fallback ?? [])];
+  let lastError;
+  for (const file of candidateFiles) {
     try {
       console.log(`  try ${symbol} ← ${file}`);
       const photo = await downloadPhoto(symbol, file, spec.caption);
       console.log(`  ok ${symbol} ${photo.url} (${photo.license})`);
       return { file, photo };
-    } catch (e) {
-      lastErr = e;
-      console.warn(`  fail ${file}: ${e.message}`);
-      await new Promise((r) => setTimeout(r, 2000));
+    } catch (error) {
+      lastError = error;
+      console.warn(`  fail ${file}: ${error.message}`);
+      await pause(PAUSE_AFTER_FAILED_FILE_MS);
     }
   }
-  throw lastErr;
+  throw lastError;
 }
 
+/** Removes the misleading photos, downloads the replacements and writes both atlas files plus a report. */
 async function main() {
   const selections = JSON.parse(await readFile(selectionsPath, 'utf8'));
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  // `kept` stays empty; it is part of the report format.
   const report = { replaced: [], nulled: [], failed: [], kept: [] };
 
-  // Null Pm / Tc first
-  for (const [sym, reason] of Object.entries({
-    Pm: 'Pm-147 solution looks like other actinide solutions; not a metal specimen',
-    Tc: 'tiny gold-foil powder mount; unreadable as element specimen',
-  })) {
-    if (manifest[sym]?.photo) {
-      const url = manifest[sym].photo.url;
-      const name = url.split('/').pop();
-      try {
-        await unlink(new URL(name, publicDir));
-      } catch {
-        /* already gone */
-      }
-      manifest[sym].photo = null;
-      delete selections[sym];
-      report.nulled.push({ sym, reason, was: url });
-      console.log(`nulled ${sym}: ${reason}`);
-    }
+  for (const [symbol, reason] of Object.entries(NULL_OUT)) {
+    const photoUrl = manifest[symbol]?.photo?.url;
+    if (!manifest[symbol]?.photo) continue;
+    await removeAtlasFile(photoUrl);
+    manifest[symbol].photo = null;
+    delete selections[symbol];
+    report.nulled.push({ sym: symbol, reason, was: photoUrl });
+    console.log(`nulled ${symbol}: ${reason}`);
   }
 
-  for (const [sym, spec] of Object.entries(REPLACE)) {
+  for (const [symbol, spec] of Object.entries(REPLACE)) {
     try {
-      const { file, photo } = await tryDownload(sym, spec);
-      // remove old extension sibling if changed
-      const old = manifest[sym]?.photo?.url;
-      if (old && old !== photo.url) {
-        try {
-          await unlink(new URL(old.split('/').pop(), publicDir));
-        } catch {
-          /* ok */
-        }
-      }
-      manifest[sym] ??= { photo: null, structure: null, wikipedia: null };
-      manifest[sym].photo = photo;
-      selections[sym] = {
-        file,
-        caption: spec.caption,
-        ...(photo.source_url.includes('images-of-elements')
-          ? { attribution_url: photo.source_url, creator: photo.creator }
-          : {}),
-      };
-      report.replaced.push({ sym, file, url: photo.url, license: photo.license });
-      await new Promise((r) => setTimeout(r, 2500));
-    } catch (e) {
-      report.failed.push({ sym, error: e.message });
-      console.warn(`FAILED ${sym}: ${e.message}`);
+      const { file, photo } = await tryDownload(symbol, spec);
+      // A new MIME type means a new extension, so the old file would be left behind.
+      const previousUrl = manifest[symbol]?.photo?.url;
+      if (previousUrl && previousUrl !== photo.url) await removeAtlasFile(previousUrl);
+      manifest[symbol] ??= { photo: null, structure: null, wikipedia: null };
+      manifest[symbol].photo = photo;
+      selections[symbol] = { file, caption: spec.caption };
+      report.replaced.push({ sym: symbol, file, url: photo.url, license: photo.license });
+      await pause(PAUSE_AFTER_REPLACED_SYMBOL_MS);
+    } catch (error) {
+      report.failed.push({ sym: symbol, error: error.message });
+      console.warn(`FAILED ${symbol}: ${error.message}`);
     }
   }
 
   await writeFile(selectionsPath, JSON.stringify(selections, null, 2) + '\n');
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
-  await writeFile(
-    new URL('artifacts/local/photo-fix-report.json', root),
-    JSON.stringify(report, null, 2) + '\n',
-  );
+  const reportDir = new URL('artifacts/local/', root);
+  await mkdir(reportDir, { recursive: true });
+  await writeFile(new URL('photo-fix-report.json', reportDir), JSON.stringify(report, null, 2) + '\n');
   console.log(
     `\nDone. replaced=${report.replaced.length} nulled=${report.nulled.length} failed=${report.failed.length}`,
   );

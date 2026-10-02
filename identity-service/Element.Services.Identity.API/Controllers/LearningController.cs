@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using System.Text.Json;
 using Element.Services.Identity.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authorization;
@@ -7,60 +6,142 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Element.Services.Identity.API.Controllers;
 
+/// <summary>
+/// Stores a signed-in user's learning progress (discovered compounds, finished lessons) so it follows them across devices.
+/// </summary>
 [Authorize]
 [ApiController]
 [Route("api/v1/auth/learning")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
 public sealed class LearningController(IdentityAppDbContext database) : ControllerBase
 {
-    private const string Provider = "ElementLearning.v1";
+    /// <summary>LoginProvider value that marks learning rows in the AspNetUserTokens table.</summary>
+    public const string ProgressTokenProvider = "ElementLearning.v1";
+
+    private const string DiscoveryPrefix = "discovery:";
+    private const string LessonPrefix = "lesson:";
+
     // ponytail: allowlist is web-app JSON copied into the identity image (csproj Content). scientific-compounds.json is the compound-service snapshot, not a second allowlist.
-    private static readonly HashSet<string> Discoveries = LoadDiscoveries();
-    private static readonly Dictionary<string, string[]> Lessons = LoadLessons();
+    private static readonly HashSet<string> KnownDiscoverySlugs = LoadKnownDiscoverySlugs();
+
+    // Lesson id -> the discovery slugs that lesson requires.
+    private static readonly Dictionary<string, string[]> LessonRequirements = LoadLessonRequirements();
+
+    /// <summary>Learning progress as the web app sends and receives it.</summary>
     public sealed record Progress(string[] Discoveries, string[] Lessons);
-    private Guid UserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub")!);
 
+    private Guid CurrentUserId => Guid.Parse(User.GetUserIdValue()!);
+
+    /// <summary>Returns the caller's stored progress.</summary>
     [HttpGet]
-    public async Task<Progress> Get(CancellationToken ct) => await Read(UserId, ct);
+    public async Task<Progress> Get(CancellationToken ct) => await ReadProgressAsync(CurrentUserId, ct);
 
+    /// <summary>Adds the given discoveries and lessons to the stored progress (never removes anything) and returns the result.</summary>
     [HttpPut]
     public async Task<ActionResult<Progress>> Merge(Progress progress, CancellationToken ct)
     {
-        if (progress.Discoveries is null || progress.Lessons is null || progress.Discoveries.Length > Discoveries.Count || progress.Lessons.Length > Lessons.Count
-            || progress.Discoveries.Any(id => !Discoveries.Contains(id)) || progress.Lessons.Any(id => id is null || !Lessons.ContainsKey(id)))
+        if (!IsKnownProgress(progress))
+        {
             return BadRequest(new { message = "İlerleme kaydı geçersiz." });
-        var userId = UserId;
+        }
+
+        var userId = CurrentUserId;
         await using var transaction = await database.Database.BeginTransactionAsync(ct);
-        // Reuse the existing Identity user-token table. Each achievement has its
-        // own unique key; concurrent devices cannot overwrite one another.
-        foreach (var id in progress.Discoveries.Distinct().Order()) await Insert(userId, "discovery:" + id, ct);
-        var merged = await Read(userId, ct);
-        foreach (var id in progress.Lessons.Distinct().Order())
-            if (Lessons[id].All(merged.Discoveries.Contains)) await Insert(userId, "lesson:" + id, ct);
+
+        // Reuse the Identity user-token table: every achievement is its own row with a unique key,
+        // so concurrent devices add to the progress instead of overwriting each other.
+        // The web client re-sends its full set on every change: insert only what is new (one round trip each).
+        var storedProgress = await ReadProgressAsync(userId, ct);
+        foreach (var slug in progress.Discoveries.Except(storedProgress.Discoveries).Order())
+        {
+            await InsertAchievementAsync(userId, DiscoveryPrefix + slug, ct);
+        }
+
+        // A lesson only counts once every discovery it requires is stored.
+        var progressWithNewDiscoveries = await ReadProgressAsync(userId, ct);
+        foreach (var lessonId in progress.Lessons.Except(storedProgress.Lessons).Order())
+        {
+            var requiredSlugs = LessonRequirements[lessonId];
+            if (requiredSlugs.All(progressWithNewDiscoveries.Discoveries.Contains))
+            {
+                await InsertAchievementAsync(userId, LessonPrefix + lessonId, ct);
+            }
+        }
+
         await transaction.CommitAsync(ct);
-        return await Read(userId, ct);
+        return await ReadProgressAsync(userId, ct);
     }
-    private static HashSet<string> LoadDiscoveries()
+
+    // Only slugs and lesson ids from the bundled catalogue are accepted, so clients cannot store made-up achievements.
+    private static bool IsKnownProgress(Progress progress)
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "Data", "known-compounds.json");
-        using var doc = JsonDocument.Parse(System.IO.File.ReadAllText(path));
-        return doc.RootElement.EnumerateArray().Select(item => item.GetProperty("slug").GetString()!).ToHashSet(StringComparer.Ordinal);
+        if (progress.Discoveries is null || progress.Lessons is null)
+        {
+            return false;
+        }
+
+        var tooManyItems = progress.Discoveries.Length > KnownDiscoverySlugs.Count
+            || progress.Lessons.Length > LessonRequirements.Count;
+        if (tooManyItems)
+        {
+            return false;
+        }
+
+        return progress.Discoveries.All(slug => KnownDiscoverySlugs.Contains(slug))
+            && progress.Lessons.All(lessonId => lessonId is not null && LessonRequirements.ContainsKey(lessonId));
     }
-    private static Dictionary<string, string[]> LoadLessons()
+
+    private static HashSet<string> LoadKnownDiscoverySlugs()
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "Data", "lessons.json");
-        using var doc = JsonDocument.Parse(System.IO.File.ReadAllText(path));
-        return doc.RootElement.EnumerateArray().ToDictionary(
-            item => item.GetProperty("id").GetString()!,
-            item => item.GetProperty("discoveries").EnumerateArray().Select(value => value.GetString()!).ToArray(),
+        using var document = ReadBundledJson("known-compounds.json");
+        return document.RootElement
+            .EnumerateArray()
+            .Select(compound => compound.GetProperty("slug").GetString()!)
+            .ToHashSet(StringComparer.Ordinal);
+    }
+
+    private static Dictionary<string, string[]> LoadLessonRequirements()
+    {
+        using var document = ReadBundledJson("lessons.json");
+        return document.RootElement.EnumerateArray().ToDictionary(
+            lesson => lesson.GetProperty("id").GetString()!,
+            lesson => lesson.GetProperty("discoveries").EnumerateArray().Select(slug => slug.GetString()!).ToArray(),
             StringComparer.Ordinal);
     }
-    private Task Insert(Guid userId, string name, CancellationToken ct) => database.Database.ExecuteSqlInterpolatedAsync(
-        $"INSERT INTO \"AspNetUserTokens\" (\"UserId\", \"LoginProvider\", \"Name\", \"Value\") VALUES ({userId}, {Provider}, {name}, '1') ON CONFLICT DO NOTHING", ct);
-    private async Task<Progress> Read(Guid userId, CancellationToken ct)
+
+    // The csproj copies these files from web-app/src/data into the Data folder next to the binary.
+    private static JsonDocument ReadBundledJson(string fileName)
     {
-        var names = await database.UserTokens.Where(t => t.UserId == userId && t.LoginProvider == Provider).Select(t => t.Name).ToArrayAsync(ct);
-        return new(names.Where(n => n.StartsWith("discovery:")).Select(n => n[10..]).Order().ToArray(),
-            names.Where(n => n.StartsWith("lesson:")).Select(n => n[7..]).Order().ToArray());
+        var path = Path.Combine(AppContext.BaseDirectory, "Data", fileName);
+        return JsonDocument.Parse(System.IO.File.ReadAllText(path));
+    }
+
+    // ON CONFLICT DO NOTHING makes the insert idempotent: sending known progress again is harmless.
+    private Task InsertAchievementAsync(Guid userId, string achievementName, CancellationToken ct)
+    {
+        return database.Database.ExecuteSqlInterpolatedAsync(
+            $"INSERT INTO \"AspNetUserTokens\" (\"UserId\", \"LoginProvider\", \"Name\", \"Value\") VALUES ({userId}, {ProgressTokenProvider}, {achievementName}, '1') ON CONFLICT DO NOTHING",
+            ct);
+    }
+
+    private async Task<Progress> ReadProgressAsync(Guid userId, CancellationToken ct)
+    {
+        var achievementNames = await database.UserTokens
+            .Where(token => token.UserId == userId && token.LoginProvider == ProgressTokenProvider)
+            .Select(token => token.Name)
+            .ToArrayAsync(ct);
+
+        var discoveries = NamesWithoutPrefix(achievementNames, DiscoveryPrefix);
+        var lessons = NamesWithoutPrefix(achievementNames, LessonPrefix);
+        return new Progress(discoveries, lessons);
+    }
+
+    private static string[] NamesWithoutPrefix(IEnumerable<string> names, string prefix)
+    {
+        return names
+            .Where(name => name.StartsWith(prefix))
+            .Select(name => name[prefix.Length..])
+            .Order()
+            .ToArray();
     }
 }

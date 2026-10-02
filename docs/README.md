@@ -9,12 +9,13 @@ Bu klasör **ikinci bir bellek sistemi değil**. İnsan dili giriş buradan; gü
 | Belge | Ne zaman |
 |-------|----------|
 | [SERVIS-KILAVUZU.md](./SERVIS-KILAVUZU.md) | Hangi kutu ne işe yarar, hangisini açayım |
+| [kilavuz/](./kilavuz/README.md) | Sistem kılavuzu: her servisin uçları, mesajları, yapılandırması ve dosya dosya kod haritası; uygulamada `/kilavuz` |
 | [memory-bank/](./memory-bank/README.md) | Ürün özeti, mimari, son işler, riskler, tasarım |
 | [LOCAL-PRESENTATION.md](./LOCAL-PRESENTATION.md) | Üç dakikalık sunum |
 | [PUBLIC-HOST.md](./PUBLIC-HOST.md) | Domain / Caddy / public compose |
 | [DEPLOY-CHECKLIST.md](./DEPLOY-CHECKLIST.md) | Prod port + secret gate |
 | [CI-JENKINS.md](./CI-JENKINS.md) | Jenkins Multibranch path CI |
-| [CONTRIBUTING.md](../CONTRIBUTING.md) | Commits + test/present commands |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | Commit dili, sunum ve test komutları |
 | [WORKSPACE.md](./WORKSPACE.md) | Monorepo layout |
 | [adr/](./adr/) | Metrics, Java wallet, simplification |
 
@@ -34,7 +35,7 @@ Runbooks: [runbooks/AUTH-XSS.md](./runbooks/AUTH-XSS.md) · [runbooks/AUTH-COOKI
 | [PRODUCT-DELIVERY.md](./PRODUCT-DELIVERY.md) | Teslim / doğrulama kaydı |
 | [PRODUCT-ROADMAP.md](./PRODUCT-ROADMAP.md) | Yol haritası |
 | [LOCAL-VERIFICATION.md](./LOCAL-VERIFICATION.md) | Yerel doğrulama (hesap, yedek, …) |
-| [WHAT-WAS-DONE.md](./WHAT-WAS-DONE.md) | Atlas / lab / infra Türkçe anlatım |
+| [WHAT-WAS-DONE.md](./WHAT-WAS-DONE.md) | İş paketlerinin tarihli Türkçe anlatımı (en yenisi üstte) |
 
 ## API ve medya
 
@@ -56,8 +57,8 @@ Skim hepsi; işine uyanı derin oku:
 - `recent-work.md` — son değişiklik
 - `local-dev.md` — komutlar
 - `decisions.md` / `open-risks.md` — kilit kararlar ve riskler
-- `design-system.md` — kabuk / tema
+- `design-system.md` — Mineral tasarım sistemi: jetonlar, bileşenler, kurallar
 
-Paralel “ikinci canvas / skill bank” uydurma; burayı güncelle.
+Paralel “ikinci canvas / skill bank” uydurma; burayı güncelle. Kod değişince ilgili `kilavuz/` sayfasını da güncelle; kalıba uymayan sayfayı `web-app/scripts/write-guide.mjs` satır numarasıyla reddeder.
 
 [← Ana README](../README.md)

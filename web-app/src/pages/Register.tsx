@@ -1,195 +1,243 @@
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
-import { authService, apiError } from "../services/api";
-import { useSelectedElement } from "../App";
-import { safeReturnTo } from "../services/session";
-import Seo from "../components/Seo";
+import { useState, type ChangeEvent, type FormEvent } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Check, LoaderCircle } from "lucide-react";
 import CaptchaWidget from "../components/CaptchaWidget";
+import Seo from "../components/Seo";
+import { loginError } from "../components/auth/accountApi";
+import { AuthLayout } from "../components/auth/AuthLayout";
+import { PasswordInput } from "../components/auth/PasswordInput";
+import { Button } from "../components/ui/button";
+import { Field } from "../components/ui/field";
+import { Input } from "../components/ui/input";
+import { Notice } from "../components/ui/notice";
+import { useSelectedElement } from "../context/selection";
+import { useAuthCapabilities } from "../hooks/useAuthCapabilities";
 import { isCaptchaConfigured } from "../lib/captcha";
+import { apiError, authService } from "../services/api";
+import { safeReturnTo } from "../services/session";
 
+const PERKS = [
+  "Keşif defteri her cihazda aynı",
+  "10.000 sanal kredi + ticaret anahtarı",
+  "Sipariş geçmişi kaybolmaz",
+];
+
+const LOGIN_REDIRECT_MS = 1200;
+
+const EMPTY_FORM = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+};
+
+/**
+ * Account sign-up. Without a captcha it signs straight in and returns to `?returnTo`
+ * (when that sign-in fails it says why and links to the sign-in page); with one
+ * (Turnstile tokens are single-use) it sends the user to the sign-in page.
+ */
 export default function Register() {
   const navigate = useNavigate();
-  const [params] = useSearchParams();
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
   const { setIsAuthenticated } = useSelectedElement();
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const { capabilities } = useAuthCapabilities();
+  const [form, setForm] = useState(EMPTY_FORM);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [mismatch, setMismatch] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [signInProblem, setSignInProblem] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const loginLink = returnTo
+    ? `/login?returnTo=${encodeURIComponent(returnTo)}`
+    : "/login";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = event.target;
+    setForm({ ...form, [name]: value });
+    if (name === "password" || name === "confirmPassword") setMismatch(false);
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  function goToLogin() {
+    setSuccess("Hesap oluştu. Giriş sayfasına yönlendiriliyorsun…");
+    setTimeout(() => navigate(loginLink), LOGIN_REDIRECT_MS);
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError("");
     setSuccess("");
-
-    if (formData.password !== formData.confirmPassword) {
-      return setError("Şifreler eşleşmiyor.");
+    if (form.password !== form.confirmPassword) {
+      setMismatch(true);
+      return;
     }
     if (isCaptchaConfigured() && !captchaToken) {
-      return setError("Robot olmadığını doğrula (captcha).");
+      setError("Robot olmadığını doğrula (captcha).");
+      return;
     }
 
-    setLoading(true);
+    setSubmitting(true);
     try {
       await authService.register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        password: form.password,
         ...(captchaToken ? { captchaToken } : {}),
       });
-      // Turnstile tokens are single-use — skip auto-login when captcha is on.
       if (isCaptchaConfigured()) {
-        setSuccess("Hesap oluştu. Giriş sayfasına…");
-        setTimeout(() => navigate("/login"), 1200);
+        goToLogin();
         return;
       }
+      let token: string | undefined;
       try {
-        const login = await authService.login({
-          email: formData.email,
-          password: formData.password,
-        });
-        if (login.token) {
-          setIsAuthenticated(true);
-          navigate(safeReturnTo(params.get("returnTo")));
-          return;
-        }
-      } catch (keyErr) {
-        console.warn("Could not sign in after registration.", keyErr);
+        ({ token } = await authService.login({ email: form.email, password: form.password }));
+      } catch (caught) {
+        // The account exists; only the automatic sign-in failed. Say why here: blocked
+        // storage would fail on the sign-in page just the same.
+        setSignInProblem(loginError(caught));
+        return;
       }
-      setSuccess("Hesap oluştu. Giriş sayfasına…");
-      setTimeout(() => navigate("/login"), 1200);
-    } catch (err: unknown) {
-      setError(apiError(err, "Hesap oluşturulamadı."));
+      if (token) {
+        setIsAuthenticated(true);
+        navigate(safeReturnTo(returnTo));
+        return;
+      }
+      goToLogin();
+    } catch (caught) {
+      setError(apiError(caught, "Hesap oluşturulamadı."));
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <div className="auth-container">
+    <>
       <Seo
         title="Kayıt · ElementAPI"
         description="Defteri cihazlar arasında eşitle. 10.000 sanal kredi ve ticaret anahtarı."
         path="/register"
         noIndex
       />
-      <div className="auth-sheet">
-        <p className="auth-kicker">Hesap</p>
-        <h1>Hesap aç</h1>
-        <p className="auth-lead">
-          Defter cihazlar arası eşitlenir. Kayıtta 10.000 sanal kredi, bir
-          ticaret anahtarı ve sipariş geçmişi gelir.
-        </p>
-        <ul className="auth-perks">
-          <li>Keşif defteri her cihazda aynı</li>
-          <li>10.000 sanal kredi + ticaret anahtarı</li>
-          <li>Sipariş geçmişi kaybolmaz</li>
+      <AuthLayout
+        title="Hesap aç"
+        lead="Defterin cihazlar arasında eşitlenir; ticaret demosunu sanal krediyle denersin."
+        footer={
+          <p>
+            Zaten hesabın var mı?{" "}
+            <Link to={loginLink} className="text-link">
+              Giriş yap
+            </Link>
+          </p>
+        }
+      >
+        <ul className="mb-6 grid gap-2 rounded-lg border border-line bg-canvas-2 p-4">
+          {PERKS.map((perk) => (
+            <li
+              key={perk}
+              className="flex gap-2.5 text-sm leading-6 text-ink-2"
+            >
+              <Check
+                aria-hidden="true"
+                strokeWidth={2}
+                className="mt-1 size-4 shrink-0 text-success"
+              />
+              {perk}
+            </li>
+          ))}
         </ul>
-        {error && (
-          <p className="auth-error" role="alert">
-            {error}
-          </p>
-        )}
-        {success && (
-          <p className="auth-ok" role="status">
-            {success}
-          </p>
-        )}
-        <form onSubmit={handleSubmit} className="fields">
-          <div className="auth-name-row">
-            <div className="field">
-              <label htmlFor="firstName">Ad</label>
+        <form className="grid gap-5" onSubmit={handleSubmit}>
+          {error && <Notice tone="danger">{error}</Notice>}
+          {success && <Notice tone="success">{success}</Notice>}
+          {signInProblem && (
+            <Notice
+              tone="warning"
+              title="Hesap oluştu, oturum açılamadı"
+              action={
+                <Button asChild variant="outline" size="sm">
+                  <Link to={loginLink}>Giriş yap</Link>
+                </Button>
+              }
+            >
+              {signInProblem}
+            </Notice>
+          )}
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label="Ad">
               <Input
-                id="firstName"
                 type="text"
                 name="firstName"
                 autoComplete="given-name"
                 required
-                value={formData.firstName}
+                value={form.firstName}
                 onChange={handleChange}
               />
-            </div>
-            <div className="field">
-              <label htmlFor="lastName">Soyad</label>
+            </Field>
+            <Field label="Soyad">
               <Input
-                id="lastName"
                 type="text"
                 name="lastName"
                 autoComplete="family-name"
                 required
-                value={formData.lastName}
+                value={form.lastName}
                 onChange={handleChange}
               />
-            </div>
+            </Field>
           </div>
-          <div className="field">
-            <label htmlFor="email">E-posta</label>
+          <Field label="E-posta">
             <Input
-              id="email"
               type="email"
               name="email"
               autoComplete="email"
               required
-              value={formData.email}
+              value={form.email}
               onChange={handleChange}
               placeholder="sen@ornek.com"
             />
-          </div>
-          <div className="field">
-            <label htmlFor="password">Şifre</label>
-            <Input
-              id="password"
-              type="password"
+          </Field>
+          <Field label="Şifre" hint="En az 10 karakter.">
+            <PasswordInput
               name="password"
               minLength={10}
               autoComplete="new-password"
               required
-              value={formData.password}
+              value={form.password}
               onChange={handleChange}
-              placeholder="En az 10 karakter"
             />
-          </div>
-          <div className="field">
-            <label htmlFor="confirmPassword">Şifre tekrar</label>
-            <Input
-              id="confirmPassword"
-              type="password"
+          </Field>
+          <Field
+            label="Şifre tekrar"
+            error={mismatch ? "Şifreler eşleşmiyor." : undefined}
+          >
+            <PasswordInput
               name="confirmPassword"
               minLength={10}
               autoComplete="new-password"
               required
-              value={formData.confirmPassword}
+              value={form.confirmPassword}
               onChange={handleChange}
-              placeholder="••••••••"
             />
-          </div>
-          <CaptchaWidget onToken={setCaptchaToken} />
+          </Field>
+          <CaptchaWidget
+            onToken={setCaptchaToken}
+            serverRequiresCaptcha={capabilities.captcha}
+          />
           <Button
-            variant="default"
             type="submit"
-            className="btn primary"
-            disabled={loading}
+            size="lg"
+            className="w-full"
+            // The account exists once either message shows; a second submit would only collide.
+            disabled={submitting || Boolean(success || signInProblem)}
           >
-            {loading ? "Hesap oluşturuluyor…" : "Hesap aç"}
+            {submitting && (
+              <LoaderCircle className="animate-spin" strokeWidth={1.75} />
+            )}
+            {submitting ? "Hesap oluşturuluyor…" : "Hesap aç"}
           </Button>
         </form>
-        <p className="auth-switch">
-          Zaten hesabın var mı? <Link to="/login">Giriş yap</Link>
-        </p>
-      </div>
-    </div>
+      </AuthLayout>
+    </>
   );
 }

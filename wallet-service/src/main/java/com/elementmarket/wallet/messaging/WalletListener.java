@@ -2,6 +2,8 @@ package com.elementmarket.wallet.messaging;
 
 import com.elementmarket.wallet.config.RabbitConfig;
 import com.elementmarket.wallet.ledger.LedgerRepository;
+import com.elementmarket.wallet.ledger.LedgerRepository.DebitResult;
+import com.elementmarket.wallet.ledger.LedgerRules;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -10,15 +12,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.UUID;
 
+/**
+ * Consumes the order saga's wallet events: charges purchases, refunds cancelled orders and credits delivered grams.
+ * Each message is processed at most once thanks to the processed_messages table.
+ */
 @Component
 public class WalletListener {
 
     private static final Logger log = LoggerFactory.getLogger(WalletListener.class);
+
+    /** Wire reason the order service shows for an unaffordable purchase (legacy "ELX" name kept on purpose). */
+    private static final String INSUFFICIENT_FUNDS_REASON = "INSUFFICIENT_ELX";
+    private static final String CREDIT_LIMIT_REASON = "Credit limit exceeded (50000 KREDI limit).";
+    private static final String ORDER_CANCELLED_REASON = "ORDER_CANCELLED";
 
     private final ObjectMapper objectMapper;
     private final LedgerRepository ledger;
@@ -30,69 +42,119 @@ public class WalletListener {
         this.publisher = publisher;
     }
 
+    /**
+     * Entry point for every message on the wallet queue; dispatches by MassTransit event type.
+     * One tx per delivery: if the DB or broker drops mid-handler, the processed_messages mark rolls back
+     * with the ledger work, so the redelivery is applied instead of skipped as a duplicate.
+     */
+    @Transactional(rollbackFor = Exception.class)
     @RabbitListener(queues = RabbitConfig.WALLET_QUEUE)
     public void onMessage(Message message) throws Exception {
         byte[] body = message.getBody();
-        String type = MassTransitMessage.typeOf(body, objectMapper);
-        JsonNode msg = MassTransitMessage.messageOf(body, objectMapper);
-        String orderIdText = MassTransitMessage.text(msg, "orderId", "OrderId");
-        if (type == null || orderIdText == null) return;
+        String eventType = MassTransitMessage.typeOf(body, objectMapper);
+        JsonNode payload = MassTransitMessage.messageOf(body, objectMapper);
+        String orderIdText = MassTransitMessage.text(payload, "orderId", "OrderId");
+        if (eventType == null || orderIdText == null) {
+            return;
+        }
         UUID orderId = UUID.fromString(orderIdText);
-        String mid = MassTransitMessage.messageIdOf(body, objectMapper);
-        UUID messageId = mid != null ? UUID.fromString(mid) : UUID.nameUUIDFromBytes((type + ":" + orderId).getBytes());
 
-        if (!ledger.tryMarkProcessed(messageId, type, orderId)) return;
+        UUID messageId = resolveMessageId(body, eventType, orderId);
+        boolean isFirstDelivery = ledger.tryMarkProcessed(messageId, eventType, orderId);
+        if (!isFirstDelivery) {
+            return;
+        }
 
-        String customerText = MassTransitMessage.text(msg, "customerId", "CustomerId");
-        UUID customerId = customerText != null ? UUID.fromString(customerText) : null;
+        String customerIdText = MassTransitMessage.text(payload, "customerId", "CustomerId");
+        UUID customerId = customerIdText != null ? UUID.fromString(customerIdText) : null;
 
-        switch (type) {
-            case "PaymentRequestedEvent" -> handlePayment(orderId, customerId, msg);
-            case "PaymentRefundRequestedEvent" -> {
-                if (customerId == null) return;
-                ledger.refundIfDebited(
-                        customerId,
-                        orderId,
-                        MassTransitMessage.text(msg, "elementSymbol", "ElementSymbol"),
-                        BigDecimal.valueOf(MassTransitMessage.number(msg, "quantity", "Quantity")));
-            }
-            case "AssetsCreditedEvent" -> handleAssets(orderId, customerId, msg);
-            default -> log.debug("Ignoring wallet event {}", type);
+        switch (eventType) {
+            case "PaymentRequestedEvent" -> handlePayment(orderId, customerId, payload);
+            case "PaymentRefundRequestedEvent" -> handleRefund(orderId, customerId, payload);
+            case "AssetsCreditedEvent" -> handleAssets(orderId, customerId, payload);
+            default -> log.debug("Ignoring wallet event {}", eventType);
         }
     }
 
-    private void handlePayment(UUID orderId, UUID customerId, JsonNode msg) throws Exception {
-        if (customerId == null) return;
-        BigDecimal amount = BigDecimal.valueOf(MassTransitMessage.number(msg, "amount", "Amount"));
-        String symbol = MassTransitMessage.text(msg, "elementSymbol", "ElementSymbol");
-        BigDecimal qty = BigDecimal.valueOf(MassTransitMessage.number(msg, "quantity", "Quantity"));
-        var result = ledger.debit(customerId, orderId, amount, symbol, qty);
-        ObjectNode payload = objectMapper.createObjectNode();
-        payload.put("orderId", orderId.toString());
+    /**
+     * Uses the envelope's messageId when present; otherwise derives a stable id from type + order
+     * so a redelivered message without an id is still recognised as a duplicate.
+     */
+    private UUID resolveMessageId(byte[] body, String eventType, UUID orderId) throws Exception {
+        String messageIdText = MassTransitMessage.messageIdOf(body, objectMapper);
+        if (messageIdText != null) {
+            return UUID.fromString(messageIdText);
+        }
+        String stableKey = eventType + ":" + orderId;
+        return UUID.nameUUIDFromBytes(stableKey.getBytes());
+    }
+
+    /** Debits the purchase and answers the saga with PaymentProcessedEvent or PaymentFailedEvent. */
+    private void handlePayment(UUID orderId, UUID customerId, JsonNode payload) throws Exception {
+        if (customerId == null) {
+            return;
+        }
+        BigDecimal amount = BigDecimal.valueOf(MassTransitMessage.number(payload, "amount", "Amount"));
+        String symbol = MassTransitMessage.text(payload, "elementSymbol", "ElementSymbol");
+        BigDecimal quantity = BigDecimal.valueOf(MassTransitMessage.number(payload, "quantity", "Quantity"));
+        DebitResult result = ledger.debit(customerId, orderId, amount, symbol, quantity);
+
+        ObjectNode reply = objectMapper.createObjectNode();
+        reply.put("orderId", orderId.toString());
         switch (result) {
-            case OK, DUPLICATE -> publisher.publish("PaymentProcessedEvent", payload);
+            // A duplicate means the order was already charged, so the saga can safely move on.
+            case OK, DUPLICATE -> publisher.publish("PaymentProcessedEvent", reply);
             case INSUFFICIENT -> {
-                payload.put("reason", "INSUFFICIENT_ELX");
-                publisher.publish("PaymentFailedEvent", payload);
+                reply.put("reason", INSUFFICIENT_FUNDS_REASON);
+                publisher.publish("PaymentFailedEvent", reply);
             }
             case LIMIT -> {
-                payload.put("reason", "Credit limit exceeded (50000 KREDI limit).");
-                publisher.publish("PaymentFailedEvent", payload);
+                reply.put("reason", CREDIT_LIMIT_REASON);
+                publisher.publish("PaymentFailedEvent", reply);
+            }
+            // The order was already refunded/cancelled: refuse a late or replayed charge.
+            case CANCELLED -> {
+                reply.put("reason", ORDER_CANCELLED_REASON);
+                publisher.publish("PaymentFailedEvent", reply);
             }
         }
     }
 
-    private void handleAssets(UUID orderId, UUID customerId, JsonNode msg) {
-        if (customerId == null) return;
-        String symbol = MassTransitMessage.text(msg, "elementSymbol", "ElementSymbol");
-        BigDecimal qty = BigDecimal.valueOf(MassTransitMessage.number(msg, "quantity", "Quantity"));
-        BigDecimal total = BigDecimal.valueOf(MassTransitMessage.number(msg, "totalPrice", "TotalPrice"));
-        String slug = MassTransitMessage.text(msg, "compoundSlug", "CompoundSlug");
-        if (slug == null || slug.isBlank()) slug = "elemental";
-        String label = MassTransitMessage.text(msg, "productLabel", "ProductLabel");
-        if (symbol == null || qty.signum() <= 0 || total.signum() <= 0) return;
-        BigDecimal unit = total.divide(qty, 4, RoundingMode.HALF_UP);
-        ledger.addHolding(customerId, symbol, qty, unit, slug, label);
-        log.info("Assets credited order {} {}g {}", orderId, qty, symbol);
+    /**
+     * Returns the charged amount for a cancelled or failed order. If it was never charged, the ledger
+     * records a 0 KREDI refund tombstone so a late PaymentRequested is refused.
+     */
+    private void handleRefund(UUID orderId, UUID customerId, JsonNode payload) {
+        if (customerId == null) {
+            return;
+        }
+        String symbol = MassTransitMessage.text(payload, "elementSymbol", "ElementSymbol");
+        BigDecimal quantity = BigDecimal.valueOf(MassTransitMessage.number(payload, "quantity", "Quantity"));
+        ledger.refundIfDebited(customerId, orderId, symbol, quantity);
+    }
+
+    /**
+     * Adds the delivered grams to the buyer's holdings at the paid unit price.
+     * The ledger throws for an unpaid or refunded order, so the message retries and then parks in wallet-service_failed.
+     */
+    private void handleAssets(UUID orderId, UUID customerId, JsonNode payload) {
+        if (customerId == null) {
+            return;
+        }
+        String symbol = MassTransitMessage.text(payload, "elementSymbol", "ElementSymbol");
+        BigDecimal quantity = BigDecimal.valueOf(MassTransitMessage.number(payload, "quantity", "Quantity"));
+        BigDecimal totalPrice = BigDecimal.valueOf(MassTransitMessage.number(payload, "totalPrice", "TotalPrice"));
+        String compoundSlug = MassTransitMessage.text(payload, "compoundSlug", "CompoundSlug");
+        if (compoundSlug == null || compoundSlug.isBlank()) {
+            compoundSlug = LedgerRules.DEFAULT_COMPOUND_SLUG;
+        }
+        String productLabel = MassTransitMessage.text(payload, "productLabel", "ProductLabel");
+        if (symbol == null || quantity.signum() <= 0 || totalPrice.signum() <= 0) {
+            return;
+        }
+
+        BigDecimal unitCost = totalPrice.divide(quantity, LedgerRules.AMOUNT_SCALE, RoundingMode.HALF_UP);
+        ledger.addHolding(customerId, orderId, symbol, quantity, unitCost, compoundSlug, productLabel);
+        log.info("Assets credited order {} {}g {}", orderId, quantity, symbol);
     }
 }

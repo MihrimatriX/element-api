@@ -1,21 +1,19 @@
 import { test, expect } from "@playwright/test";
 
 /**
- * Auth UI smoke against staging/test when WEB_BASE / PLAYWRIGHT_BASE_URL points at a stack
- * with accounts enabled. Against the default science+Vite webServer (accounts off),
- * login still renders FeatureUnavailable and does not crash.
+ * /login smoke for either build. With accounts on (PLAYWRIGHT_BASE_URL pointing at such a stack) the
+ * sign-in form renders; with the default science+Vite webServer (accounts off) the route shows the
+ * FeatureUnavailable page instead of crashing. Full account flows live in e2e-auth/.
  */
 test.describe("auth smoke", () => {
   test("login page renders form chrome", async ({ page }) => {
     await page.goto("/login");
     await expect(page).toHaveURL(/\/login/);
-    await expect(page.locator("body")).toBeVisible();
-    const password = page.locator(
-      'input[type="password"], input[name="password"], input[autocomplete="current-password"]',
-    );
-    const accountsOff = page.getByText(
-      /Hesap ve ticaret servisleri|keşif için hazır/i,
-    );
+    const password = page.getByLabel("Şifre", { exact: true });
+    const accountsOff = page.getByRole("heading", {
+      level: 1,
+      name: "Bu kurulumda hesap kapalı",
+    });
     await expect(password.or(accountsOff).first()).toBeVisible({
       timeout: 20000,
     });

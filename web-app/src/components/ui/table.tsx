@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+/** Data table in a horizontally scrollable frame. Numbers: add `font-mono tabular text-right` to cells. */
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
@@ -9,23 +10,25 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
     >
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
+        className={cn("w-full text-sm", className)}
         {...props}
       />
     </div>
   );
 }
 
+/** Header row group; its rows get a stronger rule. */
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      className={cn("[&_tr]:border-b [&_tr]:border-line-strong", className)}
       {...props}
     />
   );
 }
 
+/** Body row group; the last row has no rule. */
 function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   return (
     <tbody
@@ -36,25 +39,13 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
   );
 }
 
-function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
-  return (
-    <tfoot
-      data-slot="table-footer"
-      className={cn(
-        "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
+/** Row with a hairline rule and hover tint. */
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   return (
     <tr
       data-slot="table-row"
       className={cn(
-        "border-b transition-colors hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted",
+        "border-b border-line transition-colors hover:bg-surface-2/50 data-[state=selected]:bg-brand-soft",
         className,
       )}
       {...props}
@@ -62,12 +53,13 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
   );
 }
 
+/** Column heading cell. */
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       data-slot="table-head"
       className={cn(
-        "h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "h-10 px-3 text-left align-middle text-xs font-medium whitespace-nowrap text-ink-3 first:pl-0 last:pr-0",
         className,
       )}
       {...props}
@@ -75,27 +67,15 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   );
 }
 
+/** Body cell; the first and last cells sit flush with the table edges. */
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
       className={cn(
-        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+        "px-3 py-2.5 align-middle text-ink-2 first:pl-0 last:pr-0",
         className,
       )}
-      {...props}
-    />
-  );
-}
-
-function TableCaption({
-  className,
-  ...props
-}: React.ComponentProps<"caption">) {
-  return (
-    <caption
-      data-slot="table-caption"
-      className={cn("mt-4 text-sm text-muted-foreground", className)}
       {...props}
     />
   );
@@ -103,11 +83,9 @@ function TableCaption({
 
 export {
   Table,
-  TableHeader,
   TableBody,
-  TableFooter,
-  TableHead,
-  TableRow,
   TableCell,
-  TableCaption,
+  TableHead,
+  TableHeader,
+  TableRow,
 };

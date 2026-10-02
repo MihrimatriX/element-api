@@ -1,49 +1,29 @@
-using System.Threading.Tasks;
 using Element.Services.Identity.Core.DTOs;
 using Element.Services.Identity.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace Element.Services.Identity.API.Controllers;
 
+/// <summary>Service-to-service endpoint the gateway calls to resolve a raw API key into its owner and rate limit.</summary>
 [ApiController]
 [Route("api/v1/internal/api-keys")]
-public class InternalKeysController : ControllerBase
+public class InternalKeysController(ApiKeyService apiKeyService, IConfiguration configuration) : ControllerBase
 {
-    private readonly ApiKeyService _apiKeyService;
-    private readonly IConfiguration _configuration;
-
-    public InternalKeysController(ApiKeyService apiKeyService, IConfiguration configuration)
-    {
-        _apiKeyService = apiKeyService;
-        _configuration = configuration;
-    }
-
+    /// <summary>Validates a raw API key; the caller must send the INTERNAL_API_KEY header.</summary>
     [HttpPost("validate")]
     public async Task<IActionResult> ValidateKey([FromBody] ValidateKeyRequest request)
     {
-        var expected = _configuration["INTERNAL_API_KEY"];
-        if (string.IsNullOrEmpty(expected) ||
-            !Request.Headers.TryGetValue("INTERNAL_API_KEY", out var got) ||
-            got != expected)
+        if (!InternalApiKey.IsAuthorized(Request, configuration))
         {
             return Unauthorized("INTERNAL_API_KEY required.");
         }
 
-        var apiKeyRecord = await _apiKeyService.ValidateKeyAsync(request.RawKey);
-        if (apiKeyRecord == null)
+        var apiKey = await apiKeyService.ValidateKeyAsync(request.RawKey);
+        if (apiKey is null)
         {
             return Unauthorized("Invalid or inactive API Key.");
         }
 
-        return Ok(new ApiKeyResponseDto(
-            Id: apiKeyRecord.Id,
-            UserId: apiKeyRecord.UserId,
-            MaskedKey: apiKeyRecord.MaskedKey,
-            Description: apiKeyRecord.Description,
-            IsActive: apiKeyRecord.IsActive,
-            CreatedAt: apiKeyRecord.CreatedAt,
-            RateLimitTps: apiKeyRecord.RateLimitTps
-        ));
+        return Ok(ApiKeyResponseDto.FromEntity(apiKey));
     }
 }
