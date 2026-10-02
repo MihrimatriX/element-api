@@ -8,7 +8,6 @@ RUN npm run build
 
 FROM node:22-alpine
 WORKDIR /app
-RUN apk add --no-cache wget
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
