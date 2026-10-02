@@ -9,6 +9,7 @@ declare global {
         element: HTMLElement,
         options: {
           sitekey: string;
+          theme?: "light" | "dark" | "auto";
           callback: (token: string) => void;
           "expired-callback"?: () => void;
           "error-callback"?: () => void;
@@ -24,26 +25,26 @@ const SCRIPT_ID = "cf-turnstile-api";
 const SCRIPT_SRC =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
+/** Shared by every widget on the page; cleared after a failed load so the next mount retries. */
+let turnstileLoading: Promise<void> | null = null;
+
 /** Loads the Turnstile script once per page, however many widgets ask for it. */
 function loadTurnstile(): Promise<void> {
   if (window.turnstile) return Promise.resolve();
-  let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
-  if (!script) {
-    script = document.createElement("script");
+  turnstileLoading ??= new Promise((resolve, reject) => {
+    const script = document.createElement("script");
     script.id = SCRIPT_ID;
     script.src = SCRIPT_SRC;
     script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => {
+      script.remove();
+      turnstileLoading = null;
+      reject(new Error("Turnstile load failed"));
+    };
     document.head.appendChild(script);
-  }
-  const loading = script;
-  return new Promise((resolve, reject) => {
-    loading.addEventListener("load", () => resolve(), { once: true });
-    loading.addEventListener(
-      "error",
-      () => reject(new Error("Turnstile load failed")),
-      { once: true },
-    );
   });
+  return turnstileLoading;
 }
 
 interface CaptchaWidgetProps {
@@ -78,6 +79,7 @@ export default function CaptchaWidget({
         if (cancelled || !hostRef.current || !window.turnstile) return;
         widgetId = window.turnstile.render(hostRef.current, {
           sitekey: CAPTCHA_SITE_KEY,
+          theme: "dark",
           callback: (token) => onTokenRef.current(token),
           "expired-callback": () => onTokenRef.current(""),
           "error-callback": () => onTokenRef.current(""),

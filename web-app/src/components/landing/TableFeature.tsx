@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ElementTile, type ElementFamily } from "@/components/ui/element-tile";
+import coverage from "@/data/coverage.json";
 import { STATIC_ELEMENTS } from "@/services/elementData";
 import { Reveal } from "./Reveal";
 
@@ -27,16 +28,26 @@ export function TableFeature() {
         </Reveal>
         <Reveal delay={0.06}>
           <p className="max-w-prose text-[15px] leading-7 text-ink-2">
-            Atom kütlesi, elektron dizilimi, erime ve kaynama noktası,
-            izotoplar ve Türkçe anlatım tek sayfada. Tabloyu aileye, kütleye,
-            elektronegatifliğe ya da oda sıcaklığındaki hâle göre boyayabilirsin.
+            Atom kütlesi, elektron dizilimi, erime ve kaynama noktası, izotoplar
+            ve Türkçe anlatım tek sayfada. Tabloyu aileye, kütleye,
+            elektronegatifliğe ya da oda sıcaklığındaki hâle göre
+            boyayabilirsin. {coverage.compounds} bileşik de formülü ve yapı
+            görseliyle ayrı bir katalogda.
           </p>
-          <Button asChild variant="link" className="mt-4">
-            <Link to="/periodic">
-              Tabloyu aç
-              <ArrowRight strokeWidth={1.75} />
-            </Link>
-          </Button>
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+            <Button asChild variant="link">
+              <Link to="/periodic">
+                Tüm tablo
+                <ArrowRight strokeWidth={1.75} />
+              </Link>
+            </Button>
+            <Button asChild variant="link">
+              <Link to="/compounds">
+                Bileşik kataloğu
+                <ArrowRight strokeWidth={1.75} />
+              </Link>
+            </Button>
+          </div>
         </Reveal>
       </div>
 

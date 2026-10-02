@@ -75,9 +75,13 @@ export function formatLensNumber(value: number): string {
   return formatNumber(value, { maximumSignificantDigits: 4 });
 }
 
-/** Surface tint of `color` at `percent` strength, the same recipe ElementTile uses for families. */
+/**
+ * Surface tint of `color` at `percent` strength. Mixed in oklab, unlike the oklch family tints:
+ * oklch would turn amber and pink toward the green surface hue, and the tile would stop
+ * matching its legend swatch.
+ */
 function tint(color: string, percent: number): string {
-  return `color-mix(in oklch, ${color} ${percent}%, var(--color-surface))`;
+  return `color-mix(in oklab, ${color} ${percent}%, var(--color-surface))`;
 }
 
 /**
@@ -88,7 +92,7 @@ function tint(color: string, percent: number): string {
 export function heatPaint(position: number): LensPaint {
   const percent = Math.round(Math.min(1, Math.max(0, position)) * 100);
   const edge = `color-mix(in oklch, var(--color-warning) ${percent}%, var(--color-info))`;
-  return { edge, fill: tint(edge, 16 + Math.round(percent * 0.3)) };
+  return { edge, fill: tint(edge, 14 + Math.round(percent * 0.36)) };
 }
 
 /** Domain of a numeric lens over the records, or `undefined` when none has a value yet. */

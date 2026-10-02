@@ -140,3 +140,6 @@ playwright-report-live/
 
 # Stray Next.js cache (web-app is Vite)
 .next/
+
+# Generated from docs/kilavuz/*.md by web-app/scripts/write-guide.mjs (predev/build/pretest)
+web-app/src/data/guide.json

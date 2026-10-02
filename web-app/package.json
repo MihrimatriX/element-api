@@ -5,15 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "node scripts/write-coverage.mjs && node scripts/write-sitemap.mjs && node scripts/write-schema.mjs && tsc -b && vite build",
+    "build": "node scripts/write-coverage.mjs && node scripts/write-guide.mjs && node scripts/write-sitemap.mjs && node scripts/write-schema.mjs && tsc -b && vite build",
     "sitemap": "node scripts/write-sitemap.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "test:e2e": "playwright test",
-    "predev": "node scripts/write-coverage.mjs && node scripts/write-schema.mjs",
+    "predev": "node scripts/write-coverage.mjs && node scripts/write-schema.mjs && node scripts/write-guide.mjs",
     "test:e2e:auth": "playwright test --config playwright.auth.config.ts",
-    "pretest": "node scripts/write-schema.mjs",
+    "pretest": "node scripts/write-schema.mjs && node scripts/write-guide.mjs",
     "test:e2e:live": "playwright test --config playwright.live.config.ts"
   },
   "dependencies": {

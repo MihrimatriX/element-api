@@ -82,10 +82,12 @@ export function BenchDropZone({
     <div
       data-lab-drop
       className={cn(
-        "relative mt-4 rounded-lg border border-dashed p-3 transition-colors duration-150 sm:p-4",
-        hot ? "border-brand-ink bg-brand-soft" : "border-line-strong bg-canvas-2/60",
+        "relative mt-4 flex min-h-40 flex-1 flex-col rounded-lg border border-dashed p-3 transition-colors duration-150 sm:p-4",
+        hot
+          ? "border-brand-ink bg-brand-soft"
+          : "border-line-strong bg-canvas-2/60 bg-[radial-gradient(var(--color-line)_1px,transparent_1px)] bg-size-[18px_18px]",
         drag && !hot && "border-ink-4",
-        chipIds.length === 0 && "grid min-h-64 place-items-center",
+        chipIds.length === 0 && "min-h-64 items-center justify-center",
       )}
     >
       {chipIds.length === 0 ? (
@@ -95,7 +97,11 @@ export function BenchDropZone({
           <p id={hintId} className="sr-only">
             Sırayı değiştirmek için tutamaçta sol ve sağ ok tuşlarını kullan.
           </p>
-          <ul ref={listRef} aria-label="Tezgâhtaki elementler" className="flex flex-wrap gap-2">
+          <ul
+            ref={listRef}
+            aria-label="Tezgâhtaki elementler"
+            className="flex flex-1 flex-wrap content-center justify-center gap-2"
+          >
             {chipIds.map((id, index) => (
               <BenchChip
                 key={id}
@@ -111,6 +117,11 @@ export function BenchDropZone({
               />
             ))}
           </ul>
+          <p aria-hidden="true" className="pt-6 text-center text-[13px] leading-5 text-ink-3">
+            {hot
+              ? "Bırak: tezgâha eklenir."
+              : "Paletten eklemeye devam et. Çıkarmak için tutamaktan tezgâhın dışına sürükle."}
+          </p>
         </>
       )}
       <p aria-live="polite" className="sr-only">
@@ -158,7 +169,7 @@ function BenchChip({
       data-lab-chip={index}
       style={{ "--family": familyColor(family) }}
       className={cn(
-        "relative flex items-center gap-2 overflow-hidden rounded-lg border border-line-strong bg-[color-mix(in_oklch,var(--family)_12%,var(--color-surface-2))] py-1 pr-1 pl-0.5 shadow-xs transition-[opacity,box-shadow] before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-(--family)",
+        "relative flex items-center gap-2 overflow-hidden rounded-lg border border-line-strong bg-[color-mix(in_oklch,var(--family)_12%,var(--color-surface-2))] py-1.5 pr-1.5 pl-1 shadow-xs transition-[opacity,box-shadow] before:absolute before:inset-y-0 before:left-0 before:w-0.5 before:bg-(--family)",
         isSource && "opacity-40",
         isTarget && "ring-2 ring-brand-ink",
       )}
@@ -174,7 +185,7 @@ function BenchChip({
       >
         <GripVertical aria-hidden="true" className="size-4" strokeWidth={1.75} />
       </button>
-      <span className="min-w-6 font-mono text-lg leading-none font-semibold text-ink">{id}</span>
+      <span className="min-w-7 font-mono text-xl leading-none font-semibold text-ink">{id}</span>
       <span className="text-[13px] text-ink-2 max-sm:sr-only">{name}</span>
       <CountStepper name={name} count={count} onStep={(delta) => onStep(id, delta)} />
       <Button
@@ -200,7 +211,7 @@ function BenchInvite({
   if (dropping)
     return <p className="font-medium text-ink">Bırak: tezgâha eklenir.</p>;
   return (
-    <div className="flex max-w-md flex-col items-center px-2 py-6 text-center">
+    <div className="flex max-w-xl flex-col items-center px-2 py-6 text-center">
       <span
         aria-hidden="true"
         className="grid size-11 place-items-center rounded-xl border border-line bg-surface text-brand-ink shadow-xs"
@@ -210,7 +221,7 @@ function BenchInvite({
       <h3 className="mt-4 font-sans text-base font-semibold tracking-normal text-ink">
         Tezgâh boş
       </h3>
-      <p className="mt-1.5 text-sm leading-6 text-ink-2">
+      <p className="mt-1.5 max-w-sm text-sm leading-6 text-ink-2">
         Paletten bir elementi buraya sürükle veya üstüne tıkla. Hızlı başlamak
         için hazır bir karışım seç.
       </p>

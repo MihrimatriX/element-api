@@ -181,7 +181,7 @@ export default function Laboratory() {
 
       <div
         className={cn(
-          "grid items-start gap-5 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]",
+          "grid gap-5 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)]",
           lesson ? "mt-5" : "mt-10",
         )}
       >
@@ -196,7 +196,7 @@ export default function Laboratory() {
           ref={benchRef}
           tabIndex={-1}
           aria-labelledby={benchTitleId}
-          className="panel min-w-0 p-4 outline-none sm:p-6"
+          className="panel flex min-w-0 flex-col p-4 outline-none sm:p-6"
         >
           <div className="flex items-center justify-between gap-3">
             <h2 id={benchTitleId} className="font-sans text-base font-semibold tracking-normal text-ink">

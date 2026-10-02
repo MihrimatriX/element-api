@@ -4,6 +4,7 @@ import { ExternalLink } from "@/components/ui/external-link";
 import { Segmented, type SegmentOption } from "@/components/ui/segmented";
 import { cn } from "@/lib/utils";
 import type { AtlasMedia } from "../services/science";
+import { focusOnImage, type DrawingFocus } from "./detail/drawingFocus";
 
 const BEATS = {
   water: ["H₂", "+", "O", "→", "H₂O"],
@@ -110,12 +111,15 @@ function MediaImage({
   fallback,
 }: {
   media: AtlasMedia;
+  /** PubChem structure depiction: zoomed to the drawing and blended into the light plate. */
   plate: boolean;
   /** Above the fold (detail hero): load right away instead of lazily. */
   eager: boolean;
   fallback: ReactNode;
 }) {
   const [failed, setFailed] = useState(false);
+  // Undefined until a structure is measured, so it never paints as a speck first.
+  const [focus, setFocus] = useState<DrawingFocus | null>();
   if (failed)
     return (
       <div className="relative size-full bg-canvas-2">
@@ -125,17 +129,35 @@ function MediaImage({
         </p>
       </div>
     );
+  if (!plate)
+    return (
+      <img
+        src={media.url}
+        alt={media.caption}
+        loading={eager ? "eager" : "lazy"}
+        decoding="async"
+        onError={() => setFailed(true)}
+        className="size-full object-cover"
+      />
+    );
   return (
     <img
       src={media.url}
       alt={media.caption}
       loading={eager ? "eager" : "lazy"}
       decoding="async"
+      onLoad={(event) => setFocus(focusOnImage(event.currentTarget))}
       onError={() => setFailed(true)}
+      style={
+        focus
+          ? { "--zoom": focus.zoom, "--shift-x": `${focus.shiftX}%`, "--shift-y": `${focus.shiftY}%` }
+          : undefined
+      }
       className={cn(
-        "size-full",
-        // PubChem depictions are dark-on-white: a light plate keeps them readable.
-        plate ? "object-contain p-3 mix-blend-darken" : "object-cover",
+        // Dark-on-white depiction: darken melts its white square into the plate.
+        "mx-auto aspect-square h-full object-contain mix-blend-darken transition-opacity duration-200",
+        "[transform:scale(var(--zoom,1))_translate(var(--shift-x,0%),var(--shift-y,0%))]",
+        focus === undefined && "opacity-0",
       )}
     />
   );

@@ -1,54 +1,64 @@
-import catalogElements from "../../../catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json" with { type: "json" };
+import localElements from "../../../catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json" with { type: "json" };
 import scientificCompounds from "../../../compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json" with { type: "json" };
 import { asScienceCompound, knownCompounds } from "./chemistry.ts";
 
-// ponytail: local JSON is the Vite fallback when /api/v2 is down. STATIC_ELEMENTS stays the layout seed — do not add a fourth copy.
+/**
+ * Offline snapshot behind `science.ts` (loaded lazily as its own ~1.4 MB
+ * chunk). Elements are the full catalogue records; compounds are built from
+ * the lab catalogue plus the structure drawings of the compound service.
+ */
 
-const localElements = catalogElements;
-const mediaBySlug = new Map(
+// ponytail: local JSON is only the fallback when /api/v2 is down. STATIC_ELEMENTS stays the periodic layout seed; do not add a fourth copy.
+
+type ScienceKind = "elements" | "compounds";
+
+const structureBySlug = new Map(
   (
     scientificCompounds as {
       slug: string;
       media?: { structure?: { url: string } | null };
     }[]
-  ).map((c) => [c.slug, c.media]),
+  ).map((compound) => [compound.slug, compound.media?.structure]),
 );
-const localCompounds = knownCompounds.map((c) => {
-  const row = asScienceCompound(c);
-  const media = mediaBySlug.get(c.slug);
-  return media?.structure?.url
-    ? { ...row, media: { photo: null, structure: media.structure } }
-    : row;
-});
-const elementsById = new Map(
-  localElements.map((e) => [e.symbol.toLowerCase(), e]),
-);
-const compoundsById = new Map(localCompounds.map((c) => [c.slug, c]));
 
-export function localScience(kind: "elements" | "compounds", id?: string) {
+const localCompounds = knownCompounds.map((compound) => {
+  const record = asScienceCompound(compound);
+  const structure = structureBySlug.get(compound.slug);
+  return structure?.url
+    ? { ...record, media: { photo: null, structure } }
+    : record;
+});
+
+const elementsBySymbol = new Map(
+  localElements.map((element) => [element.symbol.toLowerCase(), element]),
+);
+const compoundsBySlug = new Map(
+  localCompounds.map((compound) => [compound.slug, compound]),
+);
+
+/** One local record by id (element symbol or compound slug, any case), or the whole list. */
+export function localScience(kind: ScienceKind, id?: string) {
   if (kind === "elements")
-    return id ? elementsById.get(id.toLowerCase()) : localElements;
-  return id ? compoundsById.get(id.toLowerCase()) : localCompounds;
+    return id ? elementsBySymbol.get(id.toLowerCase()) : localElements;
+  return id ? compoundsBySlug.get(id.toLowerCase()) : localCompounds;
 }
 
-export function mergeRemote<T>(
-  kind: "elements" | "compounds",
-  remote: T[],
-): T[] {
-  if (kind === "elements") {
-    const map = new Map(
-      localElements.map((e) => [e.symbol.toLowerCase(), e as unknown as T]),
-    );
-    for (const row of remote) {
-      const symbol = (row as { symbol?: string }).symbol;
-      if (symbol) map.set(symbol.toLowerCase(), row);
-    }
-    return [...map.values()];
+/** Record id used to match API rows with local ones; `undefined` rows are ignored. */
+function recordId(kind: ScienceKind, row: unknown): string | undefined {
+  if (kind === "elements")
+    return (row as { symbol?: string }).symbol?.toLowerCase();
+  return (row as { slug?: string }).slug;
+}
+
+/**
+ * Local records with API rows laid over them: an API row replaces the local
+ * record with the same id whole, and records only the API knows are appended.
+ */
+export function mergeRemote<T>(kind: ScienceKind, remote: T[]): T[] {
+  const merged = new Map<string, T>();
+  for (const row of [...(localScience(kind) as T[]), ...remote]) {
+    const id = recordId(kind, row);
+    if (id) merged.set(id, row);
   }
-  const map = new Map(localCompounds.map((c) => [c.slug, c as unknown as T]));
-  for (const row of remote) {
-    const slug = (row as { slug?: string }).slug;
-    if (slug) map.set(slug, row);
-  }
-  return [...map.values()];
+  return [...merged.values()];
 }

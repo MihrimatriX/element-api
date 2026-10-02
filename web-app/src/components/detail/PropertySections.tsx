@@ -69,18 +69,20 @@ export function PropertySections({ record }: { record: ScientificRecord }) {
   const [openKeys, setOpenKeys] = useState(() => new Set(target in record ? [target] : []));
   const [handledHash, setHandledHash] = useState(hash);
 
-  if (hash !== handledHash) {
-    setHandledHash(hash);
-    if (target in record) {
-      setFilter("");
-      setOpenKeys((current) => new Set(current).add(target));
-    }
-  }
-
   const sections = propertySections(record, showMissing);
   const visible = sections.filter((section) => sectionMatches(section, filter));
   const filtering = filter.trim() !== "";
   const allOpen = visible.length > 0 && visible.every((section) => openKeys.has(section.key));
+
+  if (hash !== handledHash) {
+    setHandledHash(hash);
+    if (target in record) {
+      // Sections the filter held open stay open: one collapsing above the target would scroll it away.
+      const heldOpen = filtering ? visible.map((section) => section.key) : [];
+      setOpenKeys((current) => new Set([...current, ...heldOpen, target]));
+      setFilter("");
+    }
+  }
 
   function setOpen(key: string, open: boolean) {
     setOpenKeys((current) => {
@@ -97,7 +99,7 @@ export function PropertySections({ record }: { record: ScientificRecord }) {
       title="Bilimsel özellikler"
       description="“Veri yok”, kaynak sürümünde doğrulanmış değer bulunmadığını belirtir; sıfır anlamına gelmez. Ölçüm koşulları ve belirsizlikler korunur."
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
         <SearchField
           value={filter}
           onValueChange={setFilter}
@@ -107,25 +109,28 @@ export function PropertySections({ record }: { record: ScientificRecord }) {
           formatCount={(count) => `${count} bölüm`}
           className="sm:max-w-sm"
         />
-        <label className="inline-flex h-10 cursor-pointer items-center gap-2.5 text-sm text-ink-2 select-none">
-          <input
-            type="checkbox"
-            checked={showMissing}
-            onChange={(event) => setShowMissing(event.target.checked)}
-            className="size-4 cursor-pointer accent-brand"
-          />
-          Eksik alanları göster
-        </label>
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={filtering || !visible.length}
-          onClick={() => setOpenKeys(allOpen ? new Set() : new Set(visible.map((section) => section.key)))}
-          className="self-start sm:ml-auto sm:self-center"
-        >
-          {allOpen ? <ChevronsDownUp strokeWidth={1.75} /> : <ChevronsUpDown strokeWidth={1.75} />}
-          {allOpen ? "Tümünü kapat" : "Tümünü aç"}
-        </Button>
+        <div className="flex flex-1 items-center justify-between gap-3">
+          <label className="inline-flex h-10 cursor-pointer items-center gap-2.5 text-sm text-ink-2 select-none">
+            <input
+              type="checkbox"
+              checked={showMissing}
+              onChange={(event) => setShowMissing(event.target.checked)}
+              className="size-4 cursor-pointer accent-brand"
+            />
+            Eksik alanları göster
+          </label>
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={filtering || !visible.length}
+            onClick={() =>
+              setOpenKeys(allOpen ? new Set() : new Set(visible.map((section) => section.key)))
+            }
+          >
+            {allOpen ? <ChevronsDownUp strokeWidth={1.75} /> : <ChevronsUpDown strokeWidth={1.75} />}
+            {allOpen ? "Tümünü kapat" : "Tümünü aç"}
+          </Button>
+        </div>
       </div>
 
       {visible.length ? (

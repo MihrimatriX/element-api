@@ -32,7 +32,7 @@ interface LensLegendProps {
  */
 export function LensLegend({ lens, domain, className }: LensLegendProps) {
   if (lens === "category") return null;
-  const unit = isNumericLens(lens) ? NUMERIC_LENSES[lens].unit : "standart hâl";
+  const unit = isNumericLens(lens) ? NUMERIC_LENSES[lens].unit : "standart koşullarda";
 
   return (
     <div className={cn("grid content-center gap-1.5", className)}>

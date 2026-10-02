@@ -20,7 +20,8 @@ interface FeatureSectionProps {
 
 /**
  * One landing feature: copy beside a visual in an asymmetric two-column split
- * (stacked on phones, copy first). Copy and media reveal one after the other.
+ * (stacked on phones, copy first). The copy stays in view beside tall media;
+ * copy and media reveal one after the other.
  */
 export function FeatureSection({
   eyebrow,
@@ -36,14 +37,14 @@ export function FeatureSection({
     <section
       aria-labelledby={headingId}
       className={cn(
-        "mt-24 grid items-center gap-10 lg:mt-32 lg:gap-16",
+        "mt-24 grid items-start gap-10 lg:mt-32 lg:gap-16",
         mediaFirst
           ? "lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]"
           : "lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]",
         className,
       )}
     >
-      <Reveal className={cn(mediaFirst && "lg:order-2")}>
+      <Reveal className={cn("lg:sticky lg:top-28", mediaFirst && "lg:order-2")}>
         <p className="eyebrow">{eyebrow}</p>
         <h2
           id={headingId}

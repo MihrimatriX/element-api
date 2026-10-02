@@ -59,7 +59,7 @@ export function DataExportSettings() {
           ) : (
             <Download strokeWidth={1.75} />
           )}
-          Hesap verilerimi indir
+          Hesap ve öğrenme verilerimi indir
         </Button>
         {failed && (
           <Notice tone="danger" className="mt-4">

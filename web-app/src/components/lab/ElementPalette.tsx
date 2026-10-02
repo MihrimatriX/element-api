@@ -56,7 +56,7 @@ export function ElementPalette({
   return (
     <section
       aria-labelledby={headingId}
-      className="panel flex min-h-0 min-w-0 flex-col p-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)]"
+      className="panel flex min-h-0 min-w-0 flex-col p-4 lg:sticky lg:top-20 lg:h-[min(calc(100dvh-6rem),52rem)]"
     >
       <div className="flex items-baseline justify-between gap-3">
         <h2 id={headingId} className="font-sans text-base font-semibold tracking-normal text-ink">

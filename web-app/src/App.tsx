@@ -108,6 +108,7 @@ function AppRoutes() {
       <Route path="/docs" element={<ApiDocs />} />
       <Route path="/data" element={<DataCoverage />} />
       <Route path="/kilavuz" element={<SystemGuide />} />
+      <Route path="/kilavuz/:slug" element={<SystemGuide />} />
       <Route path="/hakkinda" element={<About />} />
       <Route path="/feedback" element={<Feedback />} />
       <Route element={<DemoLayout />}>

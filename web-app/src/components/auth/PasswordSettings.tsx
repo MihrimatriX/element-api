@@ -48,7 +48,7 @@ export function PasswordSettings() {
             onChange={(event) => setCurrentPassword(event.target.value)}
           />
         </Field>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid items-start gap-5 sm:grid-cols-2">
           <Field label="Yeni şifre" hint="En az 10 karakter.">
             <PasswordInput
               autoComplete="new-password"

@@ -1,6 +1,6 @@
 import type { JsonValue, ScientificRecord } from "@/services/science";
-import { formatNumber } from "@/lib/format";
-import { matchesSearch } from "@/lib/text";
+import { formatNumber } from "../../lib/format.ts";
+import { matchesSearch } from "../../lib/text.ts";
 
 /**
  * Turkish labels for scientific record keys. A top-level key that appears here

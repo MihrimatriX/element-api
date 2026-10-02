@@ -18,6 +18,9 @@ function Missing({ children = "Veri yok" }: { children?: ReactNode }) {
   return <span className="text-[13px] text-ink-3">{children}</span>;
 }
 
+/** A number kept as text to preserve source notation, e.g. "53.93960899(53)" with its uncertainty. */
+const REPORTED_NUMBER = /^[-+−~]?\d[\d.,]*(\(\d+\))?$/;
+
 function ScalarValue({ value, fieldKey }: { value: Scalar; fieldKey?: string }) {
   if (typeof value === "number")
     return (
@@ -26,6 +29,7 @@ function ScalarValue({ value, fieldKey }: { value: Scalar; fieldKey?: string }) 
   if (typeof value === "boolean") return <>{value ? "Evet" : "Hayır"}</>;
   if (/^https?:\/\//.test(value))
     return <ExternalLink href={value}>Kaynağı incele</ExternalLink>;
+  if (REPORTED_NUMBER.test(value)) return <span className="font-mono tabular">{value}</span>;
   return <>{value}</>;
 }
 

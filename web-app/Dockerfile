@@ -10,6 +10,8 @@ ENV VITE_CAPTCHA_SITE_KEY=$VITE_CAPTCHA_SITE_KEY
 COPY web-app/package.json web-app/package-lock.json ./
 RUN npm ci
 COPY web-app/ .
+# scripts/write-guide.mjs turns docs/kilavuz into src/data/guide.json during the build.
+COPY docs/kilavuz/ /docs/kilavuz/
 COPY compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json /compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json
 COPY catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json /catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json
 RUN npm run build

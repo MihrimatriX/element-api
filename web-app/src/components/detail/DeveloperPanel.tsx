@@ -52,7 +52,9 @@ export function DeveloperPanel({
       <Disclosure className="mt-6 rounded-xl border border-line bg-surface shadow-xs">
         <DisclosureTrigger className="rounded-xl px-4 py-3.5 sm:px-5">
           JSON kaydını görüntüle
-          <span className="font-mono text-xs font-normal text-ink-3">GET /api/v2/{apiPath}</span>
+          <span className="hidden font-mono text-xs font-normal text-ink-3 sm:inline">
+            GET /api/v2/{apiPath}
+          </span>
         </DisclosureTrigger>
         <DisclosureContent>
           <div className="px-3 pb-3 sm:px-4 sm:pb-4">

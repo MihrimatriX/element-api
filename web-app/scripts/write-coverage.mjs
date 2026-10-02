@@ -1,38 +1,41 @@
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-const root = new URL("../", import.meta.url);
-const read = (path) => JSON.parse(readFileSync(new URL(path, root), "utf8"));
-const elements = read(
+// Writes src/data/coverage.json: record counts and which element sections have
+// no data at all, computed from the bundled scientific snapshots.
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+
+const webApp = new URL("../", import.meta.url);
+const readJson = (path) => JSON.parse(readFileSync(new URL(path, webApp), "utf8"));
+
+const elements = readJson(
   "../catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json",
 );
-const compounds = read(
+const compounds = readJson(
   "../compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json",
 );
-const populated = (value) =>
+const records = [...elements, ...compounds];
+
+/** True when the value, or anything nested in it, holds data (not null and not ""). */
+const isPopulated = (value) =>
   value != null &&
   (typeof value === "object"
-    ? Object.values(value).some(populated)
+    ? Object.values(value).some(isPopulated)
     : value !== "");
-const all = [...elements, ...compounds];
-const directory = fileURLToPath(new URL("src/data/", root));
-mkdirSync(directory, { recursive: true });
+
+const coverage = {
+  unavailableElementSections: Object.keys(elements[0]).filter(
+    (section) => !elements.some((record) => isPopulated(record[section])),
+  ),
+  elements: elements.length,
+  compounds: compounds.length,
+  editorial: records.filter((record) => record.editorial?.summary).length,
+  photos: elements.filter((record) => record.media?.photo).length,
+  structures: compounds.filter((record) => record.media?.structure).length,
+  retrievedAt: [...new Set(records.map((record) => record.provenance.retrieved_at))]
+    .sort()
+    .join(" / "),
+};
+
+mkdirSync(new URL("src/data/", webApp), { recursive: true });
 writeFileSync(
-  new URL("src/data/coverage.json", root),
-  JSON.stringify(
-    {
-      unavailableElementSections: Object.keys(elements[0]).filter(
-        (key) => !elements.some((record) => populated(record[key])),
-      ),
-      elements: elements.length,
-      compounds: compounds.length,
-      editorial: all.filter((r) => r.editorial?.summary).length,
-      photos: elements.filter((r) => r.media?.photo).length,
-      structures: compounds.filter((r) => r.media?.structure).length,
-      retrievedAt: [...new Set(all.map((r) => r.provenance.retrieved_at))]
-        .sort()
-        .join(" / "),
-    },
-    null,
-    2,
-  ) + "\n",
+  new URL("src/data/coverage.json", webApp),
+  JSON.stringify(coverage, null, 2) + "\n",
 );

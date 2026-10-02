@@ -32,7 +32,7 @@ export function ResultCard({ compound, fresh, nextHint, onRestart }: ResultCardP
       className="relative mt-4 overflow-hidden rounded-xl border border-line-strong bg-surface-2 shadow-md"
     >
       {fresh && !reduceMotion && <Celebration />}
-      <div className="grid gap-5 p-5 sm:grid-cols-[minmax(0,1fr)_10rem] sm:p-6">
+      <div className="grid gap-5 p-5 sm:grid-cols-[minmax(0,1fr)_12rem] sm:p-6">
         <div className="min-w-0">
           <p className="eyebrow flex items-center gap-2">
             <FlaskConical aria-hidden="true" className="size-3.5" strokeWidth={1.75} />
@@ -44,7 +44,7 @@ export function ResultCard({ compound, fresh, nextHint, onRestart }: ResultCardP
           <Formula value={compound.formula} className="mt-1 block text-lg text-brand-ink" />
           <p className="mt-4 max-w-prose text-[15px] leading-7 text-ink-2">{compound.summary}</p>
         </div>
-        <div className="w-full max-w-40 justify-self-start sm:justify-self-end">
+        <div className="w-full max-w-48 justify-self-start sm:justify-self-end">
           <ResultVisual compound={compound} />
         </div>
       </div>

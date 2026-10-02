@@ -231,8 +231,9 @@ function leaks(text: string, element: ElementItem): boolean {
 
 /** Clues from vague to specific; none of them names the element. */
 export function detectiveClues(element: ElementItem): string[] {
+  const family = categoryLabels[element.category]?.toLocaleLowerCase("tr") ?? "element";
   const clues = [
-    `Periyodik tabloda ${categoryLabels[element.category] ?? "bir element"}.`,
+    `Periyodik tabloda bir ${family}.`,
     `Periyot ${element.period}, grup ${element.group}.`,
   ];
   if (element.phase && element.phase !== "—")

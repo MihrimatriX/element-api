@@ -48,7 +48,12 @@ function CompoundPlate({ formula, structureUrl, hue, mediaPending }: PlateProps)
 
   if (structureUrl && !imageFailed)
     return (
-      <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-ink">
+      <div
+        className={cn(
+          "relative aspect-[4/3] overflow-hidden rounded-lg transition-colors duration-300",
+          fit ? "bg-ink" : "animate-pulse bg-surface-2",
+        )}
+      >
         {/* Square image as wide as the plate, centred; darken blending hides its off-white canvas. */}
         <img
           src={structureUrl}
@@ -109,8 +114,7 @@ export default function CompoundCard({
           value={formula}
           className="block truncate text-lg leading-tight text-ink"
         />
-        <h2 className="mt-1.5 font-sans text-[15px] leading-snug font-semibold tracking-normal text-ink"
-        >
+        <h2 className="mt-1.5 font-sans text-[15px] leading-snug font-semibold tracking-normal text-ink">
           {compound.names.tr}
         </h2>
         <p className="mt-1.5 line-clamp-2 text-[13px] leading-5 text-ink-2">

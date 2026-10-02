@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { LoaderCircle } from "lucide-react";
 import Seo from "../components/Seo";
 import { AuthLayout } from "../components/auth/AuthLayout";
+import { AuthStatus } from "../components/auth/AuthStatus";
 import { PasswordInput } from "../components/auth/PasswordInput";
 import { useAccountAction } from "../components/auth/accountApi";
 import { Button } from "../components/ui/button";
@@ -18,24 +19,27 @@ type Mode = "verify" | "reset" | "request";
 
 const MODES: Record<
   Mode,
-  { title: string; lead: string; submit: string; path: string }
+  { title: string; lead: string; submit: string; done: string; path: string }
 > = {
   verify: {
     title: "E-posta adresini doğrula",
     lead: "Doğrulama bağlantısındaki adresi onayla; hesabın sana ait olduğu kayda geçsin.",
     submit: "Adresimi doğrula",
+    done: "Adresin doğrulandı",
     path: "/auth/email/verify",
   },
   reset: {
     title: "Yeni şifreni belirle",
     lead: "Yeni şifre tüm cihazlardaki oturumları kapatır. Keşif defterin olduğu yerde kalır.",
     submit: "Şifreyi yenile",
+    done: "Şifren yenilendi",
     path: "/auth/password/reset",
   },
   request: {
     title: "Şifreni yenile",
     lead: "Hesabının e-posta adresini yaz; yenileme bağlantısı oraya gider. Keşif defterin olduğu yerde kalır.",
     submit: "Yenileme bağlantısı gönder",
+    done: "İsteğin alındı",
     path: "/auth/password/forgot",
   },
 };
@@ -112,26 +116,30 @@ export default function Recovery({ verify = false }: { verify?: boolean }) {
         }
       >
         {mode === "verify" && !token && (
-          <Notice tone="warning" title="Doğrulama bağlantısı eksik">
+          <AuthStatus tone="warning" title="Doğrulama bağlantısı eksik">
             E-postandaki bağlantıyı yeniden aç ya da{" "}
             <Link to="/settings" className="text-link">
               ayarlardan
             </Link>{" "}
             yeni bağlantı iste.
-          </Notice>
+          </AuthStatus>
         )}
         {mode === "request" && loading && <FormSkeleton />}
         {mode === "request" && !loading && !capabilities.passwordRecovery && (
-          <Notice tone="info" title="E-postasız beta">
+          <AuthStatus tone="info" title="E-postasız beta">
             E-posta ile şifre kurtarma henüz yok. Şifreni unuttuysan{" "}
             <Link to="/register" className="text-link">
               yeni hesap açabilir
             </Link>{" "}
             veya giriş yapabildiğin bir oturumda hesap ayarlarından şifreyi
             değiştirebilirsin.
-          </Notice>
+          </AuthStatus>
         )}
-        {done && result && <Notice tone="success">{result.message}</Notice>}
+        {done && result && (
+          <AuthStatus tone="success" title={copy.done}>
+            {result.message}
+          </AuthStatus>
+        )}
         {!done && formAvailable && (
           <form className="grid gap-5" onSubmit={submit}>
             {result && <Notice tone="danger">{result.message}</Notice>}

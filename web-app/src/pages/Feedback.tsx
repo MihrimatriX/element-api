@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Download, RefreshCw } from "lucide-react";
 import Seo from "../components/Seo";
 import { downloadJson } from "../components/notebook/downloadJson";
@@ -39,6 +39,14 @@ export default function Feedback() {
   const [storageBlocked, setStorageBlocked] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
 
+  // Notes live only in memory: ask before a reload or tab close throws them away.
+  useEffect(() => {
+    if (!notes) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [notes]);
+
   const countOf = (event: ProductEvent) =>
     events.filter((entry) => entry.event === event).length;
 
@@ -76,13 +84,18 @@ export default function Feedback() {
         lead="Su kurulmadı mı, tuz formül birimi karıştı mı? Notu buraya yaz; kimseye otomatik gitmez."
       />
 
-      <div className="mt-12 grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-start">
+      <div className="mt-12 grid gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
         <section aria-labelledby={notesTitleId} className="panel p-5 sm:p-6">
           <h2 id={notesTitleId} className={panelTitleClass}>
             Gözlemlerin
           </h2>
           <Field
             label="Deneyim notu"
+            labelAction={
+              <span className="font-mono text-ink-3 tabular">
+                {notes.length} / {NOTES_MAX_LENGTH}
+              </span>
+            }
             hint="Not, bu sayfa açıkken bellekte tutulur. İndirdiğin dosyayı inceleyip istediğin kişiyle kendin paylaşabilirsin."
             className="mt-5"
           >
@@ -95,14 +108,9 @@ export default function Feedback() {
               className="min-h-40"
             />
           </Field>
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <Button onClick={download}>
-              <Download strokeWidth={1.75} /> Notları ve deneme kaydını indir
-            </Button>
-            <span className="font-mono text-xs text-ink-3 tabular">
-              {notes.length} / {NOTES_MAX_LENGTH}
-            </span>
-          </div>
+          <Button onClick={download} className="mt-6">
+            <Download strokeWidth={1.75} /> Notları ve deneme kaydını indir
+          </Button>
           {downloaded && (
             <Notice tone="success" className="mt-4">
               Dosya hazırlandı. Otomatik olarak kimseye gönderilmedi.

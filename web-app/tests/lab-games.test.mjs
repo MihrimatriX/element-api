@@ -58,6 +58,7 @@ test("buildDetective: four distinct candidates that include the answer", () => {
   assert.equal(new Set(item.choices.map((e) => e.symbol)).size, 4);
   assert.ok(item.choices.some((e) => e.symbol === "Fe"));
   assert.ok(item.clues.every((clue) => !/demir|\bFe\b/i.test(clue)), "clues never name the answer");
+  assert.equal(item.clues[0], "Periyodik tabloda bir geçiş metali.", "family reads mid-sentence in lower case");
 });
 
 test("gradeDetective accepts symbol or Turkish name in any case", () => {

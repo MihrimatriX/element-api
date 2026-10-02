@@ -1,5 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, CircleDashed, ImageOff } from "lucide-react";
+import {
+  ArrowRight,
+  CircleDashed,
+  ImageOff,
+  type LucideIcon,
+} from "lucide-react";
 import { ExternalLink } from "@/components/ui/external-link";
 import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
@@ -62,7 +67,7 @@ function GapRow({
   title,
   children,
 }: {
-  icon: typeof CircleDashed;
+  icon: LucideIcon;
   title: string;
   children: string;
 }) {

@@ -22,11 +22,12 @@ import {
 } from "@/services/science";
 import { familyOf, labHref, type DetailSubject } from "./record";
 
-/** "[Ar]4s2 3d6" with the orbital occupancies raised: [Ar]4s² 3d⁶. */
+/** "[Ar]4s2 3d6" with the orbital occupancies raised: [Ar]4s² 3d⁶. Superheavy entries are marked predicted. */
 function ElectronConfiguration({ value }: { value: string }) {
+  const parts = value.replace("(predicted)", "(öngörülen)").split(/(?<=[spdf])(\d+)/);
   return (
     <span className="font-mono">
-      {value.split(/(?<=[spdf])(\d+)/).map((part, index) =>
+      {parts.map((part, index) =>
         index % 2 ? <sup key={index}>{part}</sup> : <span key={index}>{part}</span>,
       )}
     </span>
@@ -66,15 +67,20 @@ function elementFacts(element: ScientificElement): KeyValueItem[] {
 
 function compoundFacts(compound: ScientificCompound, geometry?: Geometry): KeyValueItem[] {
   const cid = compound.identifiers.pubchem_cid;
+  const elementCount = compound.composition?.length;
   const facts: KeyValueItem[] = [
-    { label: "İngilizce adı", value: <span lang="en">{compound.names.en}</span> },
-    { label: "IUPAC adı", value: <span className="break-words">{compound.names.iupac}</span> },
+    {
+      label: "Formül",
+      value: <Formula value={compound.display_formula} />,
+      hint: elementCount ? `${elementCount} farklı element` : undefined,
+    },
     {
       label: "Molar kütle",
       value: mono(formatScience(compound.molecular_properties.molecular_weight_g_mol, "g/mol")),
     },
+    { label: "İngilizce adı", value: <span lang="en">{compound.names.en}</span> },
+    { label: "IUPAC adı", value: <span className="break-words">{compound.names.iupac}</span> },
     { label: "PubChem CID", value: mono(cid ? String(cid) : "—") },
-    { label: "Bileşen element", value: mono(compound.composition?.length ?? "—") },
   ];
   if (geometry) facts.push({ label: "Geometri", value: geometry.nameTr });
   return facts;
@@ -170,7 +176,13 @@ export function RecordHero({ id, subject, atlas, geometry, onDownload }: RecordH
               <span aria-hidden="true">
                 <RecordMark subject={subject} />
               </span>
-              <span className="min-w-0">{name}</span>
+              <span className="min-w-0">
+                {name}
+                {/* The tile is decorative; the heading still names the symbol or formula. */}
+                <span className="sr-only">
+                  {` (${isElement ? subject.element.symbol : displayFormula(subject.compound.display_formula)})`}
+                </span>
+              </span>
             </span>
           }
           lead={atlas.editorial?.summary}
