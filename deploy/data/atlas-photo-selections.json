@@ -1,0 +1,182 @@
+{
+  "Al": {
+    "file": "Aluminium-4.jpg",
+    "caption": "Alüminyum · metal numunesi",
+    "creator": "Chemical Elements — A Virtual Museum (Jumk.de Webprojects)",
+    "attribution_url": "https://images-of-elements.com/aluminium.php"
+  },
+  "Si": {
+    "file": "SiliconCroda.jpg",
+    "caption": "Silisyum · saflaştırılmış numune"
+  },
+  "Ti": {
+    "file": "Titanium crystal bar.jpg",
+    "caption": "Titanyum · kristal çubuk numunesi"
+  },
+  "Zn": {
+    "file": "Zinc fragment sublimed and 1cm3 cube.jpg",
+    "caption": "Çinko · kristal parça, dendrit ve karşılaştırma küpü"
+  },
+  "Co": {
+    "file": "Kobalt electrolytic and 1cm3 cube.jpg",
+    "caption": "Kobalt · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "Ni": {
+    "file": "Nickel electrolytic and 1cm3 cube.jpg",
+    "caption": "Nikel · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "C": {
+    "file": "Glassy carbon and a 1cm3 graphite cube HP68-79.jpg",
+    "caption": "Karbon · camsı karbon ve 1 cm³ grafit küp"
+  },
+  "Sn": {
+    "file": "Sn-Alpha-Beta.jpg",
+    "caption": "Kalay · alfa ve beta allotrop numuneleri"
+  },
+  "P": {
+    "file": "Phosphor rot.jpg",
+    "caption": "Fosfor · kırmızı fosfor numunesi"
+  },
+  "Cr": {
+    "file": "Chromium crystals and 1cm3 cube.jpg",
+    "caption": "Krom · kristaller ve karşılaştırma küpü"
+  },
+  "Mn": {
+    "file": "Manganese electrolytic and 1cm3 cube.jpg",
+    "caption": "Manganez · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "Pb": {
+    "file": "Lead electrolytic and 1cm3 cube.jpg",
+    "caption": "Kurşun · elektrolitik parçalar ve karşılaştırma küpü"
+  },
+  "N": {
+    "file": "Fluessiger Stickstoff.jpg",
+    "caption": "Azot · sıvı azot (yoğunlaşmış element)"
+  },
+  "S": {
+    "file": "Sulfur-sample.jpg",
+    "caption": "Kükürt · saf numune"
+  },
+  "Ga": {
+    "file": "Gallium crystals.jpg",
+    "caption": "Galyum · erimiş ve katı numune"
+  },
+  "Fe": {
+    "file": "Iron electrolytic and 1cm3 cube.jpg",
+    "caption": "Demir · elektrolitik numune ve 1 cm³ küp"
+  },
+  "Cu": {
+    "file": "NatCopper.jpg",
+    "caption": "Bakır · kristal numune"
+  },
+  "Au": {
+    "file": "Gold-crystals.jpg",
+    "caption": "Altın · kristal numune"
+  },
+  "Bi": {
+    "file": "Bismuth-2.jpg",
+    "caption": "Bizmut · kristal numune ve 1 cm³ küp"
+  },
+  "As": {
+    "file": "Arsenic-1.jpg",
+    "caption": "Arsenik · numune"
+  },
+  "Se": {
+    "file": "Selenium black.jpg",
+    "caption": "Selenyum · siyah allotrop"
+  },
+  "V": {
+    "file": "Vanadium crystal bar and 1cm3 cube.jpg",
+    "caption": "Vanadyum · kristal çubuk ve 1 cm³ küp"
+  },
+  "Mo": {
+    "file": "Molybdenum crystaline fragment and 1cm3 cube.jpg",
+    "caption": "Molibden · kristal parça ve 1 cm³ küp"
+  },
+  "Cd": {
+    "file": "Cadmium.jpg",
+    "caption": "Kadmiyum · kristal çubuk ve 1 cm³ küp"
+  },
+  "Sc": {
+    "file": "Scandium sublimed dendritic and 1cm3 cube.jpg",
+    "caption": "Skandiyum · süblime dendrit ve 1 cm³ küp"
+  },
+  "Y": {
+    "file": "Yttrium sublimed dendritic and 1cm3 cube.jpg",
+    "caption": "İtriyum · süblime dendrit ve 1 cm³ küp"
+  },
+  "Zr": {
+    "file": "Zirconium crystal bar and 1cm3 cube.jpg",
+    "caption": "Zirkonyum · kristal çubuk ve 1 cm³ küp"
+  },
+  "Nb": {
+    "file": "Niobium crystals and 1cm3 cube.jpg",
+    "caption": "Niyobyum · kristaller ve 1 cm³ küp"
+  },
+  "Ru": {
+    "file": "Ruthenium crystals.jpg",
+    "caption": "Rutenyum · kristal numune"
+  },
+  "Hf": {
+    "file": "Hafnium.jpg",
+    "caption": "Hafniyum · kristal çubuk ve 1 cm³ küp"
+  },
+  "Ta": {
+    "file": "Tantalum single crystal and 1cm3 cube.jpg",
+    "caption": "Tantal · tek kristal ve 1 cm³ küp"
+  },
+  "Re": {
+    "file": "Rhenium single crystal bar and 1cm3 cube.jpg",
+    "caption": "Renyum · tek kristal çubuk ve 1 cm³ küp"
+  },
+  "Os": {
+    "file": "Osmium crystals.jpg",
+    "caption": "Osmiyum · kristal numune"
+  },
+  "I": {
+    "file": "Iodine-sample.jpg",
+    "caption": "İyot · kristal numune"
+  },
+  "Br": {
+    "file": "Bromine.jpg",
+    "caption": "Brom · sıvı numune"
+  },
+  "Be": {
+    "file": "Be-140g.jpg",
+    "caption": "Berilyum · metal numunesi"
+  },
+  "W": {
+    "file": "Wolfram evaporated crystals and 1cm3 cube.jpg",
+    "caption": "Tungsten · buharlaştırılmış kristaller ve 1 cm³ küp"
+  },
+  "Lu": {
+    "file": "Lutetium sublimed dendritic and 1cm3 cube.jpg",
+    "caption": "Lütesyum · süblime dendrit ve 1 cm³ küp"
+  },
+  "Tm": {
+    "file": "Thulium sublimed dendritic and 1cm3 cube.jpg",
+    "caption": "Tulyum · süblime dendrit ve 1 cm³ küp"
+  },
+  "Dy": {
+    "file": "Ultrapure dysprosium dendrites.jpg",
+    "caption": "Disprozyum · ultrapure dendritler",
+    "creator": "Chemical Elements — A Virtual Museum (Jumk.de Webprojects)",
+    "attribution_url": "https://images-of-elements.com/dysprosium.php"
+  },
+  "Rb": {
+    "file": "RbMetal.JPG",
+    "caption": "Rubidyum · metal numunesi"
+  },
+  "Sr": {
+    "file": "Strontium.jpg",
+    "caption": "Stronsiyum · argon altında saf metal"
+  },
+  "Hg": {
+    "file": "Pouring liquid mercury bionerd.jpg",
+    "caption": "Cıva · sıvı metal numunesi"
+  },
+  "U": {
+    "file": "Ames Process uranium biscuit.jpg",
+    "caption": "Uranyum · Ames süreci metal bisküvisi"
+  }
+}

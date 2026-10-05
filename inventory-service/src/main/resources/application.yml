@@ -1,0 +1,50 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: element-inventory-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/element_inventory_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:mysecretpassword}
+    hikari:
+      # Default (1ms) aborts startup the instant Postgres is not up yet (reboot, WAL recovery) -> exit ->
+      # Docker restart -> a full JVM cold start every ~15s (backoff resets after 10s up). Wait in-process.
+      initialization-fail-timeout: 120000
+  sql:
+    init:
+      mode: always
+      # schema.sql is idempotent; a failed statement must crash startup (restart), not run without tables.
+      continue-on-error: false
+  lifecycle:
+    # Graceful shutdown is the Boot 3.4 default; keep listener + web stop phases under Docker's 10s kill.
+    timeout-per-shutdown-phase: 4s
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    # Client default is 60s: with the broker down every /health probe pinned a Tomcat thread for a minute.
+    connection-timeout: 5s
+    listener:
+      simple:
+        # Back off instead of instant infinite requeue; after 5 attempts park in inventory-service_failed.
+        retry:
+          enabled: true
+          max-attempts: 5
+          initial-interval: 1s
+          multiplier: 2
+
+inventory:
+  default-stock-grams: ${DEFAULT_STOCK_GRAMS:100000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true

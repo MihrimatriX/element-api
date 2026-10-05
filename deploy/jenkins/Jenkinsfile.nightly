@@ -1,0 +1,15 @@
+// Nightly full suite — referenced by job-dsl-nightly.groovy
+pipeline {
+  agent any
+  options {
+    timestamps()
+    timeout(time: 180, unit: 'MINUTES')
+  }
+  stages {
+    stage('test-all') {
+      steps {
+        bat 'pwsh -NoProfile -File ./deploy/scripts/test-all.ps1 -Configuration Review -Integration'
+      }
+    }
+  }
+}

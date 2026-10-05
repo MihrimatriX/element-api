@@ -1,0 +1,502 @@
+{
+  "h2o": {
+    "molecularFormula": "H2O",
+    "molecularWeight": 18.015,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxidane",
+    "inchiKey": "XLYOFNOQVPJJNP-UHFFFAOYSA-N",
+    "pubChemId": 962,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/962",
+    "retrievedAt": "2026-09-04"
+  },
+  "licl": {
+    "molecularFormula": "ClLi",
+    "molecularWeight": 42.4,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "lithium chloride",
+    "inchiKey": "KWGKDLIKAYFUFQ-UHFFFAOYSA-M",
+    "pubChemId": 433294,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/433294",
+    "retrievedAt": "2026-09-04"
+  },
+  "li2co3": {
+    "molecularFormula": "CLi2O3",
+    "molecularWeight": 73.9,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dilithium;carbonate",
+    "inchiKey": "XGZVUEUWXADBQD-UHFFFAOYSA-L",
+    "pubChemId": 11125,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/11125",
+    "retrievedAt": "2026-09-04"
+  },
+  "b2o3": {
+    "molecularFormula": "B2O3",
+    "molecularWeight": 69.63,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxo(oxoboranyloxy)borane",
+    "inchiKey": "JKWMSGQKBLHBQQ-UHFFFAOYSA-N",
+    "pubChemId": 518682,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/518682",
+    "retrievedAt": "2026-09-04"
+  },
+  "co2": {
+    "molecularFormula": "CO2",
+    "molecularWeight": 44.009,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "carbon dioxide",
+    "inchiKey": "CURLTUGMZLYLDI-UHFFFAOYSA-N",
+    "pubChemId": 280,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/280",
+    "retrievedAt": "2026-09-04"
+  },
+  "nh3": {
+    "molecularFormula": "H3N",
+    "molecularWeight": 17.031,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "azane",
+    "inchiKey": "QGZKDVFQNNGYKY-UHFFFAOYSA-N",
+    "pubChemId": 222,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/222",
+    "retrievedAt": "2026-09-04"
+  },
+  "hf": {
+    "molecularFormula": "FH",
+    "molecularWeight": 20.0064,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "fluorane",
+    "inchiKey": "KRHYYFGTRYWZRS-UHFFFAOYSA-N",
+    "pubChemId": 14917,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14917",
+    "retrievedAt": "2026-09-04"
+  },
+  "nacl": {
+    "molecularFormula": "ClNa",
+    "molecularWeight": 58.44,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "sodium chloride",
+    "inchiKey": "FAPWRFPIFSIZLT-UHFFFAOYSA-M",
+    "pubChemId": 5234,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/5234",
+    "retrievedAt": "2026-09-04"
+  },
+  "naoh": {
+    "molecularFormula": "HNaO",
+    "molecularWeight": 39.997,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "sodium hydroxide",
+    "inchiKey": "HEMHJVSKTPXQMS-UHFFFAOYSA-M",
+    "pubChemId": 14798,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14798",
+    "retrievedAt": "2026-09-04"
+  },
+  "mgo": {
+    "molecularFormula": "MgO",
+    "molecularWeight": 40.305,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxomagnesium",
+    "inchiKey": "CPLXHLVBOLITMK-UHFFFAOYSA-N",
+    "pubChemId": 14792,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14792",
+    "retrievedAt": "2026-09-04"
+  },
+  "al2o3": {
+    "molecularFormula": "Al2O3",
+    "molecularWeight": 101.961,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dialuminum;tris(oxygen(2-))",
+    "inchiKey": "PNEYBMLMFCGWSK-UHFFFAOYSA-N",
+    "pubChemId": 9989226,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/9989226",
+    "retrievedAt": "2026-09-04"
+  },
+  "sio2": {
+    "molecularFormula": "O2Si",
+    "molecularWeight": 60.084,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dioxosilane",
+    "inchiKey": "VYPSYNLAJGMNEJ-UHFFFAOYSA-N",
+    "pubChemId": 24261,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24261",
+    "retrievedAt": "2026-09-04"
+  },
+  "h2so4": {
+    "molecularFormula": "H2O4S",
+    "molecularWeight": 98.08,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "sulfuric acid",
+    "inchiKey": "QAOWNCQODCNURD-UHFFFAOYSA-N",
+    "pubChemId": 1118,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/1118",
+    "retrievedAt": "2026-09-04"
+  },
+  "hcl": {
+    "molecularFormula": "ClH",
+    "molecularWeight": 36.46,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "chlorane",
+    "inchiKey": "VEXZGXHMUGYJMC-UHFFFAOYSA-N",
+    "pubChemId": 313,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/313",
+    "retrievedAt": "2026-09-04"
+  },
+  "kcl": {
+    "molecularFormula": "ClK",
+    "molecularWeight": 74.55,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "potassium chloride",
+    "inchiKey": "WCUXLLCKKVVCTQ-UHFFFAOYSA-M",
+    "pubChemId": 4873,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/4873",
+    "retrievedAt": "2026-09-04"
+  },
+  "koh": {
+    "molecularFormula": "HKO",
+    "molecularWeight": 56.106,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "potassium hydroxide",
+    "inchiKey": "KWYUFKZDYYNOTN-UHFFFAOYSA-M",
+    "pubChemId": 14797,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14797",
+    "retrievedAt": "2026-09-04"
+  },
+  "caco3": {
+    "molecularFormula": "CCaO3",
+    "molecularWeight": 100.09,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "calcium carbonate",
+    "inchiKey": "VTYYLEPIZMXCLO-UHFFFAOYSA-L",
+    "pubChemId": 10112,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/10112",
+    "retrievedAt": "2026-09-04"
+  },
+  "cao": {
+    "molecularFormula": "CaO",
+    "molecularWeight": 56.08,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxocalcium",
+    "inchiKey": "ODINCKMPIJJUCX-UHFFFAOYSA-N",
+    "pubChemId": 14778,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14778",
+    "retrievedAt": "2026-09-04"
+  },
+  "tio2": {
+    "molecularFormula": "O2Ti",
+    "molecularWeight": 79.866,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dioxotitanium",
+    "inchiKey": "GWEVSGVZZGPLCZ-UHFFFAOYSA-N",
+    "pubChemId": 26042,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/26042",
+    "retrievedAt": "2026-09-04"
+  },
+  "v2o5": {
+    "molecularFormula": "O5V2",
+    "molecularWeight": 181.88,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dioxovanadiooxy(dioxo)vanadium",
+    "inchiKey": "GNTDGMZSJNCJKK-UHFFFAOYSA-N",
+    "pubChemId": 14814,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14814",
+    "retrievedAt": "2026-09-04"
+  },
+  "cr2o3": {
+    "molecularFormula": "Cr2O3",
+    "molecularWeight": 151.99,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxo(oxochromiooxy)chromium",
+    "inchiKey": "QDOXWKRWXJOMAK-UHFFFAOYSA-N",
+    "pubChemId": 517277,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/517277",
+    "retrievedAt": "2026-09-04"
+  },
+  "mno2": {
+    "molecularFormula": "MnO2",
+    "molecularWeight": 86.937,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dioxomanganese",
+    "inchiKey": "NUJOXMJBOLGQSY-UHFFFAOYSA-N",
+    "pubChemId": 14801,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14801",
+    "retrievedAt": "2026-09-04"
+  },
+  "niso4": {
+    "molecularFormula": "NiO4S",
+    "molecularWeight": 154.76,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "nickel(2+) sulfate",
+    "inchiKey": "LGQLOGILCSXPEA-UHFFFAOYSA-L",
+    "pubChemId": 24586,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24586",
+    "retrievedAt": "2026-09-04"
+  },
+  "cuso4": {
+    "molecularFormula": "CuO4S",
+    "molecularWeight": 159.61,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "copper sulfate",
+    "inchiKey": "ARUVKPQLZAKDPS-UHFFFAOYSA-L",
+    "pubChemId": 24462,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24462",
+    "retrievedAt": "2026-09-04"
+  },
+  "cu2o": {
+    "molecularFormula": "Cu2O",
+    "molecularWeight": 143.09,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "copper;oxocopper",
+    "inchiKey": "BERDEBHAJNAUOM-UHFFFAOYSA-N",
+    "pubChemId": 18346908,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/18346908",
+    "retrievedAt": "2026-09-04"
+  },
+  "zno": {
+    "molecularFormula": "OZn",
+    "molecularWeight": 81.4,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "zinc oxygen(2-)",
+    "inchiKey": "RNWHGQJWIACOKP-UHFFFAOYSA-N",
+    "pubChemId": 3007857,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/3007857",
+    "retrievedAt": "2026-09-04"
+  },
+  "geo2": {
+    "molecularFormula": "GeO2",
+    "molecularWeight": 104.63,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "germanium(4+);bis(oxygen(2-))",
+    "inchiKey": "OLQSNYOQJMTVNH-UHFFFAOYSA-N",
+    "pubChemId": 90478414,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/90478414",
+    "retrievedAt": "2026-09-04"
+  },
+  "as2o3": {
+    "molecularFormula": "As2O3",
+    "molecularWeight": 197.841,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "bis(arsenic(3+));tris(oxygen(2-))",
+    "inchiKey": "QTLQKAJBUDWPIB-UHFFFAOYSA-N",
+    "pubChemId": 14888,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14888",
+    "retrievedAt": "2026-09-04"
+  },
+  "mos2": {
+    "molecularFormula": "MoS2",
+    "molecularWeight": 160.1,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "bis(sulfanylidene)molybdenum",
+    "inchiKey": "CWQXQMHSOZUFJS-UHFFFAOYSA-N",
+    "pubChemId": 14823,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14823",
+    "retrievedAt": "2026-09-04"
+  },
+  "pdcl2": {
+    "molecularFormula": "Cl2Pd",
+    "molecularWeight": 177.32,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dichloropalladium",
+    "inchiKey": "PIBWKRNGBLPSSY-UHFFFAOYSA-L",
+    "pubChemId": 24290,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24290",
+    "retrievedAt": "2026-09-04"
+  },
+  "agno3": {
+    "molecularFormula": "AgNO3",
+    "molecularWeight": 169.873,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "silver nitrate",
+    "inchiKey": "SQGYOTSLMSWVJD-UHFFFAOYSA-N",
+    "pubChemId": 24470,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24470",
+    "retrievedAt": "2026-09-04"
+  },
+  "agcl": {
+    "molecularFormula": "AgCl",
+    "molecularWeight": 143.32,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "chlorosilver",
+    "inchiKey": "HKZLPVFGJNLROG-UHFFFAOYSA-M",
+    "pubChemId": 24561,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24561",
+    "retrievedAt": "2026-09-04"
+  },
+  "cds": {
+    "molecularFormula": "CdS",
+    "molecularWeight": 144.48,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "sulfanylidenecadmium",
+    "inchiKey": "CJOBVZJTOIVNNF-UHFFFAOYSA-N",
+    "pubChemId": 14783,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14783",
+    "retrievedAt": "2026-09-04"
+  },
+  "in2o3": {
+    "molecularFormula": "In2O3",
+    "molecularWeight": 277.63,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "bis(indium(3+));tris(oxygen(2-))",
+    "inchiKey": "PJXISJQVUVHSOJ-UHFFFAOYSA-N",
+    "pubChemId": 150905,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/150905",
+    "retrievedAt": "2026-09-04"
+  },
+  "sno2": {
+    "molecularFormula": "O2Sn",
+    "molecularWeight": 150.71,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "bis(oxygen(2-));tin(4+)",
+    "inchiKey": "DDSPUNTXKUFWTM-UHFFFAOYSA-N",
+    "pubChemId": 16747781,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/16747781",
+    "retrievedAt": "2026-09-04"
+  },
+  "sb2o3": {
+    "molecularFormula": "O3Sb2",
+    "molecularWeight": 291.52,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "bis(antimony(3+));tris(oxygen(2-))",
+    "inchiKey": "GHPGOEFPKIHBNM-UHFFFAOYSA-N",
+    "pubChemId": 14794,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14794",
+    "retrievedAt": "2026-09-04"
+  },
+  "teo2": {
+    "molecularFormula": "O2Te",
+    "molecularWeight": 159.6,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "tellurium dioxide",
+    "inchiKey": "LAJZODKXOMJMPK-UHFFFAOYSA-N",
+    "pubChemId": 62638,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/62638",
+    "retrievedAt": "2026-09-04"
+  },
+  "cscl": {
+    "molecularFormula": "ClCs",
+    "molecularWeight": 168.36,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "cesium chloride",
+    "inchiKey": "AIYUHDOJVYHVIT-UHFFFAOYSA-M",
+    "pubChemId": 24293,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24293",
+    "retrievedAt": "2026-09-04"
+  },
+  "baso4": {
+    "molecularFormula": "BaO4S",
+    "molecularWeight": 233.39,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "barium(2+) sulfate",
+    "inchiKey": "TZCXTZWJZNENPQ-UHFFFAOYSA-L",
+    "pubChemId": 24414,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/24414",
+    "retrievedAt": "2026-09-04"
+  },
+  "wo3": {
+    "molecularFormula": "O3W",
+    "molecularWeight": 231.84,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "trioxotungsten",
+    "inchiKey": "ZNOKGRXACCSDPY-UHFFFAOYSA-N",
+    "pubChemId": 14811,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14811",
+    "retrievedAt": "2026-09-04"
+  },
+  "wc": {
+    "molecularFormula": "CW",
+    "molecularWeight": 195.85,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "methanidylidynetungsten(1+)",
+    "inchiKey": "UONOETXJSWQNOL-UHFFFAOYSA-N",
+    "pubChemId": 2724274,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/2724274",
+    "retrievedAt": "2026-09-04"
+  },
+  "ptcl2": {
+    "molecularFormula": "Cl2Pt",
+    "molecularWeight": 265.99,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dichloroplatinum",
+    "inchiKey": "CLSUSRZJUQMOHH-UHFFFAOYSA-L",
+    "pubChemId": 2770,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/2770",
+    "retrievedAt": "2026-09-04"
+  },
+  "aucl3": {
+    "molecularFormula": "AuCl3",
+    "molecularWeight": 303.32,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "trichlorogold",
+    "inchiKey": "RJHLTVSLYWWTEF-UHFFFAOYSA-K",
+    "pubChemId": 26030,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/26030",
+    "retrievedAt": "2026-09-04"
+  },
+  "hgs": {
+    "molecularFormula": "HgS",
+    "molecularWeight": 232.66,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "sulfanylidenemercury",
+    "inchiKey": "QXKXDIKCIPXUPL-UHFFFAOYSA-N",
+    "pubChemId": 62402,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/62402",
+    "retrievedAt": "2026-09-04"
+  },
+  "pbo": {
+    "molecularFormula": "OPb",
+    "molecularWeight": 223,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxolead",
+    "inchiKey": "YEXPOXQUZXUXJW-UHFFFAOYSA-N",
+    "pubChemId": 14827,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/14827",
+    "retrievedAt": "2026-09-04"
+  },
+  "bi2o3": {
+    "molecularFormula": "Bi2O3",
+    "molecularWeight": 465.959,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "dibismuth;tris(oxygen(2-))",
+    "inchiKey": "TYIXMATWDRGMPF-UHFFFAOYSA-N",
+    "pubChemId": 160977,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/160977",
+    "retrievedAt": "2026-09-04"
+  },
+  "uo2": {
+    "molecularFormula": "O2U",
+    "molecularWeight": 270.028,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "bis(oxygen(2-));uranium(4+)",
+    "inchiKey": "OOAWCECZEHPMBX-UHFFFAOYSA-N",
+    "pubChemId": 51003830,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/51003830",
+    "retrievedAt": "2026-09-04"
+  },
+  "cocl2": {
+    "molecularFormula": "Cl2Co",
+    "molecularWeight": 129.84,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "cobalt(2+) dichloride",
+    "inchiKey": "GVPFVAHMJGGAJG-UHFFFAOYSA-L",
+    "pubChemId": 3032536,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/3032536",
+    "retrievedAt": "2026-09-04"
+  },
+  "fe2o3": {
+    "molecularFormula": "Fe2O3",
+    "molecularWeight": 159.69,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxo(oxoferriooxy)iron",
+    "inchiKey": "JEIPFZHSYJVQDO-UHFFFAOYSA-N",
+    "pubChemId": 518696,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/518696",
+    "retrievedAt": "2026-09-04"
+  },
+  "fe3o4": {
+    "molecularFormula": "Fe3O4",
+    "molecularWeight": 231.53,
+    "molecularWeightUnit": "g/mol",
+    "iupacName": "oxoiron;oxo(oxoferriooxy)iron",
+    "inchiKey": "SZVJSHCCFOBDDC-UHFFFAOYSA-N",
+    "pubChemId": 16211978,
+    "sourceUrl": "https://pubchem.ncbi.nlm.nih.gov/compound/16211978",
+    "retrievedAt": "2026-09-04"
+  }
+}
