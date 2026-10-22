@@ -1,0 +1,29 @@
+---
+description: Full Docker is the default run path; avoid rebuild storms for tiny UI checks
+alwaysApply: true
+---
+
+# Local run — full Docker by default
+
+Default product run is every service in its own container:
+
+```bash
+docker compose --env-file docker/.env up -d --build
+# or
+./deploy/scripts/present-platform.ps1
+```
+
+Atlas-only (no DB/broker): `./deploy/scripts/present-local.ps1` → `docker-compose.science.yml` → http://127.0.0.1:5080
+
+Stop: `./deploy/scripts/stop-local.ps1` (volumes kept). Wipe: `docker compose --env-file docker/.env down -v`
+
+## Verify without rebuilding the world
+
+A one-line UI or API tweak does **not** need `up --build` of every image.
+
+- Web only: `cd web-app && npm run dev` (or `npm run build`) against a running gateway
+- Single .NET service: `dotnet build` / `dotnet run` in that project
+- Order: `npx tsc` / `npm run check` in `order-service`
+- If gateway is already at `localhost:5000`, curl it
+
+Never rebuild ELK/Grafana (removed). Do not treat full-stack rebuild as the only way to confirm a landing/market/shop CSS change.

@@ -1,0 +1,460 @@
+# Element Market — tüm platform (build + run)
+# Kullanım: docker compose --env-file docker/.env up -d --build
+#
+# Reboot davranışı: her servis `restart: unless-stopped`. Docker açılışta hepsini aynı anda
+# kaldırır ve depends_on'u UYGULAMAZ; servisler bağımlılık hazır değilse ya bekler ya da
+# non-zero çıkıp yeniden başlatılır. `docker compose stop` ile durdurulan servis reboot'ta
+# kalkmaz (bilinçli). Ayrıntı: deploy/README.md → "Reboot".
+#
+# Layout: infrastructure (postgres, redis, rabbitmq) -> .NET services (identity, catalog, compound,
+# shipment, notification, gateway) + Node order-service + Java wallet/inventory -> web-app.
+# Every API service listens on 8080 inside its container (web-app on 80); the host port is the
+# left side of `ports` (bound to 127.0.0.1 except gateway and web-app).
+# docker-compose.public.yml overlays this file for the public (Caddy) stack.
+
+name: element-market
+
+# Her servis: reboot'ta geri gel, log'u döndür (varsayılan json-file sınırsız büyür).
+x-base: &base
+  restart: unless-stopped
+  networks:
+    - element-network
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+
+# Uygulama servisleri: tini PID 1 → SIGTERM iletilir, zombie toplanır.
+# Limit yoksa JVM/.NET/Node heap'i HOST RAM'ine göre boyutlar → hepsi birlikte sunucuyu yer, OOM killer
+# bir JVM'i öldürür, restart'taki soğuk açılış CPU'yu kilitler. Limitle her runtime cgroup'u okur.
+x-app: &app
+  <<: *base
+  init: true
+  mem_limit: ${APP_MEM_LIMIT:-512m}
+  cpus: ${APP_CPUS:-1.0}
+
+services:
+  # --- Infrastructure -------------------------------------------------------------------------
+  # One Postgres for all services; docker/init-scripts/init.sql creates the per-service databases.
+  postgres:
+    <<: *base
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.postgres
+    container_name: element-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+    ports:
+      - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    mem_limit: ${POSTGRES_MEM_LIMIT:-1g}
+    # Temiz kapanış (checkpoint) için zaman; aksi halde açılışta WAL recovery.
+    stop_grace_period: 30s
+    healthcheck:
+      # -h 127.0.0.1: ilk init sırasındaki geçici (yalnız unix socket) sunucuyu "hazır" sayma.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$${POSTGRES_USER}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  redis:
+    <<: *base
+    image: redis:7-alpine
+    container_name: element-redis
+    ports:
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    <<: *base
+    image: rabbitmq:3-management-alpine
+    container_name: element-rabbitmq
+    # Node adı rabbit@<hostname>; sabit değilse her yeniden oluşturmada yeni mnesia dizini
+    # açılır → durable kuyruklar ve içindeki mesajlar kaybolur.
+    hostname: rabbitmq
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    # Memory alarm = %40 of the detected limit; unbounded that is %40 of host RAM.
+    mem_limit: ${RABBITMQ_MEM_LIMIT:-512m}
+    stop_grace_period: 30s
+    healthcheck:
+      # ping yalnız node'u yoklar; AMQP dinleyicisi açılmadan servisler bağlanmaya çalışmasın.
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
+  # --- Application services -------------------------------------------------------------------
+  # identity_keys keeps the ASP.NET Data Protection keys across container restarts.
+  identity-service:
+    <<: *app
+    image: element-identity-service
+    build:
+      context: .
+      dockerfile: identity-service/Element.Services.Identity.API/Dockerfile
+    container_name: element-identity-service
+    ports:
+      - "127.0.0.1:5001:8080"
+    volumes:
+      - identity_keys:/app/keys
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_identity_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:-http://localhost:${WEB_HOST_PORT:-6241}}
+      DataProtection__KeyPath: /app/keys
+      Mail__Host: ${SMTP_HOST:-}
+      Mail__Port: ${SMTP_PORT:-587}
+      Mail__From: ${SMTP_FROM:-}
+      Mail__Username: ${SMTP_USER:-}
+      Mail__Password: ${SMTP_PASSWORD:-}
+      Mail__EnableSsl: ${SMTP_ENABLE_SSL:-true}
+      # Empty = Turnstile off. Set with VITE_CAPTCHA_SITE_KEY for public prod.
+      CAPTCHA_SECRET_KEY: ${CAPTCHA_SECRET_KEY:-}
+      JwtSettings__Secret: ${JWT_SECRET:-ChangeMeInProduction_UseLongRandomSecretKey123!}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  catalog-service:
+    <<: *app
+    image: element-catalog-service
+    build:
+      context: .
+      dockerfile: catalog-service/Element.Services.Element.API/Dockerfile
+    container_name: element-catalog-service
+    ports:
+      - "127.0.0.1:5002:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_market_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
+      RabbitMQ__Password: ${RABBITMQ_DEFAULT_PASS:-guest}
+      Market__SpreadPct: "0.008"
+      PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:5000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  compound-service:
+    <<: *app
+    image: element-compound-service
+    build:
+      context: .
+      dockerfile: compound-service/Element.Services.Compound.API/Dockerfile
+    container_name: element-compound-service
+    ports:
+      - "127.0.0.1:5007:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_compound_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:5000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 40s
+
+  order-service:
+    <<: *app
+    image: element-order-service
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: element-order-service
+    ports:
+      - "127.0.0.1:5003:8080"
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: "8080"
+      LOG_LEVEL: info
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-mysecretpassword}@postgres:5432/element_order_db
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
+      CATALOG_SERVICE_URL: http://catalog-service:8080
+      COMPOUND_SERVICE_URL: http://compound-service:8080
+      WALLET_SERVICE_URL: http://wallet-service:8080
+      INVENTORY_SERVICE_URL: http://inventory-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      # Purchase-saga timeouts in seconds for the Submitted / StockReserved / Shipping states.
+      SAGA_TIMEOUT_SUBMITTED_SEC: "120"
+      SAGA_TIMEOUT_STOCK_RESERVED_SEC: "120"
+      SAGA_TIMEOUT_SHIPPING_SEC: "180"
+    # Altyapı açılışta şart; diğer servislere istek anında gidilir → yalnız "başladı" yeter.
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      catalog-service:
+        condition: service_started
+      compound-service:
+        condition: service_started
+      wallet-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  wallet-service:
+    <<: *app
+    image: element-wallet-service
+    build:
+      context: ./wallet-service
+      dockerfile: Dockerfile
+    container_name: element-wallet-service
+    # JVM: heap = limitin %50'si (Dockerfile); kalan ~300MB metaspace/code cache/thread'lere.
+    mem_limit: ${JAVA_MEM_LIMIT:-640m}
+    ports:
+      - "127.0.0.1:5005:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/element_wallet_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
+      CATALOG_SERVICE_URL: http://catalog-service:8080
+      COMPOUND_SERVICE_URL: http://compound-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  inventory-service:
+    <<: *app
+    image: element-inventory-service
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: element-inventory-service
+    mem_limit: ${JAVA_MEM_LIMIT:-640m}
+    ports:
+      - "127.0.0.1:5008:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/element_inventory_db
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
+      DEFAULT_STOCK_GRAMS: "100000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 60s
+
+  shipment-service:
+    <<: *app
+    image: element-shipment-service
+    build:
+      context: .
+      dockerfile: shipment-service/Dockerfile
+    container_name: element-shipment-service
+    ports:
+      - "127.0.0.1:5004:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_shipment_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
+      RabbitMQ__Password: ${RABBITMQ_DEFAULT_PASS:-guest}
+      # Test hook: fail shipments with quantity >= this value; 0 disables it.
+      Shipment__FailQuantityGte: "0"
+      # track/search/get all require it (the gateway injects it on the public track route).
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  notification-service:
+    <<: *app
+    image: element-notification-service
+    build:
+      context: .
+      dockerfile: notification-service/Element.Services.Notification.API/Dockerfile
+    container_name: element-notification-service
+    ports:
+      - "127.0.0.1:5006:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Port: "5672"
+      RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
+      RabbitMQ__Password: ${RABBITMQ_DEFAULT_PASS:-guest}
+      IdentityServiceInternalUrl: http://identity-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # Single public entry point (YARP): API keys, rate limits, CORS and routing to the clusters below.
+  gateway-service:
+    <<: *app
+    image: element-gateway-service
+    build:
+      context: .
+      dockerfile: gateway-service/Dockerfile
+    container_name: element-gateway-service
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      RedisConnection: redis:6379
+      IdentityServiceInternalUrl: http://identity-service:8080
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
+      PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:-http://localhost:${WEB_HOST_PORT:-6241}}
+      # Empty = RFC1918+loopback (ClientIp). Set CIDRs on shared overlays.
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      ReverseProxy__Clusters__identity-cluster__Destinations__destination1__Address: http://identity-service:8080
+      ReverseProxy__Clusters__element-cluster__Destinations__destination1__Address: http://catalog-service:8080
+      ReverseProxy__Clusters__compound-cluster__Destinations__destination1__Address: http://compound-service:8080
+      ReverseProxy__Clusters__order-cluster__Destinations__destination1__Address: http://order-service:8080
+      ReverseProxy__Clusters__wallet-cluster__Destinations__destination1__Address: http://wallet-service:8080
+      ReverseProxy__Clusters__inventory-cluster__Destinations__destination1__Address: http://inventory-service:8080
+      ReverseProxy__Clusters__shipment-cluster__Destinations__destination1__Address: http://shipment-service:8080
+      Cors__AllowedOrigins__0: http://localhost:${WEB_HOST_PORT:-6241}
+      Cors__AllowedOrigins__1: http://localhost:5173
+      Cors__AllowedOrigins__2: http://127.0.0.1:${WEB_HOST_PORT:-6241}
+    # Gateway bir proxy: arka servisler açılırken 502 döner, sonra kendiliğinden bağlanır.
+    # "healthy" beklemek, tek yavaş servis yüzünden gateway/web/caddy'yi `Created`da bırakıyordu
+    # (hiç başlamamış container reboot'ta da başlamaz).
+    depends_on:
+      redis:
+        condition: service_healthy
+      identity-service:
+        condition: service_started
+      catalog-service:
+        condition: service_started
+      compound-service:
+        condition: service_started
+      order-service:
+        condition: service_started
+      wallet-service:
+        condition: service_started
+      inventory-service:
+        condition: service_started
+      shipment-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # --- Front end ------------------------------------------------------------------------------
+  # VITE_* values are baked into the bundle at build time: change them, then rebuild this image.
+  web-app:
+    <<: *app
+    image: element-web-app
+    build:
+      context: .
+      dockerfile: web-app/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5000/api/v1}
+        VITE_PUBLIC_SITE_URL: ${VITE_PUBLIC_SITE_URL:-http://localhost:${WEB_HOST_PORT:-6241}}
+        VITE_CAPTCHA_SITE_KEY: ${VITE_CAPTCHA_SITE_KEY:-}
+    environment:
+      PUBLIC_SITE_URL: ${VITE_PUBLIC_SITE_URL:-http://localhost:${WEB_HOST_PORT:-6241}}
+    container_name: element-web-app
+    ports:
+      - "${WEB_HOST_PORT:-6241}:80"
+    depends_on:
+      gateway-service:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health | grep -q Healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  identity_keys:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+
+networks:
+  element-network:
+    driver: bridge

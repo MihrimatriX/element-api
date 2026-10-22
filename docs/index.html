@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ElementAPI · Mimari</title>
+<meta name="description" content="ElementAPI mikroservis mimarisi: servisler, sipariş saga'sı, outbox/inbox, test yaklaşımı.">
+<style>
+  :root {
+    --canvas: oklch(0.985 0.002 255);
+    --surface: #fff;
+    --ink: oklch(0.21 0.01 255);
+    --muted: oklch(0.48 0.01 255);
+    --line: oklch(0.91 0.004 255);
+    --brand: oklch(0.5 0.15 33);
+    --brand-soft: oklch(0.96 0.02 33);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { overflow-x: clip; }
+  body {
+    margin: 0; background: var(--canvas); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 960px; margin: 0 auto; padding: 48px 16px 80px; }
+  header p { color: var(--muted); max-width: 62ch; }
+  h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.15; margin: 0 0 12px; }
+  h2 { font-size: 1.35rem; margin: 56px 0 12px; padding-top: 24px; border-top: 1px solid var(--line); }
+  h3 { font-size: 1rem; margin: 20px 0 6px; }
+  a { color: var(--brand); }
+  code { font-family: var(--mono); font-size: .9em; background: var(--brand-soft); padding: 1px 5px; border-radius: 4px; }
+  pre { font-family: var(--mono); font-size: .85rem; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 20px; font-size: .95rem; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; background: var(--canvas); white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td code { white-space: nowrap; }
+
+  .diagram { display: grid; gap: 10px; margin-top: 16px; }
+  .tier { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 12px; }
+  .tier-label { font-size: .8rem; color: var(--muted); margin-bottom: 8px; }
+  .boxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 8px; }
+  .box { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; font-size: .9rem; background: var(--canvas); min-width: 0; }
+  .box b { display: block; }
+  .box span { color: var(--muted); font-size: .8rem; }
+  .box.brand { border-color: var(--brand); background: var(--brand-soft); }
+  .arrow { text-align: center; color: var(--muted); font-size: .85rem; }
+
+  ol.steps { padding-left: 1.3rem; }
+  ol.steps li { margin: 6px 0; }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+  .card { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 4px 16px 12px; }
+  details { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 0 16px; margin: 10px 0; }
+  details[open] { padding-bottom: 8px; }
+  summary { cursor: pointer; font-weight: 600; padding: 12px 0; }
+  summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
+  footer { margin-top: 64px; color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>ElementAPI mimarisi</h1>
+  <p>ElementAPI Türkçe bir kimya atlasıdır: 118 element, 214 bileşik ve kısa öğrenme rotaları. Yanında sanal bir ticaret demosu çalışır (para birimi KREDI, gerçek para ve kargo yok). Bu sayfa projenin nasıl kurulduğunu anlatır: hangi servis ne yapar, servisler nasıl konuşur, veri nasıl tutarlı kalır.</p>
+  <p><a href="https://github.com/MihrimatriX/element-api">Kaynak kod</a> · Lisans MIT</p>
+  <nav class="toc">
+    <a href="#genel">Genel görünüm</a>
+    <a href="#servisler">Servisler</a>
+    <a href="#saga">Sipariş akışı</a>
+    <a href="#senaryolar">Senaryolar</a>
+    <a href="#tutarlilik">Tutarlılık kuralları</a>
+    <a href="#katmanlar">Servis içi katmanlar</a>
+    <a href="#testler">Testler</a>
+    <a href="#calistir">Çalıştırma</a>
+    <a href="#belgeler">Belgeler</a>
+  </nav>
+</header>
+
+<h2 id="genel">Genel görünüm</h2>
+<p>Tarayıcı yalnızca web uygulamasıyla ve API kapısıyla (gateway) konuşur. Gateway istekleri servislere iletir. Servisler birbirine doğrudan çağrı yapmak yerine RabbitMQ üzerinden olay gönderir. Her servisin kendi veritabanı vardır; başka bir servisin tablosuna kimse dokunmaz.</p>
+
+<div class="diagram" aria-label="Mimari şeması">
+  <div class="tier">
+    <div class="tier-label">İstemci</div>
+    <div class="boxes">
+      <div class="box"><b>web-app</b><span>React 19 · :6241</span></div>
+      <div class="box"><b>Açık API kullanıcıları</b><span>/api/v2, API anahtarı</span></div>
+    </div>
+  </div>
+  <div class="arrow">↓ HTTP</div>
+  <div class="tier">
+    <div class="tier-label">Giriş</div>
+    <div class="boxes">
+      <div class="box brand"><b>gateway</b><span>.NET · YARP · :5000 · Redis ile hız sınırı</span></div>
+    </div>
+  </div>
+  <div class="arrow">↓ HTTP</div>
+  <div class="tier">
+    <div class="tier-label">Servisler</div>
+    <div class="boxes">
+      <div class="box"><b>identity</b><span>.NET · :5001</span></div>
+      <div class="box"><b>catalog</b><span>.NET · :5002</span></div>
+      <div class="box"><b>compound</b><span>.NET · :5007</span></div>
+      <div class="box brand"><b>order</b><span>Node/TS · :5003 · saga</span></div>
+      <div class="box"><b>wallet</b><span>Java · :5005</span></div>
+      <div class="box"><b>inventory</b><span>Java · :5008</span></div>
+      <div class="box"><b>shipment</b><span>.NET · :5004</span></div>
+      <div class="box"><b>notification</b><span>.NET · :5006</span></div>
+    </div>
+  </div>
+  <div class="arrow">↕ olaylar (MassTransit zarfı)</div>
+  <div class="tier">
+    <div class="tier-label">Altyapı</div>
+    <div class="boxes">
+      <div class="box"><b>PostgreSQL 16</b><span>servis başına ayrı veritabanı</span></div>
+      <div class="box"><b>RabbitMQ</b><span>servisler arası olaylar</span></div>
+      <div class="box"><b>Redis</b><span>yalnız gateway</span></div>
+    </div>
+  </div>
+</div>
+<p>Atlası tek başına açmak için ayrı bir <b>science</b> servisi de var (<code>docker-compose.science.yml</code>, :5080). Veritabanı ve broker kullanmaz.</p>
+
+<h2 id="servisler">Servisler</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Servis</th><th>Dil</th><th>Ne yapar</th><th>Korunan kural</th></tr></thead>
+  <tbody>
+    <tr><td><b>gateway</b></td><td>.NET 10, YARP</td><td>Tek giriş noktası: yönlendirme, kimlik doğrulama, hız sınırı</td><td>Durum tutmaz</td></tr>
+    <tr><td><b>identity</b></td><td>.NET 10</td><td>Hesap, oturum, API anahtarı, webhook aboneliği</td><td>Anahtar ve webhook sayısı sınırı, iptal edilen anahtar bir daha çalışmaz</td></tr>
+    <tr><td><b>catalog</b></td><td>.NET 10</td><td>Element verisi, piyasa fiyatları</td><td>Fiyat her tamamlanan sipariş için bir kez hareket eder</td></tr>
+    <tr><td><b>compound</b></td><td>.NET 10</td><td>Bileşik verisi (salt okuma)</td><td>Yok; yalnızca testler</td></tr>
+    <tr><td><b>order</b></td><td>Node 22, TypeScript</td><td>Siparişi alır, saga'yı yönetir</td><td>Sipariş yalnızca izin verilen geçişlerle ilerler</td></tr>
+    <tr><td><b>wallet</b></td><td>Java 21, Spring Boot</td><td>KREDI bakiyesi, varlıklar, defter</td><td>Bakiye eksiye düşmez; bir sipariş bir kez tahsil, bir kez iade edilir</td></tr>
+    <tr><td><b>inventory</b></td><td>Java 21, Spring Boot</td><td>Stok ve rezervasyon</td><td>Stok asla fazla satılmaz; rezervasyon bir kez kapanır</td></tr>
+    <tr><td><b>shipment</b></td><td>.NET 10</td><td>Gönderim kaydı (simülasyon)</td><td>Bir sipariş için gönderim bir kez açılır</td></tr>
+    <tr><td><b>notification</b></td><td>.NET 10</td><td>E-posta ve webhook bildirimleri</td><td>Her webhook <code>X-Element-Delivery</code> kimliği taşır, alıcı tekrarı atabilir</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="saga">Sipariş akışı (saga)</h2>
+<p>Bir sipariş beş servise dokunur ama hiçbiri ötekinin veritabanına yazmaz. Dağıtık bir transaction yerine <b>order</b> servisi adımları sırayla yönetir (orkestrasyon). Her adım, kendi servisinde ayrı bir yerel transaction'dır. Bir adım başarısız olursa order, önceki adımları geri alan <b>telafi</b> olaylarını gönderir.</p>
+
+<h3>Durumlar</h3>
+<pre>Submitted ──StockReserved──▶ StockReserved ──PaymentProcessed──▶ Shipping ──ShipmentDispatched──▶ Completed
+    │                              │                                 │
+    └─ StockReservationFailed      └─ PaymentFailed                  └─ ShipmentFailed
+       veya zaman aşımı ─────────────── veya zaman aşımı ──────────────── veya zaman aşımı ──▶ Failed</pre>
+<p><code>Completed</code> ve <code>Failed</code> son durumlardır, bir daha değişmez. Geçiş tablosu tek bir yerde durur (<code>order-service/src/domain/sagaTransitions.ts</code>); tabloya uymayan, geç ya da tekrar gelen olay sipariş üzerinde hiçbir şey değiştirmez.</p>
+
+<h3>Hangi olayı kim dinler</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Olay</th><th>Gönderen</th><th>Dinleyen ve yaptığı</th></tr></thead>
+  <tbody>
+    <tr><td><code>OrderSubmittedEvent</code></td><td>order</td><td>inventory: stok ayırır</td></tr>
+    <tr><td><code>StockReservedEvent</code> / <code>StockReservationFailedEvent</code></td><td>inventory</td><td>order: ödemeye geçer / siparişi düşürür</td></tr>
+    <tr><td><code>PaymentRequestedEvent</code></td><td>order</td><td>wallet: KREDI çeker</td></tr>
+    <tr><td><code>PaymentProcessedEvent</code> / <code>PaymentFailedEvent</code></td><td>wallet</td><td>order: gönderime geçer / siparişi düşürür</td></tr>
+    <tr><td><code>ShipmentRequestedEvent</code></td><td>order</td><td>shipment: gönderim kaydı açar</td></tr>
+    <tr><td><code>ShipmentDispatchedEvent</code> / <code>ShipmentFailedEvent</code></td><td>shipment</td><td>order: tamamlar / siparişi düşürür</td></tr>
+    <tr><td><code>AssetsCreditedEvent</code></td><td>order</td><td>wallet: alınan gramı kullanıcının varlıklarına ekler</td></tr>
+    <tr><td><code>OrderCompletedEvent</code></td><td>order</td><td>inventory: ayrılan stoğu kesin düşer · catalog: fiyatı bir kez yukarı iter</td></tr>
+    <tr><td><code>OrderStockReleaseEvent</code></td><td>order (telafi)</td><td>inventory: ayrılan stoğu geri bırakır</td></tr>
+    <tr><td><code>PaymentRefundRequestedEvent</code></td><td>order (telafi)</td><td>wallet: çekilen KREDI'yi iade eder (çekilmediyse hiçbir şey yapmaz)</td></tr>
+    <tr><td><code>UpdateOrderStatusEvent</code></td><td>order</td><td>notification: kullanıcıya e-posta ve webhook gönderir</td></tr>
+    <tr><td><code>ElementSoldEvent</code></td><td>wallet</td><td>inventory: stoğa geri ekler · catalog: fiyatı bir kez aşağı iter</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="senaryolar">Örnek senaryolar</h2>
+<p>Aşağıdaki senaryolar sistemin hem normal akışta hem de bir şeyler ters gittiğinde ne yaptığını adım adım gösterir.</p>
+
+<details open>
+  <summary>1. Mutlu yol: 10 g altın siparişi</summary>
+  <ol class="steps">
+    <li>Tarayıcı <code>POST /api/v1/orders</code> isteğini <code>Idempotency-Key</code> başlığıyla gönderir. Gateway oturumu doğrular ve isteği order'a iletir.</li>
+    <li>order fiyatı ve görünen stoğu catalog'dan, bakiyeyi wallet'tan sorar. Stok yetmiyorsa hemen <code>409</code>, bakiye yetmiyorsa <code>402</code> döner. Bu ağ çağrıları transaction'dan <b>önce</b> yapılır; transaction açıkken başka bir servisi beklemek kilitleri uzatırdı.</li>
+    <li>order tek transaction'da siparişi <code>Submitted</code> olarak yazar, aynı transaction'da outbox tablosuna iki olay ekler: <code>UpdateOrderStatusEvent</code> ve <code>OrderSubmittedEvent</code>. Kullanıcı hemen <code>202 Accepted</code> alır; gerisi arka planda yürür.</li>
+    <li>Outbox relay commit edilmiş satırları RabbitMQ'ya yayımlar ve broker onayını bekler.</li>
+    <li>inventory, <code>Au</code> stok satırını kilitler (<code>FOR UPDATE</code>), 10 g ayırır, mesaj kimliğini inbox'a ve <code>StockReservedEvent</code>'i outbox'a aynı transaction'da yazar.</li>
+    <li>order siparişi kilitler, <code>StockReserved</code> durumuna geçer ve <code>PaymentRequestedEvent</code> yazar.</li>
+    <li>wallet cüzdan satırını kilitler, bakiyeyi kontrol eder, KREDI'yi çeker, deftere kayıt atar, <code>PaymentProcessedEvent</code> yazar.</li>
+    <li>order <code>Shipping</code> durumuna geçer; shipment gönderim kaydını açıp <code>TRK-…</code> takip numarasıyla <code>ShipmentDispatchedEvent</code> gönderir.</li>
+    <li>order <code>Completed</code> olur. <code>AssetsCreditedEvent</code> ile wallet 10 g altını varlıklara ekler; <code>OrderCompletedEvent</code> ile inventory ayrılan stoğu kesin düşer, catalog altının fiyatını bir kez yukarı iter.</li>
+    <li>Her durum değişikliğinde notification kullanıcıya bildirim gönderir.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>2. Stok yetmiyor</summary>
+  <p>order, istek anında stoğu zaten kontrol eder. Bu senaryo kontrolle rezervasyon arasında başka bir siparişin stoğu almasıyla oluşur. Ön kontrol yalnızca bir kolaylıktır; asıl kararı stok satırını kilitleyen inventory verir.</p>
+  <ol class="steps">
+    <li>inventory stok satırını kilitler ve <code>stok − ayrılmış &lt; istenen</code> olduğunu görür.</li>
+    <li>Hiçbir şey ayırmadan <code>StockReservationFailedEvent</code> gönderir.</li>
+    <li>order siparişi <code>Failed</code> yapar ve telafi olaylarını yazar: stok bırakma ve iade.</li>
+    <li>İki telafi de bu durumda boşa çalışır: ayrılmış stok ve çekilmiş KREDI yoktur. Telafiler <b>idempotent</b> yazıldığı için "gerekmeyen telafi" zarar vermez. Order hangi adımın gerçekten yapıldığını takip etmek zorunda kalmaz.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>3. Bakiye yetmiyor</summary>
+  <p>Bu durum da ön kontrolden sonra bakiye değişirse oluşur (örneğin aynı anda verilen ikinci bir sipariş).</p>
+  <ol class="steps">
+    <li>Stok ayrıldı, order <code>PaymentRequestedEvent</code> gönderdi.</li>
+    <li>wallet cüzdanı kilitler; bakiye yetmediği için <code>Wallet</code> aggregate'i tahsilatı reddeder ve <code>INSUFFICIENT_ELX</code> nedeniyle <code>PaymentFailedEvent</code> gönderir.</li>
+    <li>order <code>Failed</code> olur; <code>OrderStockReleaseEvent</code> ile inventory ayrılan 10 g'ı geri bırakır.</li>
+    <li>Kullanıcı "Ödeme başarısız" bildirimini alır. Bakiyesi ve stok, sipariş hiç verilmemiş gibi kalır.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>4. Kredi tavanını aşan sipariş</summary>
+  <p>Toplam 50.000 KREDI'yi aşarsa order isteği HTTP katmanında <code>400</code> ile reddeder; saga hiç başlamaz. Aynı kural <code>Order</code> aggregate'inde ve wallet'ta da var. Biri atlansa bile öteki yakalar.</p>
+</details>
+
+<details>
+  <summary>5. Aynı istek iki kez geldi (çift tıklama, ağ kopması)</summary>
+  <ol class="steps">
+    <li>İstemci aynı <code>Idempotency-Key</code> ile isteği tekrarlar.</li>
+    <li>order bu anahtarı sipariş kimliği olarak kullandığı için mevcut siparişi bulur ve onu <code>200</code> ile döner. İkinci sipariş oluşmaz, KREDI iki kez çekilmez.</li>
+    <li>Aynı anahtar <b>farklı</b> bir sipariş gövdesiyle gelirse yanıt <code>409</code> olur.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>6. Aynı mesaj iki kez geldi</summary>
+  <ol class="steps">
+    <li>wallet KREDI'yi çekti, commit etti, ama RabbitMQ'ya onay (ack) göndermeden çöktü.</li>
+    <li>RabbitMQ <code>PaymentRequestedEvent</code>'i yeniden teslim eder.</li>
+    <li>wallet yeni transaction'da mesaj kimliğini <code>processed_messages</code> tablosuna yazmaya çalışır; kimlik zaten var, işlem orada durur. KREDI ikinci kez çekilmez.</li>
+    <li>catalog'da aynı koruma sipariş başına bir işaretle yapılır: fiyat bir sipariş için yalnızca bir kez hareket eder.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>7. Broker kapalıyken sipariş verildi</summary>
+  <ol class="steps">
+    <li>RabbitMQ yeniden başlıyor. order siparişi ve outbox satırlarını yine de commit eder; kullanıcı yanıtını alır.</li>
+    <li>Relay yayımlayamaz, satırlar <code>pending</code> kalır. Hiçbir olay kaybolmaz.</li>
+    <li>Broker döndüğünde relay satırları sırayla yayımlar ve her birini broker onayından sonra işaretler.</li>
+    <li>Outbox olmasaydı iki kötü sonuçtan biri olurdu: önce yayımla sonra commit et (commit başarısızsa var olmayan bir sipariş için olay gider) ya da önce commit et sonra yayımla (yayım başarısızsa sipariş sonsuza kadar <code>Submitted</code> kalır).</li>
+  </ol>
+</details>
+
+<details>
+  <summary>8. Son 5 gram için iki eş zamanlı sipariş</summary>
+  <ol class="steps">
+    <li>İki <code>OrderSubmittedEvent</code> aynı anda inventory'ye ulaşır.</li>
+    <li>İkisi de aynı stok satırını <code>FOR UPDATE</code> ile kilitlemeye çalışır; ikincisi birincinin commit'ini bekler.</li>
+    <li>Birinci 5 g'ı ayırır. İkinci, kilidi aldığında güncel değeri okur, stok kalmadığını görür ve <code>StockReservationFailedEvent</code> gönderir.</li>
+    <li>Kod bir gün yanlış yazılsa bile veritabanındaki <code>stock_items_never_oversold</code> CHECK kısıtı fazla satışı reddeder. Bu senaryo Testcontainers ile gerçek PostgreSQL üzerinde test ediliyor; kilit kaldırıldığında test kırılıyor.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>9. Bir servis cevap vermiyor (zaman aşımı)</summary>
+  <ol class="steps">
+    <li>shipment servisi kapalı; sipariş <code>Shipping</code> durumunda bekliyor. KREDI çekilmiş, stok ayrılmış.</li>
+    <li>order'daki süpürücü düzenli aralıklarla süresi geçmiş saga'ları arar. Varsayılan süreler: <code>Submitted</code> 120 sn, <code>StockReserved</code> 120 sn, <code>Shipping</code> 180 sn.</li>
+    <li>Süresi geçen siparişi kilitler, süreyi <b>kilit altında yeniden</b> kontrol eder (bu arada gerçek bir olay gelip siparişi ilerletmiş olabilir), sonra <code>Failed</code> yapar ve stok bırakma + iade gönderir.</li>
+    <li>shipment geri gelip geç bir <code>ShipmentDispatchedEvent</code> gönderirse order bunu yok sayar; <code>Failed</code> son durumdur. Düşen bir siparişe geç gelen ödeme onayı ise yalnızca kendi iadesini tetikler.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>10. Varlık satışı (masadan satış)</summary>
+  <ol class="steps">
+    <li>Kullanıcı <code>POST /api/v1/desk/sell</code> ile 3 g altın satar.</li>
+    <li>wallet tek transaction'da varlığı azaltır, alış fiyatı (bid) üzerinden KREDI ekler, deftere yazar ve outbox'a <code>ElementSoldEvent</code> koyar.</li>
+    <li>inventory 3 g'ı stoğa geri ekler; catalog altının fiyatını bir kez aşağı iter. İkisi de satışı bir kez işlemek için mesaj kimliğine bakar.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>11. Sunucu yeniden başladı</summary>
+  <ol class="steps">
+    <li>Docker bütün konteynerleri aynı anda başlatır; PostgreSQL birkaç saniye geç hazır olur.</li>
+    <li>Servisler ilk bağlantı hatasını "geçici" olarak tanır ve 2 saniye arayla 30 kez dener. Yanlış şifre ya da bozuk migration gibi beklemekle düzelmeyecek hatalarda hemen durur, hata loglarda açıkça görünür.</li>
+    <li>Bu sayede servisler restart döngüsüne girmez. Test: PostgreSQL 20 sn kapatıldığında order dışındaki servislerin restart sayısı 0 kaldı. order bilerek bir kez yeniden başlar; o sırada gelen mesajlar RabbitMQ'da bekler.</li>
+  </ol>
+</details>
+
+<h2 id="tutarlilik">Tutarlılık kuralları (ACID)</h2>
+<p>Kurallar <a href="https://github.com/MihrimatriX/element-api/blob/main/docs/adr/0003-service-layering-outbox-tdd.md">ADR 0003</a> içinde yazılı ve bütün servislerde uygulanıyor.</p>
+<div class="cols">
+  <div class="card">
+    <h3>Bir iş, bir transaction</h3>
+    <p>Her kullanım senaryosu tek bir veritabanı transaction'ıdır. Önce ilgili satır kilitlenir (<code>SELECT … FOR UPDATE</code>), karar ondan sonra verilir. Transaction içinde ağ çağrısı yapılmaz.</p>
+  </div>
+  <div class="card">
+    <h3>Transactional outbox</h3>
+    <p>Giden olay, durum değişikliğiyle aynı transaction'da bir tabloya yazılır. Ayrı bir relay commit edilmiş satırları yayımlar ve broker onayını bekler. Veritabanı ile broker arasında "biri yazıldı, öteki yazılmadı" durumu oluşmaz.</p>
+  </div>
+  <div class="card">
+    <h3>Inbox</h3>
+    <p>Olaylar en az bir kez gelir, yani tekrar gelebilir. Alıcı mesaj kimliğini işle aynı transaction'da kaydeder; aynı mesaj ikinci kez gelirse atlanır.</p>
+  </div>
+  <div class="card">
+    <h3>Veritabanı da korur</h3>
+    <p>CHECK kısıtları ve tekil indeksler uygulama hatasına karşı son savunmadır. Kısıtlar <code>NOT VALID</code> eklenir, böylece eski bir satır açılışı bozup servisi restart döngüsüne sokmaz.</p>
+  </div>
+  <div class="card">
+    <h3>Para ondalık sayıdır</h3>
+    <p>Para ve miktar her yerde <code>BigDecimal</code>, <code>decimal</code> veya <code>NUMERIC</code> olarak tutulur, <code>double</code> kullanılmaz.</p>
+  </div>
+  <div class="card">
+    <h3>Açılışta bekleme</h3>
+    <p>Sunucu yeniden başladığında Docker bütün konteynerleri aynı anda açar. Servisler PostgreSQL hazır olana kadar bekler (30 deneme × 2 sn), çöküp yeniden başlamaz.</p>
+  </div>
+</div>
+
+<h2 id="katmanlar">Servis içi katmanlar (DDD)</h2>
+<p>Korunacak bir kuralı olan servislerde kod üç katmana ayrılır; bağımlılıklar içe doğru akar.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Katman</th><th>İçerik</th><th>Neye bağımlı</th></tr></thead>
+  <tbody>
+    <tr><td><code>domain</code></td><td>Aggregate, entity, değer nesneleri (<code>Wallet</code>, <code>Money</code>, <code>StockItem</code>, <code>Order</code>)</td><td>Hiçbir şeye: framework, SQL, broker yok</td></tr>
+    <tr><td><code>application</code></td><td>Metot başına bir kullanım senaryosu; port arayüzleri (<code>Repository</code>, <code>Outbox</code>)</td><td><code>domain</code></td></tr>
+    <tr><td><code>infrastructure</code>, <code>web</code>, <code>messaging</code></td><td>JDBC/EF adaptörleri, HTTP controller'lar, kuyruk dinleyicileri</td><td><code>application</code>, <code>domain</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p>Controller ve dinleyici girdiyi doğrular ve çevirir, repository saklar ve yükler; kararı aggregate verir. Kuralı olmayan servislere (compound, science, gateway) katman eklenmedi, yalnızca test yazıldı.</p>
+
+<h2 id="testler">Testler</h2>
+<p>Domain kuralları önce test yazılarak geliştirildi; bu testler veritabanı kullanmaz ve milisaniyeler içinde biter. Transaction garantileri Testcontainers ile gerçek PostgreSQL üzerinde sınanır: eş zamanlı yazanlar kuralı bozamaz, durum ve outbox birlikte commit ya da rollback olur.</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Bölüm</th><th>Araç</th><th>Test sayısı</th></tr></thead>
+  <tbody>
+    <tr><td>wallet</td><td>JUnit 5, Testcontainers</td><td>28</td></tr>
+    <tr><td>inventory</td><td>JUnit 5, Testcontainers</td><td>28</td></tr>
+    <tr><td>order</td><td>node:test</td><td>38</td></tr>
+    <tr><td>.NET servisleri</td><td>xUnit</td><td>217</td></tr>
+    <tr><td>web-app</td><td>Vitest</td><td>148</td></tr>
+    <tr><td>Uçtan uca duman testi</td><td><code>deploy/scripts/test-smoke.ps1</code></td><td>20 kontrol</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="calistir">Çalıştırma</h2>
+<p>Docker Desktop açıkken:</p>
+<pre>Copy-Item docker/.env.example docker/.env   # şifreleri kendin belirle
+./deploy/scripts/present-platform.ps1         # http://localhost:6241
+./deploy/scripts/stop-local.ps1               # durdur</pre>
+<p>Yalnızca atlas için (veritabanı ve broker olmadan): <code>./deploy/scripts/present-local.ps1</code>, adres http://127.0.0.1:5080.</p>
+
+<h2 id="belgeler">Belgeler</h2>
+<ul>
+  <li><a href="https://github.com/MihrimatriX/element-api/blob/main/docs/SERVIS-KILAVUZU.md">Servis kılavuzu</a>: hangi servis ne işe yarar</li>
+  <li><a href="https://github.com/MihrimatriX/element-api/tree/main/docs/kilavuz">Sistem kılavuzu</a>: her servisin uçları, mesajları ve kod haritası</li>
+  <li><a href="https://github.com/MihrimatriX/element-api/tree/main/docs/adr">Mimari kararlar (ADR)</a></li>
+  <li><a href="https://github.com/MihrimatriX/element-api/blob/main/deploy/scientific-catalog.md">Bilimsel katalog API sözleşmesi</a></li>
+  <li><a href="https://github.com/MihrimatriX/element-api/blob/main/README.md">README</a></li>
+</ul>
+
+<footer>ElementAPI · MIT lisansı</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../shared-lib/Science/ScientificCatalog.cs" Link="Science/ScientificCatalog.cs" />
+    <Compile Include="../catalog-service/Element.Services.Element.API/Controllers/ScientificElementsController.cs" Link="Controllers/ScientificElementsController.cs" />
+    <Compile Include="../compound-service/Element.Services.Compound.API/Controllers/ScientificCompoundsController.cs" Link="Controllers/ScientificCompoundsController.cs" />
+    <Content Include="../catalog-service/Element.Services.Element.Infrastructure/Data/scientific-elements.json" Link="Data/scientific-elements.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../compound-service/Element.Services.Compound.Infrastructure/Data/scientific-compounds.json" Link="Data/scientific-compounds.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

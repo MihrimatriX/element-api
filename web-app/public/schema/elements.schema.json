@@ -1,0 +1,984 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ElementAPI v2 full elements snapshot",
+  "description": "Schema for unprojected full records in the bundled snapshot. Summary/fields/include projections do not necessarily satisfy required fields. Entirely null fields intentionally do not assert an unverified type.",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "atomic_number": {
+      "type": "number"
+    },
+    "symbol": {
+      "type": "string"
+    },
+    "names": {
+      "type": "object",
+      "properties": {
+        "tr": {
+          "type": "string"
+        },
+        "en": {
+          "type": "string"
+        },
+        "la": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "de": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "tr",
+        "en",
+        "la",
+        "de"
+      ],
+      "additionalProperties": false
+    },
+    "classification": {
+      "type": "object",
+      "properties": {
+        "period": {
+          "type": "number"
+        },
+        "group": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "block": {
+          "type": "string"
+        },
+        "series": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "cas_number": {
+          "type": "string"
+        },
+        "appearance": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        }
+      },
+      "required": [
+        "period",
+        "group",
+        "block",
+        "series",
+        "category",
+        "cas_number",
+        "appearance"
+      ],
+      "additionalProperties": false
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "row": {
+          "type": "number"
+        },
+        "column": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "row",
+        "column"
+      ],
+      "additionalProperties": false
+    },
+    "atomic_properties": {
+      "type": "object",
+      "properties": {
+        "atomic_mass": {
+          "type": "number"
+        },
+        "standard_atomic_weight_reported": {
+          "type": "string"
+        },
+        "standard_atomic_weight_uncertainty": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "electron_configuration": {
+          "type": "object",
+          "properties": {
+            "short": {
+              "type": "string"
+            },
+            "full": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "short",
+            "full"
+          ],
+          "additionalProperties": false
+        },
+        "term_symbol": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "electrons_per_shell": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "valence_electrons": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "oxidation_states": {
+          "type": "object",
+          "properties": {
+            "common": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "rare": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            }
+          },
+          "required": [
+            "common",
+            "rare"
+          ],
+          "additionalProperties": false
+        },
+        "electronegativity": {
+          "type": "object",
+          "properties": {
+            "pauling": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "allen": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "allred_rochow": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "mulliken": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            }
+          },
+          "required": [
+            "pauling",
+            "allen",
+            "allred_rochow",
+            "mulliken"
+          ],
+          "additionalProperties": false
+        },
+        "ionization_energies_kj_mol": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "electron_affinity_kj_mol": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "radii_pm": {
+          "type": "object",
+          "properties": {
+            "atomic_empirical": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "atomic_calculated": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "covalent_single_bond": {
+              "type": "number"
+            },
+            "covalent_double_bond": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "covalent_triple_bond": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "van_der_waals": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "atomic_empirical",
+            "atomic_calculated",
+            "covalent_single_bond",
+            "covalent_double_bond",
+            "covalent_triple_bond",
+            "van_der_waals"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "atomic_mass",
+        "standard_atomic_weight_reported",
+        "standard_atomic_weight_uncertainty",
+        "electron_configuration",
+        "term_symbol",
+        "electrons_per_shell",
+        "valence_electrons",
+        "oxidation_states",
+        "electronegativity",
+        "ionization_energies_kj_mol",
+        "electron_affinity_kj_mol",
+        "radii_pm"
+      ],
+      "additionalProperties": false
+    },
+    "thermodynamic_properties": {
+      "type": "object",
+      "properties": {
+        "standard_state": {
+          "type": "string"
+        },
+        "melting_point": {
+          "type": "object",
+          "properties": {
+            "k": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "c": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "k",
+            "c"
+          ],
+          "additionalProperties": false
+        },
+        "boiling_point": {
+          "type": "object",
+          "properties": {
+            "k": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "c": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "k",
+            "c"
+          ],
+          "additionalProperties": false
+        },
+        "triple_point": {
+          "type": "object",
+          "properties": {
+            "temperature_k": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "pressure_kpa": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            }
+          },
+          "required": [
+            "temperature_k",
+            "pressure_kpa"
+          ],
+          "additionalProperties": false
+        },
+        "critical_point": {
+          "type": "object",
+          "properties": {
+            "temperature_k": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "pressure_mpa": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            }
+          },
+          "required": [
+            "temperature_k",
+            "pressure_mpa"
+          ],
+          "additionalProperties": false
+        },
+        "density_g_cm3": {
+          "type": "object",
+          "properties": {
+            "reported": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "conditions": {
+              "type": "string"
+            },
+            "stp": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "liquid_at_mp": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            }
+          },
+          "required": [
+            "reported",
+            "conditions",
+            "stp",
+            "liquid_at_mp"
+          ],
+          "additionalProperties": false
+        },
+        "enthalpy_of_fusion_kj_mol": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "enthalpy_of_vaporization_kj_mol": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "specific_heat_capacity_j_g_k": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "molar_heat_capacity_j_mol_k": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        }
+      },
+      "required": [
+        "standard_state",
+        "melting_point",
+        "boiling_point",
+        "triple_point",
+        "critical_point",
+        "density_g_cm3",
+        "enthalpy_of_fusion_kj_mol",
+        "enthalpy_of_vaporization_kj_mol",
+        "specific_heat_capacity_j_g_k",
+        "molar_heat_capacity_j_mol_k"
+      ],
+      "additionalProperties": false
+    },
+    "mechanical_properties": {
+      "type": "object",
+      "properties": {
+        "mohs_hardness": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "vickers_hardness_mpa": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "brinell_hardness_mpa": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "youngs_modulus_gpa": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "youngs_modulus_reported": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "shear_modulus_gpa": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "shear_modulus_reported": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bulk_modulus_gpa": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "poissons_ratio": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "speed_of_sound_m_s": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        }
+      },
+      "required": [
+        "mohs_hardness",
+        "vickers_hardness_mpa",
+        "brinell_hardness_mpa",
+        "youngs_modulus_gpa",
+        "youngs_modulus_reported",
+        "shear_modulus_gpa",
+        "shear_modulus_reported",
+        "bulk_modulus_gpa",
+        "poissons_ratio",
+        "speed_of_sound_m_s"
+      ],
+      "additionalProperties": false
+    },
+    "electromagnetic_and_optical": {
+      "type": "object",
+      "properties": {
+        "electrical_resistivity_ohm_m": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "electrical_conductivity_s_m": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "thermal_conductivity_w_m_k": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "thermal_expansion_coefficient_um_m_k": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "magnetic_ordering": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "curie_temperature_k": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "refractive_index": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        }
+      },
+      "required": [
+        "electrical_resistivity_ohm_m",
+        "electrical_conductivity_s_m",
+        "thermal_conductivity_w_m_k",
+        "thermal_expansion_coefficient_um_m_k",
+        "magnetic_ordering",
+        "curie_temperature_k",
+        "refractive_index"
+      ],
+      "additionalProperties": false
+    },
+    "crystallography": {
+      "type": "object",
+      "properties": {
+        "structure_name": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "space_group_number": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "space_group_symbol": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "lattice_parameters_pm": {
+          "type": "object",
+          "properties": {
+            "a": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "b": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "c": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "alpha": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "beta": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            },
+            "gamma": {
+              "description": "No populated value in this snapshot. Null means unavailable, not zero."
+            }
+          },
+          "required": [
+            "a",
+            "b",
+            "c",
+            "alpha",
+            "beta",
+            "gamma"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "structure_name",
+        "space_group_number",
+        "space_group_symbol",
+        "lattice_parameters_pm"
+      ],
+      "additionalProperties": false
+    },
+    "abundance": {
+      "type": "object",
+      "properties": {
+        "universe_mass_percent": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "solar_system_mass_percent": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "crust_mg_kg": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "ocean_mg_l": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "human_body_mass_percent": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        }
+      },
+      "required": [
+        "universe_mass_percent",
+        "solar_system_mass_percent",
+        "crust_mg_kg",
+        "ocean_mg_l",
+        "human_body_mass_percent"
+      ],
+      "additionalProperties": false
+    },
+    "history": {
+      "type": "object",
+      "properties": {
+        "discovered_year": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "discovery_reported": {
+          "type": "string"
+        },
+        "discoverers": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        },
+        "etymology": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        }
+      },
+      "required": [
+        "discovered_year",
+        "discovery_reported",
+        "discoverers",
+        "etymology"
+      ],
+      "additionalProperties": false
+    },
+    "isotopes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "mass_number": {
+            "type": "number"
+          },
+          "exact_mass_da": {
+            "type": "number"
+          },
+          "exact_mass_reported": {
+            "type": "string"
+          },
+          "abundance_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "abundance_fraction_reported": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "half_life": {
+            "description": "No populated value in this snapshot. Null means unavailable, not zero."
+          },
+          "spin_parity": {
+            "description": "No populated value in this snapshot. Null means unavailable, not zero."
+          },
+          "decay_mode": {
+            "description": "No populated value in this snapshot. Null means unavailable, not zero."
+          }
+        },
+        "required": [
+          "mass_number",
+          "exact_mass_da",
+          "exact_mass_reported",
+          "abundance_percent",
+          "abundance_fraction_reported",
+          "half_life",
+          "spin_parity",
+          "decay_mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "type": "string"
+        },
+        "retrieved_at": {
+          "type": "string"
+        },
+        "null_meaning": {
+          "type": "string"
+        },
+        "isotope_scope": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "retrieved_at": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "url",
+              "retrieved_at",
+              "fields"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "conversions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "editorial_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "retrieved_at",
+        "null_meaning",
+        "isotope_scope",
+        "sources",
+        "conversions",
+        "editorial_fields"
+      ],
+      "additionalProperties": false
+    },
+    "editorial": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "uses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "story": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "url"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "summary",
+        "uses",
+        "story",
+        "sources"
+      ],
+      "additionalProperties": false
+    },
+    "media": {
+      "type": "object",
+      "properties": {
+        "photo": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "caption": {
+                  "type": "string"
+                },
+                "source_url": {
+                  "type": "string"
+                },
+                "creator": {
+                  "type": "string"
+                },
+                "license": {
+                  "type": "string"
+                },
+                "license_url": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "retrieved_at": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "url",
+                "caption",
+                "source_url",
+                "creator",
+                "license",
+                "license_url",
+                "retrieved_at"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "structure": {
+          "description": "No populated value in this snapshot. Null means unavailable, not zero."
+        }
+      },
+      "required": [
+        "photo",
+        "structure"
+      ],
+      "additionalProperties": false
+    },
+    "external_links": {
+      "type": "object",
+      "properties": {
+        "wikipedia": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "language": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "url",
+            "language"
+          ],
+          "additionalProperties": false
+        },
+        "pubchem": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "wikipedia",
+        "pubchem"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "id",
+    "atomic_number",
+    "symbol",
+    "names",
+    "classification",
+    "layout",
+    "atomic_properties",
+    "thermodynamic_properties",
+    "mechanical_properties",
+    "electromagnetic_and_optical",
+    "crystallography",
+    "abundance",
+    "history",
+    "isotopes",
+    "provenance",
+    "editorial",
+    "media",
+    "external_links"
+  ],
+  "additionalProperties": false
+}
