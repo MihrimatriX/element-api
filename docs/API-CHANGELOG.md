@@ -43,6 +43,8 @@ Kırıcı değişiklik yok; v2 kayıt şeması değişmedi.
 - Düzeltme: sipariş ucu bozuk istekte (ör. hatalı URL kaçışı) 503 yerine 4xx
   döner. `quantity` saklanan dört ondalığa yuvarlanır; `0.1 + 0.2` gibi bir
   değerle aynı `Idempotency-Key` tekrarı artık 409 değil, tekrar yanıtı alır.
+  Not: HTTPS üzerinde HTTP/2 kullanan istemcide geçersiz bir URL kaçışı (ör. `%zz`)
+  uygulamaya hiç ulaşmaz; kenar sunucu onu protokol hatasıyla reddeder. HTTP/1.1'de 400 döner.
 - Kaldırıldı: `GET /api/v1` keşif belgesindeki `health` ve `info` bağlantıları.
   Proxy arkasında bu yollar web sunucusuna gidiyor, API'nin durumunu göstermiyordu.
 - Değişti: simüle fiyatlar artık tohum fiyatının çevresinde kalır (tik başına
