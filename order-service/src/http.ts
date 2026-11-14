@@ -103,7 +103,7 @@ export function problem(
 }
 
 /**
- * Last-resort error middleware: maps body-parser failures to 400/413 and every other error to a generic 503,
+ * Last-resort error middleware: maps client errors to their 4xx status and every other error to a generic 503,
  * so internal details (SQL, stack traces) never reach the client.
  */
 export const httpErrorHandler: ErrorRequestHandler = (err, _req, res, next) => {
@@ -113,6 +113,11 @@ export const httpErrorHandler: ErrorRequestHandler = (err, _req, res, next) => {
   }
   if (err?.type === "entity.parse.failed") {
     return problem(res, 400, "Invalid JSON body.");
+  }
+  // Other client mistakes (bad URL escape, unsupported charset) carry their own 4xx status;
+  // answering 503 would tell an honest client to retry a request that can never succeed.
+  if (err?.status >= 400 && err?.status < 500) {
+    return problem(res, err.status, "Bad request.");
   }
   // pino-http logs res.err (with stack) server-side; the client only sees the generic detail.
   res.err = err;

@@ -2,7 +2,8 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { keysMatch } from "./httpAuth.js";
 import { createOrderBodySchema, idempotencyKeySchema } from "./schemas.js";
-import { isQuantity, problem } from "./http.js";
+import { httpErrorHandler, isQuantity, problem } from "./http.js";
+import { intFromEnv } from "./config.js";
 import express from "express";
 import { once } from "node:events";
 
@@ -74,5 +75,44 @@ describe("isQuantity", () => {
   it("keeps 4-decimal precision gate", () => {
     assert.equal(isQuantity(1.00001), false);
     assert.equal(isQuantity(1.0001), true);
+  });
+});
+
+describe("createOrderBodySchema quantity", () => {
+  it("rounds float noise to the stored 4-decimal value", () => {
+    const body = createOrderBodySchema.parse({ elementSymbol: "Fe", quantity: 0.1 + 0.2 });
+    assert.equal(body.quantity, 0.3);
+  });
+});
+
+describe("httpErrorHandler", () => {
+  it("answers a malformed URL escape with 400, not a retryable 503", async () => {
+    const app = express();
+    app.get("/:id", (_req, res) => res.json({}));
+    app.use(httpErrorHandler);
+    const server = app.listen(0, "127.0.0.1");
+    await once(server, "listening");
+    try {
+      const address = server.address();
+      assert(address && typeof address === "object");
+      const res = await fetch(`http://127.0.0.1:${address.port}/%zz`);
+      assert.equal(res.status, 400);
+    } finally {
+      server.close();
+    }
+  });
+});
+
+describe("intFromEnv", () => {
+  it("uses the fallback when unset or empty and rejects a typo", () => {
+    delete process.env.TEST_INT;
+    assert.equal(intFromEnv("TEST_INT", 7), 7);
+    process.env.TEST_INT = "";
+    assert.equal(intFromEnv("TEST_INT", 7), 7);
+    process.env.TEST_INT = "42";
+    assert.equal(intFromEnv("TEST_INT", 7), 42);
+    process.env.TEST_INT = "abc";
+    assert.throws(() => intFromEnv("TEST_INT", 7), /TEST_INT/);
+    delete process.env.TEST_INT;
   });
 });
