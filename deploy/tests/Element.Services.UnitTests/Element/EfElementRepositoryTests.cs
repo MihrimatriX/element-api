@@ -49,4 +49,20 @@ public class EfElementRepositoryTests
         (await repo.GetPriceRangeSinceAsync(" au ", now.AddHours(-24))).Should().Be(((decimal?)5m, (decimal?)9m, (decimal?)3m));
         (await repo.GetPriceRangeSinceAsync("xx", now.AddHours(-24))).Should().Be(((decimal?)null, (decimal?)null, (decimal?)null));
     }
+
+    [Fact]
+    public async Task GetFulfilledVolumeSinceAsync_CountsCompletedOrdersAndDeskSalesInTheWindow()
+    {
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        await using var db = Db();
+        var now = DateTime.UtcNow;
+        db.StockReservations.AddRange(
+            StockReservation.ForCompletedOrder(Guid.NewGuid(), "Au", 2m, now.AddHours(-1)),
+            StockReservation.ForDeskSale(Guid.NewGuid(), "Au", 0.5m, now.AddHours(-2)),
+            StockReservation.ForCompletedOrder(Guid.NewGuid(), "Au", 7m, now.AddHours(-30)),  // before the window
+            StockReservation.ForCompletedOrder(Guid.NewGuid(), "Ag", 100m, now.AddHours(-1))); // other symbol
+        await db.SaveChangesAsync();
+
+        (await new EfElementRepository(db, cache).GetFulfilledVolumeSinceAsync("au", now.AddHours(-24))).Should().Be(2.5m);
+    }
 }

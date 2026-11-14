@@ -23,8 +23,7 @@ public class ApiInfoController : ControllerBase
             { "compounds", $"{baseUrl}/api/v1/compounds" },
             { "compound", $"{baseUrl}/api/v1/compounds/aucl3" },
             { "by_element", $"{baseUrl}/api/v1/elements/au/compounds" },
-            { "health", $"{baseUrl}/health" },
-            { "info", $"{baseUrl}/info" },
+            // No health/info links: behind the public proxy those paths belong to the web host.
             { "swagger", $"{baseUrl}/swagger" }
         };
 

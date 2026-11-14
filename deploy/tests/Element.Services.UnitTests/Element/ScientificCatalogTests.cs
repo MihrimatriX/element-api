@@ -125,6 +125,19 @@ public class ScientificCatalogTests
     }
 
     [Fact]
+    public void SearchFindsNamesThatStartWithTurkishDottedI()
+    {
+        foreach (var query in new[] { "iyot", "İyot", "IYOT" })
+        {
+            var context = Context("?q=" + Uri.EscapeDataString(query));
+
+            var result = Json(Elements.Read(context.Request, context.Response));
+
+            Assert.Contains(result["results"]!.AsArray(), record => record!["symbol"]!.GetValue<string>() == "I");
+        }
+    }
+
+    [Fact]
     public void SearchCombinesWithFilters()
     {
         var context = Context("?q=demir&block=d");

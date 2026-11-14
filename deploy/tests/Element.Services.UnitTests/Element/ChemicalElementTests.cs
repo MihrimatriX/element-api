@@ -71,6 +71,31 @@ public class ChemicalElementTests
     }
 
     [Fact]
+    public void PullToward_PointsBackAtTheAnchor_AndIsSymmetricInRatio()
+    {
+        Gold(price: 100m).PullToward(anchorPrice: 100m, strength: 0.001m).Should().Be(0m);
+        Gold(price: 50m).PullToward(100m, 0.001m).Should().BePositive();
+        Gold(price: 200m).PullToward(100m, 0.001m).Should().BeNegative();
+        // Twice too low and twice too high pull equally hard, in opposite directions.
+        (Gold(price: 50m).PullToward(100m, 0.001m) + Gold(price: 200m).PullToward(100m, 0.001m)).Should().BeApproximately(0m, 1e-12m);
+        // No anchor (an element missing from the seed) means no pull, not a crash.
+        Gold(price: 50m).PullToward(0m, 0.001m).Should().Be(0m);
+    }
+
+    [Fact]
+    public void RepeatedTicksWithOnlyThePull_BringADriftedPriceBackToTheAnchor()
+    {
+        var drifted = Gold(price: 7m);
+
+        for (var tick = 0; tick < 400; tick++)
+        {
+            drifted.Tick(drifted.PullToward(anchorPrice: 75.25m, strength: 0.05m), Now);
+        }
+
+        drifted.PricePerGram.Should().BeApproximately(75.25m, 0.5m);
+    }
+
+    [Fact]
     public void Tick_ThatWouldReachTheFloor_IsSkipped()
     {
         var dust = Gold(price: MarketMaker.MinimumPrice);

@@ -80,7 +80,6 @@ builder.Services.AddSwaggerGen(swagger =>
         Title = "Element API",
         Version = "v1",
         Description = "Free, open API for chemical elements data, market prices, and periodic table categories. Like SWAPI/Rick & Morty API, but for Chemistry!",
-        Contact = new OpenApiContact { Name = "Element Market Developer Team", Url = new Uri("http://localhost:3000") }
     });
 
     var xmlDocFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
