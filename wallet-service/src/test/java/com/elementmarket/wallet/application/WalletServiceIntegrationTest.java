@@ -6,7 +6,6 @@ import com.elementmarket.wallet.domain.Money;
 import com.elementmarket.wallet.infrastructure.JdbcOutbox;
 import com.elementmarket.wallet.infrastructure.JdbcWalletRepository;
 import com.elementmarket.wallet.infrastructure.OutboxRelay;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +16,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,14 +41,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class WalletServiceIntegrationTest {
 
     @Container
-    static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
 
     private static final Money LIMIT = Money.of("50000");
     private static final Money GRANT = Money.of("100");
 
     private static JdbcTemplate jdbc;
     private static TransactionTemplate tx;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new JsonMapper();
     private WalletService service;
 
     @BeforeAll

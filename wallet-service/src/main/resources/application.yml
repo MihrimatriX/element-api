@@ -26,7 +26,7 @@ spring:
     # Stay inside Docker's 10s stop grace (Rabbit listener stop is separately capped at 5s).
     timeout-per-shutdown-phase: 5s
   http:
-    client:
+    clients:
       # MarketClient -> catalog/compound; a hung peer must not pin request threads forever.
       connect-timeout: 2s
       read-timeout: 5s
@@ -44,7 +44,7 @@ spring:
         # Back off instead of instant infinite requeue; after 5 attempts park in wallet-service_failed.
         retry:
           enabled: true
-          max-attempts: 5
+          max-retries: 4
           initial-interval: 1s
           multiplier: 2
 

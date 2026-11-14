@@ -1,9 +1,10 @@
 package com.elementmarket.inventory;
 
 import com.elementmarket.inventory.messaging.MassTransitMessage;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class MassTransitMessageTest {
 
     /** Same setting as spring.jackson.deserialization.use-big-decimal-for-floats in application.yml. */
-    private final ObjectMapper mapper = new ObjectMapper().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
+    private final ObjectMapper mapper = JsonMapper.builder().enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS).build();
 
     @Test
     void readsOrderSubmitted() throws Exception {

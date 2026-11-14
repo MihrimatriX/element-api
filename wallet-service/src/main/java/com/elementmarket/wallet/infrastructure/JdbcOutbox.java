@@ -1,10 +1,10 @@
 package com.elementmarket.wallet.infrastructure;
 
 import com.elementmarket.wallet.application.Outbox;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.UUID;
@@ -27,7 +27,7 @@ public class JdbcOutbox implements Outbox {
             jdbc.update(
                     "INSERT INTO outbox (id, event_type, payload) VALUES (?, ?, ?::jsonb)",
                     UUID.randomUUID(), eventType, mapper.writeValueAsString(payload));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new IllegalArgumentException("unserializable " + eventType + " payload", e);
         }
     }

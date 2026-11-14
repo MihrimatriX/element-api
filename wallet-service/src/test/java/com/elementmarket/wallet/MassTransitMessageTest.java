@@ -1,8 +1,9 @@
 package com.elementmarket.wallet;
 
 import com.elementmarket.wallet.messaging.MassTransitMessage;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 class MassTransitMessageTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new JsonMapper();
 
     @Test
     void readsPaymentRequestedCamelAndPascal() throws Exception {

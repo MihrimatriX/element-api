@@ -5,7 +5,6 @@ import com.elementmarket.inventory.domain.ReserveOutcome;
 import com.elementmarket.inventory.infrastructure.JdbcOutbox;
 import com.elementmarket.inventory.infrastructure.JdbcStockRepository;
 import com.elementmarket.inventory.infrastructure.OutboxRelay;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,9 +15,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,13 +41,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class InventoryServiceIntegrationTest {
 
     @Container
-    static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
 
     private static final Grams DEFAULT_STOCK = Grams.of("100");
 
     private static JdbcTemplate jdbc;
     private static TransactionTemplate tx;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new JsonMapper();
     private InventoryService service;
 
     @BeforeAll

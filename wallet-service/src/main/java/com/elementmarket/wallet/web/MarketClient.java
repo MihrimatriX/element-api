@@ -3,9 +3,9 @@ package com.elementmarket.wallet.web;
 import com.elementmarket.wallet.config.RabbitConfig.WalletSettings;
 import com.elementmarket.wallet.domain.Holding;
 import com.elementmarket.wallet.domain.Money;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.JsonNode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
