@@ -44,6 +44,8 @@ spring:
 
 inventory:
   default-stock-grams: ${DEFAULT_STOCK_GRAMS:100000}
+  # Weekly top-up back to the default (Spring cron, UTC). "-" switches it off.
+  restock-cron: ${STOCK_RESTOCK_CRON:0 0 4 * * MON}
   outbox:
     poll-ms: ${OUTBOX_POLL_MS:500}
 

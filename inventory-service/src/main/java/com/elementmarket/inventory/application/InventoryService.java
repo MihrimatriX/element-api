@@ -133,6 +133,15 @@ public class InventoryService {
         });
     }
 
+    /**
+     * Raises every element that fell below the default stock back to it and returns how many changed.
+     * Nothing else replenishes the simulated stock except customers selling back, so without this a few
+     * accounts could buy out a cheap element and leave it out of stock for everyone.
+     */
+    public int topUpStock() {
+        return tx.execute(status -> stock.topUp(defaultStock));
+    }
+
     /** Public read: never writes or locks; an unseen symbol reports the default seed it would get. */
     public StockItem stockOf(String symbol) {
         String upperSymbol = normalize(symbol);

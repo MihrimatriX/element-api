@@ -31,6 +31,9 @@ public interface StockRepository {
 
     void save(StockItem item);
 
+    /** Raises every item that fell below {@code minimum} back to it; returns how many rows changed. */
+    int topUp(Grams minimum);
+
     /** Inserts a new reservation; a concurrent insert for the same id fails instead of being overwritten. */
     void add(Reservation reservation);
 

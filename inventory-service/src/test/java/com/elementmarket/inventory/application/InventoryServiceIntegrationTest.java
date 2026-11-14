@@ -149,6 +149,24 @@ class InventoryServiceIntegrationTest {
     }
 
     @Test
+    void topUpRefillsOnlyWhatFellBelowTheDefault() {
+        service.reserveForOrder(submitted(UUID.randomUUID()), "AU", new BigDecimal("10"));
+        UUID bought = UUID.randomUUID();
+        service.reserveForOrder(submitted(bought), "FE", new BigDecimal("40"));
+        service.fulfillOrder(delivery("OrderCompletedEvent", bought));
+        service.restock(delivery("ElementSoldEvent", null), UUID.randomUUID(), "cu", Grams.of("5"));
+        BigDecimal defaultStock = service.stockOf("AU").stock().value();
+
+        assertEquals(1, service.topUpStock(), "only iron was sold below the default");
+
+        assertEquals(0, defaultStock.compareTo(service.stockOf("FE").stock().value()));
+        assertEquals(0, defaultStock.add(new BigDecimal("5")).compareTo(service.stockOf("CU").stock().value()),
+                "stock above the default is left alone");
+        assertEquals(0, new BigDecimal("10").compareTo(service.stockOf("AU").reserved().value()),
+                "an open reservation survives the top-up");
+    }
+
+    @Test
     void restockAddsSoldGramsOncePerSale() {
         UUID sale = UUID.randomUUID();
         service.restock(delivery("ElementSoldEvent", null), sale, "au", Grams.of("2.5"));
