@@ -95,13 +95,13 @@ npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
 |--------|-------|---------|
 | .NET birim (Gateway 28 + Science 12 + Compound 14 + Services 179) | `./deploy/scripts/test-unit.ps1` | .NET 10 SDK |
 | order-service birim | `npm --prefix order-service test` · `npm --prefix order-service run check` | Node 22 |
-| Java birim (wallet, inventory) | `mvn -f wallet-service test` · `mvn -f inventory-service test` | Java 21 + Maven |
+| Java birim ve entegrasyon (wallet 32 + inventory 32) | `mvn -f wallet-service test` · `mvn -f inventory-service test` | Java 21 + Maven |
 | Web birim | `npm --prefix web-app test` | Node 22 |
-| Entegrasyon (18) | `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker (Testcontainers: Postgres, Redis, RabbitMQ ve gerçek bir wallet-service konteyneri); önce `npm --prefix order-service run build` |
+| Entegrasyon (24) | `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker (Testcontainers: Postgres, Redis, RabbitMQ ve gerçek bir wallet-service konteyneri); önce `npm --prefix order-service run build` |
 | Tarayıcı, hesaplar kapalı | `npm --prefix web-app run test:e2e` (`web-app/e2e/`) | science-service ve Vite’ı kendisi açar |
 | Tarayıcı, hesap akışları | `npm --prefix web-app run test:e2e:auth` (`web-app/e2e-auth/`) | Vite’ı kendisi açar; identity API’si tarayıcıda taklit edilir |
 | Tarayıcı, canlı ticaret | `npm --prefix web-app run test:e2e:live` (`web-app/e2e-live/`) | Tam Docker platformu `:6241` (`WEB_BASE`) |
-| Canlı API | `node deploy/scripts/test-scientific-api.mjs` · `node deploy/scripts/test-e2e.mjs` · `./deploy/scripts/test-saga.ps1` · `./deploy/scripts/test-smoke.ps1` · `node deploy/scripts/test-platform.mjs` | Çalışan yerel servisler |
+| Canlı API | `node deploy/scripts/test-scientific-api.mjs` · `node deploy/scripts/test-e2e.mjs` · `./deploy/scripts/test-saga.ps1` · `./deploy/scripts/test-smoke.ps1` · `node deploy/scripts/test-platform.mjs` · `node deploy/scripts/test-db-roles.mjs` | Çalışan yerel servisler |
 
 Playwright ilk kullanımdan önce `web-app` içinde bir kez `npx playwright install chromium` ister.
 
