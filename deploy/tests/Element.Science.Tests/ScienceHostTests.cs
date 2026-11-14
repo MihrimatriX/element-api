@@ -106,8 +106,34 @@ public sealed class ScienceHostTests : IClassFixture<ScienceHostTests.ScienceFac
             (await client.GetAsync("/api/v2/coverage")).StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
-        (await client.GetAsync("/api/v2/coverage")).StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        var limited = await client.GetAsync("/api/v2/coverage");
+        limited.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+        limited.Headers.RetryAfter!.Delta!.Value.TotalSeconds.Should().BeInRange(1, 60);
         (await client.GetAsync("/index.html")).StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task Rate_limit_counts_each_client_behind_the_proxy_separately()
+    {
+        // Own host: the limiter state must not leak into the other tests.
+        await using var factory = new ScienceFactory();
+        var client = factory.CreateClient();
+
+        async Task<HttpStatusCode> GetAs(string forwardedFor)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/v2/coverage");
+            request.Headers.Add("X-Forwarded-For", forwardedFor);
+            return (await client.SendAsync(request)).StatusCode;
+        }
+
+        for (var i = 0; i < 300; i++)
+        {
+            (await GetAs("203.0.113.7")).Should().Be(HttpStatusCode.OK);
+        }
+
+        // One visitor used up their minute; the next visitor through the same proxy is unaffected.
+        (await GetAs("203.0.113.7")).Should().Be(HttpStatusCode.TooManyRequests);
+        (await GetAs("203.0.113.8")).Should().Be(HttpStatusCode.OK);
     }
 
     /// <summary>Science host with a small generated web root, so static-file rules can be checked without a web-app build.</summary>

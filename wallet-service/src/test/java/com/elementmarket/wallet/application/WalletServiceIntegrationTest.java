@@ -6,7 +6,6 @@ import com.elementmarket.wallet.domain.Money;
 import com.elementmarket.wallet.infrastructure.JdbcOutbox;
 import com.elementmarket.wallet.infrastructure.JdbcWalletRepository;
 import com.elementmarket.wallet.infrastructure.OutboxRelay;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +16,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,14 +41,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class WalletServiceIntegrationTest {
 
     @Container
-    static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+    static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
 
     private static final Money LIMIT = Money.of("50000");
     private static final Money GRANT = Money.of("100");
 
     private static JdbcTemplate jdbc;
     private static TransactionTemplate tx;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new JsonMapper();
     private WalletService service;
 
     @BeforeAll
@@ -144,15 +145,38 @@ class WalletServiceIntegrationTest {
         service.creditAssets(new Delivery(UUID.randomUUID(), "AssetsCreditedEvent", order), user,
                 "AU", Grams.of("2"), Money.of("40"), "elemental", null);
 
-        assertEquals("over_holding", service.sell(user, "AU", Grams.of("3"), Money.of("25"), "elemental").failure());
-        assertEquals("no_holding", service.sell(user, "AG", Grams.of("1"), Money.of("25"), "elemental").failure());
+        assertEquals("over_holding", service.sell(user, "AU", Grams.of("3"), new BigDecimal("25"), "elemental", null).failure());
+        assertEquals("no_holding", service.sell(user, "AG", Grams.of("1"), new BigDecimal("25"), "elemental", null).failure());
 
-        WalletService.SaleResult sale = service.sell(user, "AU", Grams.of("2"), Money.of("25"), "elemental");
+        WalletService.SaleResult sale = service.sell(user, "AU", Grams.of("2"), new BigDecimal("25"), "elemental", null);
         assertNull(sale.failure());
         assertEquals(Money.of("50"), sale.proceeds());
         assertEquals(Money.of("110"), sale.balance());
         assertTrue(service.holdingsOf(user).isEmpty());
         assertEquals(1, countOutbox("ElementSoldEvent"));
+    }
+
+    @Test
+    void aRetriedSaleWithTheSameKeySellsOnce() {
+        UUID user = UUID.randomUUID();
+        UUID order = UUID.randomUUID();
+        service.chargeOrder(new Delivery(UUID.randomUUID(), "PaymentRequestedEvent", order), user,
+                new BigDecimal("40"), "AU", Grams.of("2"));
+        service.creditAssets(new Delivery(UUID.randomUUID(), "AssetsCreditedEvent", order), user,
+                "AU", Grams.of("2"), Money.of("40"), "elemental", null);
+        UUID saleKey = UUID.randomUUID();
+
+        WalletService.SaleResult first = service.sell(user, "AU", Grams.of("1"), new BigDecimal("25"), "elemental", saleKey);
+        WalletService.SaleResult retry = service.sell(user, "AU", Grams.of("1"), new BigDecimal("25"), "elemental", saleKey);
+
+        assertNull(retry.failure());
+        assertEquals(first.proceeds(), retry.proceeds());
+        assertEquals(first.balance(), retry.balance());
+        assertEquals(Grams.of("1"), service.holdingsOf(user).get(0).grams(), "the retry must not sell a second gram");
+        assertEquals(1, countOutbox("ElementSoldEvent"));
+        // The same key from another account is a different sale, never a clash.
+        assertEquals("no_holding", service.sell(
+                UUID.randomUUID(), "AU", Grams.of("1"), new BigDecimal("25"), "elemental", saleKey).failure());
     }
 
     @Test

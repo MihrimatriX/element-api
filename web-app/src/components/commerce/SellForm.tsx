@@ -52,6 +52,9 @@ export function SellForm({
   const [problem, setProblem] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const gramsRef = useRef<HTMLInputElement>(null);
+  // One key per sale the user means to make. It survives a failed request, so pressing "sell" again after a
+  // timeout replays the first sale on the server instead of selling twice; a new draft gets a new key.
+  const saleKey = useRef<string | null>(null);
 
   if (holdings === null)
     return (
@@ -89,6 +92,7 @@ export function SellForm({
     unitBid != null && saleProblem(grams, holding) === null ? unitBid * grams : null;
 
   const edit = (next: Partial<SaleDraft>) => {
+    saleKey.current = null;
     setProblem(null);
     onDraftChange({ slug: holding.compoundSlug, grams: draft.grams, ...next });
   };
@@ -109,7 +113,9 @@ export function SellForm({
     setBusy(true);
     setFailure(null);
     try {
-      const result = await walletService.sell(symbol, grams, holding.compoundSlug);
+      saleKey.current ??= crypto.randomUUID();
+      const result = await walletService.sell(symbol, grams, holding.compoundSlug, saleKey.current);
+      saleKey.current = null;
       const { formula } = describeProduct(elements, holding);
       toast(
         `${formatFixed(grams, 2)} g ${formula} satıldı · ${formatKredi(result.proceedsElx)}`,

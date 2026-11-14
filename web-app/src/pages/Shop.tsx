@@ -18,6 +18,7 @@ import { OrdersTable } from "../components/commerce/OrdersTable";
 import { SkuCard } from "../components/commerce/SkuCard";
 import { SkuCatalog } from "../components/commerce/SkuCatalog";
 import Seo from "../components/Seo";
+import { WELCOME_CREDIT } from "../config";
 import { useCommerce } from "../context/commerce";
 import { useSelectedElement } from "../context/selection";
 import { usePolling } from "../hooks/usePolling";
@@ -160,7 +161,7 @@ export default function Shop() {
             <p className="text-sm text-ink-2">
               Gezmek serbest.{" "}
               <Link to="/register" className="text-link">
-                Kayıt olunca hesabına 10.000 kredi yüklenir.
+                Kayıt olunca hesabına {WELCOME_CREDIT} kredi yüklenir.
               </Link>
             </p>
           )

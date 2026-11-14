@@ -92,12 +92,12 @@ public class ElementsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(q))
         {
-            return BadRequest("Search query 'q' is required.");
+            return Problem(detail: "Search query 'q' is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         if (q.Length > MaxSearchLength)
         {
-            return BadRequest("Search query 'q' must not exceed 120 characters.");
+            return Problem(detail: "Search query 'q' must not exceed 120 characters.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var allElements = await _repository.GetAllAsync(ct);
@@ -114,7 +114,7 @@ public class ElementsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(symbol))
         {
-            return BadRequest("Symbol is required.");
+            return Problem(detail: "Symbol is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var element = await _repository.GetBySymbolAsync(symbol, ct);
@@ -135,7 +135,7 @@ public class ElementsController : ControllerBase
         var allElements = await _repository.GetAllAsync(ct);
         if (allElements.Count == 0)
         {
-            return NotFound("No elements found.");
+            return Problem(detail: "No elements found.", statusCode: StatusCodes.Status404NotFound);
         }
 
         var randomElement = allElements[Random.Shared.Next(allElements.Count)];
@@ -153,24 +153,24 @@ public class ElementsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(symbols))
         {
-            return BadRequest("Provide 'symbols' as a comma-separated list, e.g. ?symbols=au,ag,cu.");
+            return Problem(detail: "Provide 'symbols' as a comma-separated list, e.g. ?symbols=au,ag,cu.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var requestedSymbols = symbols.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         if (requestedSymbols.Length < MinCompareSymbols)
         {
-            return BadRequest("Comparison needs at least two symbols.");
+            return Problem(detail: "Comparison needs at least two symbols.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         if (requestedSymbols.Length > MaxCompareSymbols)
         {
-            return BadRequest("Comparison supports at most six symbols.");
+            return Problem(detail: "Comparison supports at most six symbols.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var foundElements = await _repository.GetBySymbolsAsync(requestedSymbols, ct);
         if (foundElements.Count == 0)
         {
-            return NotFound("None of the requested symbols were found.");
+            return Problem(detail: "None of the requested symbols were found.", statusCode: StatusCodes.Status404NotFound);
         }
 
         // Preserve the caller's requested order; unknown symbols are dropped.
@@ -238,7 +238,7 @@ public class ElementsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(symbol))
         {
-            return BadRequest("Symbol is required.");
+            return Problem(detail: "Symbol is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         if (limit is < 1 or > MaxHistoryLimit)
@@ -258,7 +258,7 @@ public class ElementsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(symbol))
         {
-            return BadRequest("Symbol is required.");
+            return Problem(detail: "Symbol is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var element = await _repository.GetBySymbolAsync(symbol, ct);
@@ -309,8 +309,8 @@ public class ElementsController : ControllerBase
 
     private ElementResponseDto MapToDto(ChemicalElement element) => ElementDtoMapper.ToDto(element, GetBaseUrl());
 
-    private NotFoundObjectResult ElementNotFound(string symbol) =>
-        NotFound($"Chemical element with symbol '{symbol}' was not found.");
+    private ObjectResult ElementNotFound(string symbol) =>
+        Problem(detail: $"Chemical element with symbol '{symbol}' was not found.", statusCode: StatusCodes.Status404NotFound);
 
     private static int NormalizePage(int page) => page < 1 ? 1 : page;
 

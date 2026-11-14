@@ -1,3 +1,8 @@
+using System.Globalization;
+using System.Text.Json;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
+
 namespace Element.Gateway;
 
 /// <summary>
@@ -42,6 +47,37 @@ public static class RateLimitPolicy
             return ($"auth:{clientIp}", AuthPermitLimit, AuthWindow);
 
         return ($"public:{clientIp}", PublicPermitLimit, PublicWindow);
+    }
+
+    /// <summary>
+    /// Writes the 429 answer: a JSON problem body (sign-up attempts get a friendlier message) and a
+    /// Retry-After header, so a well-behaved client waits for the window instead of guessing and hammering.
+    /// </summary>
+    public static async ValueTask WriteRejectionAsync(OnRejectedContext rejection, CancellationToken cancellationToken)
+    {
+        var httpContext = rejection.HttpContext;
+        if (rejection.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            var seconds = Math.Max(1, (int)Math.Ceiling(retryAfter.TotalSeconds));
+            httpContext.Response.Headers.RetryAfter = seconds.ToString(CultureInfo.InvariantCulture);
+        }
+
+        var detail = IsSignUpRequest(httpContext.Request)
+            ? "Too many sign-up attempts from this address. Wait a minute and try again."
+            : "Too many requests. Please try again later.";
+
+        var problemDetails = new
+        {
+            Type = "https://httpstatuses.com/429",
+            Title = "Rate Limit Exceeded",
+            Status = StatusCodes.Status429TooManyRequests,
+            Detail = detail,
+            Instance = httpContext.Request.Path.Value,
+        };
+
+        httpContext.Response.ContentType = "application/problem+json";
+        await httpContext.Response.WriteAsync(
+            JsonSerializer.Serialize(problemDetails, JsonSerializerOptions.Web), cancellationToken);
     }
 
     /// <summary>True for <c>POST /api/v1/auth/register</c> only; selects the friendlier sign-up 429 message.</summary>

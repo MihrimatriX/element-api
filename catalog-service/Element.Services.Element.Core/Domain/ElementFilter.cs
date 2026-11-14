@@ -1,3 +1,5 @@
+using System.Globalization;
+using System.Text;
 using Element.Services.Element.Core.Entities;
 
 namespace Element.Services.Element.Core.Domain;
@@ -124,12 +126,26 @@ public sealed class ElementFilter
             return true;
         }
 
-        var term = Search.Trim();
-        var turkishName = element.NameTr ?? string.Empty;
+        var term = Fold(Search.Trim());
 
-        return element.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
-            || element.Symbol.Contains(term, StringComparison.OrdinalIgnoreCase)
-            || turkishName.Contains(term, StringComparison.OrdinalIgnoreCase)
-            || element.AtomicNumber.ToString().Contains(term, StringComparison.OrdinalIgnoreCase);
+        return Fold(element.Name).Contains(term, StringComparison.Ordinal)
+            || Fold(element.Symbol).Contains(term, StringComparison.Ordinal)
+            || Fold(element.NameTr ?? string.Empty).Contains(term, StringComparison.Ordinal)
+            || element.AtomicNumber.ToString(CultureInfo.InvariantCulture).Contains(term, StringComparison.Ordinal);
+    }
+
+    // Same folding as the v2 catalogue search (shared-lib ScientificCatalog.Fold; this project does not
+    // reference shared-lib): lower-case, Turkish İ and ı to i, accents stripped. Ordinal-ignore-case alone
+    // never matched "iyot" to "İyot" or "bakir" to "Bakır".
+    private static string Fold(string value)
+    {
+        var decomposed = value
+            .Replace('İ', 'i')
+            .ToLowerInvariant()
+            .Replace('ı', 'i')
+            .Normalize(NormalizationForm.FormD);
+
+        return string.Concat(decomposed.Where(character =>
+            CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark));
     }
 }

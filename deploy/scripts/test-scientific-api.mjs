@@ -64,12 +64,18 @@ assert.equal(aspirin.safety.toxicology.ld50_oral_rat_mg_kg, null);
 const compounds = await (await check('/api/v2/compounds?pageSize=100')).json();
 assert.ok(compounds.info.count >= 167);
 
-// v1 stays compatible; private routes must not inherit the public CORS policy.
-const legacy = await (await check('/api/v1/elements/fe')).json();
-assert.equal(legacy.symbol, 'Fe');
-assert.ok(legacy.market);
-const privateResponse = await check('/api/v1/me/wallet', 401, { Origin: 'https://example.net' });
-assert.notEqual(privateResponse.headers.get('access-control-allow-origin'), '*');
+// v1 and the private routes exist only behind the gateway; the standalone atlas answers /api/v1 with a JSON 404.
+const hasGateway = (await fetch(base + '/api/v1', { signal: AbortSignal.timeout(20000) })).status === 200;
+if (hasGateway) {
+  // v1 stays compatible; private routes must not inherit the public CORS policy.
+  const legacy = await (await check('/api/v1/elements/fe')).json();
+  assert.equal(legacy.symbol, 'Fe');
+  assert.ok(legacy.market);
+  const privateResponse = await check('/api/v1/me/wallet', 401, { Origin: 'https://example.net' });
+  assert.notEqual(privateResponse.headers.get('access-control-allow-origin'), '*');
+} else {
+  await check('/api/v1/elements/fe', 404);
+}
 
 console.log(JSON.stringify({
   passed: true,
@@ -79,5 +85,7 @@ console.log(JSON.stringify({
   summaryBytes: Buffer.byteLength(summary),
   fieldsBytes: Buffer.byteLength(fields),
   summaryReduction: `${(100 * (1 - summary.length / fullText.length)).toFixed(1)}%`,
-  checks: ['scientific facts', 'projection', 'pagination', '400/404', 'ETag 304', 'public CORS GET/preflight', 'gzip', 'aspirin', 'v1 compatibility', 'private route isolation'],
+  profile: hasGateway ? 'gateway' : 'standalone atlas',
+  checks: ['scientific facts', 'projection', 'pagination', '400/404', 'ETag 304', 'public CORS GET/preflight', 'gzip', 'aspirin',
+    ...(hasGateway ? ['v1 compatibility', 'private route isolation'] : ['v1 absent (JSON 404)'])],
 }, null, 2));

@@ -55,7 +55,7 @@ builder.Services.AddRateLimiter(options =>
         });
     });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.OnRejected = WriteRateLimitProblemAsync;
+    options.OnRejected = RateLimitPolicy.WriteRejectionAsync;
 });
 
 var corsOrigins = ResolveCorsOrigins(builder.Configuration);
@@ -133,27 +133,6 @@ static List<string> ResolveCorsOrigins(IConfiguration configuration)
         origins.Add(normalizedOrigin);
 
     return origins;
-}
-
-// Writes a JSON problem body for 429 responses; sign-up attempts get a friendlier message.
-static async ValueTask WriteRateLimitProblemAsync(OnRejectedContext rejection, CancellationToken cancellationToken)
-{
-    var httpContext = rejection.HttpContext;
-    var detail = RateLimitPolicy.IsSignUpRequest(httpContext.Request)
-        ? "Too many sign-up attempts from this address. Wait a minute and try again."
-        : "Too many requests. Please try again later.";
-
-    var problemDetails = new
-    {
-        Type = "https://httpstatuses.com/429",
-        Title = "Rate Limit Exceeded",
-        Status = StatusCodes.Status429TooManyRequests,
-        Detail = detail,
-        Instance = httpContext.Request.Path,
-    };
-
-    httpContext.Response.ContentType = "application/json";
-    await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 }
 
 /// <summary>Makes the generated entry-point class public so the integration tests can host the gateway with WebApplicationFactory.</summary>

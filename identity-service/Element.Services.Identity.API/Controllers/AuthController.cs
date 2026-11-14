@@ -61,7 +61,7 @@ public class AuthController(
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user is null)
         {
-            return Unauthorized(InvalidCredentialsMessage);
+            return Problem(detail: InvalidCredentialsMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         // Five failed attempts lock the account for 15 minutes (Identity options in Program.cs).
@@ -69,14 +69,14 @@ public class AuthController(
         var signInResult = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
         if (signInResult.IsLockedOut)
         {
-            return StatusCode(
-                StatusCodes.Status429TooManyRequests,
-                "Too many failed sign-in attempts. Try again in about 15 minutes.");
+            return Problem(
+                detail: "Too many failed sign-in attempts. Try again in about 15 minutes.",
+                statusCode: StatusCodes.Status429TooManyRequests);
         }
 
         if (!signInResult.Succeeded)
         {
-            return Unauthorized(InvalidCredentialsMessage);
+            return Problem(detail: InvalidCredentialsMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         var token = tokenService.GenerateJwtToken(user);

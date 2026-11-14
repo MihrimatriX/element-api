@@ -37,6 +37,12 @@ function Assert-PublicEnvMatrix {
 function Ensure-EnvFile([string]$EnvFile, [string]$Example) {
     if (Test-Path -LiteralPath $EnvFile) { return }
     if (!(Test-Path -LiteralPath $Example)) { throw "Missing example env: $Example" }
+    # Prod runs in Production mode, where the services refuse the example's replace-with-... secrets:
+    # generate real ones instead of copying placeholders that would only crash-loop.
+    if ($EnvFile -like '*.env.public.prod') {
+        & (Join-Path $PSScriptRoot 'fill-public-prod-env.ps1')
+        return
+    }
     Copy-Item -LiteralPath $Example -Destination $EnvFile
     Write-Host "Created $EnvFile from $Example - replace replace-with-... secrets before real production use."
 }

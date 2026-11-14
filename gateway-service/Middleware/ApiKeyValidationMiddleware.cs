@@ -87,18 +87,18 @@ public class ApiKeyValidationMiddleware
     private static async Task WriteAuthenticationProblemAsync(HttpContext context, ApiKeyValidationContext validation)
     {
         context.Response.StatusCode = validation.StatusCode;
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = "application/problem+json";
 
-        // Serialized with default (PascalCase) options; clients already depend on this shape.
+        // Same RFC 7807 shape as every other error of the API: camelCase, instance as a plain path.
         var problemDetails = new
         {
             Type = "https://httpstatuses.com/" + validation.StatusCode,
             Title = "Authentication Failed",
             Status = validation.StatusCode,
             Detail = validation.ErrorMessage,
-            Instance = context.Request.Path,
+            Instance = context.Request.Path.Value,
         };
 
-        await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails));
+        await context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, JsonSerializerOptions.Web));
     }
 }

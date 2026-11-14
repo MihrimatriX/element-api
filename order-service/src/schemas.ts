@@ -31,7 +31,13 @@ export const createOrderBodySchema = z
         path: ["compoundSlug"],
       });
     }
-  });
+  })
+  // isQuantity tolerates float noise (0.1 + 0.2), but Postgres stores NUMERIC(18,4). Round to the stored
+  // value here, or a retry with the same Idempotency-Key compares 0.30000000000000004 to 0.3 and gets 409.
+  .transform((body) => ({
+    ...body,
+    quantity: Math.round(body.quantity * 10_000) / 10_000,
+  }));
 
 /** Validates the optional Idempotency-Key header; it must be a UUID because it becomes the order id. */
 export const idempotencyKeySchema = z

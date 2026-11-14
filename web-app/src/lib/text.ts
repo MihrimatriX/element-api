@@ -12,6 +12,15 @@ export function foldTurkish(value: string): string {
     .trim();
 }
 
+/** `decodeURIComponent` that returns the input unchanged when it is malformed, e.g. a hand-typed "#%". */
+export function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 /** True when every word of `query` appears in any of `fields` (Turkish-folded). Empty query matches all. */
 export function matchesSearch(
   query: string,

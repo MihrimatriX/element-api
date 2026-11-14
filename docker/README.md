@@ -14,7 +14,7 @@ Bu klasör sırları, örnek env dosyalarını, Postgres init script’ini ve ö
 | `.env.public.{dev,test,prod}.example` | Üç ortamlı public şablonlar |
 | `.env.public.{dev,test,prod}` | Üretilmiş public env’ler (gitignore) |
 | `Dockerfile.postgres` | Init script’i gömülü Postgres imajı |
-| `init-scripts/init.sql` | DB oluşturma (identity, market, order, wallet, inventory, shipment, compound); `Dockerfile.postgres` imaja gömer |
+| `init-scripts/init.sh` | Her servis için bir veritabanı ve bir giriş rolü oluşturur (identity, market, order, wallet, inventory, shipment, compound); `Dockerfile.postgres` imaja gömer |
 
 Kökteki compose dosyaları:
 
@@ -44,7 +44,8 @@ docker compose --env-file docker/.env up -d --build
 
 | Değişken | Ne işe yarar |
 |----------|----------------|
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` | Tüm servis DB’leri |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` | Süper kullanıcı: ilk kurulum, yedek ve elle bakım. Servisler bununla bağlanmaz |
+| `DB_PASSWORD_<SERVİS>` | Her servisin kendi veritabanı rolünün şifresi (`IDENTITY`, `CATALOG`, `COMPOUND`, `ORDER`, `WALLET`, `INVENTORY`, `SHIPMENT`). Yerelde yazmana gerek yok, compose geliştirme varsayılanı verir; public env'de yedisi de zorunlu |
 | `POSTGRES_HOST_PORT` | Host’taki Postgres portu (5432 doluysa `5434`) |
 | `JWT_SECRET` | Identity token imzası |
 | `INTERNAL_API_KEY` | Gateway ile identity arasındaki iç uçlar; notification webhook listesi |
@@ -105,7 +106,7 @@ Bağımsız atlas 5080 portunu kullanır (science compose; bu tablodaki DB ve br
 
 ## Init / DB
 
-Postgres boş bir volume ile ilk kez açıldığında `init-scripts/init.sql` veritabanlarını oluşturur (`element_identity_db`, `element_market_db`, `element_order_db`, `element_wallet_db`, `element_inventory_db`, `element_shipment_db`, `element_compound_db`, …). Servisler kendi migrasyonlarını uygular.
+Postgres boş bir volume ile ilk kez açıldığında `init-scripts/init.sh` veritabanlarını oluşturur (`element_identity_db`, `element_market_db`, `element_order_db`, `element_wallet_db`, `element_inventory_db`, `element_shipment_db`, `element_compound_db`, …). Her veritabanının sahibi o servisin kendi rolüdür (`element_identity`, `element_catalog`, …) ve başka hiçbir servis rolü ona bağlanamaz. Servisler kendi migrasyonlarını kendi rolleriyle uygular. Yalıtımı sınamak için: `node deploy/scripts/test-db-roles.mjs`.
 
 `down` komutunu `-v` olmadan çalıştırırsan volume silinmez ve veriler kalır. Sıfırdan başlamak için: `docker compose --env-file docker/.env down -v`.
 
@@ -114,6 +115,7 @@ Postgres boş bir volume ile ilk kez açıldığında `init-scripts/init.sql` ve
 | Belirti | Muhtemel neden |
 |---------|----------------|
 | “password authentication failed” | Volume eski şifreyle oluşturulmuş, `.env` farklı; `down -v` çalıştır veya şifreyi eski haline getir |
+| `role "element_…" does not exist` | Volume, servis başına roller gelmeden önce oluşturulmuş; init script'i yalnız boş volume'da çalışır. `down -v` ile sıfırla |
 | Redis bağlantı hatası | Host’ta `localhost:6379` yanlış; compose 6380’i yayınlar |
 | Web eski API adresi | `VITE_API_BASE_URL` değişti ama imaj yeniden derlenmedi |
 | Public’te port çakışması | `-All` iken 8080/8081/8082 dolu; `stop-local.ps1 -Public` |

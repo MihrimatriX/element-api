@@ -41,7 +41,7 @@ public class CompoundsControllerTests
     {
         var result = await CreateController().List(null, null, new string('a', 121));
 
-        result.Should().BeOfType<BadRequestObjectResult>();
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(400);
     }
 
     [Fact]
@@ -110,7 +110,7 @@ public class CompoundsControllerTests
 
     [Fact]
     public async Task Get_unknown_slug_is_404() =>
-        (await CreateController().Get("nope")).Should().BeOfType<NotFoundObjectResult>();
+        (await CreateController().Get("nope")).Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(404);
 
     [Fact]
     public async Task ForElement_returns_every_compound_of_the_element_unpaged()

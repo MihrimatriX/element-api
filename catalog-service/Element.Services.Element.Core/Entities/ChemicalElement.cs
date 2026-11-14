@@ -72,6 +72,21 @@ public class ChemicalElement
         return PricePoint(now);
     }
 
+    /// <summary>
+    /// Fraction that pulls the price back toward <paramref name="anchorPrice"/>: <paramref name="strength"/> times the
+    /// logarithmic gap, so being 2x too high and 2x too low pull equally hard. Zero when either price is not positive.
+    /// Added to the simulator's random jitter, it turns an unbounded random walk into one that stays around the anchor.
+    /// </summary>
+    public decimal PullToward(decimal anchorPrice, decimal strength)
+    {
+        if (anchorPrice <= 0 || PricePerGram <= 0)
+        {
+            return 0m;
+        }
+
+        return strength * (decimal)Math.Log((double)(anchorPrice / PricePerGram));
+    }
+
     private ElementPriceHistory PricePoint(DateTime now) => new()
     {
         Id = Guid.NewGuid(),

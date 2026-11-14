@@ -4,9 +4,16 @@ const DEV_INTERNAL_API_KEY = "element-internal-dev-key";
 /** Shortest internal API key accepted when NODE_ENV is production. */
 const MIN_PRODUCTION_KEY_LENGTH = 32;
 
-/** Reads an integer environment variable, using the fallback when it is not set. */
-function intFromEnv(name: string, fallback: number): number {
-  return parseInt(process.env[name] ?? String(fallback), 10);
+/**
+ * Reads a non-negative integer environment variable; unset or empty uses the fallback.
+ * A typo stops startup: NaN would silently disable a saga timeout or turn a poll interval into 1 ms.
+ */
+export function intFromEnv(name: string, fallback: number): number {
+  const value = Number(process.env[name] || fallback);
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error(`${name} must be a non-negative integer.`);
+  }
+  return value;
 }
 
 /** Runtime settings for order-service, read once from environment variables at startup. */
@@ -14,7 +21,7 @@ export const config = {
   port: intFromEnv("PORT", 8080),
   databaseUrl:
     process.env.DATABASE_URL ??
-    "postgres://postgres:postgres@localhost:5432/element_order_db",
+    "postgres://element_order:dev-order-db-pass@localhost:5432/element_order_db",
   rabbitHost: process.env.RABBITMQ_HOST ?? "localhost",
   rabbitPort: intFromEnv("RABBITMQ_PORT", 5672),
   rabbitUser: process.env.RABBITMQ_USERNAME ?? "guest",
@@ -41,7 +48,9 @@ export const config = {
 const isProduction = process.env.NODE_ENV === "production";
 const hasWeakInternalKey =
   config.internalApiKey.length < MIN_PRODUCTION_KEY_LENGTH ||
-  config.internalApiKey === DEV_INTERNAL_API_KEY;
+  config.internalApiKey === DEV_INTERNAL_API_KEY ||
+  // Prefix of the secrets in docker/.env.public.*.example; they are long enough to pass the length check.
+  config.internalApiKey.includes("replace-with");
 
 if (isProduction && hasWeakInternalKey) {
   throw new Error(

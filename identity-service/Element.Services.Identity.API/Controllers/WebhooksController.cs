@@ -24,23 +24,23 @@ public class WebhooksController(IdentityAppDbContext database) : ControllerBase
     {
         if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized(InvalidUserMessage);
+            return Problem(detail: InvalidUserMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         if (request is null || string.IsNullOrWhiteSpace(request.Url) || string.IsNullOrWhiteSpace(request.Secret))
         {
-            return BadRequest("url and secret are required.");
+            return Problem(detail: "url and secret are required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         if (!WebhookSubscription.IsAcceptableUrl(request.Url.Trim()))
         {
-            return BadRequest("Webhook URL must be public https with a DNS host name (no IP literal, localhost or credentials).");
+            return Problem(detail: "Webhook URL must be public https with a DNS host name (no IP literal, localhost or credentials).", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var events = WebhookSubscription.SupportedEventsIn(request.Events);
         if (events.Length == 0)
         {
-            return BadRequest("events must include price.updated and/or order.updated.");
+            return Problem(detail: "events must include price.updated and/or order.updated.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         await using var transaction = await database.Database.BeginTransactionAsync();
@@ -68,7 +68,7 @@ public class WebhooksController(IdentityAppDbContext database) : ControllerBase
     {
         if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized(InvalidUserMessage);
+            return Problem(detail: InvalidUserMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         var subscriptions = await database.WebhookSubscriptions
@@ -85,7 +85,7 @@ public class WebhooksController(IdentityAppDbContext database) : ControllerBase
     {
         if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized(InvalidUserMessage);
+            return Problem(detail: InvalidUserMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         // Hard delete: drops the signing secret and stops create/delete loops from growing the table.

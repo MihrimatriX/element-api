@@ -18,13 +18,13 @@ assert.doesNotMatch(sitemap, /__SITE_URL__\/stack</);
 assert.doesNotMatch(sitemap, /__SITE_URL__\/login</);
 
 const indexHtml = readFileSync(join(root, "index.html"), "utf8");
-assert.match(indexHtml, /property="og:image"[^>]*__SITE_URL__\/og\.png/);
+assert.match(indexHtml, /property="og:image"[^>]*__SITE_URL__\/og\.jpg/);
 assert.match(indexHtml, /name="twitter:card"[^>]*summary_large_image/);
 assert.match(indexHtml, /application\/ld\+json/);
 assert.match(indexHtml, /"@type":\s*"Organization"/);
 assert.match(indexHtml, /"@type":\s*"WebSite"/);
 
-assert.ok(existsSync(join(root, "public/og.png")), "public/og.png missing");
+assert.ok(existsSync(join(root, "public/og.jpg")), "public/og.jpg missing");
 
 // The browser chrome takes the canvas colour; index.html sets it once for every page.
 assert.match(indexHtml, /name="theme-color" content="#f9fafb"/);

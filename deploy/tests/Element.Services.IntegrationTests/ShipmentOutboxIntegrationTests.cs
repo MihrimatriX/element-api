@@ -49,7 +49,13 @@ public class ShipmentOutboxIntegrationTests : IClassFixture<IntegrationTestConta
 
         var stored = await ReadTrackingNumbersAsync(orderId);
         var trackingNumber = Assert.Single(stored);
-        Assert.Equal(messageIds.Count, replies.Count);
+        // The outbox delivers at least once: when a broker redelivery races the first delivery, the same reply
+        // (same messageId) can reach the broker twice, and the saga drops it by that id (the catalog outbox test
+        // documents the same). What must hold is one distinct reply per distinct request. Counting raw copies
+        // failed once in a full run under heavy load (8 copies, ids not captured), so a failure now prints them.
+        var replyIds = replies.Select(reply => reply.GetProperty("messageId").GetString()).ToList();
+        Assert.True(replyIds.Distinct().Count() == messageIds.Count,
+            $"Expected {messageIds.Count} distinct replies, got {replyIds.Distinct().Count()} in {replyIds.Count} copies: {string.Join(", ", replyIds)}");
         Assert.All(replies, reply =>
         {
             Assert.Equal(DispatchedUrn, reply.GetProperty("messageType")[0].GetString());

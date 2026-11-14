@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { publicApiUrl } from "@/config";
+import { publicApiUrl, WELCOME_CREDIT } from "@/config";
 import coverage from "@/data/coverage.json";
 import { postSnippet } from "@/services/apiDocs";
 import { SIMULATION_ROUTES } from "./endpoints";
@@ -26,7 +26,7 @@ const RULES = [
   "Alış son fiyatın %0,8 üstünde, satış %0,8 altında. Fiyatlar gerçek piyasa verisi değil, kredi simülasyonudur.",
   "Alış fiyatı yükseltir, satış düşürür. Tek seferde en fazla %3.",
   <>
-    Kayıt olunca hesaba 10.000 kredi yüklenir. Sipariş = alış × gram; 402 =
+    Kayıt olunca hesaba {WELCOME_CREDIT} kredi yüklenir. Sipariş = alış × gram; 402 =
     yetersiz bakiye (reason <InlineCode>INSUFFICIENT_ELX</InlineCode> olabilir).
   </>,
   <>

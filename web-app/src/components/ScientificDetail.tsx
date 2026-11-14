@@ -12,6 +12,7 @@ import { RecordOverview } from "./detail/RecordOverview";
 import { RecordSources } from "./detail/RecordSources";
 import { RecordError, RecordNotFound, RecordSkeleton } from "./detail/RecordStates";
 import { RelatedCompounds } from "./detail/RelatedCompounds";
+import { safeDecode } from "../lib/text";
 import { formulaText, geometryOf } from "../services/chemistry";
 import { compoundBySlug } from "../services/lab";
 import {
@@ -30,7 +31,7 @@ function useScrollToHash(ready: boolean) {
   useEffect(() => {
     if (!ready || !hash) return;
     const frame = requestAnimationFrame(() =>
-      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ block: "start" }),
+      document.getElementById(safeDecode(hash.slice(1)))?.scrollIntoView({ block: "start" }),
     );
     return () => cancelAnimationFrame(frame);
   }, [ready, hash]);

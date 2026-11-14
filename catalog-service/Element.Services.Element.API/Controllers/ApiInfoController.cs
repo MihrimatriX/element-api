@@ -37,9 +37,9 @@ public class ApiInfoController : ControllerBase
             { "compounds", $"{baseUrl}/api/v1/compounds" },
             { "market_movers", $"{baseUrl}/api/v1/market/movers" },
             { "market_board", $"{baseUrl}/api/v1/market/board" },
-            { "swagger", $"{baseUrl}/swagger" },
-            { "health", $"{baseUrl}/health" },
-            { "info", $"{baseUrl}/info" }
+            // No health/info links: behind the public proxy those paths belong to the web host, whose static
+            // /health answers "Healthy" even when this API is down.
+            { "swagger", $"{baseUrl}/swagger" }
         };
 
         return Ok(resources);

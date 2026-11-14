@@ -1,6 +1,9 @@
 using System.Net;
+using System.Threading.RateLimiting;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Element.Gateway.Tests;
 
@@ -41,6 +44,29 @@ public class RateLimitPolicyTests
         get.PermitLimit.Should().Be(60);
         get.Window.Should().Be(TimeSpan.FromSeconds(10));
         get.PartitionKey.Should().StartWith("public:");
+    }
+
+    [Fact]
+    public async Task WriteRejectionAsync_TellsTheClientWhenToRetry()
+    {
+        using var limiter = new FixedWindowRateLimiter(new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 1,
+            Window = TimeSpan.FromSeconds(10),
+            QueueLimit = 0,
+        });
+        using var granted = limiter.AttemptAcquire();
+        using var rejected = limiter.AttemptAcquire();
+        var context = Request(HttpMethods.Get, "/api/v2/elements/fe");
+        context.RequestServices = new ServiceCollection().BuildServiceProvider();
+        context.Response.Body = new MemoryStream();
+
+        await RateLimitPolicy.WriteRejectionAsync(
+            new OnRejectedContext { HttpContext = context, Lease = rejected }, CancellationToken.None);
+
+        rejected.IsAcquired.Should().BeFalse();
+        int.Parse(context.Response.Headers.RetryAfter.ToString()).Should().BeInRange(1, 10);
+        context.Response.ContentType.Should().Be("application/problem+json");
     }
 
     private static DefaultHttpContext Request(string method, string path)

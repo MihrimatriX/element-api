@@ -323,9 +323,12 @@ public sealed class ScientificCatalog
         string.Equals(node?.ToString(), value, StringComparison.OrdinalIgnoreCase);
 
     // Lower-cases and strips accents so "bakır", "bakir" and "BAKIR" all compare equal.
+    // Turkish İ goes first: invariant lower-casing leaves U+0130 alone, and stripping its dot would then
+    // leave a capital I, so "iyot" never matched "İyot".
     private static string Fold(string value)
     {
         var decomposed = value
+            .Replace('İ', 'i')
             .ToLowerInvariant()
             .Replace('ı', 'i')
             .Normalize(NormalizationForm.FormD);

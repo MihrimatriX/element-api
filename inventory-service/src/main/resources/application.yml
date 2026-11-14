@@ -6,8 +6,8 @@ spring:
     name: element-inventory-service
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/element_inventory_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:mysecretpassword}
+    username: ${SPRING_DATASOURCE_USERNAME:element_inventory}
+    password: ${SPRING_DATASOURCE_PASSWORD:dev-inventory-db-pass}
     hikari:
       # Default (1ms) aborts startup the instant Postgres is not up yet (reboot, WAL recovery) -> exit ->
       # Docker restart -> a full JVM cold start every ~15s (backoff resets after 10s up). Wait in-process.
@@ -38,12 +38,16 @@ spring:
         # Back off instead of instant infinite requeue; after 5 attempts park in inventory-service_failed.
         retry:
           enabled: true
-          max-attempts: 5
+          # Retries after the first delivery, so 1 + 4 = 5 attempts. Boot 3 called this max-attempts (5) and
+          # Boot 4 ignores that old key without an error; ListenerRetryConfigTest fails if this stops binding.
+          max-retries: 4
           initial-interval: 1s
           multiplier: 2
 
 inventory:
   default-stock-grams: ${DEFAULT_STOCK_GRAMS:100000}
+  # Weekly top-up back to the default (Spring cron, UTC). "-" switches it off.
+  restock-cron: ${STOCK_RESTOCK_CRON:0 0 4 * * MON}
   outbox:
     poll-ms: ${OUTBOX_POLL_MS:500}
 

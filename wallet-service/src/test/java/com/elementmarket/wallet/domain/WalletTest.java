@@ -2,6 +2,8 @@ package com.elementmarket.wallet.domain;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import java.util.UUID;
 
 import static com.elementmarket.wallet.domain.ChargeOutcome.*;
@@ -75,9 +77,9 @@ class WalletTest {
     @Test
     void sellPaysBidTimesGramsAndOnlyFromWhatIsHeld() {
         Holding gold = new Holding("AU", "elemental", null, Grams.of("2"), Money.of("10"));
-        assertTrue(wallet.sell(gold, Grams.of("3"), Money.of("50")).isEmpty(), "cannot sell more than held");
+        assertTrue(wallet.sell(gold, Grams.of("3"), new BigDecimal("50")).isEmpty(), "cannot sell more than held");
 
-        assertEquals(Money.of("75"), wallet.sell(gold, Grams.of("1.5"), Money.of("50")).orElseThrow());
+        assertEquals(Money.of("75"), wallet.sell(gold, Grams.of("1.5"), new BigDecimal("50")).orElseThrow());
         assertEquals(Money.of("175"), wallet.balance());
         assertEquals(Grams.of("0.5"), gold.grams());
     }

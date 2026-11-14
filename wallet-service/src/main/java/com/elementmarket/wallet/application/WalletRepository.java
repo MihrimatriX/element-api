@@ -39,6 +39,12 @@ public interface WalletRepository {
 
     void record(LedgerEntry entry);
 
+    /** Appends a ledger row under a caller-chosen id (a keyed desk sale); the plain overload picks a random one. */
+    void record(UUID id, LedgerEntry entry);
+
+    /** Proceeds of the desk sale stored under this ledger id, or empty when there is none. */
+    Optional<Money> saleProceeds(UUID ledgerId);
+
     WalletView view(UUID userId);
 
     /** Non-empty holdings ordered by symbol and compound. */

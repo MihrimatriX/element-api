@@ -20,6 +20,9 @@ it("safeReturnTo rejects off-origin returnTo (react-router falls back to locatio
     "/\t/evil.com",
     "/\n/evil.com",
     "/\r/evil.com",
+    "/.//evil.com",
+    "/..//evil.com",
+    "/a/..//evil.com",
   ])
     assert.equal(safeReturnTo(bad), "/collection", JSON.stringify(bad));
 });

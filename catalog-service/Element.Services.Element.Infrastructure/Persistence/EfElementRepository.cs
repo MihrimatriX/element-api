@@ -107,16 +107,21 @@ public sealed class EfElementRepository
         return (range?.First, range?.High, range?.Low);
     }
 
-    /// <summary>Sums the grams of fulfilled orders for an element since <paramref name="sinceUtc"/> (ticker volume).</summary>
+    /// <summary>
+    /// Sums the grams traded for an element since <paramref name="sinceUtc"/> (ticker volume): completed orders and desk sales.
+    /// </summary>
     public async Task<decimal> GetFulfilledVolumeSinceAsync(string symbol, DateTime sinceUtc, CancellationToken ct = default)
     {
         var normalizedSymbol = NormalizeSymbol(symbol);
 
-        // ponytail: CreatedAt is reservation time, not fulfill time
+        // Priced and SoldPriced are the markers written today; Fulfilled rows date from when this service held
+        // stock. Counting only Fulfilled made the public ticker report a volume of 0 for every element.
         var totalGrams = await _context.StockReservations
             .AsNoTracking()
             .Where(reservation => reservation.ElementSymbol.ToLower() == normalizedSymbol)
-            .Where(reservation => reservation.Status == StockReservationStatus.Fulfilled)
+            .Where(reservation => reservation.Status == StockReservationStatus.Priced
+                || reservation.Status == StockReservationStatus.SoldPriced
+                || reservation.Status == StockReservationStatus.Fulfilled)
             .Where(reservation => reservation.CreatedAt >= sinceUtc)
             .SumAsync(reservation => (decimal?)reservation.Quantity, ct);
 

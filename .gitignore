@@ -146,3 +146,8 @@ web-app/src/data/guide.json
 
 # Playwright MCP snapshots
 .playwright-mcp/
+
+# Third-party agent skills installed locally; the project own rules in .cursor/rules stay tracked.
+.cursor/skills/
+# Scratch worktrees of coding agents.
+.claude/worktrees/

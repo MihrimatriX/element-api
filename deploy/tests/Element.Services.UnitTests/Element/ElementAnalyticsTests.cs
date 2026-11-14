@@ -109,6 +109,28 @@ public class ElementAnalyticsTests
     }
 
     [Fact]
+    public void Query_SearchFindsTurkishNamesTypedWithoutTurkishLetters()
+    {
+        var elements = new List<ChemicalElement>
+        {
+            new() { Symbol = "I", Name = "Iodine", NameTr = "İyot", AtomicNumber = 53 },
+            new() { Symbol = "Cu", Name = "Copper", NameTr = "Bakır", AtomicNumber = 29 },
+        };
+
+        foreach (var query in new[] { "iyot", "İYOT", "İyot" })
+        {
+            ElementAnalytics.Query(elements, new ElementFilter { Search = query })
+                .Should().ContainSingle().Which.Symbol.Should().Be("I");
+        }
+
+        foreach (var query in new[] { "bakir", "bakır", "BAKIR" })
+        {
+            ElementAnalytics.Query(elements, new ElementFilter { Search = query })
+                .Should().ContainSingle().Which.Symbol.Should().Be("Cu");
+        }
+    }
+
+    [Fact]
     public void Compare_IdentifiesPerMetricWinners()
     {
         var elements = Sample().Where(e => e.Symbol is "Au" or "Cu").ToList();

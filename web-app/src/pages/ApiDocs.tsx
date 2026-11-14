@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/disclosure";
 import { PageHeader } from "@/components/ui/page-header";
 import { getPublicSiteUrl } from "@/config";
+import { safeDecode } from "@/lib/text";
 
 const OUTLINE: readonly OutlineGroup[] = [
   {
@@ -79,7 +80,7 @@ export default function ApiDocs() {
   // The route loads lazily, so the browser's own jump to the anchor misses; redo it.
   useEffect(() => {
     if (!hash) return;
-    document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView();
+    document.getElementById(safeDecode(hash.slice(1)))?.scrollIntoView();
   }, [hash]);
 
   // Following the TOC link again after closing the section reopens it (the hash stays the same).

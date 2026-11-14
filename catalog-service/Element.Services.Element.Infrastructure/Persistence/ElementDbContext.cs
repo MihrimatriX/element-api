@@ -1,6 +1,8 @@
 using Element.Services.Element.Core.Entities;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Element.Services.Element.Infrastructure.Persistence;
 
@@ -34,6 +36,18 @@ public class ElementDbContext : DbContext
         ChemicalElements
             .FromSql($"""SELECT * FROM "ChemicalElements" ORDER BY "Id" FOR UPDATE""")
             .ToListAsync(ct);
+
+    /// <summary>
+    /// The seeded price of every element by symbol (the HasData rows below): the reference the price simulator
+    /// drifts around. The runtime model drops seed data, so this reads the design-time model.
+    /// </summary>
+    public IReadOnlyDictionary<string, decimal> SeedPrices() =>
+        this.GetService<IDesignTimeModel>().Model
+            .FindEntityType(typeof(ChemicalElement))!
+            .GetSeedData()
+            .ToDictionary(
+                seedRow => (string)seedRow[nameof(ChemicalElement.Symbol)]!,
+                seedRow => (decimal)seedRow[nameof(ChemicalElement.PricePerGram)]!);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

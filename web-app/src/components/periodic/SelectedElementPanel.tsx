@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -8,6 +8,9 @@ import { categoryLabels, familyColor, familyOf, type ElementItem } from "@/servi
 import { formatScience, useScience, type ScientificElement } from "@/services/science";
 import { ElementSpecimen } from "./ElementSpecimen";
 import { phaseLabel } from "./lenses";
+
+/** How long the selection has to rest on one element before its record is fetched. */
+const FETCH_REST_MS = 200;
 
 interface SelectedElementPanelProps {
   element: ElementItem;
@@ -19,10 +22,21 @@ interface SelectedElementPanelProps {
  * transition metals: specimen cell, names, family, three key facts and a link to the full record.
  */
 export function SelectedElementPanel({ element, className }: SelectedElementPanelProps) {
-  const { data: record, error, retry } = useScience<ScientificElement>(
+  // Fetch only once the selection rests. Holding an arrow key crosses ~30 tiles a second; a request
+  // per tile spends the gateway's per-IP budget (60 / 10 s) in two seconds and 429s the whole visit.
+  const [restingSymbol, setRestingSymbol] = useState(element.symbol);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setRestingSymbol(element.symbol), FETCH_REST_MS);
+    return () => window.clearTimeout(timer);
+  }, [element.symbol]);
+  const settled = restingSymbol === element.symbol;
+  const { data, error: fetchError, retry } = useScience<ScientificElement>(
     "elements",
-    element.symbol.toLowerCase(),
+    restingSymbol.toLowerCase(),
   );
+  // While the selection is still moving, the fetched record belongs to the previous element.
+  const record = settled ? data : undefined;
+  const error = settled ? fetchError : undefined;
   const atomicMass = record?.atomic_properties.atomic_mass;
   const group = record?.classification.group;
 

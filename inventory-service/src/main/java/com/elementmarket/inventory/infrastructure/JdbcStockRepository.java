@@ -45,6 +45,13 @@ public class JdbcStockRepository implements StockRepository {
     }
 
     @Override
+    public int topUp(Grams minimum) {
+        // Only ever raises stock, so the "reserved <= stock" constraint cannot be broken by it.
+        return jdbc.update("UPDATE stock_items SET stock_grams = ? WHERE stock_grams < ?",
+                minimum.value(), minimum.value());
+    }
+
+    @Override
     public void createIfMissing(String symbol, Grams defaultStock) {
         jdbc.update(
                 """

@@ -7,6 +7,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -18,7 +19,8 @@ public class ProductionSecretsGuard implements ApplicationRunner {
 
     private static final int MIN_KEY_LENGTH = 32;
     private static final String DEV_DEFAULT_KEY = "element-internal-dev-key";
-    private static final String PLACEHOLDER_MARKER = "changeme";
+    // "replace-with" prefixes every secret in docker/.env.public.*.example; those are long enough to pass the length check.
+    private static final List<String> PLACEHOLDER_MARKERS = List.of("changeme", "replace-with");
 
     private final Environment environment;
     private final String internalApiKey;
@@ -38,7 +40,8 @@ public class ProductionSecretsGuard implements ApplicationRunner {
         }
         boolean isTooShort = internalApiKey.length() < MIN_KEY_LENGTH;
         boolean isDevDefault = internalApiKey.equals(DEV_DEFAULT_KEY);
-        boolean isPlaceholder = internalApiKey.toLowerCase(Locale.ROOT).contains(PLACEHOLDER_MARKER);
+        String lowerCaseKey = internalApiKey.toLowerCase(Locale.ROOT);
+        boolean isPlaceholder = PLACEHOLDER_MARKERS.stream().anyMatch(lowerCaseKey::contains);
         if (isTooShort || isDevDefault || isPlaceholder) {
             throw new IllegalStateException(
                     "Configure a unique production INTERNAL_API_KEY of at least 32 characters.");

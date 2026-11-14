@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 const string DatabaseName = "element_shipment_db";
 const string DevelopmentConnectionString =
-    "Host=localhost;Port=5432;Database=element_shipment_db;Username=postgres;Password=mysecretpassword";
+    "Host=localhost;Port=5432;Database=element_shipment_db;Username=element_shipment;Password=dev-shipment-db-pass";
 const int MessageRetryCount = 3;
 var messageRetryInterval = TimeSpan.FromSeconds(5);
 var outboxQueryDelay = TimeSpan.FromSeconds(1);

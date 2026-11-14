@@ -4,6 +4,24 @@ ElementAPI, Türkçe bir kimya atlasıdır. Günlük maddelerin hangi elementler
 
 İçinde 118 element, 214 bileşik, altı öğrenme rotası ve kişisel keşif koleksiyonu var. İlk keşif için hesap gerekmez. Geliştiriciler aynı veriye açık API’den ulaşır. Sanal ticaret ayrı bir demodur; gerçek para veya kargo yoktur.
 
+![Periyodik tablo: seçili element paneli ve aile filtreleri](docs/screenshots/periodic-table.jpg)
+
+| Element kaydı | Laboratuvar |
+|---|---|
+| ![Altın kaydı: özet, özellikler ve kaynaklı fotoğraf](docs/screenshots/element-record.jpg) | ![Laboratuvar: elementleri sürükleyip bileşik keşfetme](docs/screenshots/laboratory.jpg) |
+
+> English: ElementAPI is a Turkish chemistry atlas (118 elements, 214 compounds, a drag-and-drop lab) with an open REST API. It runs as ten small services in .NET, Node.js and Java behind one gateway. The commerce part is a simulation that exists to exercise an event-driven order saga; no real money or shipping is involved. Start everything with Docker: `./deploy/scripts/present-platform.ps1`.
+
+## Mühendislik tarafında neler var
+
+- Sipariş sagası olay güdümlüdür. Sipariş, stok, ödeme ve kargo dört ayrı serviste (Node.js, Java, .NET) ilerler; başarısızlıkta stok bırakılır ve ödeme tam bir kez iade edilir. Zaman aşımı ve geç gelen mesaj durumları testlerle sabitlenmiştir.
+- Olay yayımlayan her servis, olayı iş verisiyle aynı veritabanı işleminde bir outbox tablosuna yazar; tekrar gelen mesajlar `messageId` ile ayıklanır. Aynı desen üç dilde uygulanmıştır.
+- Dışarıya tek kapı açıktır. YARP ağ geçidi API anahtarını doğrular, IP ve anahtar başına hız sınırı uygular ve iç servislerin güvendiği başlıkları her istekte siler.
+- Her servisin kendi veritabanı ve kendi veritabanı kullanıcısı vardır; bir servis başka servisin verisine bağlanamaz. Hata yanıtları bütün API'de aynı biçimdedir (RFC 7807).
+- Para yollarında cüzdan satırı kilitlenir; defterdeki benzersiz indeksler çift ödemeyi ve çift iadeyi veritabanı düzeyinde engeller.
+- Bilimsel API herkese açıktır: alan seçimi, sayfalama, ETag ile 304 ve açık CORS. Veri PubChem kaynaklıdır ve kaynağı her kayıtta yazar.
+- Testler dört katmandır: birim, gerçek Postgres/Redis/RabbitMQ ile entegrasyon, tarayıcı ve canlı duman testleri. Yayın tek betikle yapılır ve yayındaki site salt-okunur bir duman testiyle doğrulanır.
+
 Yerelde tek komutla açmak için (Docker Desktop gerekir):
 
 ```powershell
@@ -26,7 +44,9 @@ Yerel geliştirmede arayüz [localhost:5173](http://localhost:5173), API kapıs�
 
 Lisans MIT: [LICENSE](./LICENSE).
 
-Son iş paketi (2 Ekim 2026, `redesign` dalı): Mineral arayüzü, servislerde okunabilirlik turu, sistem kılavuzu ve test matrisi. Ayrıntı: [recent-work.md](./docs/memory-bank/recent-work.md). Önceki işlerin anlatımı [docs/WHAT-WAS-DONE.md](./docs/WHAT-WAS-DONE.md), agent bellek bankası [docs/memory-bank/](./docs/memory-bank/) altında.
+Yayın hazırlığı (14 Kasım 2026): tüm servisler gözden geçirildi, bulunan kusurlar düzeltildi ve Production yığını uçtan uca sınandı. Yayın adımları ve sonraya bırakılanlar: [TODO.md](./TODO.md#yayın-planı-2026-11-14).
+
+Önceki iş paketi (2 Ekim 2026, `redesign` dalı): Mineral arayüzü, servislerde okunabilirlik turu, sistem kılavuzu ve test matrisi. Ayrıntı: [recent-work.md](./docs/memory-bank/recent-work.md). Önceki işlerin anlatımı [docs/WHAT-WAS-DONE.md](./docs/WHAT-WAS-DONE.md), agent bellek bankası [docs/memory-bank/](./docs/memory-bank/) altında.
 
 [![Stack](https://img.shields.io/badge/stack-.NET%20%7C%20Node%20%7C%20Java%20%7C%20React-blue)](#servis-kataloğu)
 [![Gateway](https://img.shields.io/badge/gateway-YARP-512BD4)](#api-gateway--rota-özeti)
@@ -73,15 +93,15 @@ npm --prefix web-app run dev -- --host 127.0.0.1 --port 5173 --strictPort
 
 | Katman | Komut | Gereken |
 |--------|-------|---------|
-| .NET birim (Gateway 20 + Services 115) | `./deploy/scripts/test-unit.ps1` | .NET 10 SDK |
+| .NET birim (Gateway 28 + Science 12 + Compound 14 + Services 179) | `./deploy/scripts/test-unit.ps1` | .NET 10 SDK |
 | order-service birim | `npm --prefix order-service test` · `npm --prefix order-service run check` | Node 22 |
-| Java birim (wallet, inventory) | `mvn -f wallet-service test` · `mvn -f inventory-service test` | Java 21 + Maven |
+| Java birim ve entegrasyon (wallet 32 + inventory 32) | `mvn -f wallet-service test` · `mvn -f inventory-service test` | Java 21 + Maven |
 | Web birim | `npm --prefix web-app test` | Node 22 |
-| Entegrasyon (18) | `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker (Testcontainers: Postgres, Redis, RabbitMQ ve gerçek bir wallet-service konteyneri); önce `npm --prefix order-service run build` |
+| Entegrasyon (24) | `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker (Testcontainers: Postgres, Redis, RabbitMQ ve gerçek bir wallet-service konteyneri); önce `npm --prefix order-service run build` |
 | Tarayıcı, hesaplar kapalı | `npm --prefix web-app run test:e2e` (`web-app/e2e/`) | science-service ve Vite’ı kendisi açar |
 | Tarayıcı, hesap akışları | `npm --prefix web-app run test:e2e:auth` (`web-app/e2e-auth/`) | Vite’ı kendisi açar; identity API’si tarayıcıda taklit edilir |
 | Tarayıcı, canlı ticaret | `npm --prefix web-app run test:e2e:live` (`web-app/e2e-live/`) | Tam Docker platformu `:6241` (`WEB_BASE`) |
-| Canlı API | `node deploy/scripts/test-scientific-api.mjs` · `node deploy/scripts/test-e2e.mjs` · `./deploy/scripts/test-saga.ps1` · `./deploy/scripts/test-smoke.ps1` · `node deploy/scripts/test-platform.mjs` | Çalışan yerel servisler |
+| Canlı API | `node deploy/scripts/test-scientific-api.mjs` · `node deploy/scripts/test-e2e.mjs` · `./deploy/scripts/test-saga.ps1` · `./deploy/scripts/test-smoke.ps1` · `node deploy/scripts/test-platform.mjs` · `node deploy/scripts/test-db-roles.mjs` | Çalışan yerel servisler |
 
 Playwright ilk kullanımdan önce `web-app` içinde bir kez `npx playwright install chromium` ister.
 
@@ -276,7 +296,7 @@ docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.pu
 # veya: ./deploy/scripts/present-public.ps1
 ```
 
-TLS, Caddy konteynerinde (`deploy/Caddyfile.elements-api`) yapılır. DNS A/AAAA kayıtları sunucuyu göstermeli.
+TLS, Caddy konteynerinde (`deploy/Caddyfile.elements-api`) yapılır. DNS A kaydı sunucuyu göstermeli; AAAA'yı yalnız Docker'da IPv6 açıksa ekle ([PUBLIC-HOST.md](docs/PUBLIC-HOST.md)).
 
 | Env | Ne işe yarar |
 |-----|----------------|
@@ -329,7 +349,7 @@ Bunları public’e çıkmadan önce netleştir. Ortadaki sütun repo tarafında
 
 | Engel | Repo’da | Hâlâ sende |
 |-------|---------|------------|
-| DNS + TLS | Checklist ve `present-public.ps1 -Server` ile `CADDY_SITE`/80/443 doğrulaması ([PUBLIC-HOST.md](docs/PUBLIC-HOST.md)) | A/AAAA kaydını sunucuya yönlendir; `CADDY_SITE=elements-api…`; gerçek `.env.public.prod` |
+| DNS + TLS | Checklist ve `present-public.ps1 -Server` ile `CADDY_SITE`/80/443 doğrulaması ([PUBLIC-HOST.md](docs/PUBLIC-HOST.md)) | A kaydını sunucuya yönlendir; `CADDY_SITE=elements-api…`; gerçek `.env.public.prod` |
 | Sırlar | Örneklerde `replace-with-…` ≥32, `ChangeMe` yok; `openssl rand -hex 32` notu; `-Server` placeholder’ı reddeder | Sunucuya gerçek JWT / INTERNAL_API_KEY / DB / Rabbit değerlerini yaz |
 | Proxy IP | Gateway `TRUSTED_PROXY_CIDRS` okur; public örnek ve compose’da Docker CIDR varsayılanı | Özel overlay’de CIDR’ları gözden geçir |
 | E-posta | E-postasız beta: SMTP boşsa kurtarma kapalı; UI ve `capabilities` bunu doğru bildirir; Resend SMTP iskeleti dokümanda | İstersen sonra Resend API key + doğrulanmış alan |
@@ -345,10 +365,15 @@ Bunları public’e çıkmadan önce netleştir. Ortadaki sütun repo tarafında
 Kısa operatör adımları (DNS hazır olunca):
 
 ```bash
-# 1) docker/.env.public.prod düzenle (CADDY_SITE, 80/443, https origins, openssl sırları)
-# 2) ./deploy/scripts/present-public.ps1 -Server
-# 3) curl -sI https://elements-api.ahmetfuzunkaya.com/
+# Linux sunucuda yalnız Docker gerekir. Sırları kendisi üretir, imajları sırayla derler,
+# her konteyner sağlıklı olana kadar bekler. Güncelleme: git pull && aynı komut (alan adı olmadan).
+./deploy/scripts/server-up.sh elements-api.ahmetfuzunkaya.com
+
+# Herhangi bir makineden, salt-okunur doğrulama (hesap açmaz):
+node deploy/scripts/test-public.mjs https://elements-api.ahmetfuzunkaya.com --rate-limit
 ```
+
+PowerShell kurulu bir sunucuda aynı iş: `./deploy/scripts/present-public.ps1 -Server`. Sunucu boyutu, yedekleme satırı ve IPv6 notu: [PUBLIC-HOST.md](docs/PUBLIC-HOST.md#linux-server-one-command).
 
 ### Sonra (yol haritası, yayın blocker değil)
 

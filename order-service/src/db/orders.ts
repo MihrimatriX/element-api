@@ -208,7 +208,8 @@ export async function getOrderStatsByCustomer(
     const count = Number(statusRow.count);
     byStatus[statusRow.status] = count;
     total += count;
-    totalSpent += Number(statusRow.spent);
+    // A failed order was never charged or has been refunded: it is not money spent.
+    if (statusRow.status !== "Failed") totalSpent += Number(statusRow.spent);
   }
   return {
     total,

@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly VITE_SCIENCE_API_BASE_URL?: string;
   readonly VITE_ACCOUNTS_ENABLED?: string;
   readonly VITE_CAPTCHA_SITE_KEY?: string;
+  readonly VITE_WELCOME_GRANT?: string;
 }
 
 interface ImportMeta {

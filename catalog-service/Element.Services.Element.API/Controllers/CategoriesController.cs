@@ -50,7 +50,7 @@ public class CategoriesController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(slug))
         {
-            return BadRequest("Slug is required.");
+            return Problem(detail: "Slug is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var category = await FindCategoryAsync(slug);
@@ -73,7 +73,7 @@ public class CategoriesController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(slug))
         {
-            return BadRequest("Slug is required.");
+            return Problem(detail: "Slug is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         if (page < 1)
@@ -137,8 +137,8 @@ public class CategoriesController : ControllerBase
             .FirstOrDefaultAsync(category => category.Slug.ToLower() == slug.ToLower());
     }
 
-    private NotFoundObjectResult CategoryNotFound(string slug) =>
-        NotFound($"Category '{slug}' was not found.");
+    private ObjectResult CategoryNotFound(string slug) =>
+        Problem(detail: $"Category '{slug}' was not found.", statusCode: StatusCodes.Status404NotFound);
 
     private CategoryResponseDto MapToDto(ElementCategory category)
     {

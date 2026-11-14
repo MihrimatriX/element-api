@@ -10,6 +10,7 @@ import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { Input } from "../components/ui/input";
 import { Notice } from "../components/ui/notice";
+import { WELCOME_CREDIT } from "../config";
 import { useSelectedElement } from "../context/selection";
 import { useAuthCapabilities } from "../hooks/useAuthCapabilities";
 import { isCaptchaConfigured } from "../lib/captcha";
@@ -18,7 +19,7 @@ import { safeReturnTo } from "../services/session";
 
 const PERKS = [
   "Keşif defteri her cihazda aynı",
-  "10.000 sanal kredi + ticaret anahtarı",
+  `${WELCOME_CREDIT} sanal kredi + ticaret anahtarı`,
   "Sipariş geçmişi kaybolmaz",
 ];
 
@@ -45,6 +46,7 @@ export default function Register() {
   const { capabilities } = useAuthCapabilities();
   const [form, setForm] = useState(EMPTY_FORM);
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaRound, setCaptchaRound] = useState(0);
   const [mismatch, setMismatch] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -108,6 +110,9 @@ export default function Register() {
       goToLogin();
     } catch (caught) {
       setError(apiError(caught, "Hesap oluşturulamadı."));
+      // The server spent this Turnstile token on the failed attempt; remount the widget for a fresh one.
+      setCaptchaToken("");
+      setCaptchaRound((round) => round + 1);
     } finally {
       setSubmitting(false);
     }
@@ -117,7 +122,7 @@ export default function Register() {
     <>
       <Seo
         title="Kayıt · ElementAPI"
-        description="Defteri cihazlar arasında eşitle. 10.000 sanal kredi ve ticaret anahtarı."
+        description={`Defteri cihazlar arasında eşitle. ${WELCOME_CREDIT} sanal kredi ve ticaret anahtarı.`}
         path="/register"
         noIndex
       />
@@ -221,6 +226,7 @@ export default function Register() {
             />
           </Field>
           <CaptchaWidget
+            key={captchaRound}
             onToken={setCaptchaToken}
             serverRequiresCaptcha={capabilities.captcha}
           />

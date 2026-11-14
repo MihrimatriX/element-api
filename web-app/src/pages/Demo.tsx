@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Section } from "@/components/ui/section";
 import { SagaSteps } from "../components/commerce/SagaSteps";
 import Seo from "../components/Seo";
-import { ACCOUNTS_ENABLED } from "../config";
+import { ACCOUNTS_ENABLED, WELCOME_CREDIT } from "../config";
 
 /** Honest framing of the demo: what is simulated and what is not. */
 function ShowcaseNote() {
@@ -85,7 +85,7 @@ export default function Demo() {
                 to="/shop"
                 icon={ShoppingCart}
                 title="Bir sipariş dene"
-                description="1 g Fe veya bir su SKU’su. Kasa 10.000 krediyle açılır; 214 eğitim bileşiği otomatik ürün olmaz."
+                description={`1 g Fe veya bir su SKU’su. Kasa ${WELCOME_CREDIT} krediyle açılır; 214 eğitim bileşiği otomatik ürün olmaz.`}
                 meta="/shop"
               />
             </>

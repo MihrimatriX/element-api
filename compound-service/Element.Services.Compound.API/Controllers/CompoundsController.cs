@@ -41,7 +41,7 @@ public class CompoundsController : ControllerBase
     {
         if (q?.Length > MaxSearchLength)
         {
-            return BadRequest("q must not exceed 120 characters.");
+            return Problem(detail: "q must not exceed 120 characters.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         page = Math.Max(page, 1);
@@ -83,13 +83,13 @@ public class CompoundsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(slug))
         {
-            return BadRequest("Slug is required.");
+            return Problem(detail: "Slug is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var compound = await _repository.GetBySlugAsync(slug, ct);
         if (compound is null)
         {
-            return NotFound($"Compound '{slug}' was not found.");
+            return Problem(detail: $"Compound '{slug}' was not found.", statusCode: StatusCodes.Status404NotFound);
         }
 
         return Ok(Map(compound));
@@ -102,7 +102,7 @@ public class CompoundsController : ControllerBase
     {
         if (string.IsNullOrWhiteSpace(symbol))
         {
-            return BadRequest("Symbol is required.");
+            return Problem(detail: "Symbol is required.", statusCode: StatusCodes.Status400BadRequest);
         }
 
         var compounds = await _repository.QueryAsync(symbol, null, null, ct);

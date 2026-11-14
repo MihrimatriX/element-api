@@ -8,11 +8,17 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.config.ContainerCustomizer;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.retry.ImmediateRequeueMessageRecoverer;
 import org.springframework.amqp.rabbit.retry.MessageRecoverer;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.dao.TransientDataAccessException;
+import org.springframework.transaction.CannotCreateTransactionException;
+
+import java.sql.SQLTransientException;
 
 /**
  * Declares the wallet queue, binds it to the MassTransit exchanges it consumes, and exposes typed wallet settings.
@@ -38,10 +44,29 @@ public class RabbitConfig {
         return new Queue(WALLET_FAILED_QUEUE, durable);
     }
 
-    /** Retries exhausted (spring.rabbitmq.listener.simple.retry): park, same *_failed convention as order-service. */
+    /**
+     * Retries exhausted (spring.rabbitmq.listener.simple.retry). A message that keeps failing on its own is parked,
+     * same *_failed convention as order-service. When the database was the problem it goes back on the queue instead:
+     * every handler is idempotent, and a parked refund or asset credit is money the customer never gets back.
+     */
     @Bean
     public MessageRecoverer walletFailedRecoverer(RabbitTemplate rabbitTemplate) {
-        return new RepublishMessageRecoverer(rabbitTemplate, "", WALLET_FAILED_QUEUE);
+        MessageRecoverer park = new RepublishMessageRecoverer(rabbitTemplate, "", WALLET_FAILED_QUEUE);
+        MessageRecoverer requeue = new ImmediateRequeueMessageRecoverer();
+        return (message, cause) -> (isDatabaseUnavailable(cause) ? requeue : park).recover(message, cause);
+    }
+
+    /** True when any cause in the chain says the database was unreachable or only temporarily unable to answer. */
+    static boolean isDatabaseUnavailable(Throwable failure) {
+        for (Throwable cause = failure; cause != null; cause = cause.getCause()) {
+            if (cause instanceof DataAccessResourceFailureException
+                    || cause instanceof TransientDataAccessException
+                    || cause instanceof CannotCreateTransactionException
+                    || cause instanceof SQLTransientException) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

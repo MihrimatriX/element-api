@@ -236,11 +236,11 @@ const TERMS: readonly GlossaryTerm[] = [
   {
     id: "kredi-bakiyesi",
     term: "kredi",
-    mark: "10.000",
+    mark: "KREDI",
     group: "kasa",
     link: { to: "/shop", label: "Mağazada Fe gramı" },
     definition:
-      "Hesap açınca 10.000 kredi gelir. Gerçek para değil. Bilimsel keşif cüzdanı değiştirmez.",
+      "Hesap açınca hoş geldin kredisi gelir. Gerçek para değil. Bilimsel keşif cüzdanı değiştirmez.",
   },
   {
     id: "alis-fiyati",

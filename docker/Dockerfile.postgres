@@ -1,4 +1,6 @@
-# Postgres 16 plus init-scripts/init.sql, which creates every service database on the first start
-# of an empty data volume.
+# Postgres 16 plus init-scripts/init.sh, which creates one database and one login role per service on the
+# first start of an empty data volume.
 FROM postgres:16-alpine
 COPY ./init-scripts/ /docker-entrypoint-initdb.d/
+# An executable script runs as its own process; a non-executable one would be sourced into the entrypoint shell.
+RUN chmod +x /docker-entrypoint-initdb.d/*.sh

@@ -194,7 +194,12 @@ try {
   await call('/api/v1/desk/sell', { method: 'POST', key, body: { symbol: 'Na', grams: 1 }, expected: 400 });
   check('compound cannot be sold as a pure element', () => {});
   const beforeSell = await call('/api/v1/me/wallet', { key });
-  const soldSalt = await call('/api/v1/desk/sell', { method: 'POST', key, body: { symbol: 'Na', grams: 10, compoundSlug: 'nacl' } });
+  // The sale is sent twice with one Idempotency-Key, as a client does after a timeout. Without the key the
+  // second request would be refused (nothing left to sell); with it the first sale is replayed, credited once.
+  const sellSalt = { method: 'POST', key, headers: { 'Idempotency-Key': randomUUID() }, body: { symbol: 'Na', grams: 10, compoundSlug: 'nacl' } };
+  const soldSalt = await call('/api/v1/desk/sell', sellSalt);
+  const replayedSalt = await call('/api/v1/desk/sell', sellSalt);
+  check('retried sale with the same Idempotency-Key is not sold twice', () => assert.equal(replayedSalt.proceedsElx, soldSalt.proceedsElx));
   const afterSell = await call('/api/v1/me/wallet', { key });
   check('compound sale uses product price and credits wallet', () => {
     assert.ok(soldSalt.proceedsElx > 0);

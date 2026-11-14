@@ -431,9 +431,11 @@ export const walletService = {
   get: async () =>
     request<{ balanceElx: number; currency: string }>("GET", "/me/wallet"),
   holdings: async () => request<Holding[]>("GET", "/me/holdings"),
-  sell: async (symbol: string, grams: number, compoundSlug?: string) =>
+  /** Sells to the desk; `saleKey` is sent as `Idempotency-Key` so a retried request does not sell twice. */
+  sell: async (symbol: string, grams: number, compoundSlug?: string, saleKey?: string) =>
     request<{ proceedsElx: number }>("POST", "/desk/sell", {
       body: { symbol, grams, compoundSlug },
+      headers: saleKey ? { "Idempotency-Key": saleKey } : undefined,
     }),
 };
 

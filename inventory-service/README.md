@@ -7,7 +7,7 @@ Catalog ticker’daki `availableStock` yalnız gösterim için duran eski (legac
 | | |
 |--|--|
 | **Port** | `5008` |
-| **Teknoloji** | Java 21, Spring Boot 3.4 |
+| **Teknoloji** | Java 21, Spring Boot 4.1 |
 | **Veri** | Postgres `element_inventory_db` · RabbitMQ kuyruğu `inventory-service` |
 | **Komşular** | order (HTTP ön kontrol + event) · wallet/desk, ElementSold ile (restock) · gateway (`/stock`) |
 
@@ -23,6 +23,8 @@ Sipariş akışındaki adımlar:
 2. İptal veya zaman aşımında `OrderStockRelease` gelir ve rezerv geri alınır.
 3. `OrderCompleted` gelince stok kalıcı olarak düşülür.
 4. Masadan satışta `ElementSold` gelir ve stok yeniden eklenir (restock).
+
+Bunların dışında her pazartesi 04:00'te (UTC) eksilen stoklar başlangıç düzeyine tamamlanır (`STOCK_RESTOCK_CRON`; `-` kapatır).
 
 Fiyat nudge catalog’da kalır; bu servis yalnız stokla ilgilenir.
 

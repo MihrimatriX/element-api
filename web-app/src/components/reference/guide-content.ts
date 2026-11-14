@@ -67,7 +67,7 @@ export function guideSteps(accountsEnabled: boolean): GuideStep[] {
   if (accountsEnabled)
     steps.push({
       title: "İstersen pazara geç",
-      body: "Bilim bitti, simülasyon başlar: 10.000 sanal kredi, Fe gramı, alış-satış farkı. Gerçek para yok; keşif defterin değişmez.",
+      body: "Bilim bitti, simülasyon başlar: sanal kredi, Fe gramı, alış-satış farkı. Gerçek para yok; keşif defterin değişmez.",
       links: [
         { to: "/demo", label: "Kredi simülasyonunu tanı" },
         { to: "/market", label: "Fiyat tablosu" },

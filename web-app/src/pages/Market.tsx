@@ -11,6 +11,7 @@ import { QuoteBoard } from "../components/commerce/QuoteBoard";
 import { QuoteTicket } from "../components/commerce/QuoteTicket";
 import { SellForm, type SaleDraft } from "../components/commerce/SellForm";
 import Seo from "../components/Seo";
+import { WELCOME_CREDIT } from "../config";
 import { useCommerce } from "../context/commerce";
 import { useSelectedElement } from "../context/selection";
 import { usePolling } from "../hooks/usePolling";
@@ -143,7 +144,7 @@ export default function Market() {
                   <Link to={loginHref} className="text-link">
                     giriş yap
                   </Link>
-                  . Kayıt olunca hesabına 10.000 kredi yüklenir.
+                  . Kayıt olunca hesabına {WELCOME_CREDIT} kredi yüklenir.
                 </p>
               </>
             )}

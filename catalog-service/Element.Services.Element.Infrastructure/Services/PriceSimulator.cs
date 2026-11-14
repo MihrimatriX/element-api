@@ -23,10 +23,18 @@ public class PriceSimulator : BackgroundService
     // ±0.4% jitter so house trades stay visible; do not disable
     private const double MaxJitterPercent = 0.4;
 
+    // Jitter alone is a random walk: about 17% a day, with no way back. After weeks of uptime prices had no
+    // relation to their seeds and cheap elements froze at values too small for a 4-decimal tick. Each tick
+    // therefore also moves 0.1% of the (logarithmic) way back to the seeded price, which keeps an element
+    // within roughly ±10% of it while a house trade still shows for a few hours (half-life ~3 h).
+    // ponytail: anchors are the seed prices; store an anchor column if they ever need changing at runtime.
+    private const decimal ReversionPerTick = 0.001m;
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<PriceSimulator> _logger;
     private readonly Random _random = new();
     private DateTime _lastPruneUtc = DateTime.MinValue;
+    private IReadOnlyDictionary<string, decimal>? _anchorPrices;
 
     public PriceSimulator(IServiceScopeFactory scopeFactory, ILogger<PriceSimulator> logger)
     {
@@ -65,9 +73,12 @@ public class PriceSimulator : BackgroundService
         await using var transaction = await context.Database.BeginTransactionAsync(stoppingToken);
         var elements = await context.LockAllElementsAsync(stoppingToken);
 
+        _anchorPrices ??= context.SeedPrices();
+
         foreach (var element in elements)
         {
-            var percentageChange = NextRandomChange();
+            var anchorPrice = _anchorPrices.GetValueOrDefault(element.Symbol);
+            var percentageChange = NextRandomChange() + element.PullToward(anchorPrice, ReversionPerTick);
             var oldPrice = element.PricePerGram;
             var point = element.Tick(percentageChange, DateTime.UtcNow);
             if (point is null)

@@ -23,7 +23,7 @@ public class ApiKeyController(ApiKeyService apiKeyService) : ControllerBase
     {
         if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized(InvalidUserMessage);
+            return Problem(detail: InvalidUserMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         var tokenSecurityStamp = User.FindFirst(TokenService.SecurityStampClaimType)?.Value;
@@ -52,7 +52,7 @@ public class ApiKeyController(ApiKeyService apiKeyService) : ControllerBase
     {
         if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized(InvalidUserMessage);
+            return Problem(detail: InvalidUserMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         return Ok(await apiKeyService.ListAsync(userId));
@@ -64,13 +64,13 @@ public class ApiKeyController(ApiKeyService apiKeyService) : ControllerBase
     {
         if (User.GetUserId() is not Guid userId)
         {
-            return Unauthorized(InvalidUserMessage);
+            return Problem(detail: InvalidUserMessage, statusCode: StatusCodes.Status401Unauthorized);
         }
 
         var revoked = await apiKeyService.RevokeKeyAsync(userId, id);
         if (!revoked)
         {
-            return NotFound("API Key not found or does not belong to you.");
+            return Problem(detail: "API Key not found or does not belong to you.", statusCode: StatusCodes.Status404NotFound);
         }
 
         return Ok(new { Message = "API Key revoked successfully." });

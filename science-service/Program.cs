@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 
 // Standalone atlas: serves the static web app plus the read-only scientific v2 API.
 // No database, broker or accounts; the two JSON snapshots are the only data.
@@ -19,10 +20,25 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
     .WithMethods("GET", "OPTIONS")
     .AllowAnyHeader()
     .WithExposedHeaders("ETag")));
+// Behind a reverse proxy (host Caddy, a platform ingress) the TCP peer is the proxy, so the per-IP limiter
+// would put every visitor in one bucket. Take the client from X-Forwarded-For, but only when the peer is
+// loopback or on a private network: a caller that reaches this port directly cannot spoof its way past the limit.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+    foreach (var privateNetwork in new[] { "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16", "fc00::/7" })
+        options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(privateNetwork));
+});
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(ChooseRateLimitPartition);
+    options.OnRejected = (rejection, _) =>
+    {
+        if (rejection.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+            rejection.HttpContext.Response.Headers.RetryAfter = Math.Ceiling(retryAfter.TotalSeconds).ToString("0");
+        return ValueTask.CompletedTask;
+    };
 });
 
 // Load before becoming ready; broken or empty snapshots must fail startup.
@@ -35,6 +51,7 @@ var unavailableElementSections = FindSectionsEmptyInEveryRecord(elements);
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 app.UseExceptionHandler(handler => handler.Run(async context =>
 {
     context.Response.StatusCode = StatusCodes.Status500InternalServerError;

@@ -11,6 +11,7 @@ import com.elementmarket.wallet.domain.Wallet;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,9 +115,16 @@ public class WalletService {
     }
 
     /** Sells grams back to the desk at the bid, credits the proceeds and queues ElementSoldEvent. */
-    public SaleResult sell(UUID userId, String symbol, Grams grams, Money bid, String compoundSlug) {
+    public SaleResult sell(UUID userId, String symbol, Grams grams, BigDecimal bid, String compoundSlug, UUID saleKey) {
         return tx.execute(status -> {
             Wallet wallet = lockOrCreate(userId);
+            // A retried request (same Idempotency-Key) gets the first sale back instead of selling again.
+            // Looked up under the wallet lock, so two concurrent retries cannot both pass.
+            UUID ledgerId = saleKey == null ? UUID.randomUUID() : saleLedgerId(userId, saleKey);
+            Optional<Money> earlierSale = saleKey == null ? Optional.empty() : wallets.saleProceeds(ledgerId);
+            if (earlierSale.isPresent()) {
+                return new SaleResult(null, earlierSale.get(), wallet.balance());
+            }
             Optional<Holding> owned = wallets.lockHolding(userId, symbol, compoundSlug);
             if (owned.isEmpty()) {
                 return SaleResult.failed("no_holding");
@@ -129,7 +137,7 @@ public class WalletService {
             Money proceeds = sold.get();
             wallets.save(wallet);
             wallets.saveHolding(userId, holding);
-            wallets.record(LedgerEntry.sell(userId, proceeds, symbol, grams, compoundSlug));
+            wallets.record(ledgerId, LedgerEntry.sell(userId, proceeds, symbol, grams, compoundSlug));
 
             Map<String, Object> event = new LinkedHashMap<>();
             event.put("elementSymbol", symbol);
@@ -138,6 +146,11 @@ public class WalletService {
             outbox.add("ElementSoldEvent", event);
             return new SaleResult(null, proceeds, wallet.balance());
         });
+    }
+
+    /** Ledger id of a keyed sale, derived from user and key so one account's key can never collide with another's. */
+    private static UUID saleLedgerId(UUID userId, UUID saleKey) {
+        return UUID.nameUUIDFromBytes((userId + ":" + saleKey).getBytes(StandardCharsets.UTF_8));
     }
 
     /** Balance and last change, creating the wallet with the welcome grant on first call. */

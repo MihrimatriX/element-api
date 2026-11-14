@@ -16,11 +16,14 @@ type HooksState =
   | { status: "error" }
   | { status: "ready"; hooks: WebhookRow[] };
 
-/** Every webhook gets both event types. */
-const EVENTS = ["price.updated", "order.updated"];
+/**
+ * Events a new webhook subscribes to. Only order.updated is ever delivered: the API also accepts
+ * price.updated, but nothing sends it, so the UI must not offer it.
+ */
+const EVENTS = ["order.updated"];
 
 /**
- * Webhooks of the account: register an HTTPS URL with an HMAC secret for price and order
+ * Webhooks of the account: register an HTTPS URL with an HMAC secret for order
  * events, list them, and delete one after a confirmation.
  */
 export function WebhooksPanel() {
