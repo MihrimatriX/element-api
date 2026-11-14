@@ -72,6 +72,7 @@ Eski `start-local.ps1` hâlâ repoda, ama günlük kullanım için `present-plat
 | `present-platform.ps1` | Tam `docker compose up -d [--build]` |
 | `present-local.ps1` | Science compose'u `:5080` üzerinde başlatır |
 | `present-public.ps1` | Public overlay + env matrisi |
+| `server-up.sh` | Linux sunucuda tek komutla yayın (PowerShell gerekmez): ilk çalıştırmada sırları üretir, imajları sırayla derler, hepsi `healthy` olana kadar bekler. Güncelleme: `git pull && ./deploy/scripts/server-up.sh` |
 | `stop-local.ps1` | Yerel + public + science stop |
 
 ### Derleme / migrate
@@ -93,6 +94,7 @@ Eski `start-local.ps1` hâlâ repoda, ama günlük kullanım için `present-plat
 | `test-e2e.mjs` | API e2e (hesap / alışveriş) |
 | `test-scientific-api.mjs` | v2 sözleşme spotları |
 | `test-backup-restore.mjs` | DB yedek provası |
+| `test-public.mjs` | Yayındaki siteye salt-okunur duman testi (hesap açmaz): `node deploy/scripts/test-public.mjs https://<alan-adı> --rate-limit` |
 | `public-env-matrix.test.mjs` | Public port/proje çakışması |
 
 Örnek: `./deploy/scripts/test-all.ps1 -Integration -Live`. Bu komut imajları yeniden derlemez; JDK/Maven/npm kurulu olmalı.

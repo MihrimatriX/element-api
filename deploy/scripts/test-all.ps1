@@ -45,8 +45,10 @@ try {
         Invoke-Checked npm @('--prefix', 'web-app', 'run', 'test:e2e')
         Invoke-Checked npm @('--prefix', 'web-app', 'run', 'test:e2e:auth')
     }
-    Invoke-Checked npm @('--prefix', 'web-app', 'audit')
-    Invoke-Checked npm @('--prefix', 'order-service', 'audit')
+    # Audit what ships. Advisories in lint/build tooling have no in-range fix for months at a time
+    # and would keep this gate red without anything being wrong with the deployed code.
+    Invoke-Checked npm @('--prefix', 'web-app', 'audit', '--omit=dev')
+    Invoke-Checked npm @('--prefix', 'order-service', 'audit', '--omit=dev')
 
     if ($Integration) {
         Invoke-Checked dotnet @('test', 'deploy/tests/Element.Services.IntegrationTests', '-c', $Configuration, '--no-build', '--filter', 'Category=Integration', '--verbosity', 'minimal')

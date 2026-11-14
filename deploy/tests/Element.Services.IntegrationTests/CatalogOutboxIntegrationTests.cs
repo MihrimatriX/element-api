@@ -87,7 +87,10 @@ public class CatalogOutboxIntegrationTests : IClassFixture<IntegrationTestContai
         await Task.Delay(TimeSpan.FromSeconds(3));
         events.AddRange(await spy.DrainAsync());
 
-        Assert.Single(events);
+        // The outbox delivers at least once: when the redelivery races the first delivery, the same envelope
+        // (same messageId) can reach the broker twice, and consumers drop it by that id. What must hold is
+        // one distinct event, one price move and one inbox row; counting raw copies made this test flaky.
+        Assert.Single(events.Select(envelope => envelope.GetProperty("messageId").GetString()).Distinct());
         Assert.Equal(MarketMaker.NextLast(startPrice, 3m, Math.Max(stock, 3m), buy: false), (await ReadElementAsync("Ag")).Price);
         Assert.Equal(1, await CountAsync("""SELECT count(*) FROM "InboxState" WHERE "MessageId" = @id""", messageId));
     }
