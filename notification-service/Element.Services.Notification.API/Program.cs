@@ -33,6 +33,9 @@ builder.Services
     {
         AllowAutoRedirect = false,
         UseProxy = false,
+        // HttpClient.Timeout ends the request, not the connection attempt behind it: without this a hook on a
+        // host that drops packets leaves a socket dialling for ~2 minutes per delivery.
+        ConnectTimeout = webhookTimeout,
         ConnectCallback = WebhookFanout.ConnectPublicAsync,
     });
 builder.Services.AddHttpClient(WebhookFanout.InternalClientName, client => client.Timeout = webhookTimeout);

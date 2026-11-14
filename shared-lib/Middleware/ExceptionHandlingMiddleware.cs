@@ -31,6 +31,13 @@ public class ExceptionHandlingMiddleware
         {
             await _next(context);
         }
+        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
+        {
+            // The client hung up mid-request: nobody is left to answer and nothing failed on our side.
+            // 499 (nginx's "client closed request") keeps these out of the 5xx count in the request log.
+            if (!context.Response.HasStarted)
+                context.Response.StatusCode = StatusCodes.Status499ClientClosedRequest;
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);

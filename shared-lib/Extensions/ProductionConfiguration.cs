@@ -7,7 +7,9 @@ namespace Element.Shared.Extensions;
 public static class ProductionConfiguration
 {
     private const int MinimumSecretLength = 32;
-    private const string PlaceholderMarker = "ChangeMe";
+    // "replace-with" is the prefix of every secret in docker/.env.public.*.example: those values are 41
+    // characters long, so the length check alone let a copied example file start in Production.
+    private static readonly string[] PlaceholderMarkers = ["ChangeMe", "replace-with"];
 
     // Both are public in git history, so they must never guard a production deployment.
     private static readonly string[] KnownDevelopmentSecrets =
@@ -34,6 +36,6 @@ public static class ProductionConfiguration
 
     private static bool IsDevelopmentSecret(string secretValue) =>
         secretValue.Length < MinimumSecretLength
-        || secretValue.Contains(PlaceholderMarker, StringComparison.OrdinalIgnoreCase)
+        || PlaceholderMarkers.Any(marker => secretValue.Contains(marker, StringComparison.OrdinalIgnoreCase))
         || KnownDevelopmentSecrets.Contains(secretValue);
 }
