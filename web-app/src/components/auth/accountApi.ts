@@ -8,6 +8,14 @@ import { clearSession } from "../../services/session";
 const DEFAULT_TIMEOUT_MS = 15_000;
 const UNREACHABLE = "Servise ulaşılamadı. Biraz sonra yeniden deneyebilirsin.";
 
+function isGatewayRateLimit(data: unknown): boolean {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    (data as { title?: unknown }).title === "Rate Limit Exceeded"
+  );
+}
+
 /**
  * Turkish text for a failed sign-in. Only a server answer is about the
  * credentials (401 and 429 arrive in English). A failed request means the
@@ -18,11 +26,11 @@ export function loginError(error: unknown): string {
   if (error instanceof ApiHttpError) {
     if (error.status === 401) return "E-posta veya şifre yanlış.";
     if (error.status === 429)
-      // Identity's account lockout answers with a plain sentence; the gateway's per-IP
-      // limiter with a JSON problem. Only the lockout lasts 15 minutes.
-      return typeof error.data === "string"
-        ? "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene."
-        : "Çok fazla istek. Birkaç saniye sonra yeniden dene.";
+      // Both answer with a JSON problem. The gateway's per-IP limiter names itself in the title;
+      // anything else is identity's account lockout, and only that one lasts 15 minutes.
+      return isGatewayRateLimit(error.data)
+        ? "Çok fazla istek. Birkaç saniye sonra yeniden dene."
+        : "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene.";
     return apiError(error, "Giriş bilgileri geçersiz.");
   }
   // fetch rejects with a TypeError when offline; fetchJson with a TimeoutError on timeout.

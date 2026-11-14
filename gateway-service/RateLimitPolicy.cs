@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -71,11 +72,12 @@ public static class RateLimitPolicy
             Title = "Rate Limit Exceeded",
             Status = StatusCodes.Status429TooManyRequests,
             Detail = detail,
-            Instance = httpContext.Request.Path,
+            Instance = httpContext.Request.Path.Value,
         };
 
-        httpContext.Response.ContentType = "application/json";
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        httpContext.Response.ContentType = "application/problem+json";
+        await httpContext.Response.WriteAsync(
+            JsonSerializer.Serialize(problemDetails, JsonSerializerOptions.Web), cancellationToken);
     }
 
     /// <summary>True for <c>POST /api/v1/auth/register</c> only; selects the friendlier sign-up 429 message.</summary>

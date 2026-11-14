@@ -36,7 +36,7 @@ public class StatisticsController : ControllerBase
         var categoryElements = ElementAnalytics.Query(allElements, new ElementFilter { Category = name });
         if (categoryElements.Count == 0)
         {
-            return NotFound($"No elements found for category '{name}'.");
+            return Problem(detail: $"No elements found for category '{name}'.", statusCode: StatusCodes.Status404NotFound);
         }
 
         return Ok(ElementAnalytics.ComputeStatistics(categoryElements));

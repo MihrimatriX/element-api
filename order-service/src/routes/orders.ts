@@ -169,11 +169,7 @@ ordersRouter.post("/", async (req, res) => {
     );
   }
   if (quantity > ticker.availableStock) {
-    return res.status(409).json({
-      type: "https://httpstatuses.com/409",
-      title: "Conflict",
-      status: 409,
-      detail: "Insufficient stock.",
+    return problem(res, 409, "Insufficient stock.", {
       availableStock: ticker.availableStock,
     });
   }
@@ -198,11 +194,7 @@ ordersRouter.post("/", async (req, res) => {
 
   const balance = await fetchWalletBalance(customerId);
   if (balance != null && balance < totalPrice) {
-    return res.status(402).json({
-      type: "https://httpstatuses.com/402",
-      title: "Payment Required",
-      status: 402,
-      detail: "Insufficient credits",
+    return problem(res, 402, "Insufficient credits", {
       reason: "INSUFFICIENT_ELX",
       balanceElx: balance,
       requiredElx: totalPrice,
@@ -261,10 +253,11 @@ ordersRouter.get("/search", async (req, res) => {
     isOptionalIntInRange(page, MAX_SEARCH_PAGE) &&
     isOptionalIntInRange(pageSize, MAX_PAGE_SIZE);
   if (!isPagingValid) {
-    return res.status(400).json({
-      error:
-        "page and pageSize must be positive integers; pageSize is at most 100.",
-    });
+    return problem(
+      res,
+      400,
+      "page and pageSize must be positive integers; pageSize is at most 100.",
+    );
   }
 
   const pageNumber = page ? Number(page) : 1;
@@ -302,7 +295,7 @@ ordersRouter.get("/:id", async (req, res) => {
   const orderId = req.params.id;
   const order = isUuid(orderId) ? await orders.getOrderById(orderId) : null;
   if (!order || order.customer_id !== customerId) {
-    return res.status(404).json({ error: "Order not found" });
+    return problem(res, 404, "Order not found");
   }
   return res.json(mapOrder(order));
 });

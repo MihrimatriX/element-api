@@ -86,16 +86,15 @@ public class TrustedHeaderTests
 
         backendCalled.Should().BeFalse();
         context.Response.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
-        context.Response.ContentType.Should().Be("application/json");
+        context.Response.ContentType.Should().Be("application/problem+json");
         context.Response.Headers.CacheControl.ToString().Should().Be("private, no-store");
 
         context.Response.Body.Position = 0;
         using var problem = await JsonDocument.ParseAsync(context.Response.Body);
-        // PascalCase on purpose: clients already depend on this shape.
-        problem.RootElement.GetProperty("Title").GetString().Should().Be("Authentication Failed");
-        problem.RootElement.GetProperty("Status").GetInt32().Should().Be(401);
-        // Instance is a serialised PathString ({"Value", "HasValue"}), not a plain string; pinned as shipped.
-        problem.RootElement.GetProperty("Instance").GetProperty("Value").GetString().Should().Be("/api/v1/orders");
+        // Same RFC 7807 shape as the rest of the API: camelCase, instance as a plain path.
+        problem.RootElement.GetProperty("title").GetString().Should().Be("Authentication Failed");
+        problem.RootElement.GetProperty("status").GetInt32().Should().Be(401);
+        problem.RootElement.GetProperty("instance").GetString().Should().Be("/api/v1/orders");
     }
 
     private static IConfiguration ConfigWithInternalKey() =>

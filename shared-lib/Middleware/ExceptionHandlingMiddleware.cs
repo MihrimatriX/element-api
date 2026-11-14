@@ -49,7 +49,7 @@ public class ExceptionHandlingMiddleware
             // Drop headers set before the throw (e.g. [ResponseCache] Cache-Control): an error must not be cached.
             context.Response.Clear();
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = "application/problem+json";
 
             var problem = new
             {

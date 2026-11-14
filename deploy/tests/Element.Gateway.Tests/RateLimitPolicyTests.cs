@@ -66,7 +66,7 @@ public class RateLimitPolicyTests
 
         rejected.IsAcquired.Should().BeFalse();
         int.Parse(context.Response.Headers.RetryAfter.ToString()).Should().BeInRange(1, 10);
-        context.Response.ContentType.Should().StartWith("application/json");
+        context.Response.ContentType.Should().Be("application/problem+json");
     }
 
     private static DefaultHttpContext Request(string method, string path)
