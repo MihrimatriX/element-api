@@ -42,7 +42,7 @@ const container = 'element-postgres';
 const runId = randomUUID().replaceAll('-', '').slice(0, 16);
 /** Quotes an SQL identifier (table or database name). */
 const quote = (value) => '"' + value.replaceAll('"', '""') + '"';
-const databases = ['element_identity_db', 'element_market_db', 'element_order_db', 'element_shipment_db', 'element_compound_db'];
+const databases = ['element_identity_db', 'element_market_db', 'element_order_db', 'element_shipment_db', 'element_compound_db', 'element_wallet_db', 'element_inventory_db'];
 
 /** Runs a command inside the Postgres container (pg_dump / pg_restore / rm). */
 async function dockerExec(...args) {

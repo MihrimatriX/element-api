@@ -35,6 +35,14 @@ $generatedSecrets = [ordered]@{
     INTERNAL_API_KEY      = New-HexSecret
     POSTGRES_PASSWORD     = New-HexSecret
     RABBITMQ_DEFAULT_PASS = New-HexSecret
+    # One login per service database (docker/init-scripts/init.sh).
+    DB_PASSWORD_IDENTITY  = New-HexSecret
+    DB_PASSWORD_CATALOG   = New-HexSecret
+    DB_PASSWORD_COMPOUND  = New-HexSecret
+    DB_PASSWORD_ORDER     = New-HexSecret
+    DB_PASSWORD_WALLET    = New-HexSecret
+    DB_PASSWORD_INVENTORY = New-HexSecret
+    DB_PASSWORD_SHIPMENT  = New-HexSecret
 }
 
 # Only -ServerTemplate switches the file from local smoke to the real public host.
@@ -83,7 +91,7 @@ if ($ServerTemplate) {
 
 $outputLines + $footer | Set-Content -LiteralPath $target -Encoding utf8
 Write-Host "Wrote $target"
-Write-Host "  JWT_SECRET / INTERNAL_API_KEY / POSTGRES_PASSWORD / RABBITMQ_DEFAULT_PASS: generated (len 64 hex each)"
+Write-Host "  $($generatedSecrets.Keys -join ' / '): generated (len 64 hex each)"
 Write-Host "  SMTP_*: empty (e-postasız beta)"
 Write-Host "  Turnstile: still empty — paste when you have keys"
 if ($ServerTemplate) {

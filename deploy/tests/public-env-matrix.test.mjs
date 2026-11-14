@@ -39,6 +39,10 @@ for (const row of matrix) {
   }
   const key = text.match(/^INTERNAL_API_KEY=(.+)$/m)?.[1]?.trim()
   assert.ok(key && key.length >= 32, `${row.file} INTERNAL_API_KEY must be >=32 chars (got ${key?.length ?? 0})`)
+  // One database login per service: every example has to define all seven.
+  for (const service of ['IDENTITY', 'CATALOG', 'COMPOUND', 'ORDER', 'WALLET', 'INVENTORY', 'SHIPMENT']) {
+    assert.match(text, new RegExp(`^DB_PASSWORD_${service}=.+$`, 'm'), `${row.file} must define DB_PASSWORD_${service}`)
+  }
 }
 
 // present-public.ps1 must keep its server guard and know every local port.

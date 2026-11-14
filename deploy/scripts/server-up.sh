@@ -19,15 +19,19 @@ if [[ ! -f "$env_file" ]]; then
         exit 2
     fi
     umask 077 # the file holds every secret of the stack
+    # Every secret gets its own random value: the shared ones and one database password per service.
+    secret_edits=()
+    for key in JWT_SECRET INTERNAL_API_KEY POSTGRES_PASSWORD RABBITMQ_DEFAULT_PASS \
+        DB_PASSWORD_IDENTITY DB_PASSWORD_CATALOG DB_PASSWORD_COMPOUND DB_PASSWORD_ORDER \
+        DB_PASSWORD_WALLET DB_PASSWORD_INVENTORY DB_PASSWORD_SHIPMENT; do
+        secret_edits+=(-e "s|^$key=.*|$key=$(openssl rand -hex 32)|")
+    done
     sed -E \
         -e "s|^CADDY_SITE=.*|CADDY_SITE=$domain|" \
         -e "s|^CADDY_HTTP_PORT=.*|CADDY_HTTP_PORT=80|" \
         -e "s|^CADDY_HTTPS_PORT=.*|CADDY_HTTPS_PORT=443|" \
         -e "s#^(PUBLIC_WEB_ORIGIN|VITE_PUBLIC_SITE_URL|PUBLIC_API_BASE)=.*#\1=https://$domain#" \
-        -e "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -hex 32)|" \
-        -e "s|^INTERNAL_API_KEY=.*|INTERNAL_API_KEY=$(openssl rand -hex 32)|" \
-        -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$(openssl rand -hex 32)|" \
-        -e "s|^RABBITMQ_DEFAULT_PASS=.*|RABBITMQ_DEFAULT_PASS=$(openssl rand -hex 32)|" \
+        "${secret_edits[@]}" \
         docker/.env.public.prod.example > "$env_file"
     echo "Wrote $env_file for https://$domain (gitignored; back it up somewhere safe)."
 fi

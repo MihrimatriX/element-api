@@ -6,8 +6,8 @@ spring:
     name: element-inventory-service
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5434/element_inventory_db}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:mysecretpassword}
+    username: ${SPRING_DATASOURCE_USERNAME:element_inventory}
+    password: ${SPRING_DATASOURCE_PASSWORD:dev-inventory-db-pass}
     hikari:
       # Default (1ms) aborts startup the instant Postgres is not up yet (reboot, WAL recovery) -> exit ->
       # Docker restart -> a full JVM cold start every ~15s (backoff resets after 10s up). Wait in-process.

@@ -86,8 +86,14 @@ function Wait-LocalService($process, $port, $name) {
 }
 
 $dbPort = Get-Setting 'POSTGRES_HOST_PORT' '5432'
-$dbUser = Get-Setting 'POSTGRES_USER' 'postgres'
-$dbPass = Get-Setting 'POSTGRES_PASSWORD' 'mysecretpassword'
+
+# Every service logs in as its own database role (docker/init-scripts/init.sh), exactly as its container does;
+# a superuser login here would create tables the container's role cannot read. The fallback is the development
+# default of docker-compose.yml. Invariant casing: a tr-TR locale would turn I into the dotless one.
+function Get-DbPassword($role) {
+    $name = $role.Substring('element_'.Length)
+    return Get-Setting "DB_PASSWORD_$($name.ToUpperInvariant())" "dev-$name-db-pass"
+}
 
 # Environment shared by every .NET service (child processes inherit it).
 $env:ASPNETCORE_ENVIRONMENT = 'Development'
@@ -103,10 +109,10 @@ $env:Shipment__FailQuantityGte = '0'
 if ($settings.ContainsKey('JWT_SECRET')) { $env:JwtSettings__Secret = $settings['JWT_SECRET'] }
 
 $services = @(
-    @{ Name = 'identity'; Project = 'identity-service/Element.Services.Identity.API'; Assembly = 'Element.Services.Identity.API'; Port = 5001; Db = 'element_identity_db' },
-    @{ Name = 'catalog'; Project = 'catalog-service/Element.Services.Element.API'; Assembly = 'Element.Services.Element.API'; Port = 5002; Db = 'element_market_db' },
-    @{ Name = 'compound'; Project = 'compound-service/Element.Services.Compound.API'; Assembly = 'Element.Services.Compound.API'; Port = 5007; Db = 'element_compound_db' },
-    @{ Name = 'shipment'; Project = 'shipment-service/Element.Services.Shipment.API'; Assembly = 'Element.Services.Shipment.API'; Port = 5004; Db = 'element_shipment_db' },
+    @{ Name = 'identity'; Project = 'identity-service/Element.Services.Identity.API'; Assembly = 'Element.Services.Identity.API'; Port = 5001; Db = 'element_identity_db'; DbRole = 'element_identity' },
+    @{ Name = 'catalog'; Project = 'catalog-service/Element.Services.Element.API'; Assembly = 'Element.Services.Element.API'; Port = 5002; Db = 'element_market_db'; DbRole = 'element_catalog' },
+    @{ Name = 'compound'; Project = 'compound-service/Element.Services.Compound.API'; Assembly = 'Element.Services.Compound.API'; Port = 5007; Db = 'element_compound_db'; DbRole = 'element_compound' },
+    @{ Name = 'shipment'; Project = 'shipment-service/Element.Services.Shipment.API'; Assembly = 'Element.Services.Shipment.API'; Port = 5004; Db = 'element_shipment_db'; DbRole = 'element_shipment' },
     @{ Name = 'notification'; Project = 'notification-service/Element.Services.Notification.API'; Assembly = 'Element.Services.Notification.API'; Port = 5006; Db = $null },
     @{ Name = 'gateway'; Project = 'gateway-service'; Assembly = 'Element.Gateway'; Port = 5000; Db = $null }
 )
@@ -146,7 +152,10 @@ foreach ($service in $services) {
         if ($LASTEXITCODE -ne 0) { throw "Build failed: $($service.Name)" }
     }
 
-    $env:ConnectionStrings__DefaultConnection = "Host=localhost;Port=$dbPort;Database=$($service.Db);Username=$dbUser;Password=$dbPass"
+    # Services without a database (notification, gateway) get no connection string at all.
+    $env:ConnectionStrings__DefaultConnection = if ($service.Db) {
+        "Host=localhost;Port=$dbPort;Database=$($service.Db);Username=$($service.DbRole);Password=$(Get-DbPassword $service.DbRole)"
+    } else { $null }
     $startArgs = @{
         FilePath               = $dotnetHost
         ArgumentList           = @("`"$serviceDll`"", '--urls', "http://localhost:$($service.Port)")
@@ -177,10 +186,9 @@ if (!(Test-PortListening $orderPort)) {
             if ($LASTEXITCODE -ne 0) { throw 'Order build failed.' }
         } finally { Pop-Location }
     }
-    $escapedUser = [uri]::EscapeDataString($dbUser)
-    $escapedPassword = [uri]::EscapeDataString($dbPass)
+    $escapedPassword = [uri]::EscapeDataString((Get-DbPassword 'element_order'))
     $env:PORT = "$orderPort"
-    $env:DATABASE_URL = "postgres://${escapedUser}:${escapedPassword}@localhost:$dbPort/element_order_db"
+    $env:DATABASE_URL = "postgres://element_order:${escapedPassword}@localhost:$dbPort/element_order_db"
     $env:REDIS_URL = 'redis://localhost:6380'
     $env:RABBITMQ_HOST = 'localhost'
     $env:RABBITMQ_USERNAME = $env:RabbitMQ__Username

@@ -46,6 +46,15 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      # One login per service database, created by docker/init-scripts/init.sh on the first start of an
+      # empty volume. These defaults are for local development; the public overlay requires real ones.
+      DB_PASSWORD_IDENTITY: ${DB_PASSWORD_IDENTITY:-dev-identity-db-pass}
+      DB_PASSWORD_CATALOG: ${DB_PASSWORD_CATALOG:-dev-catalog-db-pass}
+      DB_PASSWORD_COMPOUND: ${DB_PASSWORD_COMPOUND:-dev-compound-db-pass}
+      DB_PASSWORD_ORDER: ${DB_PASSWORD_ORDER:-dev-order-db-pass}
+      DB_PASSWORD_WALLET: ${DB_PASSWORD_WALLET:-dev-wallet-db-pass}
+      DB_PASSWORD_INVENTORY: ${DB_PASSWORD_INVENTORY:-dev-inventory-db-pass}
+      DB_PASSWORD_SHIPMENT: ${DB_PASSWORD_SHIPMENT:-dev-shipment-db-pass}
     ports:
       - "127.0.0.1:${POSTGRES_HOST_PORT:-5432}:5432"
     volumes:
@@ -119,7 +128,7 @@ services:
       - identity_keys:/app/keys
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_identity_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_identity_db;Username=element_identity;Password=${DB_PASSWORD_IDENTITY:-dev-identity-db-pass}
       INTERNAL_API_KEY: ${INTERNAL_API_KEY:-element-internal-dev-key}
       PUBLIC_WEB_ORIGIN: ${PUBLIC_WEB_ORIGIN:-http://localhost:${WEB_HOST_PORT:-6241}}
       DataProtection__KeyPath: /app/keys
@@ -153,7 +162,7 @@ services:
       - "127.0.0.1:5002:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_market_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_market_db;Username=element_catalog;Password=${DB_PASSWORD_CATALOG:-dev-catalog-db-pass}
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}
@@ -183,7 +192,7 @@ services:
       - "127.0.0.1:5007:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_compound_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_compound_db;Username=element_compound;Password=${DB_PASSWORD_COMPOUND:-dev-compound-db-pass}
       PUBLIC_API_BASE: ${PUBLIC_API_BASE:-http://localhost:5000}
     depends_on:
       postgres:
@@ -208,7 +217,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: "8080"
       LOG_LEVEL: info
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-mysecretpassword}@postgres:5432/element_order_db
+      DATABASE_URL: postgres://element_order:${DB_PASSWORD_ORDER:-dev-order-db-pass}@postgres:5432/element_order_db
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: "5672"
       RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
@@ -256,8 +265,8 @@ services:
       - "127.0.0.1:5005:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/element_wallet_db
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      SPRING_DATASOURCE_USERNAME: element_wallet
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD_WALLET:-dev-wallet-db-pass}
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: "5672"
       RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
@@ -290,13 +299,15 @@ services:
       - "127.0.0.1:5008:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/element_inventory_db
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-mysecretpassword}
+      SPRING_DATASOURCE_USERNAME: element_inventory
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD_INVENTORY:-dev-inventory-db-pass}
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: "5672"
       RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER:-guest}
       RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS:-guest}
       DEFAULT_STOCK_GRAMS: "100000"
+      # Spring cron (second minute hour day month weekday; the container clock is UTC). "-" switches the weekly top-up off.
+      STOCK_RESTOCK_CRON: "${STOCK_RESTOCK_CRON:-0 0 4 * * MON}"
     depends_on:
       postgres:
         condition: service_healthy
@@ -321,7 +332,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_shipment_db;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-mysecretpassword}
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=element_shipment_db;Username=element_shipment;Password=${DB_PASSWORD_SHIPMENT:-dev-shipment-db-pass}
       RabbitMQ__Host: rabbitmq
       RabbitMQ__Port: "5672"
       RabbitMQ__Username: ${RABBITMQ_DEFAULT_USER:-guest}

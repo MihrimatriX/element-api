@@ -21,7 +21,7 @@ export const config = {
   port: intFromEnv("PORT", 8080),
   databaseUrl:
     process.env.DATABASE_URL ??
-    "postgres://postgres:postgres@localhost:5432/element_order_db",
+    "postgres://element_order:dev-order-db-pass@localhost:5432/element_order_db",
   rabbitHost: process.env.RABBITMQ_HOST ?? "localhost",
   rabbitPort: intFromEnv("RABBITMQ_PORT", 5672),
   rabbitUser: process.env.RABBITMQ_USERNAME ?? "guest",
