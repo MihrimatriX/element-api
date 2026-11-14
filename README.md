@@ -296,7 +296,7 @@ docker compose --env-file docker/.env -f docker-compose.yml -f docker-compose.pu
 # veya: ./deploy/scripts/present-public.ps1
 ```
 
-TLS, Caddy konteynerinde (`deploy/Caddyfile.elements-api`) yapılır. DNS A/AAAA kayıtları sunucuyu göstermeli.
+TLS, Caddy konteynerinde (`deploy/Caddyfile.elements-api`) yapılır. DNS A kaydı sunucuyu göstermeli; AAAA'yı yalnız Docker'da IPv6 açıksa ekle ([PUBLIC-HOST.md](docs/PUBLIC-HOST.md)).
 
 | Env | Ne işe yarar |
 |-----|----------------|
@@ -349,7 +349,7 @@ Bunları public’e çıkmadan önce netleştir. Ortadaki sütun repo tarafında
 
 | Engel | Repo’da | Hâlâ sende |
 |-------|---------|------------|
-| DNS + TLS | Checklist ve `present-public.ps1 -Server` ile `CADDY_SITE`/80/443 doğrulaması ([PUBLIC-HOST.md](docs/PUBLIC-HOST.md)) | A/AAAA kaydını sunucuya yönlendir; `CADDY_SITE=elements-api…`; gerçek `.env.public.prod` |
+| DNS + TLS | Checklist ve `present-public.ps1 -Server` ile `CADDY_SITE`/80/443 doğrulaması ([PUBLIC-HOST.md](docs/PUBLIC-HOST.md)) | A kaydını sunucuya yönlendir; `CADDY_SITE=elements-api…`; gerçek `.env.public.prod` |
 | Sırlar | Örneklerde `replace-with-…` ≥32, `ChangeMe` yok; `openssl rand -hex 32` notu; `-Server` placeholder’ı reddeder | Sunucuya gerçek JWT / INTERNAL_API_KEY / DB / Rabbit değerlerini yaz |
 | Proxy IP | Gateway `TRUSTED_PROXY_CIDRS` okur; public örnek ve compose’da Docker CIDR varsayılanı | Özel overlay’de CIDR’ları gözden geçir |
 | E-posta | E-postasız beta: SMTP boşsa kurtarma kapalı; UI ve `capabilities` bunu doğru bildirir; Resend SMTP iskeleti dokümanda | İstersen sonra Resend API key + doğrulanmış alan |

@@ -185,8 +185,5 @@ yerelde uçtan uca sınandı. Kalan iş koddan değil, sunucudan ibaret.
 - [ ] İstersen sadeleştir (ürün kararı, senin): `/kilavuz` (1,2 MB) ve üç kopya kimya verisi. İkisi de
       çalışan özelliklerin girdisi; silmek ya da birleştirmek davranışı değiştirir.
 
-### Operatör / host kalan (repo dışı — 2026-09-26)
-- [ ] DNS: Hostinger hPanel'de `elements-api` A/AAAA kaydını deploy host IP'sine yönlendir ([ops/DNS-TLS.md](docs/ops/DNS-TLS.md); hâlâ NXDOMAIN)
+### İsteğe bağlı (yayın engeli değil)
 - [ ] Jenkins: kurulum sihirbazı, GitHub credential ve Multibranch (`jenkins-up.ps1` / Job DSL hazır; agent toolchain ayrı)
-- [ ] Turnstile: Cloudflare widget anahtarlarını `docker/.env.public.prod` içine yapıştır (şimdilik boş = kapalı)
-- [ ] Deploy host: `-ServerTemplate` env + `present-public.ps1 -Server` (yerel `.env.public.prod` sırları üretildi, commit yok)

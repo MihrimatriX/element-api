@@ -33,7 +33,7 @@ Apex Hostinger hosting already serves a different site on `:80`/`:443`. Putting 
 | Type | Name / Host | Value / Points to | TTL |
 |------|-------------|-------------------|-----|
 | A | `elements-api` | `<DEPLOY_HOST_IPV4>` | 300 or Auto |
-| AAAA (optional) | `elements-api` | `<DEPLOY_HOST_IPV6>` | 300 or Auto |
+| AAAA (only if the Docker daemon has IPv6 enabled, see PUBLIC-HOST.md) | `elements-api` | `<DEPLOY_HOST_IPV6>` | 300 or Auto |
 
 3. Do not change the apex A record unless you mean to move the personal site.
 4. Wait for propagation (often minutes; up to TTL).
