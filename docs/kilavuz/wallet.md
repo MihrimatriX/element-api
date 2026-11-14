@@ -32,7 +32,7 @@ Bu servis sipariş kaydı tutmaz (order-service), stok ayırmaz (inventory-servi
 |---|---|---|---|
 | GET | `/api/v1/me/wallet` | API anahtarı (kapıda) + İç servis anahtarı + `X-User-Id` | Kullanıcının bakiyesini, para birimini (`KREDI`) ve son güncelleme zamanını döner; cüzdan yoksa hoş geldin bakiyesiyle açar. |
 | GET | `/api/v1/me/holdings` | API anahtarı (kapıda) + İç servis anahtarı + `X-User-Id` | Kullanıcının sahip olduğu gramları sembol/bileşik bazında ortalama maliyet ve ürün adıyla listeler. |
-| POST | `/api/v1/desk/sell` | API anahtarı (kapıda) + İç servis anahtarı + `X-User-Id` | Gövde `{symbol, grams, compoundSlug?}`; sembol 1-3 harf, gram 0,0001 ile 1.000.000 arası olmalı; `compoundSlug` verilirse `[a-z0-9-]{1,64}` biçimine uymalıdır (boş slug saf element sayılır). Gramları güncel alış fiyatından satar, KREDI ekler, `ElementSoldEvent` yayınlar ve `{symbol, grams, bid, proceedsElx, balanceElx, currency}` döner. Hatalı girişte 400 (`symbol and grams are required.`, `Could not determine bid for '<SEMBOL>'.`, `Unknown product.`, `Sale amount is too small.`, `No holdings for this symbol.`, `Insufficient holdings.`), yetkisizde 401 döner. |
+| POST | `/api/v1/desk/sell` | API anahtarı (kapıda) + İç servis anahtarı + `X-User-Id` | Gövde `{symbol, grams, compoundSlug?}`; sembol 1-3 harf, gram 0,0001 ile 1.000.000 arası olmalı; `compoundSlug` verilirse `[a-z0-9-]{1,64}` biçimine uymalıdır (boş slug saf element sayılır). Gramları güncel alış fiyatından satar, KREDI ekler, `ElementSoldEvent` yayınlar ve `{symbol, grams, bid, proceedsElx, balanceElx, currency}` döner. İsteğe bağlı `Idempotency-Key` başlığı (UUID) verilirse aynı anahtarla tekrarlanan istek ikinci kez satmaz, ilk satışın tutarını döner. Hatalı girişte 400 (`Idempotency-Key must be a UUID.`, `symbol and grams are required.`, `Could not determine bid for '<SEMBOL>'.`, `Unknown product.`, `Sale amount is too small.`, `No holdings for this symbol.`, `Insufficient holdings.`), yetkisizde 401 döner. |
 | GET | `/health` | Herkese açık | PostgreSQL ve RabbitMQ'yu yoklar; ikisi de ayaktaysa 200, değilse 503 döner. |
 | GET | `/health/ready` | Herkese açık | `/health` ile aynıdır (hazır olma kontrolü). |
 | GET | `/health/live` | Herkese açık | Sürecin ayakta olduğunu bağımlılık kontrolü yapmadan bildirir. |
@@ -105,7 +105,7 @@ Negatif olamayan, 4 haneli KREDI tutarı (value object). İki tutar değerleri a
 |---|---|
 | `Money(amount)` | Tutarı 4 haneye yuvarlar; boş ya da negatif tutarı reddeder. |
 | `plus(other)` / `minus(other)` | Toplar ya da çıkarır; sonuç negatif olacaksa hata fırlatır. |
-| `times(grams)` | Gram fiyatı × gram; 4 haneye aşağı keser, yani ödeme işlemin değerini hiç aşmaz (0,5 × 0,0001 → 0). |
+| `Money.ofTrade(unitPrice, grams)` | Birim fiyat × gram. Birim fiyat tam hassasiyetiyle kullanılır ve sonuç sonda bir kez 4 haneye aşağı kesilir, yani ödeme işlemin değerini hiç aşmaz (0,5 × 0,0001 → 0). Birim fiyatı önce yuvarlamak (0,001676 → 0,0017) ucuz ürünlerde %1,4'e kadar fazla ödetiyordu. |
 | `per(grams)` | Toplam tutarın gram başına fiyatını yarım-yukarı yuvarlayarak verir. |
 
 ### `wallet-service/src/main/java/com/elementmarket/wallet/domain/Grams.java`
@@ -143,7 +143,7 @@ Cüzdan kullanım senaryoları. Her metot tek bir ACID işlemidir: teslimi kayde
 | `chargeOrder(delivery, customerId, requested, symbol, grams)` | Ödemeyi düşer ve saga yanıtını (`PaymentProcessedEvent` ya da `PaymentFailedEvent`) outbox'a yazar; teslim daha önce işlendiyse boş döner. |
 | `refundOrder(delivery, customerId, symbol, grams)` | İptal edilen siparişi bir kez iade eder; ücretlenmemişse 0 tutarlı mezar taşı yazar. |
 | `creditAssets(delivery, customerId, symbol, grams, totalPrice, compoundSlug, productLabel)` | Teslim edilen gramları ödenen birim fiyattan ekler; ödenmemiş ya da iade edilmiş siparişte hata fırlatır (mesaj yeniden denenir, sonra park edilir). |
-| `sell(userId, symbol, grams, bid, compoundSlug)` | Masadan satışı yapar ve `ElementSoldEvent`'i aynı işlemde outbox'a yazar; `no_holding` ya da `over_holding` ile başarısız olabilir. |
+| `sell(userId, symbol, grams, bid, compoundSlug, saleKey)` | Masadan satışı yapar ve `ElementSoldEvent`'i aynı işlemde outbox'a yazar; `no_holding` ya da `over_holding` ile başarısız olabilir. `saleKey` (istemcinin `Idempotency-Key`'i) verilmişse defter satırı kullanıcı ve anahtardan türetilen kimlikle yazılır; aynı anahtar yeniden gelirse satır cüzdan kilidi altında bulunur ve yeniden satmadan ilk satışın tutarı döner. |
 | `walletOf(userId)` | Cüzdanı gerekirse hoş geldin bakiyesiyle açar; bakiye ve son güncelleme zamanını döner. |
 | `holdingsOf(userId)` | Sıfırdan büyük holding'leri döner. |
 
@@ -231,7 +231,7 @@ Kullanıcıya dönük cüzdan API'sinin HTTP adaptörü: yetki, girdi doğrulama
 |---|---|
 | `wallet(key, userId)` | Yetkiyi kontrol eder, bakiyeyi `{balanceElx, currency, updatedAt}` olarak döner. |
 | `holdings(key, userId)` | Yetkiyi kontrol eder, holding'leri kablo biçimine çevirip liste olarak döner. |
-| `sell(key, userId, body)` | Girdiyi (sembol, gram aralığı, `compoundSlug` biçimi) doğrular, fiyatı ve ürünü işlem açılmadan önce bulur, aşağı kesilmiş tutar 0 ise reddeder, satışı `WalletService.sell` ile yapar ve satış özetini döner. |
+| `sell(key, userId, idempotencyKey, body)` | `Idempotency-Key` başlığı doluysa UUID olmasını şart koşar (değilse 400). Girdiyi (sembol, gram aralığı, `compoundSlug` biçimi) doğrular, fiyatı ve ürünü işlem açılmadan önce bulur, aşağı kesilmiş tutar 0 ise reddeder, satışı `WalletService.sell` ile yapar ve satış özetini döner. |
 | `toHoldingJson(holding)` | Holding'i `{symbol, grams, avgCostElx, compoundSlug, productLabel}` biçimine çevirir; etiket yoksa sembolü kullanır. |
 | `isAuthorized(key, userId)` | İç servis anahtarı doğruysa ve `X-User-Id` geçerli bir UUID ise doğru döner. |
 | `secretsEqual(expected, provided)` | İki anahtarı sabit sürede karşılaştırır, böylece yanıt süresi anahtarı sızdırmaz. |
@@ -252,7 +252,7 @@ Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docke
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5434/element_wallet_db` | Cüzdan veritabanının adresi. |
-| `SPRING_DATASOURCE_USERNAME` | `postgres` | Veritabanı kullanıcı adı. |
+| `SPRING_DATASOURCE_USERNAME` | `element_wallet` | Veritabanı kullanıcı adı: servisin kendi rolü, yalnız `element_wallet_db`'ye girebilir. |
 | `SPRING_DATASOURCE_PASSWORD` | `<yerel-varsayılan>` | Veritabanı parolası (yalnızca yerel geliştirme varsayılanı). |
 | `RABBITMQ_HOST` | `localhost` | RabbitMQ sunucusu. |
 | `RABBITMQ_PORT` | `5672` | RabbitMQ portu. |

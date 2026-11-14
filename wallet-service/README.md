@@ -19,7 +19,7 @@ Hesap ilk kez `GET /me/wallet` çağırdığında hoş geldin grant’i yazılı
 
 - Ledger ve bakiye: kimde ne kadar olduğu.
 - Holdings: gram ve ortalama maliyet (`avgCostElx` kablodaki eski isimdir; değer KREDI).
-- Desk sell: `POST /desk/sell`, `ElementSoldEvent` yayınlar (inventory restock + catalog fiyat nudge).
+- Desk sell: `POST /desk/sell`, `ElementSoldEvent` yayınlar (inventory restock + catalog fiyat nudge). İsteğe bağlı `Idempotency-Key` (UUID) ile tekrar gönderim ikinci kez satmaz.
 
 Ekranda para birimi KREDI’dir. Kablodaki `balanceElx`, `INSUFFICIENT_ELX` gibi adlar bilinçli olarak eski wire adlarıyla bırakıldı; kural kök README’deki sözleşmede.
 

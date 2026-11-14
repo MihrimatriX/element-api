@@ -4,13 +4,14 @@ Esas kaynak: kök README'deki [Eksikler…](../../README.md#eksikler-ve-yapmak-i
 
 ## 14 Kasım 2026 durumu
 
-Tüm servisler incelendi; doğrulanan bulgular düzeltildi ve Production yığını yerelde uçtan uca sınandı (birim, entegrasyon, tarayıcı ve canlı testler yeşil). Yayın için kalan adımlar ve bilinçli olarak sonraya bırakılan işler: [TODO.md → Yayın planı](../../TODO.md#yayın-planı-2026-11-14). Değişiklikler çalışma ağacında, commit edilmedi.
+Tüm servisler incelendi; doğrulanan bulgular düzeltildi ve Production yığını yerelde uçtan uca sınandı (birim, entegrasyon, tarayıcı ve canlı testler yeşil). Yayın için kalan adımlar ve bilinçli olarak sonraya bırakılan işler: [TODO.md → Yayın planı](../../TODO.md#yayın-planı-2026-11-14). Değişiklikler `release/go-live-prep` dalında commit'li; push edilmedi.
 
 Bu turda öğrenilen ve aşağıdaki maddeleri değiştiren üç şey:
 
 - Sunucuda PowerShell gerekmiyor: `deploy/scripts/server-up.sh <alan-adı>` aynı işi yapar. Yayından sonra `deploy/scripts/test-public.mjs` ile doğrulanır.
 - Tüm imajları aynı anda derlemek küçük makinede düşüyor (BuildKit zaman aşımı); betik sırayla derler. Postgres'in ilk kurulumu yüklü diskte 69 sn sürdü, sağlık kontrolü toleransı buna göre artırıldı.
 - `/kilavuz`'un yerel varsayılan sırları göstermesi (aşağıdaki "Sahip kararı bekleyen" maddesi) hâlâ açık. Değerler zaten herkese açık repoda durduğu için gizlemek bir şey kazandırmaz; öneri: olduğu gibi bırak.
+- Her servis artık Postgres'e kendi rolü ve şifresiyle bağlanıyor (`DB_PASSWORD_*`, `docker/init-scripts/init.sh`). Eski bir veri volume'unda bu roller yoktur; `down -v` ile boş volume'dan başlatılır.
 
 ## Sahip kararı bekleyen
 

@@ -17,6 +17,7 @@ ElementAPI, Türkçe bir kimya atlasıdır. Günlük maddelerin hangi elementler
 - Sipariş sagası olay güdümlüdür. Sipariş, stok, ödeme ve kargo dört ayrı serviste (Node.js, Java, .NET) ilerler; başarısızlıkta stok bırakılır ve ödeme tam bir kez iade edilir. Zaman aşımı ve geç gelen mesaj durumları testlerle sabitlenmiştir.
 - Olay yayımlayan her servis, olayı iş verisiyle aynı veritabanı işleminde bir outbox tablosuna yazar; tekrar gelen mesajlar `messageId` ile ayıklanır. Aynı desen üç dilde uygulanmıştır.
 - Dışarıya tek kapı açıktır. YARP ağ geçidi API anahtarını doğrular, IP ve anahtar başına hız sınırı uygular ve iç servislerin güvendiği başlıkları her istekte siler.
+- Her servisin kendi veritabanı ve kendi veritabanı kullanıcısı vardır; bir servis başka servisin verisine bağlanamaz. Hata yanıtları bütün API'de aynı biçimdedir (RFC 7807).
 - Para yollarında cüzdan satırı kilitlenir; defterdeki benzersiz indeksler çift ödemeyi ve çift iadeyi veritabanı düzeyinde engeller.
 - Bilimsel API herkese açıktır: alan seçimi, sayfalama, ETag ile 304 ve açık CORS. Veri PubChem kaynaklıdır ve kaynağı her kayıtta yazar.
 - Testler dört katmandır: birim, gerçek Postgres/Redis/RabbitMQ ile entegrasyon, tarayıcı ve canlı duman testleri. Yayın tek betikle yapılır ve yayındaki site salt-okunur bir duman testiyle doğrulanır.

@@ -94,6 +94,7 @@ Eski `start-local.ps1` hâlâ repoda, ama günlük kullanım için `present-plat
 | `test-e2e.mjs` | API e2e (hesap / alışveriş) |
 | `test-scientific-api.mjs` | v2 sözleşme spotları |
 | `test-backup-restore.mjs` | DB yedek provası |
+| `test-db-roles.mjs` | Her servis rolü yalnız kendi veritabanına girebiliyor mu |
 | `test-public.mjs` | Yayındaki siteye salt-okunur duman testi (hesap açmaz): `node deploy/scripts/test-public.mjs https://<alan-adı> --rate-limit` |
 | `public-env-matrix.test.mjs` | Public port/proje çakışması |
 

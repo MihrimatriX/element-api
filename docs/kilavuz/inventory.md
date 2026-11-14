@@ -129,6 +129,7 @@ Stok kullanım senaryoları. Stoğu değiştiren her metot tek bir ACID işlemid
 | `releaseOrder(delivery, symbol)` | Açık rezervasyonu bir kez bırakır; rezervasyon yoksa `Released` mezar taşı yazar (sembol yoksa `?`). |
 | `fulfillOrder(delivery)` | Açık rezervasyonun gramlarını stoktan kalıcı olarak düşer; olaydaki sembol ve miktar kullanılmaz. |
 | `restock(delivery, saleId, symbol, grams)` | Masadan satılan gramları satış kimliği başına bir kez stoğa ekler. |
+| `topUpStock()` | Varsayılan stoğun altına düşmüş her elementi tek işlemde varsayılana geri çıkarır ve değişen satır sayısını döner. Stok yalnız yükselir, bu yüzden `rezerv ≤ stok` kısıtı bozulmaz. |
 | `stockOf(symbol)` | Satır yazmadan ve kilit almadan stoğu döner; görülmemiş sembolde varsayılan stoğu ve 0 rezervi döner. |
 
 ### `inventory-service/src/main/java/com/elementmarket/inventory/application/StockRepository.java`
@@ -153,6 +154,9 @@ Commit edilmiş outbox satırlarını en eskiden başlayarak yayınlar; her sat�
 |---|---|
 | `poll()` | `inventory.outbox.poll-ms` aralığıyla çalışır; hata olursa uyarı loglar ve bir sonraki turda tekrar dener. |
 | `publishPending()` | Bekleyen satırları tek tek yayınlar (tur başına en fazla 100) ve ilk hatada durur; yayınlanamayan satır beklemede kalır. |
+
+### `inventory-service/src/main/java/com/elementmarket/inventory/infrastructure/StockTopUp.java`
+Haftalık stok takviyesi: `inventory.restock-cron` zamanında (varsayılan pazartesi 04:00) `InventoryService.topUpStock()`'u çağırır ve kaç elementin tamamlandığını loglar. Simüle stoğu müşterilerin geri satışı dışında yenileyen tek şey budur; olmasa birkaç hesap ucuz bir elementi tüketip herkese "stokta yok" gösterebilir. `STOCK_RESTOCK_CRON=-` ile kapanır.
 
 ### `inventory-service/src/main/java/com/elementmarket/inventory/infrastructure/RabbitOutboxPublisher.java`
 Bir outbox satırını olay adıyla aynı isimli fanout exchange'e, satır kimliğini `messageId` yaparak yollar ve broker onayını (`waitForConfirmsOrDie`, 5 sn) bekler.
@@ -218,13 +222,14 @@ Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docke
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5434/element_inventory_db` | Stok veritabanının adresi. |
-| `SPRING_DATASOURCE_USERNAME` | `postgres` | Veritabanı kullanıcı adı. |
+| `SPRING_DATASOURCE_USERNAME` | `element_inventory` | Veritabanı kullanıcı adı: servisin kendi rolü, yalnız `element_inventory_db`'ye girebilir. |
 | `SPRING_DATASOURCE_PASSWORD` | `<yerel-varsayılan>` | Veritabanı parolası (yalnızca yerel geliştirme varsayılanı). |
 | `RABBITMQ_HOST` | `localhost` | RabbitMQ sunucusu. |
 | `RABBITMQ_PORT` | `5672` | RabbitMQ portu. |
 | `RABBITMQ_USERNAME` | `guest` | RabbitMQ kullanıcı adı. |
 | `RABBITMQ_PASSWORD` | `<yerel-varsayılan>`| RabbitMQ parolası. |
 | `DEFAULT_STOCK_GRAMS` | `100000` | Bir sembol ilk kez yazıldığında (ör. ilk rezervasyonda) kaydedilen ve görülmemiş sembol için `GET` ucunda raporlanan başlangıç stoğu (`inventory.default-stock-grams`). |
+| `STOCK_RESTOCK_CRON` | `0 0 4 * * MON` | Haftalık stok takviyesinin zamanı (Spring cron; `inventory.restock-cron`). `-` takviyeyi kapatır. |
 | `OUTBOX_POLL_MS` | `500` | `OutboxRelay`'in bekleyen olaylara bakma aralığı (milisaniye). |
 
 ## Testler

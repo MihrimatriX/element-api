@@ -125,8 +125,8 @@ yerelde uçtan uca sınandı. Kalan iş koddan değil, sunucudan ibaret.
 
 ### Senin yapacakların (sırayla, toplam yaklaşık bir saat)
 
-- [ ] 0. Önce commit ve push: bu turun değişiklikleri (`server-up.sh` dahil) yalnız çalışma ağacında.
-      Sunucu repoyu GitHub'dan klonlayacağı için push edilmeden 3. adım eski kodu alır.
+- [ ] 0. Önce push: değişiklikler `release/go-live-prep` dalında commit'li ama GitHub'a gönderilmedi.
+      Dalı `main`'e birleştirip push et; sunucu repoyu GitHub'dan klonlar, push edilmeden 3. adım eski kodu alır.
 - [ ] 1. Sunucu al: 4 GB RAM / 2 vCPU, Ubuntu 24.04. Yığın boşta yaklaşık 1,2 GB kullanıyor (ölçüldü);
       8 GB rahat eder. Paylaşımlı hosting olmaz, Docker çalıştıran bir VPS gerekir.
 - [ ] 2. DNS: Hostinger hPanel'de `elements-api` için yalnız A kaydı aç (AAAA ekleme, bkz. PUBLIC-HOST.md).
@@ -160,20 +160,28 @@ yerelde uçtan uca sınandı. Kalan iş koddan değil, sunucudan ibaret.
 - [x] Fiyat simülasyonu çapasız rastgele yürüyüştü (günde yaklaşık %17 sapma). Artık her tik tohum
       fiyatına doğru küçük bir çekim ekliyor; çapa `HasData` tohumlarından okunuyor, yeni sütun ya da
       migration yok. Çekim gücü `PriceSimulator.ReversionPerTick` (0 yaparsan eski davranış).
-- [ ] Stok kendiliğinden yenilenmiyor; birkaç hesap ucuz bir elementin tamamını alabilir. İsteğe bağlı
-      haftalık takviye satırı PUBLIC-HOST.md'de; asıl fren Turnstile.
-- [ ] v1 hata gövdeleri en az beş farklı biçimde (düz metin, ProblemDetails, PascalCase/camelCase).
-      Tek biçime çekmek istemcileri etkileyen bir sözleşme değişikliği.
+- [x] Stok artık kendiliğinden yenileniyor: inventory her pazartesi 04:00'te (UTC) eksilen elementleri
+      başlangıç düzeyine tamamlar (`STOCK_RESTOCK_CRON`, `-` kapatır). Host cron'una gerek kalmadı; bot
+      kaydına karşı asıl fren yine Turnstile.
+- [x] v1 hata gövdeleri tek biçimde: her yerde `application/problem+json`, camelCase. İstemcileri etkileyen
+      bir sözleşme değişikliği olduğu için API-CHANGELOG'da kırıcı olarak duyuruldu.
 - [x] v1 araması da Türkçe karakterleri katlıyor (`bakir` → `Bakır`, `iyot` → `İyot`); v2 ile aynı kural.
-- [ ] Servisler Postgres'e süper kullanıcıyla ve tek ortak iç anahtarla bağlanıyor (savunma derinliği).
+- [x] Her servis Postgres'e kendi rolü ve kendi şifresiyle bağlanıyor; başka servisin veritabanına giremiyor
+      (`node deploy/scripts/test-db-roles.mjs`). Süper kullanıcı yalnız ilk kurulum, yedek ve bakım için.
+      Eski bir veri volume'unda bu roller yoktur; `down -v` ile boş volume'dan başlat.
+- [ ] Servisler arası çağrılar hâlâ tek ortak iç anahtarla (`INTERNAL_API_KEY`) korunuyor (savunma derinliği).
 - [ ] Spring Boot 4.x'e geçiş (3.5 hattı güvenlik yaması alıyor ama son 3.x hattı).
-- [ ] Masa satışında yuvarlama (en kötü durumda %1,4 fazla ödeme, makasın altında) ve satışta
-      idempotency anahtarı olmaması.
+- [x] Masa satışı yuvarlanmamış birim fiyattan ödüyor (fazla ödeme yok) ve isteğe bağlı `Idempotency-Key`
+      ile tekrar gönderim ikinci kez satmıyor.
 - [x] Sosyal önizleme görseli: 1,5 MB'lık eski `og.png` (eski "ELX / piyasa" kimliği) yerine bugünkü
       açılış sayfasının 93 KB'lık görüntüsü (`web-app/public/og.jpg`). Beğenmezsen aynı adla değiştir.
 - [x] README başına ekran görüntüleri, kısa İngilizce özet ve "Mühendislik tarafında neler var" eklendi.
-- [ ] İstersen sadeleştir: `/kilavuz` (1,2 MB), üç kopya kimya verisi, kullanılmayan actuator bağımlılığı,
-      repoya girmiş `.cursor/skills/` (üçüncü taraf ajan talimatları; `git rm -r --cached .cursor/skills`).
+- [x] `.cursor/skills/` (üçüncü taraf ajan talimatları, 28 dosya) artık depoda izlenmiyor; dosyalar diskte
+      duruyor, projenin kendi kuralları (`.cursor/rules/`) izlenmeye devam ediyor.
+- [x] Actuator kalıyor: incelenince kullanılmayan bir bağımlılık olmadığı görüldü. `/actuator/health` beş
+      belgede geçen bir sağlık ucu ve public yığında dışarıya kapalı.
+- [ ] İstersen sadeleştir (ürün kararı, senin): `/kilavuz` (1,2 MB) ve üç kopya kimya verisi. İkisi de
+      çalışan özelliklerin girdisi; silmek ya da birleştirmek davranışı değiştirir.
 
 ### Operatör / host kalan (repo dışı — 2026-09-26)
 - [ ] DNS: Hostinger hPanel'de `elements-api` A/AAAA kaydını deploy host IP'sine yönlendir ([ops/DNS-TLS.md](docs/ops/DNS-TLS.md); hâlâ NXDOMAIN)

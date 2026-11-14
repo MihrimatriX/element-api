@@ -117,6 +117,7 @@ Son satır, platform açıkken yalnız arayüz üzerinde çalışmak içindir: V
 | `node deploy/scripts/test-scientific-api.mjs` | Açık bilim API'sinin (v2) sözleşme kontrolü. `-Live` ile çalışır. |
 | `node deploy/scripts/test-platform.mjs` | Çalışan platform: her servis portunun health/info yanıtı, derlenmiş arayüzün rotaları ve dosyaları, gateway üzerinden iki servisler arası rota. `-Live` ile çalışır. |
 | `node deploy/scripts/test-backup-restore.mjs` | PostgreSQL yedek ve geri yükleme provası; uygulama veritabanlarına dokunmaz. `-Recovery` ile çalışır. |
+| `node deploy/scripts/test-db-roles.mjs` | Her servis rolünün yalnız kendi veritabanına girebildiğini sınar (yerel yığın açıkken). |
 
 Her servisin kendi testleri ve nasıl çalıştırıldığı o servisin sayfasındaki "Testler" bölümündedir.
 

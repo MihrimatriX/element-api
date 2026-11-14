@@ -289,7 +289,7 @@ Hesap ve ticaret kapısının (`/api/v1`) istemcisi. Her isteğe saklı JWT'yi, 
 | `elementService.getBoard()` | Piyasa tahtasının bütün satırlarını getirir. |
 | `walletService.get()` | Kullanıcının KREDI bakiyesini ve para birimini getirir. |
 | `walletService.holdings()` | Kullanıcının sahip olduğu ürünleri gram ve ortalama maliyetle getirir. |
-| `walletService.sell(symbol, grams, compoundSlug)` | `POST /desk/sell` ile varlığı masaya geri satar ve elde edilen KREDI'yi döner. |
+| `walletService.sell(symbol, grams, compoundSlug, saleKey)` | `POST /desk/sell` ile varlığı masaya geri satar ve elde edilen KREDI'yi döner; `saleKey` verilirse `Idempotency-Key` olarak gider, böylece tekrarlanan istek ikinci kez satmaz. |
 | `webhookService.list()` | Kayıtlı webhook adreslerini listeler. |
 | `webhookService.create(url, events, secret)` | Yeni webhook adresini olaylar ve imza sırrıyla kaydeder. |
 | `webhookService.remove(id)` | Bir webhook kaydını siler. |
@@ -2057,7 +2057,7 @@ Bir varlığın bir kısmını masaya geri satma formu (`SaleDraft` türünü de
 | `SellForm({ symbol, elementName, elements, holdings, bid, draft, onDraftChange, onSold })` | Varlıklar yüklenirken iskelet, yoksa "mağazadan al" bağlantısı, varsa ürün seçimi, "Tümü" kısayollu gram alanı ve canlı tahmini tutarı (bid × ürün çarpanı × gram) gösterir. |
 | `productLabel(row)` | Seçim listesindeki ürün adını üretir: saf elementse "Saf element", değilse formül. |
 | `edit(next)` | Alan hatasını temizler ve taslağı (ürün slug'ı ve gram) sayfaya bildirir. |
-| `submit(event)` | `saleProblem` ya da bid eksikliği varsa hatayı `flushSync` ile önce çizip gram alanına odaklanır; yoksa `walletService.sell` ile satar, "n g … satıldı" bildirimi gösterir ve `onSold` çağırır; sunucu hatasını kutuda gösterir. |
+| `submit(event)` | `saleProblem` ya da bid eksikliği varsa hatayı `flushSync` ile önce çizip gram alanına odaklanır; yoksa `walletService.sell` ile satar, "n g … satıldı" bildirimi gösterir ve `onSold` çağırır; sunucu hatasını kutuda gösterir. Her satış girişimi bir anahtar (`saleKey`) taşır: istek başarısız olursa anahtar kalır ve yeniden basınca sunucu ilk satışı geri döndürür; gram ya da ürün değişince yeni anahtar üretilir. |
 
 ### `web-app/src/components/commerce/SkuCard.tsx`
 Mağazadaki tek ürün kartı.

@@ -3,6 +3,29 @@
 v2 kayıt şeması eklemeyle büyür; kırıcı değişiklik yeni sürüm ister.
 Web özeti: `/developers`.
 
+## 2026-11-14 — tek hata biçimi, masa satışı, stok takviyesi
+
+Kırıcı değişiklik (yalnız v1 hata gövdeleri). Durum kodları ve v2 kayıt şeması değişmedi.
+
+- Değişti (kırıcı): v1 hata gövdeleri artık her yerde `application/problem+json`
+  (RFC 7807: `type`, `title`, `status`, `detail`, `instance`). Catalog, compound ve
+  identity uçlarında düz metin dönen hatalar problem gövdesi oldu; cümle `detail` alanında.
+- Değişti (kırıcı): kapının 401 ve 429 gövdeleri camelCase ve `instance` istek yolunun
+  kendisi. Önceden alanlar PascalCase'ti (`Title`, `Status`) ve `Instance` bir
+  `{"Value", "HasValue"}` nesnesiydi.
+- Değişti: sipariş servisinde kalan özel biçimli gövdeler de aynı kalıpta; eski
+  istemciler için mesaj `error` alanında da durur.
+- Göç: hata metnini gövdenin kendisinden ya da `Title` alanından okuyan istemci
+  `detail` (yoksa `title`) okumalı.
+- Yeni: `POST /api/v1/desk/sell` isteğe bağlı `Idempotency-Key` (UUID) başlığını tanır.
+  Aynı anahtarla tekrarlanan istek ikinci kez satmaz, ilk satışın tutarını döner;
+  UUID olmayan anahtar 400 alır.
+- Düzeltme: masa satışında tutar yuvarlanmamış birim fiyattan hesaplanır ve sonda bir kez
+  aşağı kesilir. Önceden birim fiyat önce yuvarlanıyordu; çok ucuz ürünlerde %1,4'e kadar
+  fazla ödeme çıkıyordu.
+- Yeni: stok her pazartesi 04:00'te (UTC) başlangıç düzeyine tamamlanır; yalnız eksilen
+  elementler yükselir. Önceden stoğu yalnız geri satışlar yeniliyordu.
+
 ## 2026-11-14 — yayın öncesi düzeltmeler
 
 Kırıcı değişiklik yok; v2 kayıt şeması değişmedi.

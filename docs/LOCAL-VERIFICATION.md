@@ -70,7 +70,7 @@ Yeni gerçek tarayıcı senaryosu sırasıyla şunları yapar: hesap açar, API 
 
 ## Yedek/geri yükleme provası
 
-`node deploy/scripts/test-backup-restore.mjs` beş uygulama veritabanını ayrı ayrı sınar. Kaynak veritabanında salt okunur, tutarlı bir snapshot açar; `pg_dump` aynı snapshot'ı kullanır. Geri yükleme yalnız bu çalışmanın ürettiği benzersiz `element_restore_*` veritabanına yapılır. Kaynak ve hedefte her public tablonun satır sayısı ve sıralanmış içerik hash'i karşılaştırılır. Geçici veritabanları ve dump dosyaları işlem sonunda kaldırılır. Kaynak uygulama verileri silinmez.
+`node deploy/scripts/test-backup-restore.mjs` yedi uygulama veritabanını ayrı ayrı sınar. Kaynak veritabanında salt okunur, tutarlı bir snapshot açar; `pg_dump` aynı snapshot'ı kullanır. Geri yükleme yalnız bu çalışmanın ürettiği benzersiz `element_restore_*` veritabanına yapılır. Kaynak ve hedefte her public tablonun satır sayısı ve sıralanmış içerik hash'i karşılaştırılır. Geçici veritabanları ve dump dosyaları işlem sonunda kaldırılır. Kaynak uygulama verileri silinmez.
 
 İlk sonuç: 5/5 veritabanı, 26 tablo eşleşti. Makine tarafından üretilen sonuç `artifacts/local/backup-restore-report.json` içindedir; kişisel veri veya bağlantı sırrı içermez.
 

@@ -60,7 +60,10 @@ Replace every `replace-with-…` placeholder (especially Prod). Generate secrets
 openssl rand -hex 32   # JWT_SECRET
 openssl rand -hex 32   # INTERNAL_API_KEY
 openssl rand -hex 32   # POSTGRES_PASSWORD / RABBITMQ_DEFAULT_PASS
+openssl rand -hex 32   # once for each of the seven DB_PASSWORD_* keys (IDENTITY, CATALOG, COMPOUND, ORDER, WALLET, INVENTORY, SHIPMENT)
 ```
+
+Each service logs in to Postgres as its own role with its own password (`DB_PASSWORD_*`) and can open only its own database; `docker/init-scripts/init.sh` creates the roles on the first start of an empty data volume. `POSTGRES_PASSWORD` is the superuser, kept for that first start, for backups and for you. A volume created before the roles existed has none of them: start from an empty one (`down -v`). `server-up.sh` and `fill-public-prod-env.ps1` generate all of these.
 
 `JWT_SECRET` and `INTERNAL_API_KEY` must be ≥32 characters, must not contain `ChangeMe`, and must not be `element-internal-dev-key`. Rebuild web-app after changing any `VITE_*` (including `VITE_CAPTCHA_SITE_KEY`).
 
@@ -102,12 +105,7 @@ Before running it:
 
 Restore rehearsal: `node deploy/scripts/test-backup-restore.mjs`.
 
-- Stock (optional): nothing replenishes the simulated stock except customers selling back, so a few accounts can buy out a cheap element and leave it "out of stock" for everyone. If that happens on the demo, top every element back up to the starting 100 000 g once a week (it only ever raises stock, so the "reserved ≤ stock" constraint holds):
-
-```bash
-# /etc/cron.d/element-restock — Mondays 04:00
-0 4 * * 1 root docker exec element-prod-postgres psql -U postgres -d element_inventory_db -c "UPDATE stock_items SET stock_grams = 100000 WHERE stock_grams < 100000"
-```
+- Stock: nothing else replenishes the simulated stock except customers selling back, so inventory-service tops every element that fell below the starting 100 000 g back up every Monday at 04:00 UTC (it only ever raises stock, so the "reserved ≤ stock" constraint holds). Change the schedule with `STOCK_RESTOCK_CRON` in the env file (Spring cron, six fields); `-` switches it off.
 
 ### Real server Prod checklist (PowerShell path)
 

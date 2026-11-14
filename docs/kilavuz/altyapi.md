@@ -65,6 +65,7 @@ Bu bölümün kendi HTTP uç noktası yoktur. Script'lerin çağırdığı adres
 | `node deploy/scripts/test-scientific-api.mjs` | Açık bilim API'si (v2) sözleşme kontrolü |
 | `./deploy/scripts/test-saga.ps1` | Sipariş servisinin saga regresyon kontrolü (yerel Postgres ile) |
 | `node deploy/scripts/test-backup-restore.mjs` | Her veritabanını yedekleyip geçici veritabanına geri yükler ve içerik eşitliğini doğrular |
+| `node deploy/scripts/test-db-roles.mjs` | Her servis rolünün yalnız kendi veritabanına girebildiğini sınar: kendi şifresiyle girer, yanlış şifre ve diğer altı veritabanı reddedilir |
 | `node --test deploy/tests/public-env-matrix.test.mjs` | Public ortam şablonlarının port/sır kurallarını kontrol eder |
 | `dotnet test deploy/tests/Element.Services.IntegrationTests --filter "Category=Integration"` | Docker'da gerçek Postgres/Redis/RabbitMQ ve Dockerfile'dan derlenen wallet-service konteyneriyle entegrasyon testleri |
 | `node deploy/scripts/secret-scan.mjs` | Çalışma ağacında sızmış anahtar/demo şifre arar |
@@ -433,8 +434,8 @@ Caddy'nin konteyner yerine host üzerinde çalıştığı eski düzen için örn
 ### `docker/Dockerfile.postgres`
 `postgres:16-alpine` imajına `init-scripts/` klasörünü gömen Postgres imajı.
 
-### `docker/init-scripts/init.sql`
-Boş volume ile ilk açılışta yedi servis veritabanını (identity, market, order, wallet, inventory, shipment, compound) oluşturur.
+### `docker/init-scripts/init.sh`
+Boş volume ile ilk açılışta yedi servis veritabanını (identity, market, order, wallet, inventory, shipment, compound) ve her biri için ayrı bir giriş rolü oluşturur (`element_identity`, `element_catalog`, …; şifreleri `DB_PASSWORD_*`). Veritabanının sahibi kendi rolüdür ve `PUBLIC`'in bağlanma hakkı kaldırılır: bir servis ele geçirilse de başka servisin verisine bağlanamaz. Süper kullanıcı bu betik, yedek ve elle bakım için kalır.
 
 ### `docker/.env.example`
 Yerel tam platform için örnek ortam dosyası; `docker/.env` olarak kopyalanır, public sunucuda kullanılmaz.
@@ -602,7 +603,8 @@ Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (ed
 
 | Değişken | Varsayılan | Ne işe yarar |
 |---|---|---|
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` | `postgres` / `<yerel-varsayılan>` | Bütün servis veritabanlarının kullanıcı adı ve şifresi. |
+| `POSTGRES_USER` / `POSTGRES_PASSWORD` | `postgres` / `<yerel-varsayılan>` | Postgres süper kullanıcısı: ilk kurulum betiği, yedek ve elle bakım için. Servisler bununla bağlanmaz. |
+| `DB_PASSWORD_IDENTITY`, `_CATALOG`, `_COMPOUND`, `_ORDER`, `_WALLET`, `_INVENTORY`, `_SHIPMENT` | `<yerel-varsayılan>` (public'te zorunlu) | Her servisin kendi veritabanı rolünün şifresi. Yedi ayrı sır: biri sızarsa diğer veritabanları açılmaz. |
 | `POSTGRES_HOST_PORT` | `5432` | Postgres'in host'ta yayınlandığı port (dolu ise ör. 5434). |
 | `JWT_SECRET` | yerelde `<yerel-varsayılan>`; public'te zorunlu | Identity'nin JWT imza anahtarı. |
 | `INTERNAL_API_KEY` | yerelde `<yerel-varsayılan>`; public'te zorunlu | Servisler arası iç uçların anahtarı. |
@@ -622,6 +624,7 @@ Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (ed
 | `WALLET_WELCOME_GRANT` | public'te `1000` (servis varsayılanı 10000) | Yeni cüzdana verilen hoş geldin Kredisi. Compose aynı değeri web derlemesine `VITE_WELCOME_GRANT` olarak geçirir; sayfadaki tutar cüzdanın verdiğiyle aynı kalır (değişince web imajını yeniden derle). |
 | `SAGA_TIMEOUT_SUBMITTED_SEC` / `SAGA_TIMEOUT_STOCK_RESERVED_SEC` / `SAGA_TIMEOUT_SHIPPING_SEC` | `120` / `120` / `180` (compose'ta sabit) | Satın alma saga'sının durum başına zaman aşımı. |
 | `DEFAULT_STOCK_GRAMS` | `100000` (compose'ta sabit) | Inventory servisinde element başına başlangıç stoğu. |
+| `STOCK_RESTOCK_CRON` | `0 0 4 * * MON` | Haftalık stok takviyesinin zamanı (Spring cron, altı alan; konteyner saati UTC). `-` yazılırsa takviye kapanır. |
 | `Shipment__FailQuantityGte` | `0` (kapalı) | Test kancası: bu gramdan büyük/eşit kargoları reddeder. |
 | `Market__SpreadPct` | `0.008` (compose'ta sabit) | Catalog'un alış/satış makası (%0,8). |
 | `API_BASE` | `http://localhost:5000` | `test-e2e.mjs` ve `test-platform.mjs` için gateway adresi (yalnız localhost). |

@@ -25,7 +25,7 @@ File is gitignored (`.env.*` except `*.example`).
 | Item | Status |
 |------|--------|
 | `docker/.env.public.prod` | Create via `fill-public-prod-env.ps1` (gitignored) |
-| JWT / INTERNAL_API_KEY / Postgres / Rabbit | Generated (≥32 hex) by script |
+| JWT / INTERNAL_API_KEY / Postgres superuser + seven service logins / Rabbit | Generated (≥32 hex) by script |
 | SMTP_* | Empty; e-postasız beta (matches product decision) |
 | Turnstile | Empty; paste keys once the Cloudflare widget exists |
 | Real-host `CADDY_SITE`/80/443 | Only if you used `-ServerTemplate`; DNS is still the operator's job |
@@ -37,6 +37,7 @@ openssl rand -hex 32   # JWT_SECRET
 openssl rand -hex 32   # INTERNAL_API_KEY
 openssl rand -hex 32   # POSTGRES_PASSWORD
 openssl rand -hex 32   # RABBITMQ_DEFAULT_PASS
+openssl rand -hex 32   # DB_PASSWORD_IDENTITY, then one more for each of _CATALOG, _COMPOUND, _ORDER, _WALLET, _INVENTORY, _SHIPMENT
 ```
 
 On Windows without openssl, the fill script uses `RandomNumberGenerator`.

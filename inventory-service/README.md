@@ -24,6 +24,8 @@ Sipariş akışındaki adımlar:
 3. `OrderCompleted` gelince stok kalıcı olarak düşülür.
 4. Masadan satışta `ElementSold` gelir ve stok yeniden eklenir (restock).
 
+Bunların dışında her pazartesi 04:00'te (UTC) eksilen stoklar başlangıç düzeyine tamamlanır (`STOCK_RESTOCK_CRON`; `-` kapatır).
+
 Fiyat nudge catalog’da kalır; bu servis yalnız stokla ilgilenir.
 
 ## Ne yapmaz?
