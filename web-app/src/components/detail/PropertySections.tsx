@@ -8,6 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Notice } from "@/components/ui/notice";
 import { SearchField } from "@/components/ui/search-field";
 import { Section } from "@/components/ui/section";
+import { safeDecode } from "@/lib/text";
 import type { ScientificRecord } from "@/services/science";
 import {
   SECTION_NOTES,
@@ -61,7 +62,7 @@ function clickedAnchor(event: MouseEvent): string | null {
     return null;
   const link = event.target instanceof Element ? event.target.closest("a[href^='#']") : null;
   const href = link?.getAttribute("href");
-  return href ? decodeURIComponent(href.slice(1)) : null;
+  return href ? safeDecode(href.slice(1)) : null;
 }
 
 /**
@@ -73,7 +74,7 @@ function clickedAnchor(event: MouseEvent): string | null {
  */
 export function PropertySections({ record }: { record: ScientificRecord }) {
   const { hash } = useLocation();
-  const target = decodeURIComponent(hash.slice(1));
+  const target = safeDecode(hash.slice(1));
   const [filter, setFilter] = useState("");
   const [showMissing, setShowMissing] = useState(false);
   const [openKeys, setOpenKeys] = useState(() => new Set(target in record ? [target] : []));

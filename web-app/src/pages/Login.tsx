@@ -26,6 +26,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaRound, setCaptchaRound] = useState(0);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const registerLink = returnTo
@@ -52,6 +53,9 @@ export default function Login() {
       }
     } catch (caught) {
       setError(loginError(caught));
+      // The server spent this Turnstile token on the failed attempt; remount the widget for a fresh one.
+      setCaptchaToken("");
+      setCaptchaRound((round) => round + 1);
     } finally {
       setSubmitting(false);
     }
@@ -121,6 +125,7 @@ export default function Login() {
             />
           </Field>
           <CaptchaWidget
+            key={captchaRound}
             onToken={setCaptchaToken}
             serverRequiresCaptcha={capabilities.captcha}
           />

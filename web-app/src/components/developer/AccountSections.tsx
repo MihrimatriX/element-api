@@ -65,15 +65,15 @@ export function KeyedEndpointsSection() {
   );
 }
 
+// Only what is really delivered: the API also accepts price.updated, but nothing sends it.
 const WEBHOOK_EVENTS = [
-  { name: "price.updated", body: "{ Symbol, Price, Timestamp }" },
   {
     name: "order.updated",
     body: "{ OrderId, Status, ErrorMessage, TrackingNumber, Timestamp }",
   },
 ];
 
-/** The two webhook events, their signature and the delivery rules a receiver must follow. */
+/** The webhook event, its signature and the delivery rules a receiver must follow. */
 export function WebhooksSection() {
   const rules = [
     <>
@@ -105,7 +105,7 @@ export function WebhooksSection() {
     <Section
       id="webhooks"
       title="Webhooklar"
-      description="v1, anahtarlı kurulum. İki olay; her gönderim imzalıdır."
+      description="v1, anahtarlı kurulum. Sipariş durumu değişince gönderilir; her gönderim imzalıdır."
     >
       <div className="panel px-5 py-2 sm:px-6">
         <Table>

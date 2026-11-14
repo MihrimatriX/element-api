@@ -18,7 +18,11 @@ export function loginError(error: unknown): string {
   if (error instanceof ApiHttpError) {
     if (error.status === 401) return "E-posta veya şifre yanlış.";
     if (error.status === 429)
-      return "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene.";
+      // Identity's account lockout answers with a plain sentence; the gateway's per-IP
+      // limiter with a JSON problem. Only the lockout lasts 15 minutes.
+      return typeof error.data === "string"
+        ? "Çok fazla hatalı deneme. Yaklaşık 15 dakika sonra yeniden dene."
+        : "Çok fazla istek. Birkaç saniye sonra yeniden dene.";
     return apiError(error, "Giriş bilgileri geçersiz.");
   }
   // fetch rejects with a TypeError when offline; fetchJson with a TimeoutError on timeout.

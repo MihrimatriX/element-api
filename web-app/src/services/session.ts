@@ -47,7 +47,9 @@ export function onSessionChange(listener: () => void): () => void {
 /**
  * Turns a `returnTo` query value into a same-origin path, or `fallback`.
  * Parses like the browser does, so "/\t/evil.com" (which strips to
- * "//evil.com") is rejected.
+ * "//evil.com") is rejected. So is "/.//evil.com": its dot segment collapses
+ * to the path "//evil.com", which the router cannot pushState and therefore
+ * hands to location.assign as a protocol-relative URL.
  */
 export function safeReturnTo(
   value: string | null,
@@ -56,8 +58,9 @@ export function safeReturnTo(
   if (!value?.startsWith("/")) return fallback;
   try {
     const url = new URL(value, window.location.origin);
-    return url.origin === window.location.origin
-      ? url.pathname + url.search + url.hash
+    const path = url.pathname + url.search + url.hash;
+    return url.origin === window.location.origin && !path.startsWith("//")
+      ? path
       : fallback;
   } catch {
     return fallback;

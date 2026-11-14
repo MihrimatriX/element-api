@@ -91,7 +91,7 @@ export default function Seo({
   useEffect(() => {
     const origin = getPublicSiteUrl();
     const url = `${origin}${path.startsWith("/") ? path : `/${path}`}`;
-    const image = `${origin}/og.png`;
+    const image = `${origin}/og.jpg`;
 
     document.title = title;
     document.documentElement.lang = "tr";

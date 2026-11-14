@@ -11,6 +11,7 @@ import { holdingValue } from "../components/commerce/model";
 import { OrdersTable } from "../components/commerce/OrdersTable";
 import { WebhooksPanel } from "../components/commerce/WebhooksPanel";
 import Seo from "../components/Seo";
+import { WELCOME_CREDIT } from "../config";
 import { useCommerce } from "../context/commerce";
 import { useSelectedElement } from "../context/selection";
 import { formatFixed, formatNumber } from "../lib/format";
@@ -19,7 +20,7 @@ import { elementService, type BoardRow } from "../services/api";
 const ORDERS_POLL_MS = 15_000;
 
 const GUEST_FACTS = [
-  { term: "Cüzdan", detail: "10.000 sanal KREDI ile açılır; gerçek para değil." },
+  { term: "Cüzdan", detail: `${WELCOME_CREDIT} sanal KREDI ile açılır; gerçek para değil.` },
   {
     term: "API anahtarı",
     detail: "Giriş sana bir oturum jetonu verir; ilk ticaret anahtarın otomatik üretilir.",

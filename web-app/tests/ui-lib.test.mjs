@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { formatFixed, formatGrams, formatKredi } from "../src/lib/format.ts";
 import { formulaParts } from "../src/lib/formula.ts";
-import { foldTurkish, matchesSearch } from "../src/lib/text.ts";
+import { foldTurkish, matchesSearch, safeDecode } from "../src/lib/text.ts";
 import { isNavActive, siteMap } from "../src/productNav.ts";
 
 describe("design-system helpers", () => {
@@ -13,6 +13,11 @@ describe("design-system helpers", () => {
     assert.ok(matchesSearch("cinko", "Çinko", "Zn"));
     assert.ok(matchesSearch("", "anything"));
     assert.ok(!matchesSearch("demir bakır", "Demir"));
+  });
+
+  it("decodes a URL fragment without throwing on a malformed one", () => {
+    assert.equal(safeDecode("%C3%B6zet"), "özet");
+    assert.equal(safeDecode("%"), "%");
   });
 
   it("splits formulas into counts, coefficients and charges", () => {

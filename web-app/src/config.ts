@@ -15,6 +15,15 @@ export function getPublicSiteUrl(): string {
   return "http://localhost:3000";
 }
 
+/**
+ * Welcome credit of a new wallet as the copy shows it ("10.000"). Build-time `VITE_WELCOME_GRANT`:
+ * compose passes the wallet's own WALLET_WELCOME_GRANT, so the page cannot promise a different
+ * amount than the wallet grants (public hosts grant 1.000, local stacks 10.000).
+ */
+export const WELCOME_CREDIT = Number(
+  import.meta.env.VITE_WELCOME_GRANT || 10_000,
+).toLocaleString("tr-TR");
+
 /** Sign-in, registration and settings are on unless the build sets `VITE_ACCOUNTS_ENABLED=false`. */
 export const ACCOUNTS_ENABLED =
   import.meta.env.VITE_ACCOUNTS_ENABLED !== "false";
