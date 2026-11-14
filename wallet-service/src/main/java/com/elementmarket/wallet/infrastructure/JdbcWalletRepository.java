@@ -113,13 +113,25 @@ public class JdbcWalletRepository implements WalletRepository {
     }
 
     @Override
+    public Optional<Money> saleProceeds(UUID ledgerId) {
+        return jdbc.query("SELECT elx FROM ledger WHERE id = ? AND kind = 'sell'",
+                        (row, index) -> Money.of(row.getBigDecimal("elx")), ledgerId)
+                .stream().findFirst();
+    }
+
+    @Override
     public void record(LedgerEntry entry) {
+        record(UUID.randomUUID(), entry);
+    }
+
+    @Override
+    public void record(UUID id, LedgerEntry entry) {
         jdbc.update(
                 """
                 INSERT INTO ledger (id, user_id, kind, elx, symbol, grams, order_id, compound_slug)
                 VALUES (?, ?, ?, ?, ?, ?, ?, COALESCE(?, 'elemental'))
                 """,
-                UUID.randomUUID(),
+                id,
                 entry.userId(),
                 entry.kind().column(),
                 entry.amount().amount(),

@@ -29,10 +29,12 @@ class MoneyTest {
     @Test
     void priceTimesGramsTruncatesSoThePayoutNeverExceedsTheTrade() {
         // 0.5 x 0.0001 = 0.00005: rounding half-up would pay 0.0001, twice the trade.
-        assertTrue(Money.of("0.5").times(Grams.of("0.0001")).isZero());
+        assertTrue(Money.ofTrade(new BigDecimal("0.5"), Grams.of("0.0001")).isZero());
         // 1.2345 x 0.0003 = 0.00037035: truncated to 0.0003, never rounded up to 0.0004.
-        assertEquals(Money.of("0.0003"), Money.of("1.2345").times(Grams.of("0.0003")));
-        assertEquals(Money.of("150"), Money.of("1.5").times(Grams.of("100")));
+        assertEquals(Money.of("0.0003"), Money.ofTrade(new BigDecimal("1.2345"), Grams.of("0.0003")));
+        assertEquals(Money.of("150"), Money.ofTrade(new BigDecimal("1.5"), Grams.of("100")));
+        // The unit price is never rounded first: 0.001676 x 1000 g is worth 1.676, not the 1.7 a rounded price paid.
+        assertEquals(Money.of("1.676"), Money.ofTrade(new BigDecimal("0.001676"), Grams.of("1000")));
     }
 
     @Test

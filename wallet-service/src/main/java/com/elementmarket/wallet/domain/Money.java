@@ -39,9 +39,13 @@ public record Money(BigDecimal amount) implements Comparable<Money> {
         return new Money(amount.subtract(other.amount));
     }
 
-    /** Price per gram times grams, truncated so a payout never exceeds what the trade is worth. */
-    public Money times(Grams grams) {
-        return new Money(amount.multiply(grams.value()).setScale(SCALE, RoundingMode.DOWN));
+    /**
+     * What {@code grams} are worth at {@code unitPrice}, truncated once at the end so a payout never exceeds
+     * the trade. The unit price keeps its full precision: rounding it first (0.001676 to 0.0017) used to
+     * overpay low-priced products by up to 1.4%.
+     */
+    public static Money ofTrade(BigDecimal unitPrice, Grams grams) {
+        return new Money(unitPrice.multiply(grams.value()).setScale(SCALE, RoundingMode.DOWN));
     }
 
     /** Unit price of this total over the given grams, rounded half-up. */

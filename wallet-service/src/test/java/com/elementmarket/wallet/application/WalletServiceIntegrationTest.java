@@ -144,15 +144,38 @@ class WalletServiceIntegrationTest {
         service.creditAssets(new Delivery(UUID.randomUUID(), "AssetsCreditedEvent", order), user,
                 "AU", Grams.of("2"), Money.of("40"), "elemental", null);
 
-        assertEquals("over_holding", service.sell(user, "AU", Grams.of("3"), Money.of("25"), "elemental").failure());
-        assertEquals("no_holding", service.sell(user, "AG", Grams.of("1"), Money.of("25"), "elemental").failure());
+        assertEquals("over_holding", service.sell(user, "AU", Grams.of("3"), new BigDecimal("25"), "elemental", null).failure());
+        assertEquals("no_holding", service.sell(user, "AG", Grams.of("1"), new BigDecimal("25"), "elemental", null).failure());
 
-        WalletService.SaleResult sale = service.sell(user, "AU", Grams.of("2"), Money.of("25"), "elemental");
+        WalletService.SaleResult sale = service.sell(user, "AU", Grams.of("2"), new BigDecimal("25"), "elemental", null);
         assertNull(sale.failure());
         assertEquals(Money.of("50"), sale.proceeds());
         assertEquals(Money.of("110"), sale.balance());
         assertTrue(service.holdingsOf(user).isEmpty());
         assertEquals(1, countOutbox("ElementSoldEvent"));
+    }
+
+    @Test
+    void aRetriedSaleWithTheSameKeySellsOnce() {
+        UUID user = UUID.randomUUID();
+        UUID order = UUID.randomUUID();
+        service.chargeOrder(new Delivery(UUID.randomUUID(), "PaymentRequestedEvent", order), user,
+                new BigDecimal("40"), "AU", Grams.of("2"));
+        service.creditAssets(new Delivery(UUID.randomUUID(), "AssetsCreditedEvent", order), user,
+                "AU", Grams.of("2"), Money.of("40"), "elemental", null);
+        UUID saleKey = UUID.randomUUID();
+
+        WalletService.SaleResult first = service.sell(user, "AU", Grams.of("1"), new BigDecimal("25"), "elemental", saleKey);
+        WalletService.SaleResult retry = service.sell(user, "AU", Grams.of("1"), new BigDecimal("25"), "elemental", saleKey);
+
+        assertNull(retry.failure());
+        assertEquals(first.proceeds(), retry.proceeds());
+        assertEquals(first.balance(), retry.balance());
+        assertEquals(Grams.of("1"), service.holdingsOf(user).get(0).grams(), "the retry must not sell a second gram");
+        assertEquals(1, countOutbox("ElementSoldEvent"));
+        // The same key from another account is a different sale, never a clash.
+        assertEquals("no_holding", service.sell(
+                UUID.randomUUID(), "AU", Grams.of("1"), new BigDecimal("25"), "elemental", saleKey).failure());
     }
 
     @Test

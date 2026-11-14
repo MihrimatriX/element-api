@@ -1,5 +1,6 @@
 package com.elementmarket.wallet.domain;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,13 +59,13 @@ public final class Wallet {
         holding.add(grams, unitCost);
     }
 
-    /** Sells grams back to the desk at the bid; empty when the holding does not cover them. */
-    public Optional<Money> sell(Holding holding, Grams grams, Money bid) {
+    /** Sells grams back to the desk at the (unrounded) bid per gram; empty when the holding does not cover them. */
+    public Optional<Money> sell(Holding holding, Grams grams, BigDecimal bid) {
         if (!holding.covers(grams)) {
             return Optional.empty();
         }
         holding.remove(grams);
-        Money proceeds = bid.times(grams);
+        Money proceeds = Money.ofTrade(bid, grams);
         balance = balance.plus(proceeds);
         return Optional.of(proceeds);
     }

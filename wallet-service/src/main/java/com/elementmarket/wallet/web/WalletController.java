@@ -85,14 +85,24 @@ public class WalletController {
      * Sells grams back to the desk at the current bid (times the compound multiplier), credits KREDI
      * and queues ElementSoldEvent (inventory restock, catalog price nudge) in the same transaction.
      * The market quote is fetched here, before that transaction opens, so no lock waits on HTTP.
+     * An optional Idempotency-Key header (a UUID) makes a retried request return the first sale instead of selling again.
      */
     @PostMapping("/api/v1/desk/sell")
     public ResponseEntity<?> sell(
             @RequestHeader(value = "INTERNAL_API_KEY", required = false) String key,
             @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @RequestBody Map<String, Object> body) {
         if (!isAuthorized(key, userId)) {
             return unauthorized();
+        }
+        UUID saleKey = null;
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            try {
+                saleKey = UUID.fromString(idempotencyKey.trim());
+            } catch (IllegalArgumentException notAUuid) {
+                return badRequest("Idempotency-Key must be a UUID.");
+            }
         }
         if (!(body.get("symbol") instanceof String symbol) || !(body.get("grams") instanceof Number gramsNumber)) {
             return badRequest(MISSING_FIELDS_ERROR);
@@ -120,13 +130,15 @@ public class WalletController {
             return badRequest("Unknown product.");
         }
         CompoundQuote quote = product.get();
-        Money productBid = Money.of(elementBid.get().multiply(BigDecimal.valueOf(quote.priceMult())));
+        // Full precision on purpose: the wallet multiplies by the grams first and truncates once (Money.ofTrade).
+        BigDecimal productBid = elementBid.get().multiply(BigDecimal.valueOf(quote.priceMult()));
         // Same truncating rule the wallet pays out with, so a sale worth less than 0.0001 KREDI is refused.
-        if (productBid.times(roundedGrams).isZero()) {
+        if (Money.ofTrade(productBid, roundedGrams).isZero()) {
             return badRequest("Sale amount is too small.");
         }
 
-        SaleResult sale = wallets.sell(UUID.fromString(userId), upperSymbol, roundedGrams, productBid, quote.slug());
+        SaleResult sale = wallets.sell(
+                UUID.fromString(userId), upperSymbol, roundedGrams, productBid, quote.slug(), saleKey);
         if (sale.failure() != null) {
             String error = "no_holding".equals(sale.failure())
                     ? "No holdings for this symbol."
@@ -138,7 +150,7 @@ public class WalletController {
         return ResponseEntity.ok(Map.of(
                 "symbol", upperSymbol,
                 "grams", roundedGrams.value().doubleValue(),
-                "bid", productBid.amount().doubleValue(),
+                "bid", Money.of(productBid).amount().doubleValue(),
                 "proceedsElx", sale.proceeds().amount().doubleValue(),
                 "balanceElx", sale.balance().amount().doubleValue(),
                 "currency", CURRENCY));
