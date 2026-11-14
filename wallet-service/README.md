@@ -7,7 +7,7 @@ Order doğrudan para çekmez; `PaymentRequested` event’i yollar. Wallet tutar�
 | | |
 |--|--|
 | **Port** | `5005` |
-| **Teknoloji** | Java 21, Spring Boot 3.4 |
+| **Teknoloji** | Java 21, Spring Boot 4.1 |
 | **Veri** | Postgres `element_wallet_db` · RabbitMQ kuyruğu `wallet-service` |
 | **Komşular** | order (`PaymentRequested` / refund) · inventory + catalog (`ElementSold` desk) · gateway (`/me`, `/desk`) |
 

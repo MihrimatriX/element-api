@@ -170,7 +170,9 @@ yerelde uçtan uca sınandı. Kalan iş koddan değil, sunucudan ibaret.
       (`node deploy/scripts/test-db-roles.mjs`). Süper kullanıcı yalnız ilk kurulum, yedek ve bakım için.
       Eski bir veri volume'unda bu roller yoktur; `down -v` ile boş volume'dan başlat.
 - [ ] Servisler arası çağrılar hâlâ tek ortak iç anahtarla (`INTERNAL_API_KEY`) korunuyor (savunma derinliği).
-- [ ] Spring Boot 4.x'e geçiş (3.5 hattı güvenlik yaması alıyor ama son 3.x hattı).
+- [x] Spring Boot 4.1.2'ye geçildi (Jackson 3, Testcontainers 2; cüzdan ve stok testleri 32 + 32 yeşil).
+      Geçişte sessiz bir tuzak vardı: `retry.max-attempts` hata vermeden yok sayılıyor, yeniden deneme sayısı
+      varsayılana düşüyordu. Yeni adı `max-retries`; `ListenerRetryConfigTest` bu kaymayı artık yakalıyor.
 - [x] Masa satışı yuvarlanmamış birim fiyattan ödüyor (fazla ödeme yok) ve isteğe bağlı `Idempotency-Key`
       ile tekrar gönderim ikinci kez satmıyor.
 - [x] Sosyal önizleme görseli: 1,5 MB'lık eski `og.png` (eski "ELX / piyasa" kimliği) yerine bugünkü

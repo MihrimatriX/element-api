@@ -4,7 +4,7 @@
 
 | Özellik | Değer |
 |---|---|
-| Teknoloji | Java 21, Spring Boot 3.4 (Web, JDBC, AMQP, Actuator) |
+| Teknoloji | Java 21, Spring Boot 4.1 (Web MVC, JDBC, AMQP, Actuator) |
 | Port | `5008` (konteyner içinde `8080`) |
 | Klasör | `inventory-service` |
 | Veri | PostgreSQL `element_inventory_db` (tablolar: `stock_items`, `stock_reservations`, `processed_messages`, `outbox`) |
@@ -215,7 +215,7 @@ Port, veritabanı, RabbitMQ, varsayılan stok, outbox ve Actuator ayarlarını o
 Açılışta çalışan şema: `stock_items`, `stock_reservations`, `processed_messages` ve `outbox` tabloları ve kod yanlış olsa bile veritabanının uyguladığı CHECK kısıtları (rezerv 0 ile stok arasında olmalı, yani stok eksiye düşmez ve fazla satış olmaz; rezervasyon miktarı negatif olamaz, durum dört değerden biridir). Kısıtlar `NOT VALID` eklenir: her yeni yazımı denetler ama eski satırları taramaz, böylece eski bir satır açılışı yeniden başlatma döngüsüne sokamaz. Yayınlanmış outbox satırları 7 gün, tekrar işaretleri 30 gün sonra silinir.
 
 ### `inventory-service/Dockerfile` ve `inventory-service/pom.xml`
-Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docker tarifi ve bağımlılık listesi. İmaj `nobody` kullanıcısıyla çalışır ve JVM bellek bitince (`-XX:+ExitOnOutOfMemoryError`) kapanır ki Docker yeniden başlatsın. `pom.xml` Testcontainers'ı 1.21.4'e sabitler (aşağıdaki Testler bölümüne bakın).
+Maven ile derleyip JRE 21 Alpine imajında `app.jar` olarak çalıştıran Docker tarifi ve bağımlılık listesi. İmaj `nobody` kullanıcısıyla çalışır ve JVM bellek bitince (`-XX:+ExitOnOutOfMemoryError`) kapanır ki Docker yeniden başlatsın. `pom.xml` Testcontainers sürümünü sabitlemez, Spring Boot'un getirdiği sürüm kullanılır (aşağıdaki Testler bölümüne bakın).
 
 ## Yapılandırma
 
@@ -241,6 +241,8 @@ Domain testleri önce yazıldı (TDD): kural testi kırmızıyken kod yazıldı,
 - `domain/ReservationTest.java`: tekrar gelen siparişin açık rezervasyonda yeniden onaylanması, kapalıda sessiz kalınması; mezar taşının 0 gramlık kapalı satır olması; durumların tablodaki yazımı.
 - `application/InventoryServiceIntegrationTest.java`: Testcontainers ile gerçek PostgreSQL'e karşı ACID garantileri. 100 g stoğa eşzamanlı 20 adet 10 g'lık siparişten tam 10'u ayrılır, rezerv 100'de kalır (izolasyon; satır kilidi kaldırılınca bu test kırılır). Outbox yazımı başarısız olursa stok, rezervasyon ve tekrar işareti birlikte geri alınır (atomiklik). Veritabanı negatif stoğu, stoktan büyük rezervi ve bilinmeyen durumu reddeder (tutarlılık). Aynı teslim ikinci kez uygulanmaz. Bırakma ve düşme rezervasyon satırına göre bir kez yapılır; bırakmadan sonra gelen sipariş sessizce yok sayılır. Masadan satış bir kez stoğa eklenir. Ret nedenleri kablodaki metinle aynıdır. Herkese açık okuma satır yazmaz. Relay her satırı satır kimliğiyle bir kez yollar, yayınlanamayan satırı beklemede bırakır. Docker yoksa bu testler atlanır.
 - `MassTransitMessageTest.java`: PascalCase alanlı `OrderSubmittedEvent` zarfının okunması, `decimal` ile `0.1`'in tam okunması ve verilen `messageId`'nin `publishBody` çıktısında korunması.
+- `config/RabbitConfigTest.java`: deneme hakkı bitince ne olduğu. Veritabanı kesintisinde mesaj kuyruğa geri konur; kendi başına bozuk mesaj `inventory-service_failed` kuyruğuna park edilir.
+- `config/ListenerRetryConfigTest.java`: `application.yml`'deki dinleyici yeniden deneme ayarının gerçekten bağlandığı (ilk teslim + 4 yeniden deneme = 5 deneme). Spring Boot 4 eski `max-attempts` anahtarını hata vermeden yok sayar ve varsayılana döner; bu test o sessiz kaymayı yakalar.
 
 Uçtan uca akış (sipariş, stok ayırma, saga, masadan satış) `deploy/scripts/test-smoke.ps1` ile sınanır.
 
@@ -258,4 +260,4 @@ docker run --rm -v "${PWD}:/build" -v element-m2:/root/.m2 -v /var/run/docker.so
   -w /build maven:3.9-eclipse-temurin-21 mvn -q -B test
 ```
 
-Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. Spring Boot 3.5.16, Docker Engine 29 ile uyumlu Testcontainers 1.21.4'ü kendisi getirir; `pom.xml`'de ayrı bir sürüm sabitlemesi yoktur.
+Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. Spring Boot 4.1.2, Docker Engine 29 ile uyumlu Testcontainers 2'yi kendisi getirir; `pom.xml`'de ayrı bir sürüm sabitlemesi yoktur.

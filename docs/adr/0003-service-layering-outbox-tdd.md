@@ -54,4 +54,4 @@ Model aggregates and value objects where the service protects a rule that can be
 - Events are delivered at least once and slightly later (relay poll, default 500 ms); every consumer must stay idempotent.
 - The outbox and inbox tables grow; both are pruned at startup (outbox: published rows older than 7 days).
 - Every stateful service waits for Postgres at startup (shared-lib `IsTransientStartupError`, order-service `waitForDatabase`) instead of crash-looping while it boots.
-- Testcontainers is pinned to 1.21.4 in Java services because Spring Boot 3.4.1 ships 1.20.4, which Docker Engine 29 rejects.
+- Testcontainers is pinned to 1.21.4 in Java services because Spring Boot 3.4.1 ships 1.20.4, which Docker Engine 29 rejects. (Superseded 2026-11-14: the services run on Spring Boot 4.1, which manages Testcontainers 2; the pin is gone.)

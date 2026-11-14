@@ -7,7 +7,7 @@ Catalog ticker’daki `availableStock` yalnız gösterim için duran eski (legac
 | | |
 |--|--|
 | **Port** | `5008` |
-| **Teknoloji** | Java 21, Spring Boot 3.4 |
+| **Teknoloji** | Java 21, Spring Boot 4.1 |
 | **Veri** | Postgres `element_inventory_db` · RabbitMQ kuyruğu `inventory-service` |
 | **Komşular** | order (HTTP ön kontrol + event) · wallet/desk, ElementSold ile (restock) · gateway (`/stock`) |
 

@@ -4,7 +4,7 @@
 
 | Özellik | Değer |
 |---|---|
-| Teknoloji | Java 21, Spring Boot 3.4 (Web, JDBC, AMQP, Actuator) |
+| Teknoloji | Java 21, Spring Boot 4.1 (Web MVC, JDBC, AMQP, Actuator) |
 | Port | `5005` (konteyner içinde `8080`) |
 | Klasör | `wallet-service` |
 | Veri | PostgreSQL `element_wallet_db` (tablolar: `wallets`, `ledger`, `holdings`, `processed_messages`, `outbox`) |
@@ -277,6 +277,8 @@ Domain testleri önce yazıldı (TDD): kural testi kırmızıyken kod yazıldı,
 - `domain/HoldingTest.java`: ağırlıklı ortalama maliyet, satışta ortalamanın korunması, fazla satışın reddi.
 - `application/WalletServiceIntegrationTest.java`: Testcontainers ile gerçek PostgreSQL'e karşı ACID garantileri. Aynı cüzdana eşzamanlı 20 ödemeden tam 10'u geçer ve bakiye 0'da kalır (izolasyon). Outbox yazımı başarısız olursa bakiye, defter ve tekrar işareti birlikte geri alınır (atomiklik). Veritabanı negatif bakiyeyi reddeder (tutarlılık). Aynı teslim ikinci kez uygulanmaz. Relay her satırı satır kimliğiyle bir kez yollar, yayınlanamayan satırı beklemede bırakır. Docker yoksa bu testler atlanır.
 - `MassTransitMessageTest.java`: zarftan olay adı, camelCase/PascalCase alanlar, `decimal` okuma ve verilen `messageId`'nin `publishBody` çıktısında korunması.
+- `config/RabbitConfigTest.java`: deneme hakkı bitince ne olduğu. Veritabanı kesintisinde mesaj kuyruğa geri konur; kendi başına bozuk mesaj `wallet-service_failed` kuyruğuna park edilir.
+- `config/ListenerRetryConfigTest.java`: `application.yml`'deki dinleyici yeniden deneme ayarının gerçekten bağlandığı (ilk teslim + 4 yeniden deneme = 5 deneme). Spring Boot 4 eski `max-attempts` anahtarını hata vermeden yok sayar ve varsayılana döner; bu test o sessiz kaymayı yakalar.
 
 Uçtan uca akış (kayıt, cüzdan, alış, saga, holdings, masadan satış) `deploy/scripts/test-smoke.ps1` ile sınanır.
 
@@ -294,4 +296,4 @@ docker run --rm -v "${PWD}:/build" -v element-m2:/root/.m2 -v /var/run/docker.so
   -w /build maven:3.9-eclipse-temurin-21 mvn -q -B test
 ```
 
-Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. Spring Boot 3.5.16, Docker Engine 29 ile uyumlu Testcontainers 1.21.4'ü kendisi getirir; `pom.xml`'de ayrı bir sürüm sabitlemesi yoktur.
+Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. Spring Boot 4.1.2, Docker Engine 29 ile uyumlu Testcontainers 2'yi kendisi getirir; `pom.xml`'de ayrı bir sürüm sabitlemesi yoktur.
