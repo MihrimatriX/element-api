@@ -58,7 +58,7 @@ Servisin tamamı: ayarlar, veri yükleme, ara katmanlar ve uçlar tek dosyadadı
 |---|---|
 | (üst düzey başlangıç kodu) | Denetleyicileri, sıkıştırmayı, statik dosya önbellek kuralını, CORS'u ve hız sınırını kaydeder; anlık görüntüleri yükleyip doğrular; ara katmanları ve uçları sırayla ekler. |
 | `StaticFileCacheControl(path)` | Statik dosya yoluna göre `Cache-Control` değerini seçer: `/assets` için `public, max-age=31536000, immutable`, `/media` ve `/brand` için `public, max-age=604800`, diğerleri için `no-cache`. |
-| `ChooseRateLimitPartition(context)` | `/api` isteklerini istemci IP'si başına dakikada 300 istekle sınırlar; statik site isteklerini sınırsız bırakır. |
+| `ChooseRateLimitPartition(context)` | `/api` isteklerini istemci IP'si başına dakikada 300 istekle sınırlar; statik site isteklerini sınırsız bırakır. Ters proxy arkasında istemci IP'si `X-Forwarded-For`'dan alınır (`UseForwardedHeaders`; yalnız eş loopback ya da özel ağdaysa güvenilir), böylece ziyaretçiler tek kovayı paylaşmaz. 429 yanıtı `Retry-After` taşır. |
 | `LoadSnapshot(fileName)` | Uygulama klasöründeki `Data/<dosya>` JSON dizisini okur. |
 | `FindSectionsEmptyInEveryRecord(records)` | İlk elementin üst düzey bölümlerinden, hiçbir kayıtta dolu olmayanları bulur. |
 | `IsPopulated(node)` | Bir JSON değerinin içinde en az bir boş olmayan değer olup olmadığını özyinelemeli olarak söyler. |

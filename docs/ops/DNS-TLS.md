@@ -21,7 +21,6 @@ Date: 2026-09-26 (Europe/Istanbul). To re-probe: `pwsh -File deploy/scripts/prob
 | Apex `ahmetfuzunkaya.com` A | `145.14.158.207` |
 | Apex NS | `ns1.dns-parking.com`, `ns2.dns-parking.com` (Hostinger) |
 | Apex HTTPS | Personal Next.js site (openresty), not this repo's Caddy stack |
-| This workstation public IPv4 | `81.214.166.202` (home/NAT; only use it if you intentionally host here) |
 | Cloudflare / registrar API keys in repo or shell env | None, so DNS cannot be updated from this machine |
 
 Apex Hostinger hosting already serves a different site on `:80`/`:443`. Putting `elements-api` on the same shared-host IP without Docker+Caddy will not serve this stack. Prefer a dedicated VPS (or a Hostinger VPS with Docker) and point only the subdomain A record at that VPS.

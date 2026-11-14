@@ -75,7 +75,7 @@ Uygulamanın giriş noktası: servisleri (Redis, YARP, sağlık kontrolü, hız 
 |---|---|
 | (üst düzey başlangıç kodu) | Kestrel'e 1 MB gövde sınırı koyar ve `Server` başlığını kapatır, loglamayı açar, Redis/YARP/CORS/hız sınırını kaydeder (Redis sağlık kontrolü 3 sn zaman aşımlı), ara katmanları doğru sırayla dizer ve kapıyı çalıştırır; beklenmeyen çöküşte çıkış kodunu 1 yapar. |
 | `ResolveCorsOrigins(configuration)` | `Cors:AllowedOrigins` listesini (yoksa yerel geliştirme kökenlerini) okur ve `PUBLIC_WEB_ORIGIN` tanımlıysa onu da ekler. |
-| `WriteRateLimitProblemAsync(rejection, cancellationToken)` | Hız sınırı aşıldığında 429 için JSON problem gövdesi yazar; yalnızca kayıt (`register`) denemelerine özel bir mesaj gösterir. |
+| `RateLimitPolicy.WriteRejectionAsync(rejection, cancellationToken)` | (`RateLimitPolicy.cs` içinde) Hız sınırı aşıldığında 429 için `Retry-After` başlığını (pencerenin açılmasına kalan saniye) ve JSON problem gövdesini yazar; yalnızca kayıt (`register`) denemelerine özel bir mesaj gösterir. |
 | `Program` (partial sınıf) | Entegrasyon testlerinin kapıyı `WebApplicationFactory` ile ayağa kaldırabilmesi için giriş sınıfını açık (public) yapar. |
 
 ### `gateway-service/RateLimitPolicy.cs`

@@ -84,7 +84,7 @@ Production ortamında servisin geliştirme sırlarıyla açılmasını engeller.
 | Fonksiyon | Ne yapar |
 |---|---|
 | `ValidateProductionConfiguration(builder)` | Ortam Production ise `INTERNAL_API_KEY` ve `JwtSettings:Secret` tanımlıysa zayıf olup olmadıklarına bakar, zayıfsa hata fırlatır. |
-| `IsDevelopmentSecret(secretValue)` | Değer 32 karakterden kısaysa, "ChangeMe" içeriyorsa ya da git geçmişinde açıkta olan bilinen geliştirme sırlarından biriyse (`<yerel-varsayılan>`, eski JWT geliştirme sırrı) true döner. |
+| `IsDevelopmentSecret(secretValue)` | Değer 32 karakterden kısaysa, "ChangeMe" ya da örnek env dosyalarının `replace-with` ön ekini içeriyorsa ya da git geçmişinde açıkta olan bilinen geliştirme sırlarından biriyse (`<yerel-varsayılan>`, eski JWT geliştirme sırrı) true döner. |
 
 ### `shared-lib/Extensions/RabbitMqExtensions.cs`
 `RabbitMQ:*` ayarlarını her MassTransit veri yolu için aynı varsayılanlarla okur.
@@ -113,7 +113,7 @@ Yakalanmamış her hatayı loglayan ve HTML yerine JSON 500 yanıtı döndüren 
 | Fonksiyon | Ne yapar |
 |---|---|
 | `ExceptionHandlingMiddleware(next, logger, environment)` | Sonraki ara katmanı, logger'ı ve ortam bilgisini saklar. |
-| `InvokeAsync(context)` | İsteği çalıştırır ve hata olursa loglar. Yanıt henüz başlamadıysa hatadan önce eklenmiş başlıkları (ör. `Cache-Control`) temizler ve JSON problem gövdesi yazar, böylece hata yanıtı önbelleğe alınmaz. Hata ayrıntısı yalnız Development'ta görünür. |
+| `InvokeAsync(context)` | İsteği çalıştırır ve hata olursa loglar. İstemci bağlantıyı kendisi kopardıysa (iptal) hata saymaz: log yazmaz, yanıtı 499 olarak işaretler. Yanıt henüz başlamadıysa hatadan önce eklenmiş başlıkları (ör. `Cache-Control`) temizler ve JSON problem gövdesi yazar, böylece hata yanıtı önbelleğe alınmaz. Hata ayrıntısı yalnız Development'ta görünür. |
 | `UseGlobalExceptionHandling(app)` | Bu ara katmanı istek hattına ekler. |
 
 ### `shared-lib/Science/ScientificCatalog.cs`
@@ -134,7 +134,7 @@ Bilimsel element ve bileşik kayıtlarını salt okunur olarak sunan motor: aram
 | `CachedJson(request, response, json)` | Gövdenin özetinden zayıf bir ETag üretir, `Cache-Control` ekler ve istemci aynı sürüme sahipse 304 döndürür. |
 | `MatchesIdentifier(record, identifier)` | Elementte id, sembol veya atom numarasını; bileşikte id, slug veya PubChem CID'yi büyük/küçük harf duyarsız eşleştirir. |
 | `EqualsIgnoreCase(node, value)` | Bir JSON değerinin metin halini verilen değerle büyük/küçük harf duyarsız karşılaştırır. |
-| `Fold(value)` | Metni küçük harfe çevirip aksanları ve Türkçe "ı" farkını kaldırır; "bakır", "bakir" ve "BAKIR" aynı sayılır. |
+| `Fold(value)` | Metni küçük harfe çevirip aksanları ve Türkçe "ı"/"İ" farkını kaldırır; "bakır", "bakir" ve "BAKIR" aynı sayılır, "iyot" da "İyot"u bulur. |
 | `SearchText(record)` | Kaydın aranabilir metnini (id, sembol, atom numarası, tüm dillerdeki adlar, formül, PubChem CID) üretir; yalnızca kurucuda bir kez çağrılır. |
 | `ParsePositiveInt(value, fallback, max, name)` | Boş değerde varsayılanı döndürür; aksi halde 1 ile üst sınır arasında bir tam sayı bekler. |
 | `ParsePaths(value)` | Virgülle ayrılmış yol listesini okur; en fazla 2048 karakter, 32 yol ve 6 seviye derinliğe izin verir. |

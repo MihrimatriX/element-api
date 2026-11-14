@@ -116,6 +116,65 @@ CI için Jenkins (path-based) kullanılıyor, GitHub Actions kullanılmıyor.
 8. metrics/correlation ADR + uygulama
 9. Polyglot ADR + monorepo tek komut
 
+---
+
+## Yayın planı (2026-11-14)
+
+Tüm servisler bağımsız gözle incelendi, bulgular kodda doğrulanıp düzeltildi ve Production yığını
+yerelde uçtan uca sınandı. Kalan iş koddan değil, sunucudan ibaret.
+
+### Senin yapacakların (sırayla, toplam yaklaşık bir saat)
+
+- [ ] 0. Önce commit ve push: bu turun değişiklikleri (`server-up.sh` dahil) yalnız çalışma ağacında.
+      Sunucu repoyu GitHub'dan klonlayacağı için push edilmeden 3. adım eski kodu alır.
+- [ ] 1. Sunucu al: 4 GB RAM / 2 vCPU, Ubuntu 24.04. Yığın boşta yaklaşık 1,2 GB kullanıyor (ölçüldü);
+      8 GB rahat eder. Paylaşımlı hosting olmaz, Docker çalıştıran bir VPS gerekir.
+- [ ] 2. DNS: Hostinger hPanel'de `elements-api` için yalnız A kaydı aç (AAAA ekleme, bkz. PUBLIC-HOST.md).
+- [ ] 3. Sunucuda: `curl -fsSL https://get.docker.com | sh`, repoyu klonla,
+      `./deploy/scripts/server-up.sh elements-api.ahmetfuzunkaya.com`. İlk derleme 20-40 dakika sürer.
+- [ ] 4. Üretilen `docker/.env.public.prod` dosyasını güvenli bir yere kopyala (sırların tek kopyası).
+- [ ] 5. Doğrula: `node deploy/scripts/test-public.mjs https://elements-api.ahmetfuzunkaya.com --rate-limit`.
+- [ ] 6. Yedek: PUBLIC-HOST.md'deki tek satırlık cron'u `/etc/cron.d/element-backup` olarak ekle.
+- [ ] 7. Turnstile: Cloudflare'de widget aç, iki anahtarı env dosyasına yaz, `server-up.sh`'ı yeniden çalıştır.
+      Bot kayıtlarını ve kredi çiftçiliğini asıl durduran bu.
+- [ ] 8. Çalışma süresi izleme: UptimeRobot benzeri ücretsiz bir serviste `GET /api/v2/elements/fe` (HEAD değil).
+- [ ] 9. Yayına çıkınca README'nin başına canlı adresi ekle (ekran görüntüleri ve özet eklendi).
+
+### Bu turda yapılanlar
+
+- [x] Yayın yolu: `deploy/scripts/server-up.sh` (PowerShell'siz, sıralı derleme, sağlık bekleme) ve
+      `deploy/scripts/test-public.mjs` (yayındaki siteye salt-okunur duman testi).
+- [x] Güvenlik: girişten sonra açık yönlendirme (`/.//evil.com`), Production'da örnek dosyadaki
+      `replace-with-…` sırlarının kabul edilmesi, belgelerdeki ev IP adresi, Node ve Java bağımlılık
+      güncellemeleri (Express zinciri, zod 4, Spring Boot 3.5.16).
+- [x] Canlıda görünecek hatalar: Türkçe `İ` ile arama, hep 0 dönen 24 saatlik hacim, 429'da eksik
+      `Retry-After`, Swagger'da `localhost` bağlantısı, keşif belgesinde yanlış yere giden `health`,
+      arayüzde 10.000 yazıp 1.000 veren hoş geldin kredisi, hiç gönderilmeyen `price.updated` vaadi.
+- [x] Dayanıklılık: veritabanı kesintisinde para ve stok mesajlarının `_failed` kuyruğuna park edilmesi,
+      bağımsız atlasın proxy arkasında herkesi tek hız sınırı kovasına koyması, Turnstile açıkken ilk
+      hatalı denemeden sonra formun kilitlenmesi, ok tuşunu basılı tutunca hız sınırının dolması.
+- [x] Kalite kapısı yeniden yeşil: `npm audit` artık yayına giden bağımlılıkları denetliyor.
+
+### Bilinçli olarak sonraya bırakılanlar (yayın engeli değil)
+
+- [x] Fiyat simülasyonu çapasız rastgele yürüyüştü (günde yaklaşık %17 sapma). Artık her tik tohum
+      fiyatına doğru küçük bir çekim ekliyor; çapa `HasData` tohumlarından okunuyor, yeni sütun ya da
+      migration yok. Çekim gücü `PriceSimulator.ReversionPerTick` (0 yaparsan eski davranış).
+- [ ] Stok kendiliğinden yenilenmiyor; birkaç hesap ucuz bir elementin tamamını alabilir. İsteğe bağlı
+      haftalık takviye satırı PUBLIC-HOST.md'de; asıl fren Turnstile.
+- [ ] v1 hata gövdeleri en az beş farklı biçimde (düz metin, ProblemDetails, PascalCase/camelCase).
+      Tek biçime çekmek istemcileri etkileyen bir sözleşme değişikliği.
+- [x] v1 araması da Türkçe karakterleri katlıyor (`bakir` → `Bakır`, `iyot` → `İyot`); v2 ile aynı kural.
+- [ ] Servisler Postgres'e süper kullanıcıyla ve tek ortak iç anahtarla bağlanıyor (savunma derinliği).
+- [ ] Spring Boot 4.x'e geçiş (3.5 hattı güvenlik yaması alıyor ama son 3.x hattı).
+- [ ] Masa satışında yuvarlama (en kötü durumda %1,4 fazla ödeme, makasın altında) ve satışta
+      idempotency anahtarı olmaması.
+- [x] Sosyal önizleme görseli: 1,5 MB'lık eski `og.png` (eski "ELX / piyasa" kimliği) yerine bugünkü
+      açılış sayfasının 93 KB'lık görüntüsü (`web-app/public/og.jpg`). Beğenmezsen aynı adla değiştir.
+- [x] README başına ekran görüntüleri, kısa İngilizce özet ve "Mühendislik tarafında neler var" eklendi.
+- [ ] İstersen sadeleştir: `/kilavuz` (1,2 MB), üç kopya kimya verisi, kullanılmayan actuator bağımlılığı,
+      repoya girmiş `.cursor/skills/` (üçüncü taraf ajan talimatları; `git rm -r --cached .cursor/skills`).
+
 ### Operatör / host kalan (repo dışı — 2026-09-26)
 - [ ] DNS: Hostinger hPanel'de `elements-api` A/AAAA kaydını deploy host IP'sine yönlendir ([ops/DNS-TLS.md](docs/ops/DNS-TLS.md); hâlâ NXDOMAIN)
 - [ ] Jenkins: kurulum sihirbazı, GitHub credential ve Multibranch (`jenkins-up.ps1` / Job DSL hazır; agent toolchain ayrı)

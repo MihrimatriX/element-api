@@ -2,6 +2,16 @@
 
 Esas kaynak: kök README'deki [Eksikler…](../../README.md#eksikler-ve-yapmak-istediklerimiz) bölümü ve [TODO.md](../../TODO.md).
 
+## 14 Kasım 2026 durumu
+
+Tüm servisler incelendi; doğrulanan bulgular düzeltildi ve Production yığını yerelde uçtan uca sınandı (birim, entegrasyon, tarayıcı ve canlı testler yeşil). Yayın için kalan adımlar ve bilinçli olarak sonraya bırakılan işler: [TODO.md → Yayın planı](../../TODO.md#yayın-planı-2026-11-14). Değişiklikler çalışma ağacında, commit edilmedi.
+
+Bu turda öğrenilen ve aşağıdaki maddeleri değiştiren üç şey:
+
+- Sunucuda PowerShell gerekmiyor: `deploy/scripts/server-up.sh <alan-adı>` aynı işi yapar. Yayından sonra `deploy/scripts/test-public.mjs` ile doğrulanır.
+- Tüm imajları aynı anda derlemek küçük makinede düşüyor (BuildKit zaman aşımı); betik sırayla derler. Postgres'in ilk kurulumu yüklü diskte 69 sn sürdü, sağlık kontrolü toleransı buna göre artırıldı.
+- `/kilavuz`'un yerel varsayılan sırları göstermesi (aşağıdaki "Sahip kararı bekleyen" maddesi) hâlâ açık. Değerler zaten herkese açık repoda durduğu için gizlemek bir şey kazandırmaz; öneri: olduğu gibi bırak.
+
 ## Sahip kararı bekleyen
 
 - `/kilavuz` yerel varsayılan sırları gösteriyor: [altyapi.md](../kilavuz/altyapi.md) "Yapılandırma" tablosu compose'un yerel varsayılanlarını yazar: `POSTGRES_PASSWORD=mysecretpassword`, `RABBITMQ_DEFAULT_USER/PASS=guest/guest`, `INTERNAL_API_KEY=element-internal-dev-key`, `JWT_SECRET=ChangeMeInProduction_...`. Sayfa web paketine (`guide.json`) girer ve public sitede `/kilavuz/altyapi` adresinden okunur. Public overlay `JWT_SECRET` ve `INTERNAL_API_KEY` için değer zorunlu tutar (`${VAR:?}`) ve `present-public.ps1 -Server` 32 karakterden kısa ya da yer tutucu sırrı reddeder; Postgres/RabbitMQ şifresi zorunlu değildir ama portları dışarı kapalıdır. Yani doğru kurulmuş public yığında doğrudan sızıntı yok; yanlış yapılandırılmış bir kurulum için ise hazır bir liste. Seçenekler: (a) olduğu gibi bırak, (b) tabloda değerleri "yerel varsayılan, bkz. `docker/.env.example`" diye kısalt, (c) `altyapi` sayfasını public derlemeden çıkar.

@@ -3,6 +3,33 @@
 v2 kayıt şeması eklemeyle büyür; kırıcı değişiklik yeni sürüm ister.
 Web özeti: `/developers`.
 
+## 2026-11-14 — yayın öncesi düzeltmeler
+
+Kırıcı değişiklik yok; v2 kayıt şeması değişmedi.
+
+- Düzeltme: 429 yanıtları artık `Retry-After` (saniye) başlığını taşır;
+  kapıda ve atlas ana bilgisayarında. Belgeler bunu zaten söylüyordu.
+- Düzeltme: v2 araması Türkçe `İ` ile başlayan adları buluyor
+  (`?q=iyot`, `?q=indiyum`). Önceden yalnız `q=İyot` eşleşiyordu.
+- Düzeltme: v1 element araması (`/api/v1/elements/search?q=`) Türkçe adları
+  Türkçe harf yazmadan da bulur (`bakir`, `iyot`); v2 ile aynı katlama kuralı.
+- Düzeltme: `GET /api/v1/elements/{symbol}/ticker` içindeki `volume24hGrams`
+  her zaman 0 dönüyordu; artık son 24 saatin alış ve satışlarını toplar.
+- Düzeltme: atlas ana bilgisayarı ters proxy arkasında hız sınırını
+  ziyaretçi başına sayar (önceden herkes tek kovayı paylaşıyordu).
+- Düzeltme: sipariş ucu bozuk istekte (ör. hatalı URL kaçışı) 503 yerine 4xx
+  döner. `quantity` saklanan dört ondalığa yuvarlanır; `0.1 + 0.2` gibi bir
+  değerle aynı `Idempotency-Key` tekrarı artık 409 değil, tekrar yanıtı alır.
+- Kaldırıldı: `GET /api/v1` keşif belgesindeki `health` ve `info` bağlantıları.
+  Proxy arkasında bu yollar web sunucusuna gidiyor, API'nin durumunu göstermiyordu.
+- Değişti: simüle fiyatlar artık tohum fiyatının çevresinde kalır (tik başına
+  küçük bir geri çekim). Önceden çapasız rastgele yürüyüştü: haftalar içinde
+  fiyatlar tohumdan kopuyor, çok ucuz elementler yuvarlamada donuyordu.
+- Düzeltme: `GET /api/v1/orders/stats` içindeki `totalSpent` başarısız
+  (iade edilmiş) siparişleri artık saymaz.
+- Belge düzeltmesi: `price.updated` webhook olayı kabul edilir ama hiç
+  gönderilmez; arayüz ve belgeler artık yalnız `order.updated` sunar.
+
 ## 2026-09-17 — istemci yüzeyi
 
 - Yeni: `web-app/public/openapi.json`, ScientificCatalog sözleşmesinin

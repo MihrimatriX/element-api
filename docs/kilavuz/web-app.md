@@ -323,7 +323,7 @@ Tarayıcıdaki oturumun yardımcıları: JWT'yi okuma, oturumu kapatma, oturum d
 | `tokenUser(token)` | Saklı JWT hâlâ geçerliyse kullanıcı kimliğini (`sub`) döner; jeton yoksa, bozuksa ya da süresi dolduysa `null` döner. |
 | `clearSession()` | Jetonu ve panel anahtarını siler, ardından `window` üzerinde `element:session` olayını yayınlayarak dinleyenlere haber verir. |
 | `onSessionChange(listener)` | Oturum değişmiş olabilecek her an `listener`'ı çağırır: bu sekme oturumu kapattığında (`element:session`) ya da başka sekme depolamaya yazdığında (`storage`); aboneliği bırakan fonksiyonu döner. |
-| `safeReturnTo(value, fallback)` | `returnTo` sorgu değerini aynı kökene ait bir yola çevirir; tarayıcı gibi ayrıştırdığı için `/\t/evil.com` gibi başka siteye kaçan değerleri reddeder ve `fallback` (varsayılan `/collection`) döner. |
+| `safeReturnTo(value, fallback)` | `returnTo` sorgu değerini aynı kökene ait bir yola çevirir; tarayıcı gibi ayrıştırdığı için `/\t/evil.com` ve `/.//evil.com` gibi başka siteye kaçan değerleri reddeder ve `fallback` (varsayılan `/collection`) döner. |
 
 ### `web-app/src/services/diagnostics.ts`
 İsteğe bağlı, yalnız bu tarayıcıda kalan ürün tanılaması: olaylar localStorage'da durur, ziyaretçi geri bildirim sayfasından dışa aktarmadıkça hiçbir yere gönderilmez.
@@ -509,7 +509,7 @@ Sayfanın `<head>` bilgilerini (başlık, açıklama, robots, kanonik adres, Ope
 | `upsertLink(rel, href)` | Verilen `rel` değerli `link` etiketini bulur ya da oluşturur ve adresini yazar. |
 | `withContext(node)` | JSON-LD düğümünde `@context` yoksa `https://schema.org` ekler. |
 | `syncJsonLd(json)` | Sayfanın JSON-LD betiğini (`#json-ld-seo`) yazar; sayfada JSON-LD yoksa betiği kaldırır. |
-| `Seo({ title, description, path, ogType, jsonLd, noIndex })` | Belge başlığını ve dilini (`tr`) ayarlar, açıklama, robots (`noIndex` ile "noindex, nofollow"), kanonik adres, Open Graph (1200×630 `og.png`) ve Twitter etiketlerini günceller; JSON-LD'yi metne çevirerek eşit içerikli yeni nesnenin etkiyi yeniden çalıştırmasını önler. |
+| `Seo({ title, description, path, ogType, jsonLd, noIndex })` | Belge başlığını ve dilini (`tr`) ayarlar, açıklama, robots (`noIndex` ile "noindex, nofollow"), kanonik adres, Open Graph (1200×630 `og.jpg`) ve Twitter etiketlerini günceller; JSON-LD'yi metne çevirerek eşit içerikli yeni nesnenin etkiyi yeniden çalıştırmasını önler. |
 
 ### `web-app/src/components/ErrorBoundary.tsx`
 Çizimde hata veren sayfanın yerine çıkan çökme ekranı. `App` rotaları kabuğun içinde bir tanesiyle sarar (başlık ve menü çalışmaya devam eder); `main.tsx` bütün uygulamayı bir tane daha ile sarar. O ikincisi yönlendiricinin dışında durduğu için ekran düz bağlantı kullanır ve sayfayı yenileyerek toparlanır.
@@ -852,7 +852,7 @@ E-posta ve şifreyle giriş; başarıda `?returnTo` adresine (yalnız aynı kök
 | Fonksiyon | Ne yapar |
 |---|---|
 | `Login()` | Kimlik yeteneklerini yükler; e-posta, şifre ve CAPTCHA alanlı formu, şifre kurtarma açıksa "Şifremi unuttum" bağlantısını, kapalıysa e-postasız beta notunu ve `returnTo` korunarak kayıt bağlantısını çizer. |
-| `handleSubmit(event)` (`Login` içinde) | CAPTCHA yapılandırılmışsa jeton ister, girişi dener, jeton gelirse oturum bayrağını açıp güvenli geri dönüş adresine gider; hatada `loginError`'ın Türkçe mesajını gösterir. |
+| `handleSubmit(event)` (`Login` içinde) | CAPTCHA yapılandırılmışsa jeton ister, girişi dener, jeton gelirse oturum bayrağını açıp güvenli geri dönüş adresine gider; hatada `loginError`'ın Türkçe mesajını gösterir ve CAPTCHA bileşenini yeniden kurar (sunucu jetonu başarısız denemede harcadığı için). |
 
 ### `web-app/src/pages/Market.tsx`
 `/market`: sanal KREDI fiyat masası; hareketli elementler şeridi ve sıralanabilir fiyat tahtası elementi seçer, fiyat kartı canlı fiyatları alış bağlantısı ve satış formuyla gösterir, kasa varlıkları listeler.
@@ -883,7 +883,7 @@ Hesap açma; CAPTCHA yoksa doğrudan giriş yapıp `?returnTo` adresine döner (
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `PERKS` / `EMPTY_FORM` (veri) | Hesap açmanın üç faydası (her cihazda aynı defter, 10.000 sanal kredi ve ticaret anahtarı, kaybolmayan sipariş geçmişi) ve boş form değerleri. |
+| `PERKS` / `EMPTY_FORM` (veri) | Hesap açmanın üç faydası (her cihazda aynı defter, hoş geldin kredisi (`WELCOME_CREDIT`, cüzdanın verdiği tutar) ve ticaret anahtarı, kaybolmayan sipariş geçmişi) ve boş form değerleri. |
 | `Register()` | Fayda listesini, ad, soyad, e-posta, şifre ve şifre tekrarı alanlarını, CAPTCHA'yı ve `returnTo` korunarak giriş bağlantısını çizer. |
 | `handleChange(event)` (`Register` içinde) | Değişen alanı forma yazar; şifre alanlarından biri değişince eşleşmeme uyarısını kaldırır. |
 | `goToLogin()` (`Register` içinde) | "Hesap oluştu" mesajını gösterip 1,2 sn sonra giriş sayfasına gider. |
@@ -1452,7 +1452,7 @@ Seçili (üzerine gelinen ya da odaklanan) elementin, geçiş metallerinin üst�
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `SelectedElementPanel({ element, className })` | `useScience` ile kaydı yükler; örnek hücreyi, adları, aile/periyot/grup satırını, üç temel bilgiyi, `xl` üstünde özeti ve "Tam kayıt" bağlantısını çizer; element değişince içeriği kısa bir solmayla yeniler, yükleme başarısızsa "Yeniden dene" sunar. |
+| `SelectedElementPanel({ element, className })` | Seçim 200 ms durunca `useScience` ile kaydı yükler (ok tuşunu basılı tutmak her karo için istek atıp hız sınırını doldurmasın diye); örnek hücreyi, adları, aile/periyot/grup satırını, üç temel bilgiyi, `xl` üstünde özeti ve "Tam kayıt" bağlantısını çizer; element değişince içeriği kısa bir solmayla yeniler, yükleme başarısızsa "Yeniden dene" sunar. |
 | `Fact({ label, loading, children })` | Panelin tek etiket/değer çiftini çizer; yüklenirken değer yerine iskelet koyar. |
 
 ### `web-app/src/components/periodic/ShellDiagram.tsx`
@@ -1841,7 +1841,7 @@ identity servisinin hesap uçlarına (`/auth/profile`, `/auth/delete` …) giden
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `loginError(error)` | Başarısız girişin Türkçe metnini seçer: 401 "E-posta veya şifre yanlış.", 429 "Çok fazla hatalı deneme…", diğer sunucu yanıtlarında `apiError`; ağ hatası (`TypeError`) ve zaman aşımı (`isTimeout`) "Servise ulaşılamadı…", başka bir `Error` kendi cümlesi (ör. kapalı tarayıcı depolaması). Giriş ve kayıt sayfaları kullanır. |
+| `loginError(error)` | Başarısız girişin Türkçe metnini seçer: 401 "E-posta veya şifre yanlış.", 429 hesap kilidinde "Çok fazla hatalı deneme…", ağ geçidi hız sınırında "Çok fazla istek. Birkaç saniye sonra yeniden dene.", diğer sunucu yanıtlarında `apiError`; ağ hatası (`TypeError`) ve zaman aşımı (`isTimeout`) "Servise ulaşılamadı…", başka bir `Error` kendi cümlesi (ör. kapalı tarayıcı depolaması). Giriş ve kayıt sayfaları kullanır. |
 | `messageOf(ok, status, data)` | Sunucunun cümlesini bulur: başarıda gövdedeki `message`, hatada `apiError`'un hata gövdesinden çıkardığı metin. |
 | `accountRequest(path, { method, body, auth, timeoutMs, signal })` | `fetchJson` ile oturum belirteciyle (varsayılan) 15 sn zaman aşımlı istek atar; HTTP hatasını `ok: false` ile çözer, geçerli belirteç için 401 gelirse oturumu kapatır; ağ hatası, zaman aşımı ve iptalde reddeder. |
 | `useAccountAction()` | Bir hesap formu ya da düğmesi için `busy`, `result`, `run` ve `clear` döndürür. |
@@ -2086,7 +2086,7 @@ Hesabın webhook paneli: fiyat ve sipariş olayları için HMAC gizli anahtarlı
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `WebhooksPanel()` | Adres ve gizli anahtar formunu, her webhook'a verilen `price.updated` ve `order.updated` olay rozetlerini, hata kutusunu ve listeyi çizer; imzanın `X-Element-Signature` HMAC-SHA256 olduğunu yazar. |
+| `WebhooksPanel()` | Adres ve gizli anahtar formunu, her webhook'a verilen `order.updated` olay rozetini, hata kutusunu ve listeyi çizer; imzanın `X-Element-Signature` HMAC-SHA256 olduğunu yazar. |
 | `reload()` | `webhookService.list()` ile webhook'ları yükler. |
 | `register(event)` | Adresi `webhookUrlProblem` ile denetler; uygunsa `webhookService.create` ile kaydeder, bildirim gösterir, formu temizleyip listeyi yeniler. |
 | `remove(hook)` | Webhook'u siler; hatada bildirim gösterip reddeder (onay penceresi açık kalır), başarıda listeyi yeniler. |
@@ -2098,7 +2098,7 @@ API dokümanlarının anahtarlı v1 bölümleri: kimlik doğrulama ve webhook'la
 | Fonksiyon | Ne yapar |
 |---|---|
 | `KeyedEndpointsSection()` | `#v1-auth` bölümünde `X-API-Key` başlığını, anahtarın hesap sayfasında üretildiğini, anahtar başına saniyede 1 ile 10 arası istek sınırını ve `X-RateLimit-*` başlıklarını, anahtarın koda değil `API_KEY_ENV` ortam değişkenine konması gerektiğini anlatır. |
-| `WEBHOOK_EVENTS` | İki webhook olayı ve gövdeleri: `price.updated` ve `order.updated`. |
+| `WEBHOOK_EVENTS` | Gerçekten gönderilen tek webhook olayı ve gövdesi: `order.updated` (API `price.updated` adını da kabul eder ama o olay hiç gönderilmez). |
 | `WebhooksSection()` | `#webhooks` bölümünde olay tablosunu ve alıcı kurallarını listeler: `X-Element-Signature` HMAC-SHA256 imzası, 5 dakikadan eski `Timestamp`'i reddetme, `OrderId + Status` tekrarını yok sayma, yalnız herkese açık HTTPS adresi, hesap başına en çok 10 webhook ve 10 sn sonra bir yeniden deneme. |
 
 ### `web-app/src/components/developer/ApiFacts.tsx`
@@ -2420,7 +2420,7 @@ Kod `import.meta.env.DEV` değerini de okur: geliştirme sunucusunda `/_ui` rota
 
 `vite.config.ts` React ve Tailwind eklentilerini yükler, `/api/v2` isteklerini `http://127.0.0.1:5080`'e (bağımsız atlas veya `dotnet run` ile science-service) vekil olarak iletir, depo kökünden dosya okumaya izin verir (catalog-service ve compound-service'in JSON dosyaları içe aktarılır) ve `@` takma adını `src/` klasörüne bağlar. `/api/v1` için vekil yoktur; geliştirme sunucusu gateway'e doğrudan `VITE_API_BASE_URL` adresinden gider (gateway CORS listesinde 5173 vardır).
 
-`npm run build` sırasıyla `write-coverage.mjs` (`src/data/coverage.json`), `write-guide.mjs` (`src/data/guide.json`), `write-sitemap.mjs` (`public/sitemap.xml`), `write-schema.mjs` (`public/schema/*.schema.json`), `tsc -b` ve `vite build` çalıştırır; `npm run dev` öncesinde kapsam, şema ve kılavuz dosyaları da yazılır. Docker imajında (`web-app/Dockerfile`) derleme Node 22 ile yapılır, `nginx:stable-alpine` sunar. `nginx.conf` sıkıştırmayı açar, `/assets/` dosyalarını bir yıl değişmez, `/media/`, `/brand/`, `og.png` ve simgeleri yedi gün, `robots.txt` ve `sitemap.xml` dosyalarını bir saat önbelleğe aldırır; `index.html`'e düşen sayfa yollarında önbelleği kapatır.
+`npm run build` sırasıyla `write-coverage.mjs` (`src/data/coverage.json`), `write-guide.mjs` (`src/data/guide.json`), `write-sitemap.mjs` (`public/sitemap.xml`), `write-schema.mjs` (`public/schema/*.schema.json`), `tsc -b` ve `vite build` çalıştırır; `npm run dev` öncesinde kapsam, şema ve kılavuz dosyaları da yazılır. Docker imajında (`web-app/Dockerfile`) derleme Node 22 ile yapılır, `nginx:stable-alpine` sunar. `nginx.conf` sıkıştırmayı açar, `/assets/` dosyalarını bir yıl değişmez, `/media/`, `/brand/`, `og.jpg` ve simgeleri yedi gün, `robots.txt` ve `sitemap.xml` dosyalarını bir saat önbelleğe aldırır; `index.html`'e düşen sayfa yollarında önbelleği kapatır.
 
 ## Testler
 
@@ -2434,7 +2434,7 @@ Birim testleri `tests/*.test.mjs` altındaki 23 dosyadır ve Node'un yerleşik t
 - Geliştirici sayfaları (`docs-auth-chrome.test.mjs`): deneme alanında 304'ün not olarak gösterilmesi, açık API için anahtarsız, v1 için anahtarı ortam değişkeninden okuyan kod örnekleri, durum kodu tonları, `lib/http.ts` çekirdeği (`abortAfter`'ın zaman aşımında `TimeoutError` vermesi ve çağıranın iptalini iletmesi; `fetchJson`'un JSON gönderip okuması, düz metin hata gövdesini `text`'te tutması ve zaman aşımında `isTimeout`'un tanıdığı hatayla reddetmesi), JSON renklendirmesinin işaretlemeyi kaçırması, API sayfalarının SEO'su, CodeBlock kullanımı, korunan bağlantılar ve deneme sayacı.
 - Hesap, güvenlik, gizlilik: `safe-return-to.test.mjs` (`returnTo`'nun yalnız aynı kökenli yolu kabul etmesi), `captcha-config.test.mjs` (Turnstile'ın `VITE_CAPTCHA_SITE_KEY`'e bağlı, açık temalı olması, giriş ve kaydın `captchaToken` göndermesi ve sunucu captcha beklerken uyarması), `feedback-void-chrome.test.mjs` (tanılamanın onaydan önce hiçbir şey yazmaması, onay geri alınınca silinmesi, e-posta gibi serbest metni saklamaması; geri bildirim sayfasının ağ çağrısı yapmayıp yalnız JSON indirmesi).
 - KREDI demosu: `commerce-model.test.mjs` (fiyat panosu sıralama ve süzme, işaretli Türkçe yüzdeler, ürün tanımları, varlık değerinin bid × çarpan olması ve imkânsız satışın engellenmesi, saga durumundan ilerleme ve rozet tonu, sepette ask × çarpan fiyatı ve stok aşımı, anahtar maskeleme ve yalnız https webhook adresi), `demo-vitrin-chrome.test.mjs` (demo sayfasının sanal kredi olduğunu açıkça söylemesi ve bağlantıları, ticaret sayfalarının tek PageHeader'lı ortak çerçevesi, SEO yolları, hesap sayfasının `noindex` olması, eski CSS ve satır içi stil olmaması).
-- SEO (`seo-static.test.mjs`): `robots.txt` ve `sitemap.xml`'deki `__SITE_URL__` yer tutucusu ve kapalı yollar, `index.html`'deki Open Graph, Twitter ve JSON-LD etiketleri, `og.png`, `index.html`'deki `theme-color`'ın tuval rengi (`#f9fafb`) olması, giriş ve hesap sayfalarında `noindex`.
+- SEO (`seo-static.test.mjs`): `robots.txt` ve `sitemap.xml`'deki `__SITE_URL__` yer tutucusu ve kapalı yollar, `index.html`'deki Open Graph, Twitter ve JSON-LD etiketleri, `og.jpg`, `index.html`'deki `theme-color`'ın tuval rengi (`#f9fafb`) olması, giriş ve hesap sayfalarında `noindex`.
 
 Tarayıcı testleri Playwright ile üç yapılandırmada koşar:
 

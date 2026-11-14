@@ -18,7 +18,7 @@ Side-by-side local stacks use different `ELEMENT_ENV` container name prefixes an
 | Public path | Target | Notes |
 |---|---|---|
 | `/`, `/lab`, `/element/*`, `/compound/*`, … | web-app | SPA `try_files` falls back to `index.html` |
-| `/media/atlas/*`, `/assets/*`, `og.png` | web-app | Static; science JSON uses root-relative `/media/…` |
+| `/media/atlas/*`, `/assets/*`, `og.jpg` | web-app | Static; science JSON uses root-relative `/media/…` |
 | `/api/v1/**` | gateway | Auth, market, orders, shipments track |
 | `/api/v2/elements/**`, `/api/v2/compounds/**` | gateway | Public science CORS |
 | `/swagger/**` | gateway, routed to catalog | OpenAPI UI (product docs stay at `/docs`) |
@@ -44,7 +44,7 @@ Create a widget in the [Cloudflare Turnstile dashboard](https://dash.cloudflare.
 
 ### Optional Cloudflare proxy (real WAF)
 
-After DNS A/AAAA points here, you can orange-cloud the hostname in Cloudflare DNS. This puts Cloudflare's WAF/DDoS protection in front of Caddy. The stack works without it. ACME still needs port 80 reachable (HTTP-01); the alternative is Cloudflare Full (strict) + an origin cert later. The default path here is direct Let's Encrypt on Caddy.
+After DNS A/AAAA points here, you can orange-cloud the hostname in Cloudflare DNS. This puts Cloudflare's WAF/DDoS protection in front of Caddy. The stack works without it. Do not switch it on as-is: Caddy ignores `X-Forwarded-For` from peers it does not trust, so behind Cloudflare every visitor would reach the gateway with a Cloudflare edge address and share one rate-limit bucket. First add Cloudflare's ranges as `trusted_proxies` (with `client_ip_headers CF-Connecting-IP`) to the Caddyfile's global options. ACME still needs port 80 reachable (HTTP-01); the alternative is Cloudflare Full (strict) + an origin cert later. The default path here is direct Let's Encrypt on Caddy.
 
 ## 1. Env
 
@@ -70,9 +70,48 @@ Leave `CAPTCHA_SECRET_KEY` / `VITE_CAPTCHA_SITE_KEY` empty until you want Turnst
 
 `TRUSTED_PROXY_CIDRS` defaults to Docker private ranges in public examples so gateway `ClientIp` / rate limit trust Caddy's `X-Forwarded-For`. Empty falls back to the same RFC1918 heuristic in code.
 
-### Real server Prod checklist
+### Linux server: one command
 
-Do this on the host after DNS points here (do not invent another domain):
+A fresh Ubuntu/Debian VPS needs only Docker; no PowerShell, .NET, Node or Java on the host.
+
+```bash
+curl -fsSL https://get.docker.com | sh
+git clone <repo-url> element-api && cd element-api
+./deploy/scripts/server-up.sh elements-api.ahmetfuzunkaya.com
+```
+
+The first run writes `docker/.env.public.prod` with fresh secrets (copy that file somewhere safe: it is the only place they exist). Every run refuses placeholder secrets, builds the images one at a time (the default parallel build exhausts a small VPS) and returns only when every container is healthy. To redeploy: `git pull && ./deploy/scripts/server-up.sh`.
+
+Size: the whole stack (14 containers) idles at about 1.2 GB of RAM, measured with `docker stats` in Production mode. A 4 GB / 2 vCPU VPS runs it; the image build is the heavy part, which is why the script builds one image at a time. Expect the first build to take 20 to 40 minutes on a small machine.
+
+After it returns, check the public edge from any machine (read-only, creates no account):
+
+```bash
+node deploy/scripts/test-public.mjs https://elements-api.ahmetfuzunkaya.com --rate-limit
+```
+
+Before running it:
+
+- DNS: an A record for the hostname must point at the server, and ports 80/443 must be open, or Caddy cannot obtain a certificate. Add an AAAA record only if the Docker daemon has IPv6 enabled; otherwise Docker's userland proxy can hand IPv6 connections to Caddy with the bridge gateway as their source address, and every IPv6 visitor then shares one rate-limit bucket.
+- Backups: the stack does not back itself up. One cron line on the host is enough for this data volume:
+
+```bash
+# /etc/cron.d/element-backup — nightly dump, keep 14 days
+0 3 * * * root docker exec element-prod-postgres pg_dumpall -U postgres | gzip > /var/backups/element-$(date +\%F).sql.gz && find /var/backups -name 'element-*.sql.gz' -mtime +14 -delete
+```
+
+Restore rehearsal: `node deploy/scripts/test-backup-restore.mjs`.
+
+- Stock (optional): nothing replenishes the simulated stock except customers selling back, so a few accounts can buy out a cheap element and leave it "out of stock" for everyone. If that happens on the demo, top every element back up to the starting 100 000 g once a week (it only ever raises stock, so the "reserved ≤ stock" constraint holds):
+
+```bash
+# /etc/cron.d/element-restock — Mondays 04:00
+0 4 * * 1 root docker exec element-prod-postgres psql -U postgres -d element_inventory_db -c "UPDATE stock_items SET stock_grams = 100000 WHERE stock_grams < 100000"
+```
+
+### Real server Prod checklist (PowerShell path)
+
+Same result as `server-up.sh`, for hosts that have PowerShell. Do this on the host after DNS points here (do not invent another domain):
 
 1. DNS: point A (and AAAA if any) for `elements-api.ahmetfuzunkaya.com` at this server.
 2. Env: set these in `docker/.env.public.prod`:

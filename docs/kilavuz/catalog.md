@@ -16,7 +16,7 @@ Periyodik tablodaki element verisi bu servisten gelir. Servisin iki API sürüm�
 
 Bir istek şöyle akar: tarayıcı → gateway (`:5000`) → bu servis. Controller isteği alır ve `EfElementRepository` ile 118 satırı veritabanından çeker (liste 5 saniyelik ortak bellek içi anlık görüntüden gelir, aşağıya bakın). Sıralama, filtreleme ve istatistik işini saf C# sınıfı `ElementAnalytics` yapar. Sonucu `ElementDtoMapper` herkese açık JSON'a çevirir. JSON'daki fiziksel değerler (kütle, yoğunluk, erime noktası...) veritabanındaki eski tohum değerlerinden gelmez; kaynağı belli olan `element-properties.json` dosyasından gelir. Bağlantılar (`links`) `PUBLIC_API_BASE` ya da `X-Forwarded-*` başlıklarına göre üretilir.
 
-Fiyatların hepsi simülasyondur. `PriceSimulator` her 15 saniyede her elementin fiyatını ±%0,4 oynatır, geçmişe yazar ve `ElementPriceChangedIntegrationEvent` yayınlar. Saatte bir 2 günden eski fiyat geçmişini siler, böylece `PriceHistories` tablosu sınırsız büyümez. Bir sipariş tamamlanınca (`OrderCompletedEvent`) fiyat biraz yukarı, masada satış olunca (`ElementSoldEvent`) biraz aşağı itilir. Hareketin büyüklüğünü `MarketMaker` hesaplar (en fazla %3).
+Fiyatların hepsi simülasyondur. `PriceSimulator` her 15 saniyede her elementin fiyatını ±%0,4 oynatır ve tohum fiyatına doğru küçük bir çekim ekler (fiyatlar tohumun kabaca ±%10 çevresinde kalır), geçmişe yazar ve `ElementPriceChangedIntegrationEvent` yayınlar. Saatte bir 2 günden eski fiyat geçmişini siler, böylece `PriceHistories` tablosu sınırsız büyümez. Bir sipariş tamamlanınca (`OrderCompletedEvent`) fiyat biraz yukarı, masada satış olunca (`ElementSoldEvent`) biraz aşağı itilir. Hareketin büyüklüğünü `MarketMaker` hesaplar (en fazla %3).
 
 Önbellek iki katmanlıdır. Sunucu içinde `IMemoryCache` (Redis yok, her kopyanın kendi önbelleği vardır) tüm element listesini ve piyasa panosunu 5 saniye (`EfElementRepository.SnapshotTtl`) tutar. Liste, arama, istatistik ve pano okumaları bu süre içinde tek sorguyu paylaşır. Tek element okuması (`GetBySymbol*`) bilerek önbelleğe alınmaz, çünkü order- ve wallet-service işlem fiyatını ticker'dan canlı okur. HTTP tarafında `[ResponseCache]` yalnız `Cache-Control` başlığı koyar: kategoriler 300 sn, canlı fiyat taşıyan yanıtlar 5 sn, `random` hiç önbelleğe alınmaz, anahtarlı `history` yalnız istemcide (private) 5 sn tutulur.
 
@@ -97,7 +97,7 @@ Yanıtlardaki bağlantılar için dışarıdan görünen adresi bulur.
 | Fonksiyon | Ne yapar |
 |---|---|
 | `ApiInfoController(configuration)` | Bağlantı adresi için yapılandırmayı alır. |
-| `GetApiInfo()` | Tüm v1/v2 kaynaklarının örnek bağlantılarını sözlük olarak döner. |
+| `GetApiInfo()` | Tüm v1/v2 kaynaklarının örnek bağlantılarını sözlük olarak döner. `health`/`info` bağlantısı vermez: proxy arkasında o yollar web sunucusuna gider. |
 
 ### `Element.Services.Element.API/Controllers/ElementsController.cs`
 Element listesi, arama, karşılaştırma, komşular, fiyat geçmişi ve ticker uç noktaları. Sınıf düzeyinde `[ResponseCache(Duration = 5)]` vardır.
@@ -232,6 +232,7 @@ Veritabanındaki element satırı; fiyat için kök nesne (aggregate): fiyat yal
 | `AvailableStock` | Toplam stoktan rezerve gramı çıkarıp satılabilir gramı verir. |
 | `RecordTrade(grams, buy, now)` | Gram sıfır ya da negatifse hata fırlatır; derinlik olarak stoku (işlem daha büyükse işlemi) alıp `MarketMaker.NextLast` ile fiyatı iter ve yeni geçmiş noktasını döner. |
 | `Tick(fraction, now)` | Fiyatı verilen oranla oynatır (4 ondalığa yuvarlar); sonuç taban fiyata ulaşıyorsa fiyata dokunmaz ve `null` döner. |
+| `PullToward(anchorPrice, strength)` | Fiyatı çapaya doğru çeken oranı verir: `strength` çarpı logaritmik fark (iki kat pahalı ile iki kat ucuz eşit güçle çekilir); fiyatlardan biri pozitif değilse 0. |
 | `PricePoint(now)` | O anki fiyattan yeni bir `ElementPriceHistory` satırı üretir. |
 
 ### `Element.Services.Element.Core/Entities/StockReservation.cs`
@@ -263,7 +264,7 @@ API'nin kullandığı salt okunur veritabanı sorguları. Hiçbir sonuç izlenme
 | `GetBySymbolsAsync(symbols, ct)` | Listedeki sembollere uyan elementleri getirir. |
 | `GetPriceHistoryAsync(symbol, limit, ct)` | En yeni `limit` fiyat noktasını getirir. |
 | `GetPriceRangeSinceAsync(symbol, sinceUtc, ct)` | Verilen andan beri açılış (en eski), en yüksek ve en düşük fiyatı tek SQL sorgusuyla hesaplar; pencere boşsa üçü de `null` olur. |
-| `GetFulfilledVolumeSinceAsync(symbol, sinceUtc, ct)` | `Fulfilled` durumdaki sipariş gramlarını toplar (ticker hacmi). |
+| `GetFulfilledVolumeSinceAsync(symbol, sinceUtc, ct)` | İşlem gören gramları toplar (ticker hacmi): tamamlanan siparişler (`Priced`), masa satışları (`SoldPriced`) ve eski `Fulfilled` satırları. |
 | `GetOldestPriceSinceAsync(sinceUtc, ct)` | Her sembol için verilen andan sonraki ilk fiyatı sözlük olarak döner; her element için tek indeks araması yapar, fiyatı olmayanları bellekte eler. |
 | `NormalizeSymbol(symbol)` | Sembolü kırpıp küçük harfe çevirir. |
 
@@ -275,6 +276,7 @@ EF Core bağlamı; tablo ayarları ve 15 kategori + 119 element tohum verisi bur
 | `OnModelCreating(modelBuilder)` | Tabloların anahtarlarını, indekslerini, sütun tiplerini ve tohum satırlarını tanımlar; MassTransit'in inbox/outbox tablolarını (`AddInboxStateEntity`, `AddOutboxMessageEntity`, `AddOutboxStateEntity`) modele ekler. |
 | `LockElementAsync(symbol, ct)` | Elementi sembolle (büyük/küçük harf duyarsız) okur ve satırı işlem bitene kadar `FOR UPDATE` ile kilitler; açık bir işlem içinde çağrılmalıdır. |
 | `LockAllElementsAsync(ct)` | Bütün elementleri `Id` sırasıyla kilitleyerek okur (sabit sıra kilitlenmeyi önler). |
+| `SeedPrices()` | Her elementin tohum fiyatını sembole göre döner (HasData satırları; çalışma zamanı modeli tohum verisini taşımadığı için tasarım zamanı modelinden okur). Fiyat simülatörünün çapasıdır. |
 
 ### `Element.Services.Element.Infrastructure/Persistence/ElementDetailSeeder.cs`
 Açılışta, görseli boş olan elementlere Türkçe ad, özet, görsel ve ticari bilgi yazar.
@@ -309,7 +311,7 @@ Fiyatları 15 saniyede bir değiştiren arka plan işi.
 | `ExecuteAsync(stoppingToken)` | Servis durana kadar her 15 saniyede bir tur çalıştırır; hata olursa loglar ve devam eder (kapanırken gelen iptal hata sayılmaz). |
 | `SimulatePriceChangesAsync(stoppingToken)` | Tek işlem açar, bütün elementleri kilitler, her birine `Tick` uygular, geçmişe yazar ve olayı outbox'a koyar (fiyat değişimi `Debug` seviyesinde loglanır); kaydedip onaylar, sonra budamayı tetikler. Olaylar ancak işlem onaylanınca gönderilir. |
 | `PruneOldHistoryIfDueAsync(context, stoppingToken)` | Saatte en fazla bir kez, 2 günden (`HistoryRetention`) eski fiyat geçmişini siler ve silinen satır sayısını loglar. |
-| `NextRandomChange()` | -%0,4 ile +%0,4 arası rastgele değişim oranı üretir. |
+| `NextRandomChange()` | -%0,4 ile +%0,4 arası rastgele değişim oranı üretir. Simülatör buna `PullToward` çekimini ekler (`ReversionPerTick` = tik başına logaritmik farkın %0,1'i; yarı ömür yaklaşık 3 saat); çapa fiyatları `ElementDbContext.SeedPrices()` ile bir kez okunur. |
 
 ### `Element.Services.Element.Infrastructure/Messaging/Consumers/OrderCompletedConsumer.cs`
 Tamamlanan siparişten sonra fiyatı yukarı iter.

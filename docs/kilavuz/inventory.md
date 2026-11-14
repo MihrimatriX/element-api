@@ -66,7 +66,8 @@ RabbitMQ kuyruklarını (`inventory-service`, `inventory-service_failed`), dinle
 |---|---|
 | `inventoryQueue()` | Kalıcı `inventory-service` kuyruğunu oluşturur. |
 | `inventoryFailedQueue()` | Denemeleri tükenen mesajların bekletildiği kalıcı `inventory-service_failed` kuyruğunu oluşturur. |
-| `inventoryFailedRecoverer(rabbitTemplate)` | Dinleyici yeniden denemeleri (`spring.rabbitmq.listener.simple.retry`) tükenince mesajı `inventory-service_failed` kuyruğuna yeniden yayınlar (wallet/order ile aynı `*_failed` düzeni). |
+| `inventoryFailedRecoverer(rabbitTemplate)` | Dinleyici yeniden denemeleri (`spring.rabbitmq.listener.simple.retry`) tükenince mesajı `inventory-service_failed` kuyruğuna yeniden yayınlar (wallet/order ile aynı `*_failed` düzeni). Hata veritabanına ulaşılamamasıysa park etmez, mesajı kuyruğa geri koyar: işleyiciler idempotent, park edilen bir serbest bırakma ise stoğu kalıcı ayrılmış bırakırdı. |
+| `isDatabaseUnavailable(failure)` | Hata zincirinde veritabanına erişilemediğini ya da geçici bir veritabanı hatasını gösteren bir neden varsa true döner. |
 | `orderSubmittedEx()` | `OrderSubmittedEvent` için kalıcı fanout exchange tanımlar. |
 | `stockReleaseEx()` | `OrderStockReleaseEvent` için kalıcı fanout exchange tanımlar. |
 | `orderCompletedEx()` | `OrderCompletedEvent` için kalıcı fanout exchange tanımlar. |
@@ -252,4 +253,4 @@ docker run --rm -v "${PWD}:/build" -v element-m2:/root/.m2 -v /var/run/docker.so
   -w /build maven:3.9-eclipse-temurin-21 mvn -q -B test
 ```
 
-Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. `pom.xml` Testcontainers'ı 1.21.4'e sabitler, çünkü Spring Boot 3.4.1'in getirdiği 1.20.4 Docker Engine 29'un kabul etmediği eski API sürümünü kullanır.
+Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. Spring Boot 3.5.16, Docker Engine 29 ile uyumlu Testcontainers 1.21.4'ü kendisi getirir; `pom.xml`'de ayrı bir sürüm sabitlemesi yoktur.

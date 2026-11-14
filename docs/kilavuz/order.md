@@ -82,7 +82,7 @@ Ortam değişkenlerini bir kez okuyup `config` nesnesine koyar; üretimde zayıf
 
 | Fonksiyon | Ne yapar |
 |---|---|
-| `intFromEnv(name, fallback)` | Bir ortam değişkenini tam sayı olarak okur, yoksa varsayılanı kullanır. |
+| `intFromEnv(name, fallback)` | Bir ortam değişkenini negatif olmayan tam sayı olarak okur; yoksa ya da boşsa varsayılanı kullanır, bozuk değerde başlatmayı durdurur (NaN bir saga zaman aşımını sessizce kapatır ya da tarama aralığını 1 ms yapardı). |
 | (modül sonu kontrolü) | `NODE_ENV=production` iken `INTERNAL_API_KEY` 32 karakterden kısaysa veya geliştirme değeriyse hata fırlatıp servisi durdurur. |
 
 ### `src/meta.ts`
@@ -127,7 +127,7 @@ HTTP yardımcıları: async rota desteği, girdi doğrulayıcılar, problem+json
 | `isSlug(value)` | Değerin küçük harf/rakam/tireden oluşan, en fazla 64 karakterlik bir bileşik slug'ı olup olmadığını söyler. |
 | `isQuantity(value)` | Gram miktarının 0,0001–1.000.000 aralığında ve en fazla 4 ondalıklı olduğunu kontrol eder. |
 | `problem(res, status, detail, extra)` | `application/problem+json` hata yanıtı yollar; eski istemciler için aynı mesajı `error` alanına da koyar. |
-| `httpErrorHandler(err, req, res, next)` | Bozuk JSON'u 400, çok büyük gövdeyi 413, diğer tüm hataları ayrıntı sızdırmadan 503 olarak yanıtlar; 503'te hatayı `res.err` üzerinden pino-http'ye verir, böylece yığın izi (stack) yalnızca sunucu logunda görünür. |
+| `httpErrorHandler(err, req, res, next)` | Bozuk JSON'u 400, çok büyük gövdeyi 413, diğer istemci hatalarını (ör. hatalı URL kaçışı) kendi 4xx koduyla, kalan tüm hataları ayrıntı sızdırmadan 503 olarak yanıtlar; 503'te hatayı `res.err` üzerinden pino-http'ye verir, böylece yığın izi (stack) yalnızca sunucu logunda görünür. |
 | `fetchJson(url, headers)` | Kardeş servise 5 sn zaman aşımlı GET atar; ağ hatası, zaman aşımı, 2xx olmayan yanıt veya bozuk JSON'da `null` döner. |
 
 ### `src/httpAuth.ts`

@@ -52,7 +52,7 @@ Not: Kapı (gateway) `/api/v1/me/**` ve `/api/v1/desk/**` isteklerinde kullanıc
 | Dinler | `AssetsCreditedEvent` | Sevkiyat tamamlanıp sipariş `Completed` olduğunda. | Alınan gramları holdings'e ekler, birim maliyeti `toplam fiyat / miktar` olarak hesaplar. Sipariş bu kullanıcı tarafından ödenmemiş ya da iade edilmişse hata fırlatır; mesaj yeniden denenir ve sonunda `wallet-service_failed` kuyruğuna düşer. |
 | Yayınlar | `ElementSoldEvent` | `POST /api/v1/desk/sell` başarılı olduğunda. | Stok servisinin gramları stoğa geri koymasını, kataloğun fiyatı aşağı itmesini tetikler (`{elementSymbol, grams, customerId}`; `grams` gerçekten satılan, 4 haneye yuvarlanmış miktardır). Satışla aynı işlemde outbox'a yazılır, relay tarafından yayınlanır. |
 
-Tüm olaylar MassTransit zarfıyla, `Element.Shared.Events:<OlayAdı>` adlı fanout exchange'ler üzerinden taşınır. Servis kendi `wallet-service` kuyruğunu dinlediği üç exchange'e bağlar. 5 denemede (≈15 sn backoff) işlenemeyen mesajlar `wallet-service_failed` kuyruğuna taşınır; RabbitMQ arayüzünden incelenip geri taşınabilir.
+Tüm olaylar MassTransit zarfıyla, `Element.Shared.Events:<OlayAdı>` adlı fanout exchange'ler üzerinden taşınır. Servis kendi `wallet-service` kuyruğunu dinlediği üç exchange'e bağlar. 5 denemede (≈15 sn backoff) işlenemeyen mesajlar `wallet-service_failed` kuyruğuna taşınır; RabbitMQ arayüzünden incelenip geri taşınabilir. Tek istisna veritabanı kesintisidir: o durumda mesaj park edilmez, kuyruğa geri konur ve veritabanı dönünce işlenir.
 
 ## Kod haritası
 
@@ -79,7 +79,8 @@ RabbitMQ kuyruklarını (`wallet-service`, `wallet-service_failed`), dinlenen ex
 |---|---|
 | `walletQueue()` | Kalıcı `wallet-service` kuyruğunu oluşturur. |
 | `walletFailedQueue()` | Denemeleri tükenen mesajların bekletildiği kalıcı `wallet-service_failed` kuyruğunu oluşturur. |
-| `walletFailedRecoverer(rabbitTemplate)` | Dinleyici yeniden denemeleri (`spring.rabbitmq.listener.simple.retry`) tükenince mesajı `wallet-service_failed` kuyruğuna yeniden yayınlar (order-service ile aynı `*_failed` düzeni). |
+| `walletFailedRecoverer(rabbitTemplate)` | Dinleyici yeniden denemeleri (`spring.rabbitmq.listener.simple.retry`) tükenince mesajı `wallet-service_failed` kuyruğuna yeniden yayınlar (order-service ile aynı `*_failed` düzeni). Hata veritabanına ulaşılamamasıysa park etmez, mesajı kuyruğa geri koyar: işleyiciler idempotent, park edilen bir iade ya da varlık kaydı ise müşterinin hiç geri alamayacağı para olurdu. |
+| `isDatabaseUnavailable(failure)` | Hata zincirinde veritabanına erişilemediğini ya da geçici bir veritabanı hatasını gösteren bir neden varsa true döner. |
 | `walletListenerCustomizer()` | Broker el sıkışma sırasında bağlantıyı kapatınca (ör. RabbitMQ hâlâ açılıyorken) dinleyicinin kalıcı olarak durmasını engeller; bağlanmayı denemeye devam eder. |
 | `paymentRequestedExchange()` | `PaymentRequestedEvent` için kalıcı fanout exchange tanımlar. |
 | `paymentRefundExchange()` | `PaymentRefundRequestedEvent` için kalıcı fanout exchange tanımlar. |
@@ -293,4 +294,4 @@ docker run --rm -v "${PWD}:/build" -v element-m2:/root/.m2 -v /var/run/docker.so
   -w /build maven:3.9-eclipse-temurin-21 mvn -q -B test
 ```
 
-Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. `pom.xml` Testcontainers'ı 1.21.4'e sabitler, çünkü Spring Boot 3.4.1'in getirdiği 1.20.4 Docker Engine 29'un kabul etmediği eski API sürümünü kullanır.
+Docker soketi bağlanmazsa entegrasyon testleri hata vermeden atlanır; sonuçta `Skipped` sayısına bakın. Spring Boot 3.5.16, Docker Engine 29 ile uyumlu Testcontainers 1.21.4'ü kendisi getirir; `pom.xml`'de ayrı bir sürüm sabitlemesi yoktur.

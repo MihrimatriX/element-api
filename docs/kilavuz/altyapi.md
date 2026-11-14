@@ -48,6 +48,7 @@ Bu bölümün kendi HTTP uç noktası yoktur. Script'lerin çağırdığı adres
 | `./deploy/scripts/present-public.ps1 -Environment Dev` | Caddy arkasında public Dev yığını: http://localhost:8080 (Test 8081, Prod 8082) |
 | `./deploy/scripts/present-public.ps1 -All` | Dev, Test ve Prod'u yan yana başlatır |
 | `./deploy/scripts/present-public.ps1 -Server` | Gerçek alan adıyla Prod'u 80/443'te açar; ayarlar eksikse durur |
+| `./deploy/scripts/server-up.sh <alan-adı>` | Aynı işi PowerShell'siz yapar (Linux sunucu): ilk çalıştırmada sırları üretir, imajları sırayla derler, hepsi sağlıklı olana kadar bekler. Güncelleme: `git pull && ./deploy/scripts/server-up.sh` |
 | `./deploy/scripts/stop-local.ps1` | Yerel platformu, public projeleri ve atlası durdurur; veriler kalır |
 | `./deploy/scripts/stop-local.ps1 -Public` | Yalnız public projeleri durdurur (`-Environment Prod` ile tek ortam) |
 | `docker compose --env-file docker/.env down -v` | Yerel platformu verileriyle birlikte siler (sıfırdan başlamak için) |
@@ -60,6 +61,7 @@ Bu bölümün kendi HTTP uç noktası yoktur. Script'lerin çağırdığı adres
 | `./deploy/scripts/test-smoke.ps1 -WebBase http://localhost:6241` | Çalışan sisteme hızlı duman testi (katalog, yetki, satın alma, satış) |
 | `node deploy/scripts/test-e2e.mjs` | Uçtan uca regresyon: idempotent sipariş, saga, holding, eşzamanlı satış |
 | `node deploy/scripts/test-platform.mjs` | Her servisin health/info uçları, SPA sayfaları ve gateway üzerinden iki rota |
+| `node deploy/scripts/test-public.mjs https://<alan-adı>` | Yayındaki siteye salt-okunur duman testi (hesap açmaz): güvenlik başlıkları, açık bilimsel API, özel ve iç rotaların kapalı olması; `--rate-limit` ile 429 + `Retry-After` |
 | `node deploy/scripts/test-scientific-api.mjs` | Açık bilim API'si (v2) sözleşme kontrolü |
 | `./deploy/scripts/test-saga.ps1` | Sipariş servisinin saga regresyon kontrolü (yerel Postgres ile) |
 | `node deploy/scripts/test-backup-restore.mjs` | Her veritabanını yedekleyip geçici veritabanına geri yükler ve içerik eşitliğini doğrular |
@@ -146,7 +148,7 @@ Public tek-host yığınını (compose + public overlay + Caddy) Dev/Test/Prod o
 | `-NoBuild` | Parametre: imajları yeniden derlemez. |
 | `-Server` | Parametre: gerçek sunucu modu; yalnız Prod, 80/443 ve gerçek sırlar şart. |
 | `Assert-PublicEnvMatrix()` | İki ortamın aynı portu veya aynı compose proje adını kullanmadığını doğrular. |
-| `Ensure-EnvFile(EnvFile, Example)` | Ortam dosyası yoksa örneğinden kopyalar. |
+| `Ensure-EnvFile(EnvFile, Example)` | Ortam dosyası yoksa örneğinden kopyalar. Prod için kopyalamaz: servisler Production'da örnekteki `replace-with-…` sırlarını reddettiğinden `fill-public-prod-env.ps1` ile gerçek sır üretir. |
 | `Read-DotEnv(EnvFile)` | `.env` dosyasındaki ANAHTAR=DEĞER satırlarını sözlüğe çevirir (yorum ve boş satırları atlar). |
 | `Assert-ServerProdEnv(EnvFile)` | `-Server` için CADDY_SITE'ın gerçek alan adı, portların 80/443 ve JWT_SECRET/INTERNAL_API_KEY'in en az 32 karakterlik gerçek sır olduğunu kontrol eder. |
 | `Start-PublicEnv(Name, EnvFile, Example)` | Bir ortamı `element-<ad>` compose projesi olarak başlatır. |
@@ -197,7 +199,7 @@ Tam kalite kapısı: her zaman çalışan kontroller + isteğe bağlı ağır te
 | `-Integration` / `-Live` / `-Browser` / `-Recovery` | Parametreler: Docker entegrasyon testleri, çalışan sisteme karşı canlı testler, Playwright tarayıcı testleri, yedekten geri yükleme provası. |
 | `-WebBase` | Parametre: canlı testlerde web adresi (varsayılan http://localhost:6241). |
 | `Invoke-Checked(Command, Arguments)` | Harici komutu çalıştırır, sıfır olmayan çıkış kodunda hata fırlatır. |
-| (ana akış) | Git'te izlenen bin/obj/.env dosyası olmadığını kontrol eder; web lint/test/build, sipariş build/check/test, .NET build + birim test, npm audit ve seçilen ek grupları çalıştırır; değiştirdiği ortam değişkenlerini geri yükler. |
+| (ana akış) | Git'te izlenen bin/obj/.env dosyası olmadığını kontrol eder; web lint/test/build, sipariş build/check/test, .NET build + birim test, yayına giden bağımlılıklar için `npm audit --omit=dev` ve seçilen ek grupları çalıştırır; değiştirdiği ortam değişkenlerini geri yükler. |
 
 ### `deploy/scripts/test-saga.ps1`
 Sipariş servisinin saga regresyon kontrolünü (`src/saga.integration.check.ts`) yerel Postgres'e karşı çalıştırır.
@@ -617,7 +619,7 @@ Kapsam dışı ama ilgili veri dosyaları: `deploy/data/atlas-editorial.mjs` (ed
 | `ASPNETCORE_ENVIRONMENT` / `NODE_ENV` | yerelde `Development` / `development`, public'te `Production` / `production` | Servislerin çalışma ortamı (env dosyasından ezilebilir). |
 | `CADDY_SITE` | public'te zorunlu (yerel `http://:80`) | Caddy'nin site adresi; gerçek sunucuda yalnız alan adı. |
 | `CADDY_HTTP_PORT` / `CADDY_HTTPS_PORT` | `80` / `443` | Caddy'nin host portları (yerel şablonlar 8080-8082 / 8443-8445). |
-| `WALLET_WELCOME_GRANT` | public'te `1000` (servis varsayılanı 10000) | Yeni cüzdana verilen hoş geldin Kredisi. |
+| `WALLET_WELCOME_GRANT` | public'te `1000` (servis varsayılanı 10000) | Yeni cüzdana verilen hoş geldin Kredisi. Compose aynı değeri web derlemesine `VITE_WELCOME_GRANT` olarak geçirir; sayfadaki tutar cüzdanın verdiğiyle aynı kalır (değişince web imajını yeniden derle). |
 | `SAGA_TIMEOUT_SUBMITTED_SEC` / `SAGA_TIMEOUT_STOCK_RESERVED_SEC` / `SAGA_TIMEOUT_SHIPPING_SEC` | `120` / `120` / `180` (compose'ta sabit) | Satın alma saga'sının durum başına zaman aşımı. |
 | `DEFAULT_STOCK_GRAMS` | `100000` (compose'ta sabit) | Inventory servisinde element başına başlangıç stoğu. |
 | `Shipment__FailQuantityGte` | `0` (kapalı) | Test kancası: bu gramdan büyük/eşit kargoları reddeder. |
